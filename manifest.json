@@ -1,0 +1,30 @@
+{
+  "id": "gen3transparency",
+  "name": "Menu Customizer",
+  "version": "3.2.0",
+  "api": 2,
+  "entry": "main.lua",
+  "profile": "overhaul",
+  "games": [
+    "red",
+    "blue",
+    "yellow",
+    "gold",
+    "silver",
+    "crystal",
+    "firered",
+    "leafgreen",
+    "ruby",
+    "sapphire",
+    "emerald"
+  ],
+  "game_version": ">=0.3.54 <0.4.0",
+  "category": "UI",
+  "priority": 510,
+  "permissions": [
+    "engine_internals"
+  ],
+  "dependencies": [],
+  "description": "Menu and battle UI customization across eleven games, with shared selectable borders, Emerald battle styling, opacity and positioning.",
+  "github": "Bentley734/Menu-Customizer"
+}
