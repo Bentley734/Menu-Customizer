@@ -31,6 +31,24 @@ for n=2,#catalog.entries do
 end
 local before=quads;M.drawPixels(7,9,129.5,47.25);check(quads==before,'partial quads reused')
 check(not M.drawPixels(0,0,0,48),'zero-width panel skipped')
+-- Exercise the actual command and move transforms against a 48px dialogue.
+local transform={sx=1,sy=1,x=0,y=0};local stack={}
+G.push=function()depth=depth+1;stack[#stack+1]={sx=transform.sx,sy=transform.sy,x=transform.x,y=transform.y}end
+G.pop=function()depth=depth-1;transform=table.remove(stack)end
+G.origin=function()transform={sx=1,sy=1,x=0,y=0}end
+G.translate=function(x,y)transform.x=transform.x+x*transform.sx;transform.y=transform.y+y*transform.sy end
+G.scale=function(x,y)transform.sx=transform.sx*x;transform.sy=transform.sy*y end
+G.transformPoint=function(x,y)return transform.x+x*transform.sx,transform.y+y*transform.sy end
+local sizes={}
+G.draw=function(image,q,x,y)
+ if q.x==0 and q.y==0 then sizes[#sizes+1]={q.w*transform.sx,q.h*transform.sy}end
+end
+for _,spec in ipairs({{1,1,160,48},{2,1,80,48},{160/336,48/64,224,64},{160/336,48/64,112,64}})do
+ transform={sx=spec[1],sy=spec[2],x=7,y=9}
+ check(M.drawBattlePixels(0,0,spec[3],spec[4]),'battle panel rendered')
+ check(depth==0 and transform.sx==spec[1] and transform.sy==spec[2],'battle transform restored')
+end
+for _,size in ipairs(sizes)do check(math.abs(size[1]-8)<.00001 and math.abs(size[2]-8)<.00001,'dialogue command and move corners have identical screen size')end
 G.draw=function()error('probe')end
 check(not pcall(M.drawPixels,0,0,160,48) and depth==0,'draw errors restore graphics state')
 print('PASS '..checks..' tiled border bounds, corner, repetition and state checks')

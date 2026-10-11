@@ -78,7 +78,7 @@ return function(mod)
   -- Emerald palette and double frame, drawn at each game's native geometry.
   -- Original artwork; no ROM graphics are distributed.
   local function panel(x,y,w,h, dark)
-    if setting('style',1)==3 and mod.exports.borders.drawPixels(x,y,w,h) then return end
+    if setting('style',1)==3 and mod.exports.borders.drawBattlePixels(x,y,w,h) then return end
     local color = {G.getColor()}
     local a = 1
     G.setColor(.20,.29,.28,a); G.rectangle('fill',x,y,w,h)

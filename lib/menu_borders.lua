@@ -75,6 +75,20 @@ return function(mod,setting,catalog,active)
   G.pop();if not ok then error(err,0)end
   return true
  end
+ -- Battle panels share the dialogue's 48px reference height. Render in
+ -- screen space so command-width and move-canvas transforms cannot distort
+ -- the border. Text keeps its own native transform.
+ function M.drawBattlePixels(x,y,w,h)
+  if not G.transformPoint or not G.origin then return M.drawPixels(x,y,w,h) end
+  local left,top=G.transformPoint(x,y)
+  local right,bottom=G.transformPoint(x+w,y+h)
+  local scale=(bottom-top)/48
+  if scale<=0 or right<=left then return false end
+  G.push('all');G.origin();G.translate(left,top);G.scale(scale,scale)
+  local ok,result=pcall(M.drawPixels,0,0,(right-left)/scale,48)
+  G.pop();if not ok then error(result,0)end
+  return result
+ end
  function M.dialogueEnabled()return active() and setting('dialogueBorder')==1 end
  if mod.generation==3 then
   local Chrome=require('src.ui.game3.chrome')

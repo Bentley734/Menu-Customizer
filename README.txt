@@ -1,3 +1,7 @@
+Menu Customizer 3.2.5
+Battle borders now share the dialogue reference thickness and repeat spacing.
+Command width and move layout scaling no longer stretch or crowd border tiles.
+
 Menu Customizer 3.2.4
 For Gen1Recomp 0.3.54+ (0.3 series)
 GitHub: Bentley734/Menu-Customizer

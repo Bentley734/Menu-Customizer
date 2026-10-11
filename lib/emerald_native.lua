@@ -55,8 +55,8 @@ return WideBattle
     chrome.drawMenuFrames=function(mode)
       local borders=mod.exports and mod.exports.borders
       if borders and mode=='moves' then
-        borders.drawPixels(0,112,160,48);borders.drawPixels(160,112,80,48)
-      elseif borders and mode=='menu' then borders.drawPixels(120,112,120,48)
+        borders.drawBattlePixels(0,112,160,48);borders.drawBattlePixels(160,112,80,48)
+      elseif borders and mode=='menu' then borders.drawBattlePixels(120,112,120,48)
       else nativeFrames(mode)end
     end
     M.font,M.chrome,M.profile=font,chrome,profile
