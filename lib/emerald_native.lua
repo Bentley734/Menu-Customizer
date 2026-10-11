@@ -167,7 +167,7 @@ return WideBattle
         F.drawGlyph(F.CHAR_SELECTOR_ARROW,120+56*(c%2),121+16*math.floor(c/2),{colors=M.colors()})
       else
         local lines=generation==2 and battle:messageLines() or battle.shown or {}
-        for i,line in ipairs(lines)do if i<=2 then F.draw(M.decode(line),8,113+(i-1)*16+(battle.scrollPx or 0),{colors=C.textboxColors(1,6),maxWidth=224})end end
+        for i,line in ipairs(lines)do if i<=2 then F.draw(M.decode(line),10,113+(i-1)*16+(battle.scrollPx or 0),{colors=C.textboxColors(1,6),maxWidth=222})end end
         local arrow=generation==2 and battle:messageArrowVisible() or battle.msgWaiting or battle.msgPrompt
         if arrow then F.drawGlyph(0x7A,224,137,{colors=C.textboxColors(1,6)})end
       end

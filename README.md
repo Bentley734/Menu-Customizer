@@ -1,8 +1,8 @@
-# Menu Customizer 3.2.8
+# Menu Customizer 3.2.9
 
-Center customized battle choices in their columns, keeping selection arrows aligned with each label. Balance the command and dialogue rows vertically inside their borders.
+Shift customized battle dialogue two pixels right so pre-battle, post-battle and escape messages clear the left border. Apply the same inset to the imported Emerald dialogue renderer.
 
-Validated Lua compilation, menu checks, all 11 game sandbox boots with KIM1025 and merged settings, border/move/Gen3 layout checks and imported Emerald GPU rendering.
+Validated Lua compilation, 752 menu checks and sandbox boots/settings across all 11 games.
 
 Based on the Pokemon Gen 1 Recompilation Project by BOIS CLUB GAMES, LLC (https://github.com/bryanthaboi/gen1recomp).
 

@@ -1,3 +1,6 @@
+Menu Customizer 3.2.9
+Inset battle dialogue two pixels from the left border.
+
 Menu Customizer 3.2.8
 Center customized battle command labels and their cursors in each column. Raise dialogue and command rows for balanced vertical padding.
 

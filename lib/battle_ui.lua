@@ -439,7 +439,7 @@ return function(mod)
       if customMoves and wide and mode~='box' and y>=104 then return end
       if enabled() and setting('style',1)~=1 and mode=='text' and battle
         and not commandMenu() and not moves() and y>=104 then
-        return fn(x,y-4,...)
+        return fn(x+2,y-4,...)
       end
       local lx,lw,total,split,columns=menuGeometry()
       if not enabled() or not lx or mode=='box' or mode=='background'
