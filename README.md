@@ -1,8 +1,8 @@
-# Menu Customizer 3.2.6
+# Menu Customizer 3.2.7
 
-Fix the move selector border and transparency by compositing at screen scale, avoiding a second unequal scaling pass. Move names are vertically centered in four invisible cells, including wrapped names.
+Remove hairline seams through move names by drawing the panel background as one continuous surface. Preserve tiled borders and battle opacity. Inset the PP row and center TYPE and its value inside the details panel.
 
-Validated Lua compilation, menu checks, border geometry, move layout, Gen3 scaling and real imported Emerald GPU rendering through the opacity compositor.
+Validated Lua compilation, menu and move layout checks, border geometry, Gen3 scaling and imported Emerald GPU rendering.
 
 Based on the Pokemon Gen 1 Recompilation Project by BOIS CLUB GAMES, LLC (https://github.com/bryanthaboi/gen1recomp).
 

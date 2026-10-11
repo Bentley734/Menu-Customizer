@@ -64,7 +64,7 @@ for i=1,4 do
 
  local pp,typeName
 
- for _,t in ipairs(texts)do if math.abs(t.y-11)<1e-6 and t.x>264 then pp=t.t end;if math.abs(t.y-46)<1e-6 then typeName=t.t end;check(t.x+#t.t*8<=336,'text within panel');check(math.abs(t.sx-t.sy)<1e-6,'text is not stretched')end
+ for _,t in ipairs(texts)do if math.abs(t.y-15)<1e-6 and t.x>264 then pp=t.t end;if math.abs(t.y-44)<1e-6 then typeName=t.t end;check(t.x+#t.t*8<=336,'text within panel');check(math.abs(t.sx-t.sy)<1e-6,'text is not stretched')end
 
  check(pp==({'29/49','0/25','1/35','--/--'})[i],'current / PP Ups maximum')
 

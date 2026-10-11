@@ -1,3 +1,6 @@
+Menu Customizer 3.2.7
+Remove fractional background seams; inset PP and center type details inside the move selector.
+
 Menu Customizer 3.2.6
 Move selector: composite borders at screen scale; match battle opacity; vertically center complete move names in four invisible cells.
 

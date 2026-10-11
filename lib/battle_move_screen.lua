@@ -224,21 +224,25 @@ return function(mod)
       end
       local selected=moves[battle.moveIndex or 1]
       local def=selected and battle.data.moves[selected.id]
-      text('PP',236,11,24)
+      text('PP',248,15,24)
       local pp='--/--'
       if def then
         local base=tonumber(def.pp) or 0
         local maximum=tonumber(selected.maxPp) or base+(selected.ppUps or 0)*math.floor(base/5)
         pp=string.format('%d/%d',tonumber(selected.pp) or 0,maximum)
       end
-      text(pp,324-#pp*8,11,#pp*8)
-      text('TYPE/',236,35,88)
+      text(pp,312-#pp*8*p.textSx/p.sx,15,#pp*8*p.textSx/p.sx)
+      local function centeredInfo(label,y)
+        local width=(Font.width and Font.width(label) or #label*8)*p.textSx/p.sx
+        text(label,280-width/2,y,72)
+      end
+      centeredInfo('TYPE/',32)
       local name=def and def.type and TypeChart.displayName(def.type,battle.data) or '--'
       -- The native pixel font is eight pixels wide. Long type names get a
       -- separate line, keeping the detail column legible without stretching.
-      text(name,236,46,88)
+      centeredInfo(name,44)
       if battle.player and battle.player.disabledSlot==battle.moveIndex then
-        text('DISABLED',236,23,88)
+        centeredInfo('DISABLED',25)
       end
     end)
     g.pop()

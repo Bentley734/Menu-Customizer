@@ -69,7 +69,13 @@ return function(mod,setting,catalog,active)
     end end
    end
    for row=1,3 do for col=1,3 do
-    if ws[col]>0 and hs[row]>0 then tiled((row-1)*3+col-1,xs[col],ys[row],ws[col],hs[row]) end
+    if ws[col]>0 and hs[row]>0 then
+     if row==2 and col==2 then
+      -- The plain paper is one surface: fractional tile joins can leave
+      -- hairline gaps under the independently scaled battle canvas.
+      G.draw(atlas.image,atlas.quads[4],xs[col],ys[row],0,ws[col]/8,hs[row]/8)
+     else tiled((row-1)*3+col-1,xs[col],ys[row],ws[col],hs[row]) end
+    end
    end end
   end)
   G.pop();if not ok then error(err,0)end
