@@ -21,7 +21,7 @@ G.getShader=function()end
 love={graphics=G,timer={getTime=function()return 10 end}}
 local spaceAlias=false
 local Font={TTF_BASE=10000}
-function Font.encode(text)if spaceAlias and text=='¥' then return {32} end;local tags={['<PO>']=0x70,['<KE>']=0x71,['<PK>']=0xE1,['<MN>']=0xE2};local out={};local i=1;while i<=#text do local tag=text:match('^<[^>]+>',i);if tag and tags[tag] then out[#out+1]=tags[tag];i=i+#tag else out[#out+1]=text:byte(i);i=i+1 end end;return out end
+function Font.encode(text)if spaceAlias and text=='¥' then return {32} end;local tags={['<PO>']=0x70,['<KE>']=0x71,['<PK>']=0xE1,['<MN>']=0xE2,["'d"]=187,["'l"]=188,["'m"]=229,["'r"]=228,["'s"]=189,["'t"]=190,["'v"]=191};local out={};local i=1;while i<=#text do local tag=text:match('^<[^>]+>',i) or (tags[text:sub(i,i+1)] and text:sub(i,i+1));if tag and tags[tag] then out[#out+1]=tags[tag];i=i+#tag else out[#out+1]=text:byte(i);i=i+1 end end;return out end
 function Font.advanceOf()return 8 end
 function Font.width(text)local w=0;for _,c in ipairs(Font.encode(text))do w=w+Font.advanceOf(c)end;return w end
 function Font.drawCode(c,x,y)assert(math.abs(t.sx-t.sy)<.00001,'rendered text must have uniform proportions');calls[#calls+1]={kind='glyph',code=c,x=(t.x+x*t.sx)/surface,y=(t.y+y*t.sy)/surface,w=8*t.sx/surface,h=8*t.sy/surface}end
@@ -93,6 +93,25 @@ check(Font.advanceOf(0x70)==C2.theme.measure('PO')/2,'PO compressed glyph uses E
 check(Font.advanceOf(0x71)==C2.theme.measure('Ké')/2,'KE compressed glyph uses Emerald advance')
 check(Font.advanceOf(0xE1)==C2.theme.measure('PK')/2,'PK ligature uses Emerald advance')
 check(Font.advanceOf(0xE2)==C2.theme.measure('MN')/2,'MN ligature uses Emerald advance')
+for _,suffix in ipairs({"'d","'l","'m","'r","'s","'t","'v"})do
+ local c=Font.encode(suffix)[1]
+ check(Font.advanceOf(c)==C2.theme.measure(suffix)/2,'contraction advance matches Emerald font '..suffix)
+ calls={};Font.draw(suffix,8,16)
+ local native=false;for _,call in ipairs(calls)do if call.kind=='glyph' then native=true end end
+ check(not native,'contraction uses Emerald font '..suffix)
+end
+
+for border=1,#catalog.entries do
+ values.menuBorder=border
+ for _,field in ipairs({' 87','101','  9'})do
+  do
+   local placed
+   Font._menuCustomizerLabel(field,128,40,function(t,x,y)placed={t=t,x=x,y=y}end)
+   check(math.abs(placed.x+Font.width(placed.t)-(128+#field*8))<.0001,'numeric right edge remains aligned for border '..border)
+   check(placed.y==40,'border selection preserves text baseline')
+  end
+ end
+end
 C2.drawingStart={}
 check(Font.width('POKEMON')==C2.theme.measure('POKEMON'),'START uses full native Emerald font size')
 C2.drawingStart=nil

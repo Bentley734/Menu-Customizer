@@ -194,6 +194,14 @@ return function(mod,catalog)
     local def=mon and game.data and game.data.pokemon and game.data.pokemon[mon.species]
     if mon then text=(def and def.name) or mon.name or mon.species or text end
    end
+   if current and current.drawScope and current.theme.enabled() then
+    -- Preserve cartridge numeric fields' right edges with proportional text.
+    local raw=tostring(text)
+    if not current.drawingTrainerCard and (raw:match('^%s+%d') or (#raw==3 and raw:match('^%d%d%d$') and (x==48 or x==128))) and not raw:find('[^%d%s/,:.%-]') then
+     local trimmed=raw:match('^%s*(.-)%s*$')
+     return render(trimmed,x+#raw*8-Font.width(trimmed),y,...)
+    end
+   end
    if current and current.drawingSave and current.theme.enabled() then
     if (y==16 and x==96) or (y==32 and x==136) or (y==48 and x==128) or (y==64 and x==104) then
      text=tostring(text):match('^%s*(.-)%s*$')
@@ -730,7 +738,7 @@ return function(mod,catalog)
   end
  end
  mod.events:on('game.ready',function(event)attach(event.game)end)
- mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.0'
+ mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.1'
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C
 end

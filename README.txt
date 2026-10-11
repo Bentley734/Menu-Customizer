@@ -1,4 +1,4 @@
-Menu Customizer 3.2.0
+Menu Customizer 3.2.1
 For Gen1Recomp 0.3.54+ (0.3 series)
 GitHub: Bentley734/Menu-Customizer
 
@@ -169,3 +169,5 @@ The polished Gen 1 move renderer (full panel bounds, bold names, two-line wrappi
 For KIM1025's fullscreen battle menu, use KIM1025 1.7.26 or later, which delegates styling to this mod. Without Menu Customizer, KIM uses its pre-redesign fallback.
 Fully restart after updating. Saved games and downloaded assets are unaffected.
 Validation: eleven-game loader/settings migration fixtures with and without the legacy mod; existing menu and KIM regressions; real LOVE palette/opacity tests and all border atlases.
+
+3.2.1: GB/GBC apostrophe ligatures use the selected Emerald font, size and advance. Cartridge-padded stat fields retain their right edge with proportional text for every menu border.
