@@ -1,4 +1,4 @@
-Menu Customizer 3.2.1
+Menu Customizer 3.2.2
 For Gen1Recomp 0.3.54+ (0.3 series)
 GitHub: Bentley734/Menu-Customizer
 
@@ -171,3 +171,5 @@ Fully restart after updating. Saved games and downloaded assets are unaffected.
 Validation: eleven-game loader/settings migration fixtures with and without the legacy mod; existing menu and KIM regressions; real LOVE palette/opacity tests and all border atlases.
 
 3.2.1: GB/GBC apostrophe ligatures use the selected Emerald font, size and advance. Cartridge-padded stat fields retain their right edge with proportional text for every menu border.
+
+3.2.2: Battle MENU BORDER now repeats original 8px tiles along edges and interiors instead of stretching them. Corners retain their size; partial final tiles are cropped.

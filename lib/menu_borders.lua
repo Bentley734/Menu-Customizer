@@ -50,8 +50,26 @@ return function(mod,setting,catalog,active)
   local ws,hs={edge,w-2*edge,edge},{edge,h-2*edge,edge}
   G.push('all');G.setShader();G.setColor(1,1,1,1)
   local ok,err=pcall(function()
+   -- Repeat original 8px cells; crop the last cell rather than stretching
+   -- an entire edge. Corners and patterned interiors keep the same pixel size.
+   atlas.fragments=atlas.fragments or {}
+   local function tiled(n,rx,ry,rw,rh)
+    for dy=0,rh-0.000001,8 do for dx=0,rw-0.000001,8 do
+     local cw,ch=math.min(8,rw-dx),math.min(8,rh-dy)
+     local quad=atlas.quads[n]
+     if cw<8 or ch<8 then
+      local key=n..':'..cw..':'..ch
+      quad=atlas.fragments[key]
+      if not quad then
+       quad=G.newQuad(n%3*8,math.floor(n/3)*8,cw,ch,24,24)
+       atlas.fragments[key]=quad
+      end
+     end
+     G.draw(atlas.image,quad,rx+dx,ry+dy)
+    end end
+   end
    for row=1,3 do for col=1,3 do
-    if ws[col]>0 and hs[row]>0 then G.draw(atlas.image,atlas.quads[(row-1)*3+col-1],xs[col],ys[row],0,ws[col]/8,hs[row]/8) end
+    if ws[col]>0 and hs[row]>0 then tiled((row-1)*3+col-1,xs[col],ys[row],ws[col],hs[row]) end
    end end
   end)
   G.pop();if not ok then error(err,0)end
