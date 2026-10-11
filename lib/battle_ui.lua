@@ -7,19 +7,8 @@ return function(mod)
   local unpack = unpack or table.unpack
   local marker
   local api
-  local function fontScope(fn,...)
-    local menus=mod.exports.gbMenus
-    local effects=mod.exports.effects
-    local prior=menus and menus.battleFontScope
-    local priorFx=effects and effects.battleText
-    if menus then menus.battleFontScope=true end
-    if effects then effects.battleText=true end
-    local result={pcall(fn,...)}
-    if menus then menus.battleFontScope=prior end
-    if effects then effects.battleText=priorFx end
-    if not result[1]then error(result[2],0)end
-    return unpack(result,2)
-  end
+  local protectRegion
+  local nativeEmerald=assert(load(assert(mod:read('lib/emerald_native.lua'))))()(mod)
   local emerald
   local function emeraldArt()
     if emerald ~= nil then return emerald or nil end
@@ -152,7 +141,10 @@ return function(mod)
     Ui.draw=function(...)
       local priorDrawing,priorCommand=drawing,command
       drawing,command=true,nil
-      local result={pcall(fontScope,nativeUi,...)}
+      local result
+      if enabled() and setting('style',1)==2 and nativeEmerald.ready() then
+        result={pcall(nativeEmerald.scope,nativeUi,...)}
+      else result={pcall(nativeUi,...)} end
       drawing,command=priorDrawing,priorCommand
       if not result[1] then error(result[2],0) end
       return unpack(result,2)
@@ -177,6 +169,7 @@ return function(mod)
       local original = C[name]
       if original then C[name] = function(...)
         if not enabled() then return original(...) end
+        if setting('style',1)==2 and not nativeEmerald.ready() then return original(...) end
         local args = {...}
         if name=='drawMenuFrames' then return end
         if name=='drawPanel' and args[1]=='menu' then
@@ -294,7 +287,39 @@ return function(mod)
       protected[canvas]=protected[canvas] or {}
       protected[canvas][#protected[canvas]+1]={colors=false,x=left,y=top,w=right-left,h=bottom-top}
     end
+    protectRegion=protect
+    local function portedHud(self,generation,side)
+      local drawn=nativeEmerald.hud(self,generation,side)
+      if drawn then
+        if side=='enemy'then protect(0,0,128,32)else protect(32,48,128,40)end
+      end
+      return drawn
+    end
     local B = require(mod.generation==2 and 'src.ui.gen2.BattleState' or 'src.battle.BattleState')
+    if mod.generation==1 then
+      local nativeHud=B.drawHUDs
+      B.drawHUDs=function(self,slide,...)
+        if not enabled()or setting('style',1)~=2 or not nativeEmerald.ready()or self.safari or self.demo
+          or not self:statusHUDVisible()then return nativeHud(self,slide,...)end
+        if self.fieldCleared then return end
+        if self.enemy and not self.showEnemyTrainer and not self.enemySendingOut and not self.enemyHudPending
+          and not self:growInScale(self.enemy)and (slide or 0)==0 and not self.introBalls and not self.enemy.fainted then
+          portedHud(self,1,'enemy')
+        end
+        if self.player and not self.showPlayerBack and (slide or 0)==0 and not self.player.fainted then
+          portedHud(self,1,'player')
+        end
+      end
+    else
+      for _,side in ipairs({'enemy','player'})do
+        local key=side=='enemy'and 'drawEnemyHud'or 'drawPlayerHud';local original=B[key]
+        B[key]=function(self,...)
+          if not enabled()or setting('style',1)~=2 or not nativeEmerald.ready()or not self:statusHUDVisible()then return original(self,...)end
+          if self[side=='enemy'and 'showEnemyHud'or 'showPlayerHud']then return portedHud(self,2,side)end
+          return original(self,...)
+        end
+      end
+    end
     local method = mod.generation==2 and 'drawBottom' or 'drawTextArea'
     local draw = B[method]
     local mode, battle, wide, offset = nil,nil,false,0
@@ -410,16 +435,7 @@ return function(mod)
         return 32,128+offset*8,160+offset*8,nil,1
       end
     end
-    local messageTextDepth=0
     local function moveText(fn,x,y,...)
-      -- Center the two native message rows within the 48px battle panel.
-      if messageTextDepth==0 and enabled() and mode~='box' and mode~='background' and not commandMenu() and not moves() and y>=104 then
-        messageTextDepth=messageTextDepth+1
-        local result={pcall(fn,x,y-4,...)}
-        messageTextDepth=messageTextDepth-1
-        if not result[1]then error(result[2],0)end
-        return unpack(result,2)
-      end
       if customMoves and wide and mode~='box' and y>=104 then return end
       local lx,lw,total,split,columns=menuGeometry()
       if not enabled() or not lx or mode=='box' or mode=='background'
@@ -514,7 +530,6 @@ return function(mod)
       if mode=='text' and moves() and ((x==32 and y==96) or (x==80 and y==96))
         and (c==Font.BORDER.h or c==Font.BORDER.br) then return end
       local args={...}
-      if c==0xEE and not commandMenu() and not moves() then return code(c,x,y,unpack(args))end
       return moveText(function(px,py) return code(c,px,py,unpack(args)) end,x,y)
     end
     local function run(self,...)
@@ -550,11 +565,21 @@ return function(mod)
     end
     B[method]=function(self,...)
       if not enabled() then return draw(self,...) end
+      if setting('style',1)==2 and not nativeEmerald.ready()then return draw(self,...)end
+      if setting('style',1)==2 and G.transformPoint and nativeEmerald.ready() then
+        if self.bottomUIVisible and not self:bottomUIVisible()then return end
+        local width=wide and 304 or 160+(mod.generation==2 and (tonumber(select(1,...))or 0)or 0)*8
+        local y=wide and 104 or 96;local h=wide and 40 or 48
+        local x1,y1=G.transformPoint(0,y);local x2,y2=G.transformPoint(width,y+h)
+        if nativeEmerald.bottom(self,mod.generation,{x=x1,y=y1,w=x2-x1,h=y2-y1},api) then
+          protect(0,y,width,h);return
+        end
+      end
       if self.phase==(mod.generation==2 and 'moves' or 'moveSelect') then
         if self.bottomUIVisible and not self:bottomUIVisible() then return end
-        return fontScope(drawMoves,self,false,mod.generation==2 and select(1,...) or 0)
+        return drawMoves(self,false,mod.generation==2 and select(1,...) or 0)
       end
-      return fontScope(run,self,...)
+      return run(self,...)
     end
     if mod.generation==1 then
       local pictures=B.drawPicsLayer
@@ -641,10 +666,14 @@ return function(mod)
       local native=Wide.draw
       Wide.draw=function(self,...)
         if not enabled() then return native(self,...) end
+        if setting('style',1)==2 then
+          if nativeEmerald.ready()then return nativeEmerald.wideDraw(self,...)end
+          return native(self,...)
+        end
         local priorMode,priorBattle,priorCustom=mode,battle,customMoves
         customMoves=false
         mode,battle,wide='wide',self,true
-        local result={pcall(fontScope,native,self,...)}
+        local result={pcall(native,self,...)}
         mode,battle,wide=priorMode,priorBattle,false
         customMoves=priorCustom
         if not result[1] then error(result[2],0) end
@@ -652,7 +681,7 @@ return function(mod)
       end
     end
   end
-  api={setting=setting,panel=panel,faded=faded,placement=placement,textPlaced=textPlaced,rows=rows}
+  api={setting=setting,panel=panel,faded=faded,placement=placement,textPlaced=textPlaced,rows=rows,nativeEmerald=nativeEmerald,protect=protectRegion}
   mod.exports.battleUi=api
   local function migrate(payload)
     local loader=payload and payload.loader
@@ -678,8 +707,6 @@ return function(mod)
   mod.events:on('game.ready',migrate)
   local flatMod={find=function()return {exports=api}end}
   api.moveScreen=assert(load(assert(mod:read('lib/battle_move_screen.lua'))))()(flatMod)
-  local moveDraw=api.moveScreen.draw
-  api.moveScreen.draw=function(...)return fontScope(moveDraw,...)end
 
 end
 

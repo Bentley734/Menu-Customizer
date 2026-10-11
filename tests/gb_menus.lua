@@ -112,15 +112,6 @@ for border=1,#catalog.entries do
   end
  end
 end
-for variant=2,5 do
- values.menuTheme=variant
- check(C2.theme.enabled(),'selected menu font enabled')
- check(C2.theme.gbAdvance(Font.encode("'t")[1])==C2.theme.measure("'t")/2,'font variant keeps contraction metrics')
- calls={};Font.draw('Clean menu',8,16)
- local images=0;for _,call in ipairs(calls)do if call.kind=='image' then images=images+1 end;check(call.kind~='glyph','selected font covers text')end
- check(images>0,'font variant renders glyphs')
-end
-values.menuTheme=2
 C2.drawingStart={}
 check(Font.width('POKEMON')==C2.theme.measure('POKEMON'),'START uses full native Emerald font size')
 C2.drawingStart=nil

@@ -51,6 +51,55 @@ return function(mod)
   end
   function api.draw(battle, rect, viewport)
     if battle.phase~='moveSelect' then return false end
+    local custom=customizer()
+    local port=custom and custom.nativeEmerald
+    if custom and custom.setting('style',1)==2 and port and port.ready() then
+      local g=love.graphics
+      local F,C=port.font,port.chrome
+      local moves=battle.player and battle.player.curMoves or {}
+      local colors=port.colors()
+      -- Emerald's actual 240x160 screen; the lower 48 pixels are the menu.
+      g.push('all')
+      local ok,err=pcall(function()
+        g.origin();g.setShader();g.setScissor()
+        local dx,dy=viewport and viewport.dpiX or 1,viewport and viewport.dpiY or 1
+        local pixels=math.min(rect.w*dx/240,rect.h*dy/48)
+        local sx,sy=pixels/dx,pixels/dy
+        g.translate(rect.x+(rect.w-240*sx)/2,rect.y+rect.h-48*sy);g.scale(sx,sy);g.translate(0,-112)
+        local function frames()
+          if custom.setting('style',1)==3 then
+            custom.panel(0,112,160,48,false);custom.panel(160,112,80,48,false)
+          else C.drawPanel('moves');C.drawMenuFrames('moves') end
+        end
+        custom.faded(frames)
+        g.setColor(1,1,1,1)
+        local function label(win,s,dx,narrow)
+          local x,y,w,isNarrow=C.textOrigin(win)
+          F.draw(tostring(s),x+(dx or 0),y,{font=(narrow==nil and isNarrow or narrow) and 'narrow' or 'normal',colors=colors,maxWidth=w-(dx or 0)})
+        end
+        for i=1,4 do
+          local mv=moves[i];local def=mv and battle.data.moves[mv.id]
+          label(C.WIN.MOVE_NAME_1+i-1,def and def.name or '-')
+          if i==battle.moveIndex or i==battle.moveSwapIndex then
+            local _,y=C.textOrigin(C.WIN.MOVE_NAME_1+i-1)
+            F.drawGlyph(F.CHAR_SELECTOR_ARROW,8+72*((i-1)%2),y,{colors=colors})
+          end
+        end
+        local mv=moves[battle.moveIndex or 1];local def=mv and battle.data.moves[mv.id]
+        if def then
+          local base=tonumber(def.pp) or 0
+          local maximum=mv.maxPp or base+(mv.ppUps or 0)*math.floor(base/5)
+          colors=port.colors(mv.pp or 0,maximum)
+          label(C.WIN.PP,'PP')
+          label(C.WIN.PP_REMAINING,string.format('%2d/%2d',mv.pp or 0,maximum))
+          colors=port.colors()
+          label(C.WIN.MOVE_TYPE,'TYPE/')
+          label(C.WIN.MOVE_TYPE,TypeChart.displayName(def.type,battle.data),F.measure('TYPE/',{font='narrow'}),false)
+        end
+      end)
+      g.pop();if not ok then error(err,0)end
+      return true
+    end
     local g=love.graphics
     local p=api.layout(rect,viewport and viewport.dpiX,viewport and viewport.dpiY)
     g.push('all')

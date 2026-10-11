@@ -1,4 +1,4 @@
-Menu Customizer 3.2.3
+Menu Customizer 3.2.4
 For Gen1Recomp 0.3.54+ (0.3 series)
 GitHub: Bentley734/Menu-Customizer
 
@@ -175,3 +175,25 @@ Validation: eleven-game loader/settings migration fixtures with and without the 
 3.2.2: Battle MENU BORDER now repeats original 8px tiles along edges and interiors instead of stretching them. Corners retain their size; partial final tiles are cropped.
 
 3.2.3: MENU STYLE is now MENU FONT. Choices: NATIVE, EMERALD, EMERALD COMPACT, EMERALD BOLD and EMERALD CLEAN. Existing values keep their selection. GB/GBC battle dialogue is raised four native pixels; borders and continue arrows retain their positions. Menu fonts also apply to the merged battle renderer.
+
+
+3.2.4: Restore the 3.2.2 menu-font baseline and remove COMPACT, BOLD and CLEAN.
+MENU FONT has NATIVE and EMERALD. Former extra selections resolve to EMERALD.
+BATTLE UI > EMERALD now reads the player's imported Emerald font sheets,
+widths, metrics, window templates, palettes, textbox and healthbox graphics.
+The native normal/narrow fonts, selector arrow and single-line TYPE/name are
+rendered by the ported engine presentation code. The chosen MENU BORDER is
+retained. Native pixels keep uniform proportions when adapting a viewport.
+Generation 1/2 battle records are adapted for presentation only; battle rules,
+PP, damage, save records and input navigation are unchanged. KIM1025 1.7.26+
+already delegates its move panel here, so no KIM update is required.
+Import Pokemon Emerald through Gen1Recomp before enabling this battle style.
+Reimport Emerald if its cache predates native narrow-font extraction. The
+native battle renderer is retained when the required Emerald cache is absent.
+The other battle styles retain their previous implementation.
+Fully restart after updating.
+
+Based on the Pokemon Gen 1 Recompilation Project by BOIS CLUB GAMES, LLC
+(https://github.com/bryanthaboi/gen1recomp)
+Renderer sources and their license are included in lib/emerald_engine and
+LICENSE.MD. Mod source is distributed under that license.

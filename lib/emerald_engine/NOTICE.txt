@@ -1,0 +1,8 @@
+Based on the Pokemon Gen 1 Recompilation Project by BOIS CLUB GAMES, LLC
+(https://github.com/bryanthaboi/gen1recomp)
+
+These Lua presentation modules are copied from Gen1Recomp 0.3.58.
+They run with private Emerald cache and profile adapters supplied by emerald_native.lua.
+WideBattle receives presentation-only adapters at compilation.
+Original author notices are retained. See ../../LICENSE.MD.
+No imported ROM graphics are included in these renderer modules.
