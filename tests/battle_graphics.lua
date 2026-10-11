@@ -45,6 +45,7 @@ local function run()
      G.setColor(1,1,1,1);G.rectangle('fill',32,96,8,8)
      Font.drawCode(Font.BORDER.h,32,96)
      Font.draw('MOVE',48,112)
+     if self.phase=='messages' then Font.drawCode(0xEE,144,136)end
     end
    end
    local Wide={draw=function(self)
@@ -238,6 +239,16 @@ local function run()
     end
    end
 
+   if generation<3 then
+    G.setCanvas(target);G.origin();G.setShader();G.setScissor();G.clear()
+    B[method]({phase='messages'});G.setCanvas()
+    local im=target:newImageData()
+    local r,g,b,a=im:getPixel(49,109)
+    assert(r<.01 and g<.01 and b<.01 and a>.99,'message text lifted four native pixels')
+    r,g,b,a=im:getPixel(145,137)
+    assert(r<.01 and g<.01 and b<.01 and a>.99,'continue arrow retains original position')
+    tests=tests+2
+   end
    if generation<3 then
     package.loaded['src.battle.TypeChart']={displayName=function(t)return t end}
     package.loaded['src.battle.gen2.Mon']={maxPpOf=function(move,data)return data.moves[move.id].pp+(move.ppUps or 0)*3 end}

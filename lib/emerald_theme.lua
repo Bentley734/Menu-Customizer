@@ -1,10 +1,11 @@
 -- Native Emerald glyph masks; native fallback for control text and other scripts.
-return function(mod,enabled)
+return function(mod,enabled,variant)
  local G=love.graphics
  local charmap=assert(load(assert(mod:read('assets/emerald/charmap.lua'))))()
  local function glyphId(c)return charmap[c] or charmap['?'] end
  local M={enabled=enabled};local faces={}
  local function face(small)
+  small=small or (variant and variant()==3)
   local name=small and 'small' or 'normal'
   if not faces[name] then
    local dir='assets/emerald/'..name
@@ -37,8 +38,9 @@ return function(mod,enabled)
   local f=face(opts and opts.small);local q=f.quads[id];if not q then return false end
   local colors=opts and opts.colors or {fg={.38,.38,.38,1},shadow={.84,.84,.8,1}}
   G.push('all');G.setShader()
-  G.setColor(unpack(colors.shadow or {.84,.84,.8,1}));G.draw(f.shadow,q,x,y)
+  if not (variant and variant()==5) then G.setColor(unpack(colors.shadow or {.84,.84,.8,1}));G.draw(f.shadow,q,x,y) end
   G.setColor(unpack(colors.fg or {.38,.38,.38,1}));G.draw(f.fg,q,x,y)
+  if variant and variant()==4 then G.draw(f.fg,q,x+.5,y) end
   G.pop();return true
  end
  function M.draw(text,x,y,opts)

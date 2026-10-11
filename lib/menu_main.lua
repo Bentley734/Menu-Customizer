@@ -57,7 +57,7 @@ return function(mod)
   for pct = 65, 100, 5 do opacityChoices[#opacityChoices+1] = pct end
   local keys = {'startPosition', 'startJustify', 'startSelector', 'optionPosition', 'savePosition', 'otherPosition',
     'startOpacity', 'optionOpacity', 'otherOpacity', 'hideStartMods'}
-  local extra = {dialogueBorder={0,0,1,1},menuTheme={2,1,2,1}, menuBorder={1,1,#borderChoices,1}, backgroundDim={0,0,70,10}, controlsLegend={2,1,3,1},
+  local extra = {dialogueBorder={0,0,1,1},menuTheme={2,1,5,1}, menuBorder={1,1,#borderChoices,1}, backgroundDim={0,0,70,10}, controlsLegend={2,1,3,1},
     menuTransition={3,1,3,1}, positionPreview={1,0,1,1}}
   for _, group in ipairs({'start','option','save','other'}) do
     extra[group..'Scale']={100,50,150,10}
@@ -226,7 +226,7 @@ return function(mod)
     entries[#entries+1] = row('dialogueBorder','DIALOGUE BORDER',{[0]='OFF',[1]='ON'})
     entries[#entries+1] = row('startPosition', 'START POSITION')
     entries[#entries+1] = row('startJustify', 'START TEXT', justifyChoices)
-    entries[#entries+1] = row('menuTheme','MENU STYLE',{'NATIVE','EMERALD'})
+    entries[#entries+1] = row('menuTheme','MENU FONT',{'NATIVE','EMERALD','EMERALD COMPACT','EMERALD BOLD','EMERALD CLEAN'})
     entries[#entries+1] = row('startSelector', 'START SELECTOR', selectorChoices)
     entries[#entries+1] = row('optionPosition', 'OPTION POSITION')
     entries[#entries+1] = row('savePosition', 'SAVE POSITION')
@@ -464,7 +464,7 @@ return function(mod)
   -- Suppress the canvas menu pass, then render the same menus in screen space.
   local Window = require('src.ui.game3.window')
   local FrlgFont = require('src.ui.game3.frlg_font')
-  local Theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return active() and FX.active and setting('menuTheme')==2 end)
+  local Theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return active() and (FX.active or FX.battleText) and setting('menuTheme')>1 end,function()return setting('menuTheme')end)
   FrlgFont._menuCustomizerEmerald=Theme
   if not FrlgFont._menuCustomizerEmeraldWrapped then
     local draw,measure,glyph=FrlgFont.draw,FrlgFont.measure,FrlgFont.drawGlyph
@@ -747,14 +747,14 @@ return function(mod)
       and 'src.ui.game3.rse.option_menu' or 'src.ui.game3.option_menu')
     installOption(Option);originalOption=nativeOptions[Option]
     FX.setMod(mod)
-    Theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return active() and FX.active and setting('menuTheme')==2 end)
+    Theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return active() and (FX.active or FX.battleText) and setting('menuTheme')>1 end,function()return setting('menuTheme')end)
     FrlgFont._menuCustomizerEmerald=Theme
     mod.hooks:wrap('ui.start_menu.items',startItemsHook)
     Borders=assert(load(assert(mod:read('lib/menu_borders.lua')), '@'..mod.path..'/lib/menu_borders.lua'))()(mod,setting,catalog,active)
     mod.exports.borders=Borders;mod.exports.borderCatalog=catalog
-    mod.exports.effects=FX;mod.exports.version='3.2.2'
+    mod.exports.effects=FX;mod.exports.version='3.2.3'
   end
   mod.exports.effects=FX
-  mod.exports.version = '3.2.2' 
+  mod.exports.version = '3.2.3' 
   mod.log:info('Menu Customizer: '..gameVersion..' START, OPTION and SAVE placement installed')
 end

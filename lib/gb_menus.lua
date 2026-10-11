@@ -8,7 +8,7 @@ return function(mod,catalog)
  local C={mod=mod,catalog=catalog,drawScope=false,layouts={},frame=0}
  local MOD_ID='gen3transparency'
  local positions={'DEFAULT','LEFT','RIGHT','TOP LEFT','TOP RIGHT','BOTTOM LEFT','BOTTOM RIGHT','CENTER','TOP CENTER','BOTTOM CENTER'}
- local specs={dialogueBorder={0,0,1,1},menuTheme={2,1,2,1},menuBorder={1,1,#catalog.choices,1},startJustify={1,1,3,1},startSelector={3,1,4,1},hideStartMods={0,0,1,1},
+ local specs={dialogueBorder={0,0,1,1},menuTheme={2,1,5,1},menuBorder={1,1,#catalog.choices,1},startJustify={1,1,3,1},startSelector={3,1,4,1},hideStartMods={0,0,1,1},
   backgroundDim={0,0,70,10},controlsLegend={2,1,3,1},menuTransition={3,1,3,1},positionPreview={1,0,1,1}}
  for _,group in ipairs({'start','option','save','other'}) do
   specs[group..'Position']={1,1,10,1}
@@ -106,7 +106,7 @@ return function(mod,catalog)
  -- around it so colored GBA frames retain their original colors on GBC.
  local Borders=assert(load(assert(mod:read('lib/menu_borders.lua')),'@'..mod.path..'/lib/menu_borders.lua'))()(mod,C.setting,catalog,function()return C.live() and (C.drawScope or C.dialogueScope) end)
  C.borders=Borders
- C.theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return C.drawScope and C.setting('menuTheme')==2 end)
+ C.theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return (C.drawScope or C.battleFontScope or C.dialogueScope) and C.setting('menuTheme')>1 end,function()return C.setting('menuTheme')end)
  -- START rows are sixteen pixels apart, just like Emerald's native menu.
  -- Use the original glyph size there instead of the dense GB screen size.
  C.theme.gbScale=function()return not C.compactText and (C.drawingStart or C.drawingCheats or C.drawingOptions and C.drawingOptions.fullFont) and 1 or .5 end
@@ -481,7 +481,7 @@ return function(mod,catalog)
   end
   parent[#parent+1]={label=group:upper(),activate=function(game)pushPage(game,group:upper()..' MENU',children)end}
  end
- parent[#parent+1]=row('menuTheme','MENU STYLE',{'NATIVE','EMERALD'})
+ parent[#parent+1]=row('menuTheme','MENU FONT',{'NATIVE','EMERALD','EMERALD COMPACT','EMERALD BOLD','EMERALD CLEAN'})
  parent[#parent+1]=row('menuBorder','MENU BORDER',catalog.choices)
  parent[#parent+1]=row('dialogueBorder','DIALOGUE BORDER',{[0]='OFF',[1]='ON'})
  parent[#parent+1]=row('backgroundDim','BACKGROUND DIM')
@@ -630,7 +630,7 @@ return function(mod,catalog)
     -- Options clears the whole canvas before drawing its frame. Custom frame
     -- corners need transparent pixels outside the paper, unlike opaque screens.
     local framedOptions=isGen2Options(s) and
-     (C.setting('menuTheme')==2 or (catalog.entries[C.setting('menuBorder')] or {}).path~=nil)
+     (C.setting('menuTheme')>1 or (catalog.entries[C.setting('menuBorder')] or {}).path~=nil)
     C.drawingOpaque=not framedOptions and
      (s.isOpaque==true or s.screenId=='TrainerCard' or s.screenId=='Gen2TrainerCard')
     local anchor=s.anchor;s.anchor=nil
@@ -738,7 +738,7 @@ return function(mod,catalog)
   end
  end
  mod.events:on('game.ready',function(event)attach(event.game)end)
- mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.2'
+ mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.3'
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C
 end

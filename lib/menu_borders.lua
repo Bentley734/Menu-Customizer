@@ -19,7 +19,7 @@ return function(mod,setting,catalog,active)
  function M.draw(tx,ty,tw,th)
   if active and not active() then return false end
   local selection=setting('menuBorder')
-  if selection==1 and setting('menuTheme')==2 then selection=13 end
+  if selection==1 and setting('menuTheme')>1 then selection=13 end
   local atlas=M.atlas(selection)
   if not atlas then return false end
   if tw<2 or th<2 then return false end
@@ -38,7 +38,7 @@ return function(mod,setting,catalog,active)
   local selection=setting('menuBorder')
   if selection==1 then
    local version=require('src.core.GameVersion').get()
-   local label=setting('menuTheme')==2 and 'EMERALD 03 / R/S 03' or
+   local label=setting('menuTheme')>1 and 'EMERALD 03 / R/S 03' or
     (mod.generation==1 and 'R/B/Y' or mod.generation==2 and 'G/S/C 01' or
      (version=='firered' or version=='leafgreen') and 'FR/LG 01' or 'EMERALD 01 / R/S 01')
    for i,e in ipairs(catalog.entries)do if e.label==label then selection=i;break end end

@@ -1,4 +1,4 @@
-Menu Customizer 3.2.2
+Menu Customizer 3.2.3
 For Gen1Recomp 0.3.54+ (0.3 series)
 GitHub: Bentley734/Menu-Customizer
 
@@ -173,3 +173,5 @@ Validation: eleven-game loader/settings migration fixtures with and without the 
 3.2.1: GB/GBC apostrophe ligatures use the selected Emerald font, size and advance. Cartridge-padded stat fields retain their right edge with proportional text for every menu border.
 
 3.2.2: Battle MENU BORDER now repeats original 8px tiles along edges and interiors instead of stretching them. Corners retain their size; partial final tiles are cropped.
+
+3.2.3: MENU STYLE is now MENU FONT. Choices: NATIVE, EMERALD, EMERALD COMPACT, EMERALD BOLD and EMERALD CLEAN. Existing values keep their selection. GB/GBC battle dialogue is raised four native pixels; borders and continue arrows retain their positions. Menu fonts also apply to the merged battle renderer.
