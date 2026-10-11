@@ -1,8 +1,8 @@
-# Menu Customizer 3.2.5
+# Menu Customizer 3.2.6
 
-Battle borders now use one dialogue-height reference for their thickness and tile spacing. Command width scaling no longer stretches the border; move selection no longer crowds its tiles. Selected border artwork and Emerald text/layout are preserved.
+Fix the move selector border and transparency by compositing at screen scale, avoiding a second unequal scaling pass. Move names are vertically centered in four invisible cells, including wrapped names.
 
-Validated border geometry, move layout, Gen3 menu scaling, Lua compilation and actual imported Emerald GPU rendering.
+Validated Lua compilation, menu checks, border geometry, move layout, Gen3 scaling and real imported Emerald GPU rendering through the opacity compositor.
 
 Based on the Pokemon Gen 1 Recompilation Project by BOIS CLUB GAMES, LLC (https://github.com/bryanthaboi/gen1recomp).
 

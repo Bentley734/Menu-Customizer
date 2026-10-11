@@ -1,3 +1,6 @@
+Menu Customizer 3.2.6
+Move selector: composite borders at screen scale; match battle opacity; vertically center complete move names in four invisible cells.
+
 Menu Customizer 3.2.5
 Battle borders now share the dialogue reference thickness and repeat spacing.
 Command width and move layout scaling no longer stretch or crowd border tiles.

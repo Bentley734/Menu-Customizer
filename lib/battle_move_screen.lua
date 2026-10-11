@@ -71,7 +71,14 @@ return function(mod)
             custom.panel(0,112,160,48,false);custom.panel(160,112,80,48,false)
           else C.drawPanel('moves');C.drawMenuFrames('moves') end
         end
-        custom.faded(frames)
+        if custom.fadedScreen then
+          g.push('all');g.origin()
+          custom.fadedScreen(function()
+            g.translate(rect.x+(rect.w-240*sx)/2,rect.y+rect.h-48*sy);g.scale(sx,sy);g.translate(0,-112)
+            frames()
+          end,math.ceil(rect.x+rect.w),math.ceil(rect.y+rect.h))
+          g.pop()
+        else custom.faded(frames) end
         g.setColor(1,1,1,1)
         local function label(win,s,dx,narrow)
           local x,y,w,isNarrow=C.textOrigin(win)
@@ -185,20 +192,32 @@ return function(mod)
       end
       -- Customizer composites opacity once and leaves text at full opacity.
       -- Emerald uses the same imported artwork with fixed-size borders.
-      if theme and type(theme.faded)=='function' then theme.faded(frames) else frames() end
+      if theme and theme.fadedScreen then
+        g.push('all');g.origin()
+        theme.fadedScreen(function()
+          g.translate(p.x,p.y);g.scale(p.sx,p.sy);frames()
+        end,math.ceil(rect.x+rect.w),math.ceil(rect.y+rect.h))
+        g.pop()
+      elseif theme and type(theme.faded)=='function' then theme.faded(frames) else frames() end
       g.setColor(0.08,0.10,0.12,1)
       local moves=battle.player and battle.player.curMoves or {}
       for i=1,4 do
         local col=(i-1)%2;local row=math.floor((i-1)/2)
-        local x,y=22+col*101,11+row*24
+        local x=22+col*101
+        local cellTop=8+row*24
         local mv=moves[i];local def=mv and battle.data.moves[mv.id]
         local label=def and def.name or mv and tostring(mv.id) or '-'
         local limit=math.max(1,math.floor(89*p.sx/(8*p.textSx*1.2)))
         local lines=api.wrapName(label,limit)
+        -- Center the complete one/two-line name in its invisible quarter.
+        local glyphHeight=8*p.textSy*1.2/p.sy
+        local lineStep=11*p.textSy*1.2/p.sy
+        local blockHeight=glyphHeight+(#lines-1)*lineStep
+        local y=cellTop+(24-blockHeight)/2
         if #lines==1 then text(lines[1],x,y,89,1.2)
         else
           text(lines[1],x,y,89,1.2)
-          text(lines[2],x,y+11,89,1.2)
+          text(lines[2],x,y+lineStep,89,1.2)
         end
         if battle.moveIndex==i then cursor(0xED,x-9,y) end
         if battle.moveSwapIndex==i and battle.moveIndex~=i then cursor(0xEC,x-9,y) end

@@ -681,7 +681,7 @@ return function(mod)
       end
     end
   end
-  api={setting=setting,panel=panel,faded=faded,placement=placement,textPlaced=textPlaced,rows=rows,nativeEmerald=nativeEmerald,protect=protectRegion}
+  api={setting=setting,panel=panel,faded=faded,fadedScreen=function(fn,w,h)return compose(fn,w,h,0,0)end,placement=placement,textPlaced=textPlaced,rows=rows,nativeEmerald=nativeEmerald,protect=protectRegion}
   mod.exports.battleUi=api
   local function migrate(payload)
     local loader=payload and payload.loader
