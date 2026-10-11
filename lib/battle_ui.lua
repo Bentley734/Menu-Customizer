@@ -437,13 +437,30 @@ return function(mod)
     end
     local function moveText(fn,x,y,...)
       if customMoves and wide and mode~='box' and y>=104 then return end
+      if enabled() and setting('style',1)~=1 and mode=='text' and battle
+        and not commandMenu() and not moves() and y>=104 then
+        return fn(x,y-4,...)
+      end
       local lx,lw,total,split,columns=menuGeometry()
       if not enabled() or not lx or mode=='box' or mode=='background'
         or placementDepth>0 or y<(wide and 112 or moves() and 104 or 112) then return fn(x,y,...) end
       if wide and commandMenu() and x<160 then return end
       if wide and moves() and x>=224 then return fn(x,y,...) end
       if x<lx then return fn(x,y,...) end
-      return textPlaced(fn,lx,lw,total,split and x>=split and 1 or 0,columns,x,y,...)
+      local col=split and x>=split and 1 or 0
+      if commandMenu() and setting('style',1)~=1 then
+        local row=y>=128 and 1 or 0
+        local base=wide and (col==0 and 176 or 240) or (col==0 and 80+offset*8 or 128+offset*8)
+        local labels={{'FIGHT',nil},{'ITEM','RUN'}}
+        local label=labels[row+1][col+1]
+        local width=label and (Font.width and Font.width(label) or #label*8) or 16
+        local target=lx+(col+.5)*lw/2-width/2
+        G.push('all');G.translate(target-base,-4)
+        local result={pcall(textPlaced,fn,lx,lw,total,col,columns,x,y,...)}
+        G.pop();if not result[1] then error(result[2],0)end
+        return unpack(result,2)
+      end
+      return textPlaced(fn,lx,lw,total,col,columns,x,y,...)
     end
     local function skip(x,y,w,h)
       -- The TYPE/PP box ends one tile into the move list. In docked layouts

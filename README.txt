@@ -1,3 +1,6 @@
+Menu Customizer 3.2.8
+Center customized battle command labels and their cursors in each column. Raise dialogue and command rows for balanced vertical padding.
+
 Menu Customizer 3.2.7
 Remove fractional background seams; inset PP and center type details inside the move selector.
 

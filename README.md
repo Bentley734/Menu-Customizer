@@ -1,8 +1,8 @@
-# Menu Customizer 3.2.7
+# Menu Customizer 3.2.8
 
-Remove hairline seams through move names by drawing the panel background as one continuous surface. Preserve tiled borders and battle opacity. Inset the PP row and center TYPE and its value inside the details panel.
+Center customized battle choices in their columns, keeping selection arrows aligned with each label. Balance the command and dialogue rows vertically inside their borders.
 
-Validated Lua compilation, menu and move layout checks, border geometry, Gen3 scaling and imported Emerald GPU rendering.
+Validated Lua compilation, menu checks, all 11 game sandbox boots with KIM1025 and merged settings, border/move/Gen3 layout checks and imported Emerald GPU rendering.
 
 Based on the Pokemon Gen 1 Recompilation Project by BOIS CLUB GAMES, LLC (https://github.com/bryanthaboi/gen1recomp).
 
