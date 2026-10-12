@@ -38,6 +38,8 @@ return function(mod,setting,catalog,active)
   if active and not active() then return false end
   local selection=setting('menuBorder')
   if selection==1 and setting('menuTheme')>1 then selection=13 end
+  local background=mod.exports and mod.exports.menuBackground and mod.exports.menuBackground()
+  if background then return M.drawPixels(tx*8,ty*8,tw*8,th*8,background)end
   local atlas=M.atlas(selection)
   if not atlas then return false end
   if tw<2 or th<2 then return false end
@@ -53,6 +55,7 @@ return function(mod,setting,catalog,active)
  end
  -- Battle callers use full pixel bounds rather than menu interior tiles.
  function M.drawPixels(x,y,w,h,background)
+  background=background or mod.exports and mod.exports.menuBackground and mod.exports.menuBackground()
   local selection=setting('menuBorder')
   if selection==1 then
    local version=require('src.core.GameVersion').get()

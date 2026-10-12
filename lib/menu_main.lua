@@ -65,8 +65,9 @@ return function(mod)
   local keys = {'startPosition', 'startJustify', 'startSelector', 'optionPosition', 'savePosition', 'otherPosition',
     'startOpacity', 'optionOpacity', 'otherOpacity', 'hideStartMods'}
   local menuPalette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
-  local extra = {menuTextColor={0,0,6,1},menuTextShadowColor={0,0,9,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1}, menuBorder={1,1,#borderChoices,1}, backgroundDim={0,0,70,10}, controlsLegend={2,1,3,1},
-    menuTransition={3,1,3,1}, positionPreview={1,0,1,1}}
+  local Transitions=assert(load(assert(mod:read('lib/menu_transitions.lua'))))()
+  local extra = {menuTextColor={0,0,#menuPalette.names-1,1},menuTextShadowColor={0,0,#menuPalette.shadowNames-1,1},menuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},startMenuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1}, menuBorder={1,1,#borderChoices,1}, backgroundDim={0,0,70,10}, controlsLegend={2,1,3,1},
+    menuTransition={3,1,#Transitions.names,1}, positionPreview={1,0,1,1}}
   for _, group in ipairs({'start','option','save','other'}) do
     extra[group..'Scale']={100,50,150,10}
     extra[group..'OffsetX']={0,-128,128,1}
@@ -146,6 +147,9 @@ return function(mod)
   FX=assert(load(assert(mod:read('lib/menu_fx.lua')), '@'..mod.path..'/lib/menu_fx.lua'))()({
     setting=setting, Battle=Battle, Stack=Stack, mod=mod,
     Font=require('src.ui.game3.frlg_font')})
+  mod.exports.menuBackground=function()
+    if FX.active then return menuPalette.menuBackground(mod.exports.menuPaperScope or (FX.topId=='start' and 'start' or 'other'))end
+  end
   local Borders=assert(load(assert(mod:read('lib/menu_borders.lua')), '@'..mod.path..'/lib/menu_borders.lua'))()(mod, setting, catalog, active)
   mod.exports.borders=Borders
   mod.exports.borderCatalog=catalog
@@ -258,8 +262,14 @@ return function(mod)
           step=function(c,d)persist(key,math.max(spec[2],math.min(spec[3],setting(key)+(d<0 and -spec[4] or spec[4]))),c);return false end}
       end
     end
+    for _,key in ipairs({'menuBackgroundColor','startMenuBackgroundColor'})do
+      local bgNames={};for i,name in ipairs(menuPalette.menuBackgroundNames)do bgNames[i-1]=name end
+      bgNames[0]=key=='startMenuBackgroundColor' and 'USE MENU' or 'DEFAULT'
+      entries[#entries+1]={id='wide_'..key,label=key=='menuBackgroundColor' and 'MENU BACKGROUND' or 'START BACKGROUND',value=function()return bgNames[setting(key)]end,
+        step=function(ctx,dir)persist(key,(setting(key)+(dir<0 and -1 or 1))%#menuPalette.menuBackgroundNames,ctx);return false end}
+    end
     entries[#entries+1]=row('controlsLegend','CONTROL HINTS',{'ALWAYS','AUTO','HIDDEN'})
-    entries[#entries+1]=row('menuTransition','TRANSITIONS',{'INSTANT','FADE','SLIDE + FADE'})
+    entries[#entries+1]=row('menuTransition','TRANSITIONS',Transitions.names)
     entries[#entries+1]={id='wide_backgroundDim',label='BACKGROUND DIM',value=function()return setting('backgroundDim')..'%' end,
       step=function(c,d)persist('backgroundDim',math.max(0,math.min(70,setting('backgroundDim')+(d<0 and -10 or 10))),c);return false end}
     entries[#entries+1]={id='wide_positionPreview',label='POSITION PREVIEW',value=function()return setting('positionPreview')==1 and 'ON' or 'OFF' end,
@@ -281,7 +291,7 @@ return function(mod)
           activate=function()openPage(group:upper()..' MENU',children)end}
       end
       for _, r in ipairs(members) do
-        if r.id=='wide_dialogueBorder' or r.id=='wide_menuTheme' or r.id=='wide_menuTextColor' or r.id=='wide_menuTextShadowColor' or r.id=='wide_menuBorder' or r.id=='wide_backgroundDim' or r.id=='wide_controlsLegend' or r.id=='wide_menuTransition' or r.id=='wide_positionPreview' then parent[#parent+1]=r end
+        if r.id=='wide_dialogueBorder' or r.id=='wide_menuTheme' or r.id=='wide_menuTextColor' or r.id=='wide_menuBackgroundColor' or r.id=='wide_menuTextShadowColor' or r.id=='wide_menuBorder' or r.id=='wide_backgroundDim' or r.id=='wide_controlsLegend' or r.id=='wide_menuTransition' or r.id=='wide_positionPreview' then parent[#parent+1]=r end
       end
       local battleUi=mod.exports.battleUi
       if battleUi then parent[#parent+1]={id='wide_battle_ui',label='BATTLE UI',value=function()return 'OPEN' end,activate=function()openPage('BATTLE UI',battleUi.rows({}))end} end
@@ -458,13 +468,16 @@ return function(mod)
         local width,height=source:getWidth()*sx,source:getHeight()*sy
         bx,by=math.max(0,math.min(winW-width,bx+ox)),math.max(0,math.min(winH-height,by+oy))
         FX.record('other',bx,by,width,height)
-        local fade;bx,by,fade=FX.motion('other',bx,by,mode);alpha=alpha*fade
+        local fade,progress;bx,by,fade,progress=FX.motion('other',bx,by,mode);alpha=alpha*fade
         boxX,boxY,boxW,boxH=bx,by,width,height
         love.graphics.push('all')
         love.graphics.setBlendMode('alpha', 'premultiplied')
         love.graphics.setColor(alpha, alpha, alpha, alpha)
-        local ok, err = pcall(originalBlitCanvas, self, source, sx, sy,
-          zones, zoneSx, zoneSy, bx, by, boxX, boxY, boxW, boxH, dpiX, dpiY)
+        local ok, err = pcall(function()
+          return Transitions.scope(setting('menuTransition'),progress or 1,{x=bx,y=by,w=width,h=height},function()
+            return originalBlitCanvas(self,source,sx,sy,zones,zoneSx,zoneSy,bx,by,boxX,boxY,boxW,boxH,dpiX,dpiY)
+          end)
+        end)
         love.graphics.pop()
         if not ok then error(err, 0) end
         return
@@ -480,12 +493,14 @@ return function(mod)
   local Window = require('src.ui.game3.window')
   local FrlgFont = require('src.ui.game3.frlg_font')
   local Theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return active() and (FX.active or mod.exports.battleFontScope) and setting('menuTheme')==2 end)
+  Theme.menuOptions=function(opts)if active() and FX.active and not mod.exports.battleFontScope then return menuPalette.menuOptions(opts)end;return opts end
   FrlgFont._menuCustomizerEmerald=Theme
   if not FrlgFont._menuCustomizerEmeraldWrapped then
     local draw,measure,glyph=FrlgFont.draw,FrlgFont.measure,FrlgFont.drawGlyph
     local function nativeFace(opts)return opts and tostring(opts.font):match('^native_')end
     FrlgFont.draw=function(text,x,y,opts)
       local theme=FrlgFont._menuCustomizerEmerald
+      if theme.menuOptions then opts=theme.menuOptions(opts)end
       if theme.enabled() and not nativeFace(opts)then local result=theme.draw(text,x,y,opts);if result~=nil then return result end end
       return draw(text,x,y,opts)
     end
@@ -496,6 +511,7 @@ return function(mod)
     end
     FrlgFont.drawGlyph=function(id,x,y,opts)
       local theme=FrlgFont._menuCustomizerEmerald
+      if theme.menuOptions then opts=theme.menuOptions(opts)end
       if theme.enabled() and not nativeFace(opts)and theme.glyph(id,x,y,opts) then return end
       return glyph(id,x,y,opts)
     end
@@ -700,7 +716,7 @@ return function(mod)
     y=math.max(-upper,math.min(winH-bh-upper,y+oy))
     FX.record(group,x+left,y+upper,bw,bh)
     if previewOnly then return end
-    local transitionAlpha;x,y,transitionAlpha=FX.motion(group,x,y,mode)
+    local transitionAlpha,progress;x,y,transitionAlpha,progress=FX.motion(group,x,y,mode)
     if not canvas then
       canvas = love.graphics.newCanvas(240, 160, {dpiscale=1})
       canvas:setFilter('nearest', 'nearest')
@@ -723,7 +739,9 @@ return function(mod)
         return rectangle(kind, rx, ry, rw, rh, ...)
       end
     end
+    local priorPaper=mod.exports.menuPaperScope;mod.exports.menuPaperScope=group
     local ok, err = pcall(menuPalette and menuPalette.menuScope or function(f)return f()end,draw)
+    mod.exports.menuPaperScope=priorPaper
     love.graphics.rectangle, love.graphics.clear = rectangle, clear
     love.graphics.setCanvas()
     love.graphics.pop()
@@ -736,7 +754,9 @@ return function(mod)
     -- leaves full-strength pale menu pixels that wash out the field below.
     local alpha = (opacityChoices[setting(opacity)] or 100)/100*transitionAlpha
     love.graphics.setColor(alpha, alpha, alpha, alpha)
-    love.graphics.draw(canvas, x, y, 0, pxScale, sy)
+    if Transitions then
+      Transitions.scope(setting('menuTransition'),progress or 1,{x=x+left,y=y+upper,w=bw,h=bh},function()love.graphics.draw(canvas,x,y,0,pxScale,sy)end,{left/width,upper/height,bw/width,bh/height})
+    else love.graphics.draw(canvas,x,y,0,pxScale,sy)end
     love.graphics.pop()
   end
   Display.present = function(game, w, h)
@@ -778,13 +798,14 @@ return function(mod)
     FX.setMod(mod)
     menuPalette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
     Theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return active() and (FX.active or mod.exports.battleFontScope) and setting('menuTheme')==2 end)
+    Theme.menuOptions=function(opts)if active() and FX.active and not mod.exports.battleFontScope then return menuPalette.menuOptions(opts)end;return opts end
     FrlgFont._menuCustomizerEmerald=Theme
     mod.hooks:wrap('ui.start_menu.items',startItemsHook)
     Borders=assert(load(assert(mod:read('lib/menu_borders.lua')), '@'..mod.path..'/lib/menu_borders.lua'))()(mod,setting,catalog,active)
     mod.exports.borders=Borders;mod.exports.borderCatalog=catalog
-    mod.exports.effects=FX;mod.exports.version='3.2.21'
+    mod.exports.effects=FX;mod.exports.version='3.2.22'
   end
   mod.exports.effects=FX
-  mod.exports.version = '3.2.21'
+  mod.exports.version = '3.2.22'
   mod.log:info('Menu Customizer: '..gameVersion..' START, OPTION and SAVE placement installed')
 end

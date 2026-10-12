@@ -10,8 +10,10 @@ return function(mod,catalog)
  local positions={'DEFAULT','LEFT','RIGHT','TOP LEFT','TOP RIGHT','BOTTOM LEFT','BOTTOM RIGHT','CENTER','TOP CENTER','BOTTOM CENTER'}
  local menuPalette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
  C.palette=menuPalette
- local specs={menuTextColor={0,0,6,1},menuTextShadowColor={0,0,9,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1},menuBorder={1,1,#catalog.choices,1},startJustify={1,1,3,1},startSelector={3,1,4,1},hideStartMods={0,0,1,1},
-  backgroundDim={0,0,70,10},controlsLegend={2,1,3,1},menuTransition={3,1,3,1},positionPreview={1,0,1,1}}
+ local Transitions=assert(load(assert(mod:read('lib/menu_transitions.lua'))))()
+ mod.exports.menuBackground=function()if C.drawScope or C.dialogueScope then return menuPalette.menuBackground(C.paperGroup)end end
+ local specs={menuTextColor={0,0,#menuPalette.names-1,1},menuTextShadowColor={0,0,#menuPalette.shadowNames-1,1},menuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},startMenuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1},menuBorder={1,1,#catalog.choices,1},startJustify={1,1,3,1},startSelector={3,1,4,1},hideStartMods={0,0,1,1},
+  backgroundDim={0,0,70,10},controlsLegend={2,1,3,1},menuTransition={3,1,#Transitions.names,1},positionPreview={1,0,1,1}}
  for _,group in ipairs({'start','option','save','other'}) do
   specs[group..'Position']={1,1,10,1}
   specs[group..'Scale']={100,50,150,10}
@@ -39,6 +41,7 @@ return function(mod,catalog)
  function C.persist(game,key,value)
   local options=game.options or (game.save and game.save.options)
   assert(options,'Menu Customizer: no option storage')
+  if key=='menuTransition' and C.resetTransitions then C.resetTransitions()end
   options.modOptions=options.modOptions or {}
   local bucket=options.modOptions[MOD_ID] or {}
   options.modOptions[MOD_ID]=bucket
@@ -501,12 +504,16 @@ return function(mod,catalog)
   local r=row(key,label);r.value=function()return C.setting(key)==1 and 'ON' or 'OFF' end
   r.step=function(game)C.persist(game,key,1-C.setting(key))end;return r
  end
+ local bgNames,startBgNames={},{}
+ for i,name in ipairs(menuPalette.menuBackgroundNames)do bgNames[i-1]=name;startBgNames[i-1]=name end
+ bgNames[0]='DEFAULT';startBgNames[0]='USE MENU'
  local parent={}
  for _,group in ipairs({'start','option','save','other'}) do
   local children={row(group..'Position','POSITION',positions),row(group..'Scale','SCALE'),row(group..'Width','WIDTH'),row(group..'Height','HEIGHT'),row(group..'OffsetX','X OFFSET'),row(group..'OffsetY','Y OFFSET')}
   if group~='save' then children[#children+1]=row(group..'Opacity','OPACITY') end
   if group=='start' then
    children[#children+1]=row('startJustify','TEXT',{'LEFT','CENTER','RIGHT'})
+   children[#children+1]=row('startMenuBackgroundColor','BACKGROUND',startBgNames)
    children[#children+1]=row('startSelector','SELECTOR',{'POKEBALL','UNDERLINE','ARROW','DOTS'})
    children[#children+1]=toggle('hideStartMods','HIDE START MODS')
   end
@@ -517,11 +524,12 @@ return function(mod,catalog)
  parent[#parent+1]=row('menuTextColor','MENU TEXT COLOR',colorNames)
  local shadowNames={};for i,name in ipairs(menuPalette.shadowNames)do shadowNames[i-1]=name end
  parent[#parent+1]=row('menuTextShadowColor','MENU TEXT SHADOW',shadowNames)
+ parent[#parent+1]=row('menuBackgroundColor','MENU BACKGROUND',bgNames)
  parent[#parent+1]=row('menuBorder','MENU BORDER',catalog.choices)
  parent[#parent+1]=row('dialogueBorder','DIALOGUE BORDER',{[0]='OFF',[1]='ON'})
  parent[#parent+1]=row('backgroundDim','BACKGROUND DIM')
  parent[#parent+1]=row('controlsLegend','CONTROL HINTS',{'ALWAYS','AUTO','HIDDEN'})
- parent[#parent+1]=row('menuTransition','TRANSITIONS',{'INSTANT','FADE','SLIDE/FADE'})
+ parent[#parent+1]=row('menuTransition','TRANSITIONS',Transitions.names)
  parent[#parent+1]=toggle('positionPreview','POSITION PREVIEW')
  parent[#parent+1]={label='BATTLE UI',activate=function(game)
   local ui=mod.exports.battleUi;if ui then pushPage(game,'BATTLE UI',ui.rows({}))end
@@ -553,6 +561,7 @@ return function(mod,catalog)
  end)
  local canvas
  local motion={}
+ C.resetTransitions=function()motion={}end
  function C.prepareOptions(s)
   if s.sub or s._menuCustomizerCleanOptions then return end
   local clean={}
@@ -640,9 +649,10 @@ return function(mod,catalog)
      b.w,b.h=right-b.x,bottom-b.y
     end
    end
+   if C.drawScope then return menuPalette.tintFill(rect,kind,x,y,w,h,...)end
    return rect(kind,x,y,w,h,...)
   end
-  C.drawScope=true;C.bounds=nil
+  C.drawScope=true;C.bounds=nil;C.paperGroup=group
   local ok,err=pcall(function()
    for i=ctx.base,#ctx.states do
     local s=ctx.states[i]
@@ -710,7 +720,7 @@ return function(mod,catalog)
     if not drawn then error(e,0) end
    end
   end)
-  C.resizeX=nil;C.resizeY=nil;C.drawingTrainerCard=nil;C.cardHours=nil;C.drawingList=nil;C.drawingSave=nil;C.saveHours=nil;C.drawScope=false;C.drawingStart=nil;C.drawingOptions=nil;C.drawingOpaque=nil;G.rectangle,G.clear=rect,clear
+  C.resizeX=nil;C.resizeY=nil;C.drawingTrainerCard=nil;C.cardHours=nil;C.drawingList=nil;C.drawingSave=nil;C.saveHours=nil;C.drawScope=false;C.paperGroup=nil;C.drawingStart=nil;C.drawingOptions=nil;C.drawingOpaque=nil;G.rectangle,G.clear=rect,clear
   C.drawingCheats=nil;C.compactText=nil;C.drawingParty=nil
   G.pop()
   if not ok then error(err,0) end
@@ -726,7 +736,7 @@ return function(mod,catalog)
   G.push('all');G.origin();G.setShader();G.setScissor()
   G.setColor(0,0,0,C.setting('backgroundDim')/100);G.rectangle('fill',0,0,viewport.width,viewport.height)
   G.setBlendMode('alpha','premultiplied');G.setColor(opacity*alpha,opacity*alpha,opacity*alpha,opacity*alpha)
-  G.draw(canvas,x-b.x*scale,y-b.y*scale,0,scale/2,scale/2)
+  Transitions.scope(style,math.min(1,(now-st.born)/.32),{x=x,y=y,w=bw,h=bh},function()G.draw(canvas,x-b.x*scale,y-b.y*scale,0,scale/2,scale/2)end,{b.x/160,b.y/144,b.w/160,b.h/144})
   -- Preview the actual visible menu bounds without moving any input state.
   if C.setting('positionPreview')==1 and C.previewGroup and now<=(C.previewUntil or 0) then
    local preview=C.layouts[C.previewGroup]
@@ -773,7 +783,7 @@ return function(mod,catalog)
   end
  end
  mod.events:on('game.ready',function(event)attach(event.game)end)
- mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.21'
+ mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.22'
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C
 end

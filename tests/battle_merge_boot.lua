@@ -73,7 +73,7 @@ if GV.generation()~=3 then
  assert(textRow.value()=='BLACK','default menu colour')
  textRow.step(game,1);textRow.step(game,1)
  assert(game.options.modOptions.gen3transparency.menuTextColor==2,'menu colour persisted')
- for i=1,5 do textRow.step(game,1)end
+ for i=1,#E.palette.names-2 do textRow.step(game,1)end
  assert(textRow.value()=='BLACK','all menu colours wrap to black')
  textRow.step(game,1);textRow.step(game,1)
  assert(game.options.modOptions.gen3transparency.battle_text_color==1,'battle colour independent')
@@ -83,6 +83,19 @@ if GV.generation()~=3 then
  for i=1,5 do shadowRow.step(game,1)end
  assert(shadowRow.value()=='BLUE' and game.options.modOptions.gen3transparency.menuTextShadowColor==5,'menu shadow persisted')
  assert(game.options.modOptions.gen3transparency.battle_shadow_color==1,'battle shadow independent')
+ local bg;for _,r in ipairs(parent.rows)do if r.label=='MENU BACKGROUND'then bg=r end end
+ assert(bg,'menu background chooser');bg.activate(game);bg=game.stack:top().rows[1]
+ bg.step(game,1);bg.step(game,1);assert(bg.value()=='BLACK' and game.options.modOptions.gen3transparency.menuBackgroundColor==2,'menu background persisted')
+ local start;for _,r in ipairs(parent.rows)do if r.label=='START'then start=r end end
+ start.activate(game);local startPage=game.stack:top();local startBg
+ for _,r in ipairs(startPage.rows)do if r.label=='BACKGROUND'then startBg=r end end
+ assert(startBg,'separate start background');startBg.activate(game);startBg=game.stack:top().rows[1]
+ assert(startBg.value()=='USE MENU');for i=1,10 do startBg.step(game,1)end
+ assert(startBg.value()=='LIGHT BLUE' and game.options.modOptions.gen3transparency.startMenuBackgroundColor==10,'start background persisted independently')
+ local transitions;for _,r in ipairs(parent.rows)do if r.label=='TRANSITIONS'then transitions=r end end
+ transitions.activate(game);transitions=game.stack:top().rows[1]
+ for i=1,6 do transitions.step(game,1)end
+ assert(transitions.value()=='PSYCHIC SWIRL' and game.options.modOptions.gen3transparency.menuTransition==9,'retro transition persisted')
  for _,r in ipairs(parent.rows)do if r.label=='BATTLE UI' then battleRow=r end end
  assert(battleRow);battleRow.activate(game)
  assert(game.stack:top().title=='BATTLE UI' and #game.stack:top().rows==9)
@@ -99,7 +112,7 @@ else
  assert(textRow and textRow.value()=='BLACK','menu text chooser')
  textRow.step({game=game},1);textRow.step({game=game},1)
  assert(game.options.modOptions.gen3transparency.menuTextColor==2,'menu colour persisted')
- for i=1,5 do textRow.step({game=game},1)end
+ for i=1,#E.palette.names-2 do textRow.step({game=game},1)end
  assert(textRow.value()=='BLACK','all menu colours wrap to black')
  textRow.step({game=game},1);textRow.step({game=game},1)
  assert(game.options.modOptions.gen3transparency.battle_text_color==1,'battle colour independent')
@@ -108,6 +121,20 @@ else
  for i=1,5 do shadowRow.step({game=game},1)end
  assert(shadowRow.value()=='BLUE' and game.options.modOptions.gen3transparency.menuTextShadowColor==5,'menu shadow persisted')
  assert(game.options.modOptions.gen3transparency.battle_shadow_color==1,'battle shadow independent')
+ local parentPage=page;local bg
+ for _,r in ipairs(parentPage)do if r.label=='MENU BACKGROUND'then bg=r end end
+ assert(bg,'menu background chooser');bg.step({game=game},1);bg.step({game=game},1)
+ assert(bg.value()=='BLACK' and game.options.modOptions.gen3transparency.menuBackgroundColor==2,'menu background persisted')
+ local start;for _,r in ipairs(parentPage)do if r.label=='START'then start=r end end
+ start.activate();local startBg
+ for _,r in ipairs(page)do if r.label=='START BACKGROUND'then startBg=r end end
+ assert(startBg and startBg.value()=='USE MENU','separate start background')
+ for i=1,10 do startBg.step({game=game},1)end
+ assert(startBg.value()=='LIGHT BLUE' and game.options.modOptions.gen3transparency.startMenuBackgroundColor==10,'start background independent')
+ page=parentPage
+ local transitions;for _,r in ipairs(parentPage)do if r.label=='TRANSITIONS'then transitions=r end end
+ for i=1,6 do transitions.step({game=game},1)end
+ assert(transitions.value()=='PSYCHIC SWIRL' and game.options.modOptions.gen3transparency.menuTransition==9,'retro transition persisted')
  local battleRow
  for _,r in ipairs(page)do if r.id=='wide_battle_ui' then battleRow=r end end
  assert(battleRow,'battle submenu inside menus');battleRow.activate()

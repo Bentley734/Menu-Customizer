@@ -9,7 +9,7 @@ return function(E)
  function M.scale(group)return setting(group..'Scale')/100 end
  function M.offset(group)return setting(group..'OffsetX'),setting(group..'OffsetY')end
  function M.touch(key)
-  M.lastInput=now()
+  M.lastInput=now();if key=='menuTransition' then M.states={}end
   local group=key:match('^(start)') or key:match('^(option)') or key:match('^(save)') or key:match('^(other)')
   if group then M.previewGroup=group;M.previewUntil=now()+3 end
  end
@@ -41,7 +41,8 @@ return function(E)
    state.x=state.x+(x-state.x)*fraction;state.y=state.y+(y-state.y)*fraction
   end
   local alpha=style==1 and 1 or math.min(1,(time-state.born)/.15)
-  return state.x,state.y,alpha
+  local progress=math.min(1,(time-state.born)/.32)
+  return state.x,state.y,alpha,progress
  end
  function M.record(group,x,y,w,h)M.layouts[group]={x=x,y=y,w=w,h=h}end
  function M.dim()

@@ -219,6 +219,26 @@ return function(mod)
     end
     local C = require('src.ui.game3.battle_chrome')
     local nativeFrames=C.drawMenuFrames
+    local nativePanel=C.drawPanel
+    local function drawGen3Panels(mode)
+      local function pane(x,w)
+        if setting('style',1)==1 then
+          G.push('all');G.setScissor(x,112,w,48)
+          nativePanel(mode);nativeFrames(mode);G.pop();fillBackground(x,112,w,48)
+        else
+          local borders=mod.exports.borders
+          if not (borders and borders.drawBattlePixels(x,112,w,48))then panel(x,112,w,48,false)end
+        end
+      end
+      return faded(function()
+        if mode=='moves' then pane(0,160);pane(160,80)
+        elseif mode=='menu' then
+          if setting('menu_stretch',0)==0 and setting('menu_align',2)==2 then pane(0,120)end
+          return placed(function()pane(120,120)end,120,120,240)
+        else pane(0,240)end
+      end)
+    end
+    mod.exports.drawGen3Panels=drawGen3Panels
     local Ui=require('src.core.game3.battle.ui')
     local drawing,command=nil,nil
     local nativeUi=Ui.draw
@@ -238,7 +258,10 @@ return function(mod)
     local fontDraw=F.draw
     F.draw=function(text,x,y,...)
       if not enabled() or not command or y<112 then return fontDraw(text,x,y,...) end
-      if x<120 then return end -- discard the unused action prompt
+      if x<120 then
+        if setting('menu_stretch',0)==0 and setting('menu_align',2)==2 then return fontDraw(text,x,y,...)end
+        return
+      end
       local result={textPlaced(fontDraw,120,120,240,x>=184 and 1 or 0,2,text,x,y,...)}
       command=command+1;if command>=4 then command=nil end
       return unpack(result)
@@ -259,15 +282,7 @@ return function(mod)
         if name=='drawMenuFrames' then return end
         if name=='drawPanel' and args[1]=='menu' then
           if drawing then command=0 end
-          return placed(function()
-            return faded(function()
-              if setting('style',1)~=1 then panel(120,112,120,48,false)
-              else
-                G.setScissor(120,112,120,48)
-                original(unpack(args));nativeFrames(unpack(args));fillBackground(120,112,120,48)
-              end
-            end)
-          end,120,120,240)
+          return drawGen3Panels('menu')
         end
         if setting('style',1)==1 then
           return faded(function()
@@ -799,6 +814,9 @@ return function(mod)
     return nativeEmerald.bottom(battle,mod.generation,rect,api,viewport)
   end
   battleFont.active=enabled
+  api.ownsGen3Panels=enabled
+  api.drawGen3Panels=mod.exports.drawGen3Panels
+  api.palette=textPalette
   api.backgroundColor=function()return setting('background_color',0)~=0 and textPalette.background() or nil end
   api.fillBackground=fillBackground
   nativeEmerald.textPalette=textPalette
