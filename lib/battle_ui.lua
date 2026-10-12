@@ -2,7 +2,8 @@
 return function(mod)
   local ID = 'gen3transparency'
   local legacy={}
-  local battleKeys={'style','opacity','menu_stretch','menu_align'}
+  local battleKeys={'style','opacity','menu_stretch','menu_align','text_color'}
+  local textPalette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
   local G = love.graphics
   local unpack = unpack or table.unpack
   local marker
@@ -39,6 +40,7 @@ return function(mod)
     local n = tonumber(mod.options:get('battle_'..key))
     if n == nil then n = tonumber(mod.save:get('battle_'..key)) end
     if n == nil then n = tonumber(legacy[key]) end
+    if key == 'text_color' then return math.max(0,math.min(#textPalette.names-1,math.floor(n or 0))) end
     if key == 'style' then return n == 3 and 3 or n == 2 and 2 or 1 end
     if key == 'menu_stretch' then return n == 1 and 1 or 0 end
     if key == 'menu_align' then return n == 0 and 0 or n == 1 and 1 or 2 end
@@ -168,6 +170,9 @@ return function(mod)
     out[#out+1] = {id=ID..':menu_align',label='BATTLE MENU ALIGN',
       value=function() return ({'LEFT','CENTER','RIGHT'})[setting('menu_align',2)+1] end,
       step=function(ctx,dir) return persist(ctx,'menu_align',(setting('menu_align',2)+(dir<0 and -1 or 1))%3) end}
+    out[#out+1]={id=ID..':text_color',label='BATTLE TEXT COLOR',
+      value=function()return textPalette.names[setting('text_color',0)+1]end,
+      step=function(ctx,dir)return persist(ctx,'text_color',(setting('text_color',0)+(dir<0 and -1 or 1))%#textPalette.names)end}
     return out
   end
   marker=function(nextFn,game,out) return nextFn(game,out) end
@@ -184,6 +189,7 @@ return function(mod)
       local result
       if enabled() and setting('style',1)==2 and nativeEmerald.ready() then
         result={pcall(nativeEmerald.scope,nativeUi,...)}
+      elseif enabled() then result={pcall(textPalette.scope,nativeUi,...)}
       else result={pcall(nativeUi,...)} end
       drawing,command=priorDrawing,priorCommand
       if not result[1] then error(result[2],0) end
@@ -750,6 +756,7 @@ return function(mod)
     return nativeEmerald.bottom(battle,mod.generation,rect,api,viewport)
   end
   battleFont.active=enabled
+  nativeEmerald.textPalette=textPalette
   nativeEmerald.selectedFont=battleFont.selected
   nativeEmerald.useEmeraldFont=battleFont.isEmerald
   mod.exports.battleUi=api

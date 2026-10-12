@@ -91,6 +91,7 @@ return WideBattle
       return {c(v%32),c(math.floor(v/32)%32),c(math.floor(v/1024)%32),1}
     end
     M.colors=function(pp,maximum)
+      if pp==nil and M.textPalette then return M.textPalette.colors() end
       local p=manifest.windowTextPal or {}
       local fg,shadow=p[14],p[16]
       if pp~=nil and maximum then
@@ -129,7 +130,7 @@ return WideBattle
       local native=oldProfile(...)
       return setmetatable({font=M.selectedFont and native.font or M.profile.font,ui=M.profile.ui},{__index=native})
     end
-    local result={pcall(fn,...)}
+    local result={pcall(M.textPalette and M.textPalette.scope or function(f,...)return f(...)end,fn,...)}
     P.forSession=oldProfile
     for k,v in pairs(savedF)do F[k]=v.value end
     for k in pairs(M.chrome)do C[k]=savedC[k]end
@@ -167,6 +168,7 @@ return WideBattle
   end
   local presentationPalette
   function M.presentationColors(...)
+    if select(1,...)==nil and M.textPalette then return M.textPalette.colors() end
     if M.ready()then return M.colors(...)end
     -- Emerald's original battle-text palette, including PP warning colours.
     -- These values are presentation data and do not depend on a Gen 3 game.
