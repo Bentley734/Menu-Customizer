@@ -23,6 +23,12 @@ return function(mod)
   {key='liquid_chrome',name='LIQUID CHROME',pokemon='mew',style=18,a='202B39',b='34454D',ink='A6CDD9'},
   {key='cosmic_tunnel',name='COSMIC TUNNEL',pokemon='mew',style=19,a='17192F',b='35204E',ink='A797EA'},
   {key='dream_waves',name='DREAM WAVES',pokemon='mew',style=20,a='E4E6FB',b='D9F0E9',ink='AD91CB'},
+  {key='vision_field',name='VISION FIELD',pokemon='mew',style=21,a='171A31',b='392449',ink='A2C6C2'},
+  {key='sacred_lattice',name='SACRED LATTICE',pokemon='mew',style=22,a='172E32',b='322448',ink='91C5BD'},
+  {key='energy_anatomy',name='ENERGY ANATOMY',pokemon='mew',style=23,a='26192F',b='193840',ink='CF9DAB'},
+  {key='third_eye',name='THIRD EYE',pokemon='mew',style=24,a='211734',b='243B49',ink='B5A3DF'},
+  {key='interbeing',name='INTERBEING',pokemon='mew',style=25,a='172D32',b='352142',ink='91CABB'},
+  {key='lateral_spiral',name='LATERAL SPIRAL',pokemon='mew',style=26,a='231B35',b='323B42',ink='C0AC83'},
  }}
  local function rgb(hex)return{tonumber(hex:sub(1,2),16)/255,tonumber(hex:sub(3,4),16)/255,tonumber(hex:sub(5,6),16)/255}end
  M.byKey={}
@@ -65,7 +71,29 @@ return function(mod)
     else if(pokeStyle==17){v=.5+(.25*sin(z.x*2.0+t*.4)+.25*cos(z.y*2.7-t*.3))*cos(r*1.5-t*.2);}
     else if(pokeStyle==18){v=.5+.5*sin(z.x*3.0+sin(z.y*3.0+t*.3)+sin(r*4.0-t*.4));v=v*v;}
     else if(pokeStyle==19){v=.5+.5*sin(log(1.0+r)*18.0-t*.8+a*.6);}
-    else {v=.5+.5*sin(z.y*3.0+sin(z.x*1.5+t*.25)*1.8-t*.35);}
+    else if(pokeStyle==20){v=.5+.5*sin(z.y*3.0+sin(z.x*1.5+t*.25)*1.8-t*.35);}
+    else if(pokeStyle==21){
+     vec2 eye=mod(z+vec2(t*.08,0.0),vec2(1.6,1.1))-vec2(.8,.55);
+     float lid=abs(eye.y)-.28*(1.0-pow(clamp(abs(eye.x)/.7,0.0,1.0),2.0));
+     float iris=length(eye*vec2(1.0,1.4));
+     v=max(exp(-abs(lid)*28.0)*(1.0-step(.7,abs(eye.x))),exp(-abs(iris-.19)*30.0));
+    }else if(pokeStyle==22){
+     vec2 cell=mod(z,vec2(1.2,1.03923))-vec2(.6,.519615);
+     float ring=min(abs(length(cell)-.6),min(abs(length(cell-vec2(.6,.519615))-.6),abs(length(cell+vec2(.6,.519615))-.6)));
+     v=exp(-ring*35.0)*(.7+.3*sin(r*2.0-t*.4));
+    }else if(pokeStyle==23){
+     float spine=exp(-abs(sin(z.x*3.0+sin(z.y*.7+t*.2)))*14.0);
+     float ribs=exp(-abs(sin(z.y*5.0+abs(z.x)*2.5-t*.3))*12.0);
+     v=clamp(spine*.65+ribs*.45,0.0,1.0);
+    }else if(pokeStyle==24){
+     vec2 eye=z*vec2(.6,1.2);float iris=length(eye);
+     float lid=abs(eye.y)-.9*(1.0-pow(clamp(abs(eye.x)/2.0,0.0,1.0),2.0));
+     v=max(exp(-abs(lid)*14.0)*(1.0-step(2.0,abs(eye.x))),exp(-abs(iris-.55)*18.0));
+     v=max(v,(.5+.5*sin(iris*18.0-t*.5))*.3);
+    }else if(pokeStyle==25){
+     float weave=sin(z.x*3.0+sin(z.y*2.0+t*.2))*sin(z.y*3.0+sin(z.x*2.0-t*.2));
+     v=exp(-abs(weave)*10.0)*(.65+.35*cos(r*3.0-t*.3));
+    }else {v=.5+.5*sin(log(1.0+r)*15.0-a*5.0-t*.5);v*=.6+.4*cos(a*10.0+r*3.0);}
     rgb=mix(pokeBaseA,pokeBaseB,v);
     return mix(rgb,pokeAccent,v*.24);
    }

@@ -1,39 +1,46 @@
-Menu Customizer 3.2.35
+Menu Customizer 3.2.36
+
+Six original psychedelic backgrounds inspired by visionary art and TOOL: VISION FIELD, SACRED LATTICE, ENERGY ANATOMY, THIRD EYE, INTERBEING and LATERAL SPIRAL.
+Layered eyes, sacred geometry, flowing energy lines and spirals in subdued purple, teal and gold. Choose TRIPPY in the menu, Start menu or battle background chooser. COLOR SPEED controls motion; existing choices retain their IDs.
+
+Testing was explicitly skipped at the user's request to conserve usage. Restart the game after updating.
+
+Menu Customizer 3.2.36
 
 Eight new Start menu selectors: STAR, HEART, LIGHTNING, CRESCENT, DIAMOND, FLAME, PSYCHIC EYE and SPIRAL.
 Colourful pixel icons for Gen 1-3, with existing selector IDs preserved. Choose them in START SELECTOR / SELECTOR.
 
 Testing was explicitly skipped at the user's request to conserve usage. Restart the game after updating.
 
-Menu Customizer 3.2.35
+Menu Customizer 3.2.36
 
 Eight trippy animated borders: ACID RIBBONS, PLASMA BEADS, KALEIDO GEMS, MOLTEN DREAM, NEON CIRCUIT, WORMHOLE, CHECKER MELT and AURORA BRAID.
 Available for menus and battle UI frames, with purple, blue, green and pastel palettes. COLOR SPEED controls motion. Existing saved border choices retain their IDs.
 
 Testing was explicitly skipped at the user's request to conserve usage. Restart the game after updating.
 
-Menu Customizer 3.2.35
+Menu Customizer 3.2.36
 
 Eight animated abstract backgrounds in the new TRIPPY background group: ACID SPIRAL, LIQUID AURORA, KALEIDO DREAM, NEON GRID, PLASMA CLOUD, LIQUID CHROME, COSMIC TUNNEL and DREAM WAVES.
 Available for menu, Start menu and battle paper. COLOR SPEED controls their motion. Existing saved choices retain their IDs. Most pair with light text; pastel DREAM WAVES pairs with dark text.
 
 Testing was explicitly skipped at the user's request to conserve usage. Restart the game after updating.
 
-Menu Customizer 3.2.35
+Menu Customizer 3.2.36
 
 Twelve new menu transitions: VORTEX, ORBIT, RUBBER ZOOM, PENDULUM, SPIRAL IRIS, RIPPLE BLOOM, KALEIDOSCOPE, DIAMOND PORTAL, VENETIAN DREAM, STARDUST DISSOLVE, ZIGZAG PORTAL and CHECKER PHASE.
 Spinning entrances, orbiting motion, springy zooms and patterned reveals. Existing saved transition choices keep their IDs. Zooms preserve the menu aspect ratio; effects settle into the normal menu.
 
 Testing was explicitly skipped at the user's request to conserve usage. Restart the game after updating.
 
-Menu Customizer 3.2.35
+Menu Customizer 3.2.36
 
 Three new menu transitions: POKEBALL BOUNCE (a settling bounce), SURF WAVE (a gentle sideways wave), and TELEPORT (a spinning zoom).
 Existing saved transition choices keep their IDs. New zooms preserve the menu aspect ratio.
 
 Testing was explicitly skipped at the user's request to conserve usage. Restart the game after updating.
 
-Menu Customizer 3.2.35
+Menu Customizer 3.2.36
 
 Add 14 animated Pokémon background choices for menu paper, the separate Start menu background, and battle UI paper. Find them in the new POKEMON group in each background chooser. Existing saved colours, gradients and font choices keep their IDs and appearance.
 
