@@ -135,6 +135,20 @@ return function(mod,setting,catalog,active)
       if(abs(depth-stem)<.55)rgb=vec3(.27,.62,.35);
       if(abs(leaf)*.5+abs(depth-stem-side*1.35)<1.7)
        rgb=mix(vec3(.16,.46,.28),vec3(.57,.83,.4),.5+.5*sin(along*.12-phase*12.0));
+     }else if(borderEffect>=7){
+      // Perimeter-space patterns share one quad, keeping the frame seam-free.
+      float t=phase*12.0;float v=0.0;
+      if(borderEffect==7){v=.5+.5*sin(along*.28+sin(depth*.9+t)*2.0-t);}
+      else if(borderEffect==8){vec2 d=vec2(mod(s+7.0,14.0)-7.0,depth-4.0);v=exp(-dot(d,d)*.16)*(.7+.3*sin(t+along*.1));}
+      else if(borderEffect==9){vec2 d=vec2(mod(s+6.0,12.0)-6.0,depth-4.0);v=.5+.5*cos((abs(d.x)+abs(d.y))*1.3-t);}
+      else if(borderEffect==10){v=.5+.5*sin(along*.16+sin(depth*.8-t)*2.8+sin(along*.07+t));}
+      else if(borderEffect==11){float line=abs(depth-(4.0+2.0*sin(floor(along/8.0)+t*.3)));v=exp(-line*2.0);v=max(v,exp(-abs(mod(s,24.0)-12.0)*1.4)*.8);}
+      else if(borderEffect==12){v=.5+.5*sin(s*.5+abs(depth-4.0)*2.0);}
+      else if(borderEffect==13){v=mod(floor((along+sin(depth+t)*3.0-t*3.0)/4.0)+floor(depth/2.0),2.0);}
+      else {float a=abs(depth-4.0-2.0*sin(along*.2-t));float b=abs(depth-4.0+2.0*sin(along*.2-t));v=exp(-min(a,b)*1.6);}
+      vec3 tint=gradientColor(phase+along*.008+v*.22);
+      rgb=mix(tint*.13,tint,v)*bevel;
+      rgb+=vec3(.18,.22,.25)*pow(v,8.0);
      }
     }
     return vec4(rgb*color.rgb,ink.a*color.a);
@@ -152,7 +166,7 @@ return function(mod,setting,catalog,active)
   panelShader:send('paperCustomGradient',paperStops~=nil)
   for i,label in ipairs({'paperStopA','paperStopB','paperStopC','paperStopD'})do panelShader:send(label,paperStops and paperStops.stops[i] or {0,0,0})end
   panelShader:send('rainbow',atlas.animation=='gradient')
-  panelShader:send('borderEffect',({balls=1,lightning=2,water=3,ghost=4,stars=5,vines=6})[atlas.animation] or 0)
+  panelShader:send('borderEffect',({balls=1,lightning=2,water=3,ghost=4,stars=5,vines=6,acid=7,plasma=8,kaleido=9,molten=10,circuit=11,tunnel=12,checker=13,braid=14})[atlas.animation] or 0)
   local phase=0
   if atlas.animation then phase=(love.timer and love.timer.getTime and love.timer.getTime() or 0)*.08*palette.effects.get('menu','speed',100)/100 end
   panelShader:send('phase',phase)

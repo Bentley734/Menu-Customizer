@@ -76,6 +76,14 @@ local C={entries={
  {label="COTTON CANDY",path="assets/borders/pokemon_gradient.png",animation="gradient",gradient="candy"},
  {label="SUNSET DREAM",path="assets/borders/pokemon_gradient.png",animation="gradient",gradient="sunset"},
  {label="GOLDEN HOUR",path="assets/borders/pokemon_gradient.png",animation="gradient",gradient="ember"},
+ {label="ACID RIBBONS",path="assets/borders/pokemon_gradient.png",animation="acid",gradient="violet"},
+ {label="PLASMA BEADS",path="assets/borders/pokemon_gradient.png",animation="plasma",gradient="aurora"},
+ {label="KALEIDO GEMS",path="assets/borders/pokemon_gradient.png",animation="kaleido",gradient="dream"},
+ {label="MOLTEN DREAM",path="assets/borders/pokemon_gradient.png",animation="molten",gradient="candy"},
+ {label="NEON CIRCUIT",path="assets/borders/pokemon_gradient.png",animation="circuit",gradient="lagoon"},
+ {label="WORMHOLE",path="assets/borders/pokemon_gradient.png",animation="tunnel",gradient="cosmos"},
+ {label="CHECKER MELT",path="assets/borders/pokemon_gradient.png",animation="checker",gradient="violet"},
+ {label="AURORA BRAID",path="assets/borders/pokemon_gradient.png",animation="braid",gradient="aurora"},
 },legacy={1,2,3,4,5,6,7,8,9,10,11,12,3,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,12,3,13,14,31,16,32,18,33,34,21,35,36,37,25,26,38,28,39,30,40,41,42,43,44,45,46,47,48}}
 C.choices={}
 for i,entry in ipairs(C.entries) do C.choices[i]=entry.label end
