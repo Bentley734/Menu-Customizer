@@ -11,7 +11,13 @@ return function(mod,enabled)
    local f={fg=mod.assets:image(dir..'_fg.png'),shadow=mod.assets:image(dir..'_shadow.png'),
     widths=assert(load(assert(mod:read(dir..'_widths.lua'))))(),quads={}}
    f.fg:setFilter('nearest','nearest');f.shadow:setFilter('nearest','nearest')
-   for id=0,511 do f.quads[id]=G.newQuad(id%16*16,math.floor(id/16)*16,16,16,256,512) end
+   -- Battle atlases contain ink beyond each glyph's proportional advance.
+   -- Match the native renderer's width-clipped quads instead of drawing cells.
+   for id=0,511 do
+    local width=tonumber(f.widths[id] or f.widths[0]) or 16
+    if width<=0 or width>16 then width=16 end
+    f.quads[id]=G.newQuad(id%16*16,math.floor(id/16)*16,width,16,256,512)
+   end
    faces[name]=f
   end
   return faces[name]
@@ -77,7 +83,7 @@ return function(mod,enabled)
  end
  function M.gbAdvance(code)
   local ids=gbMap()[code];if not ids then return nil end
-  local width=0;local f=face(false)
+  local width=0;local f=face(false,mod.exports and mod.exports.battleFontScope)
   for _,id in ipairs(ids) do width=width+(f.widths[id] or 6) end
   return width*(M.gbScale and M.gbScale() or .5)
  end
@@ -89,7 +95,7 @@ return function(mod,enabled)
   -- Align the full-size font's lower edge with GB's eight-pixel baseline,
   -- so the final row clears the frame without changing the row spacing.
   G.push('all');G.translate(x,y-(scale==1 and 6 or 0));G.scale(scale,scale)
-  local pen=0;local f=face(false)
+  local pen=0;local f=face(false,mod.exports and mod.exports.battleFontScope)
   for _,id in ipairs(ids) do M.glyph(id,pen,0,M.gbColors and {colors=M.gbColors()} or nil);pen=pen+(f.widths[id] or 6) end
   G.pop();return true
  end

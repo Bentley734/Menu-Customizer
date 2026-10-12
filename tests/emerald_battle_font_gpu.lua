@@ -138,6 +138,17 @@ function love.load()
   local offline=assert(Sandbox.compile(mod:read('lib/emerald_native.lua'),'@offline-battle-font',env))()(mod)
   offline.useEmeraldFont=function()return true end
   assert(not offline.ready() and offline.presentationReady(),'bundled battle font needs no Emerald cache')
+  -- Compare portable font rendering against the native renderer, not only atlas bytes.
+  local portable=offline.presentation()
+  for _,fontName in ipairs({'normal','narrow'})do
+    local function render(font)
+      local canvas=G.newCanvas(240,48);G.setCanvas(canvas);G.clear(1,1,1,1)
+      font.draw('What will NIDOKING do?',9,9,{font=fontName,colors=offline.presentationColors()})
+      font.draw('FIGHT BAG POKéMON RUN 309/309',9,25,{font=fontName,colors=offline.presentationColors()})
+      G.setCanvas();return canvas:newImageData():getString()
+    end
+    assert(render(portable)==render(correct.battleFont),'portable glyph pixels differ from native '..fontName)
+  end
   local offlineUI={nativeEmerald=offline,emeraldFont=ui.emeraldFont,setting=ui.setting,faded=ui.faded,panel=ui.panel}
   local offlineMoves=assert(loadstring(mod:read('lib/battle_move_screen.lua')))()({find=function()return {exports=offlineUI}end})
   local c=G.newCanvas(1047,729);G.setCanvas(c);G.clear(.2,.48,.2,1)

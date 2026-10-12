@@ -205,7 +205,7 @@ return WideBattle
       local menu=battle.phase=='menu'
       custom.faded(function()
         if ready and custom.setting('style',1)==2 then C.drawPanel(menu and 'menu' or 'none');C.drawMenuFrames(menu and 'menu' or 'none')
-        else custom.panel(0,112,240,48,false);if menu then custom.panel(120,112,120,48,false)end end
+        else custom.panel(0,112,menu and 120 or 240,48,false);if menu then custom.panel(120,112,120,48,false)end end
       end)
       G.setColor(1,1,1,1)
       if menu then
