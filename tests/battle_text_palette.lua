@@ -39,7 +39,7 @@ local originalName=native.draw;local originalOpts={font='native_4',colors={fg={.
 M.nameScope(native,function()native.draw('5',0,0,originalOpts);native.draw('5',80,0,originalOpts);native.draw('309/309',0,20,originalOpts)end)
 check(calls[1].opts.colors.fg[3]>.5,'numeric nickname receives name colour')
 check(calls[1].opts.font=='native_4' and calls[1].opts.maxWidth==56 and calls[1].opts.colors.bg==originalOpts.colors.bg,'font, bounds and paper preserved')
-check(calls[2].opts==originalOpts and calls[3].opts==originalOpts,'level and HP colours preserved')
+check(calls[2].opts._vanilla and calls[3].opts._vanilla and calls[3].opts.font==originalOpts.font and calls[3].opts.colors==originalOpts.colors,'native level and HP appearance preserved')
 check(native.draw==originalName and not pcall(M.nameScope,native,function()error('test')end) and native.draw==originalName,'name scope restores after error')
 check(not pcall(M.scope,function()error('test')end) and F.draw==original,'restored after error')
 print('PASS '..checks..' battle text palette checks')

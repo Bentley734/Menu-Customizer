@@ -39,15 +39,24 @@ return function(mod,enabled)
  end
  function M.glyph(id,x,y,opts)
   -- Space is advance-only, even if the imported atlas's reserved cell has ink.
-  if id==0 then return true end
+  if id==0 then if opts and opts.colors and opts.colors._effects then opts.colors._effects.ink(opts.colors,true)end;return true end
   local f=face(opts and opts.small,opts and opts.battle or mod.exports and mod.exports.battleFontScope,opts and opts.font=="narrow");local q=f.quads[id];if not q then return false end
   local colors=opts and opts.colors or {fg={.38,.38,.38,1},shadow={.84,.84,.8,1}}
   G.push('all');G.setShader()
-  G.setColor(unpack(colors.shadow or {.84,.84,.8,1}));G.draw(f.shadow,q,x,y)
-  G.setColor(unpack(colors.fg or {.38,.38,.38,1}));G.draw(f.fg,q,x,y)
+  if colors._effects then colors._effects.glyph(colors,x,y,function(dx,dy)G.draw(f.fg,q,x+dx,y+dy)end)
+  else
+   G.setColor(unpack(colors.shadow or {.84,.84,.8,1}));G.draw(f.shadow,q,x,y)
+   G.setColor(unpack(colors.fg or {.38,.38,.38,1}));G.draw(f.fg,q,x,y)
+  end
   G.pop();return true
  end
+ local drawing=false
  function M.draw(text,x,y,opts)
+  local effects=opts and opts.colors and opts.colors._effects
+  if effects and not drawing then
+   drawing=true;local result={pcall(effects.sequence,opts.colors._kind or 'battle',M.draw,text,x,y,opts)};drawing=false
+   if not result[1]then error(result[2],0)end;return unpack(result,2)
+  end
   local ids=glyphs(text);if not ids then return nil end
   local f=face(opts and opts.small,opts and opts.battle or mod.exports and mod.exports.battleFontScope,opts and opts.font=="narrow");local pen=x
   for i,id in ipairs(ids)do
@@ -94,7 +103,7 @@ return function(mod,enabled)
   local scale=M.gbScale and M.gbScale() or .5
   -- Align the full-size font's lower edge with GB's eight-pixel baseline,
   -- so the final row clears the frame without changing the row spacing.
-  G.push('all');G.translate(x,y-(scale==1 and 6 or 0));G.scale(scale,scale)
+  G.push('all');G.translate(x,y-(scale==1 and 6 or 0)-(M.gbBaseline and M.gbBaseline() or 0));G.scale(scale,scale)
   local pen=0;local f=face(false,mod.exports and mod.exports.battleFontScope)
   for _,id in ipairs(ids) do M.glyph(id,pen,0,M.gbColors and {colors=M.gbColors()} or nil);pen=pen+(f.widths[id] or 6) end
   G.pop();return true

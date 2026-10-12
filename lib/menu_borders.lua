@@ -3,6 +3,8 @@
 return function(mod,setting,catalog,active)
  local G=love.graphics
  local M={atlases={}}
+ local palette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
+ local function paint(c,fn,...)return palette.paint(c,fn,...)end
  function M.atlas(selection)
   local entry=catalog.entries[selection]
   if not entry or not entry.path then return nil end
@@ -89,7 +91,7 @@ return function(mod,setting,catalog,active)
       end
      end
      if paper then
-      G.setColor(unpack(background));G.draw(paper,quad,rx+dx,ry+dy);G.setColor(1,1,1,1)
+      paint(background,G.draw,paper,quad,rx+dx,ry+dy);G.setColor(1,1,1,1)
      end
      G.draw(image,quad,rx+dx,ry+dy)
     end end
@@ -99,7 +101,7 @@ return function(mod,setting,catalog,active)
      if row==2 and col==2 then
       -- The plain paper is one surface: fractional tile joins can leave
       -- hairline gaps under the independently scaled battle canvas.
-      if background then G.setColor(unpack(background));G.rectangle('fill',xs[col],ys[row],ws[col],hs[row]);G.setColor(1,1,1,1)
+      if background then paint(background,G.rectangle,'fill',xs[col],ys[row],ws[col],hs[row]);G.setColor(1,1,1,1)
       else G.draw(atlas.image,atlas.quads[4],xs[col],ys[row],0,ws[col]/8,hs[row]/8)end
      else tiled((row-1)*3+col-1,xs[col],ys[row],ws[col],hs[row]) end
     end

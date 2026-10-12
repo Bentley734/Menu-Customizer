@@ -69,6 +69,50 @@ return function(mod)
   M.backgroundNames[#M.backgroundNames+1]='INDIGO';backgrounds[#backgrounds+1]={0.22,0.15,0.55,1}
   M.backgroundNames[#M.backgroundNames+1]='SILVER';backgrounds[#backgrounds+1]={0.75,0.78,0.82,1}
   M.backgroundNames[#M.backgroundNames+1]='BROWN';backgrounds[#backgrounds+1]={0.4,0.24,0.12,1}
+  local swatches=mod.read and assert(load(assert(mod:read('lib/color_swatches.lua'))))() or {}
+  for _,swatch in ipairs(swatches)do
+    local c={swatch.rgb[1],swatch.rgb[2],swatch.rgb[3],1}
+    M.names[#M.names+1]=swatch.name;foreground[#foreground+1]=c
+    M.shadowNames[#M.shadowNames+1]=swatch.name;shadows[#shadows+1]=c
+    M.backgroundNames[#M.backgroundNames+1]=swatch.name;backgrounds[#backgrounds+1]=c
+  end
+  for _,name in ipairs({'RGB','ROTATING','ANIMATED GRADIENT'})do
+    local c={1,1,1,1,animation=name=='ANIMATED GRADIENT' and 'GRADIENT' or name=='ROTATING' and 'ROTATING' or 'RGB'}
+    M.names[#M.names+1]=name;foreground[#foreground+1]=c
+    M.shadowNames[#M.shadowNames+1]=name;shadows[#shadows+1]=c
+    M.backgroundNames[#M.backgroundNames+1]=name;backgrounds[#backgrounds+1]=c
+  end
+  local lists={text=foreground,shadow=shadows,background=backgrounds}
+  function M.color(kind,n)local l=lists[kind] or foreground;return l[math.max(0,math.min(#l-1,math.floor(n or 0)))+1]end
+  local function hue(c)
+    local hi,lo=math.max(c[1],c[2],c[3]),math.min(c[1],c[2],c[3]);local d=hi-lo
+    if d<.025 then return -1,hi end
+    local h=hi==c[1] and ((c[2]-c[3])/d)%6 or hi==c[2] and (c[3]-c[1])/d+2 or (c[1]-c[2])/d+4
+    return h/6,hi
+  end
+  local orders={}
+  for kind,list in pairs(lists)do
+    local ids={};for i=1,#list do ids[i]=i-1 end
+    table.sort(ids,function(a,b)
+      local x,y=list[a+1],list[b+1]
+      if x.animation or y.animation then if not x.animation then return true elseif not y.animation then return false else return a<b end end
+      if kind=='shadow' and (a==0 or b==0)then return a==0 end
+      local ha,va=hue(x);local hb,vb=hue(y)
+      if math.abs(ha-hb)>.000001 then return ha<hb elseif math.abs(va-vb)>.000001 then return va<vb else return a<b end
+    end);orders[kind]=ids
+  end
+  function M.step(kind,n,dir)
+    if kind=='menuBackground' then if n==0 then return dir<0 and orders.background[#orders.background]+1 or orders.background[1]+1 end
+      local ids={0};for _,id in ipairs(orders.background)do ids[#ids+1]=id+1 end
+      for i,id in ipairs(ids)do if id==n then return ids[(i-1+(dir<0 and -1 or 1))%#ids+1]end end;return 0
+    end
+    local ids=orders[kind] or orders.text
+    for i,id in ipairs(ids)do if id==n then return ids[(i-1+(dir<0 and -1 or 1))%#ids+1]end end;return ids[1]
+  end
+  local effectsSource=mod.read and mod:read('lib/text_effects.lua')
+  M.effects=effectsSource and assert(load(effectsSource))()(mod,M) or assert(loadfile('lib/text_effects.lua'))()(mod,M)
+  function M.paint(color,fn,...)return M.effects.paint(color,color._kind or 'menu',fn,...)end
+  function M.withText(kind,fn,...)return M.effects.sequence(kind,fn,...)end
   function M.menuBackground(kind)
     local n=tonumber(mod.options:get('menuBackgroundColor') or mod.save:get('menuBackgroundColor')) or 0
     if kind=='start' then
@@ -86,15 +130,17 @@ return function(mod)
     local r,g,b,a=G.getColor()
     if bg and mode=='fill' and math.min(r,g,b)>.55 and math.max(r,g,b)-math.min(r,g,b)<.06 then
       local shade=(r+g+b)/3
-      G.push('all');G.setColor(math.min(1,bg[1]*(.6+.4*shade)+.12*shade),math.min(1,bg[2]*(.6+.4*shade)+.12*shade),math.min(1,bg[3]*(.6+.4*shade)+.12*shade),a)
-      local result={pcall(fn,mode,x,y,w,h,...)};G.pop()
+      local tint=bg.animation and bg or {math.min(1,bg[1]*(.6+.4*shade)+.12*shade),math.min(1,bg[2]*(.6+.4*shade)+.12*shade),math.min(1,bg[3]*(.6+.4*shade)+.12*shade),a}
+      local result={pcall(M.paint,tint,fn,mode,x,y,w,h,...)}
       if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
     end
     return fn(mode,x,y,w,h,...)
   end
   function M.background()
     local n=tonumber(mod.options:get('battle_background_color') or mod.save:get('battle_background_color')) or 0
-    return backgrounds[math.max(0,math.min(#backgrounds-1,math.floor(n)))+1]
+    local color=backgrounds[math.max(0,math.min(#backgrounds-1,math.floor(n)))+1]
+    if color.animation then return {color[1],color[2],color[3],color[4],animation=color.animation,_kind='battle'}end
+    return color
   end
   function M.colors(kind)
     local key=kind=='menu' and 'menuTextColor' or kind=='name' and 'battle_name_color' or 'battle_text_color'
@@ -103,7 +149,7 @@ return function(mod)
     local shadowKey=kind=='menu' and 'menuTextShadowColor' or kind=='name' and 'battle_name_shadow_color' or 'battle_shadow_color'
     local sh=tonumber(mod.options:get(shadowKey) or mod.save:get(shadowKey)) or 0
     sh=math.max(0,math.min(#shadows-1,math.floor(sh)))
-    return {fg=foreground[n+1],shadow=shadows[sh+1],bg={0,0,0,0}}
+    return {fg=foreground[n+1],shadow=shadows[sh+1],bg={0,0,0,0},_kind=kind or 'battle',_effects=M.effects}
   end
   function M.clean(text)
     if type(text)~='string' then return text end
@@ -120,7 +166,7 @@ return function(mod)
     end
     F.draw=function(text,x,y,opts,...)
       if not all and y<112 then return draw(text,x,y,opts,...) end
-      return draw(M.clean(text),x,y,options(opts),...)
+      return M.withText(kind,draw,M.clean(text),x,y,options(opts),...)
     end
     F.drawGlyph=function(id,x,y,opts,...)
       if not all and y<112 then return glyph(id,x,y,opts,...) end
@@ -133,14 +179,13 @@ return function(mod)
     elseif rectangle and kind=='battle' then
       G.rectangle=function(mode,x,y,w,h,...)
         if mode=='fill' and x==16 and y>=112 and w==208 and h==16 then
-          G.push('all');G.setColor((unpack or table.unpack)(M.background()))
-          local result={pcall(rectangle,mode,x,y,w,h,...)};G.pop()
+          local result={pcall(M.paint,M.background(),rectangle,mode,x,y,w,h,...)}
           if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
         end
         return rectangle(mode,x,y,w,h,...)
       end
     end
-    local result={pcall(fn,...)};F.draw,F.drawGlyph=draw,glyph
+    local result={pcall(M.withText,kind,fn,...)};F.draw,F.drawGlyph=draw,glyph
     if rectangle then G.rectangle=rectangle end
     if not result[1]then error(result[2],0)end
     return (unpack or table.unpack)(result,2)
@@ -157,13 +202,20 @@ return function(mod)
   function M.nameScope(font,fn,...)
     local draw=font.draw;local used=false
     font.draw=function(text,x,y,opts,...)
-      if used then return draw(text,x,y,opts,...)end
+      if opts and opts.paletteRole=='battle' then return M.withText('battle',draw,text,x,y,opts,...)end
+      if used then
+        if tostring(text):find('/',1,true) or tostring(text):match('^[%d%s]+$') or tostring(text):match('^HP') then
+          local vanilla={};for k,v in pairs(opts or {})do vanilla[k]=v end;vanilla._vanilla=true
+          return draw(text,x,y,vanilla,...)
+        end
+        return draw(text,x,y,opts,...)
+      end
       used=true
       local copy={};for k,v in pairs(opts or {})do copy[k]=v end
       copy.colors=M.colors('name')
       copy.colors.bg=opts and opts.colors and opts.colors.bg or copy.colors.bg
       copy.color=nil;copy.shadow=nil
-      return draw(text,x,y,copy,...)
+      return M.withText('name',draw,text,x,y,copy,...)
     end
     local result={pcall(fn,...)};font.draw=draw
     if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
@@ -176,18 +228,42 @@ return function(mod)
       if not inkShader then inkShader=G.newShader([[vec4 effect(vec4 c,Image t,vec2 uv,vec2 p){vec4 s=Texel(t,uv);return vec4(c.rgb,c.a*s.a*(1.0-min(s.r,min(s.g,s.b))));}]])end
       G.setShader(inkShader)
     else G.setShader()end
-    local result={pcall(function(...)
-      local colors=M.colors(kind)
-      if colors.shadow[4]>0 then
-        G.push('all');G.translate(1,1);G.setColor((unpack or table.unpack)(colors.shadow))
-        local painted={pcall(fn,id,...)};G.pop()
-        if not painted[1]then error(painted[2],0)end
-      end
-      G.setColor((unpack or table.unpack)(colors.fg));return fn(id,...)
-    end,...)};G.pop()
+    local old=M.effects.darkInk;M.effects.darkInk=id<0x400000
+    local args={...};local colors=M.colors(kind)
+    local result={pcall(M.effects.glyph,colors,0,0,function(dx,dy)
+      G.push('all');G.translate(dx,dy);local painted={pcall(fn,id,(unpack or table.unpack)(args))};G.pop()
+      if not painted[1]then error(painted[2],0)end;return (unpack or table.unpack)(painted,2)
+    end)};M.effects.darkInk=old;G.pop()
     if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
+  end
+  -- Native face fallback, including scripts not covered by the Latin atlas.
+  -- Use the engine printer for each glyph so encoding/advance stay native.
+  function M.nativeText(draw,measure,text,x,y,opts)
+    local colors=opts and opts.colors
+    if not colors or not colors._effects then return M.effects.aspect(x,y,draw,text,x,y,opts)end
+    local function one(t,px,py)
+      if t==' ' then M.effects.ink(colors,true);return end
+      return M.effects.glyph(colors,px,py,function(dx,dy)
+        local copy={};for k,v in pairs(opts or {})do copy[k]=v end
+        copy.colors={fg={love.graphics.getColor()},shadow={0,0,0,0},bg={0,0,0,0}}
+        return draw(t,px+dx,py+dy,copy)
+      end)
+    end
+    if type(text)~='string' or not measure or text:find('[<>]') or text:find('[\128-\191\245-\255]') then return one(text,x,y)end
+    return M.withText(colors._kind or 'battle',function()
+      local px,py=x,y;local count=0
+      for c in text:gmatch('[%z\1-\127\194-\244][\128-\191]*')do
+        count=count+1;if opts.limitChars and count>opts.limitChars then break end
+        if c=='\n' then px=x;py=py+16
+        else local width=measure(c,opts) or 8
+          if not opts.maxWidth or px-x+width<=opts.maxWidth then one(c,px,py);px=px+width end
+        end
+      end
+      return px-x,px,py
+    end)
   end
   function M.nativeMenuGlyph(fn,id,...)return nativeGlyph('menu',fn,id,...)end
   function M.nativeNameGlyph(fn,id,...)return nativeGlyph('name',fn,id,...)end
+  function M.nativeBattleGlyph(fn,id,...)return nativeGlyph('battle',fn,id,...)end
   return M
 end

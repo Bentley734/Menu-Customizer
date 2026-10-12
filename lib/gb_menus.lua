@@ -14,6 +14,7 @@ return function(mod,catalog)
  mod.exports.menuBackground=function()if C.drawScope or C.dialogueScope then return menuPalette.menuBackground(C.paperGroup)end end
  local specs={menuTextColor={0,0,#menuPalette.names-1,1},menuTextShadowColor={0,0,#menuPalette.shadowNames-1,1},menuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},startMenuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1},menuBorder={1,1,#catalog.choices,1},startJustify={1,1,3,1},startSelector={3,1,4,1},hideStartMods={0,0,1,1},
   backgroundDim={0,0,70,10},controlsLegend={2,1,3,1},menuTransition={3,1,#Transitions.names,1},positionPreview={1,0,1,1}}
+ for k,v in pairs(menuPalette.effects.specs('menu'))do specs[k]=v end
  for _,group in ipairs({'start','option','save','other'}) do
   specs[group..'Position']={1,1,10,1}
   specs[group..'Scale']={100,50,150,10}
@@ -111,10 +112,11 @@ return function(mod,catalog)
  -- around it so colored GBA frames retain their original colors on GBC.
  local Borders=assert(load(assert(mod:read('lib/menu_borders.lua')),'@'..mod.path..'/lib/menu_borders.lua'))()(mod,C.setting,catalog,function()return C.live() and (C.drawScope or C.dialogueScope) end)
  C.borders=Borders
- C.theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return (C.drawScope or mod.exports.battleFontScope) and C.setting('menuTheme')==2 end)
+ C.theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return (C.drawScope or C.dialogueScope or mod.exports.battleFontScope) and C.setting('menuTheme')==2 end)
  -- START rows are sixteen pixels apart, just like Emerald's native menu.
  -- Use the original glyph size there instead of the dense GB screen size.
- C.theme.gbScale=function()if mod.exports.battleFontScope then return mod.exports.battleFontScale or .5 end;return not C.compactText and (C.drawingStart or C.drawingCheats or C.drawingOptions and C.drawingOptions.fullFont) and 1 or .5 end
+ C.theme.gbScale=function()if mod.exports.battleFontScope then return mod.exports.battleFontScale or .5 end;if C.dialogueScope then return .75 end;return not C.compactText and (C.dialogueScope or C.drawingStart or C.drawingCheats or C.drawingOptions and C.drawingOptions.fullFont) and 1 or .5 end
+ C.theme.gbBaseline=function()return C.dialogueScope and 2 or 0 end
  C.theme.gbColors=function()
   if mod.exports.battleNameScope then return menuPalette.colors('name')end
   if mod.exports.battleFontScope then
@@ -145,7 +147,7 @@ return function(mod,catalog)
     current.inBox=true
     local args={n=select('#',...),...}
     local ok,result=pcall(function()
-     if current.borders.draw(tx,ty,tw,th) then
+     if (not current.dialogueScope or current.setting('dialogueBorder')==1) and current.borders.draw(tx,ty,tw,th) then
       if current.dialogueScope and current.mod.generation==1 then
        current.dialogueRects=current.dialogueRects or {}
        local function mark(x,y,w,h)current.dialogueRects[#current.dialogueRects+1]={colors=false,x=x,y=y,w=w,h=h}end
@@ -204,13 +206,17 @@ return function(mod,catalog)
    if current and scope.battleHudScope then
     local prior,scale,nameScope=scope.battleFontScope,scope.battleFontScale,scope.battleNameScope
     scope.battleNameScope=(y==0 or y==56)
-    if tostring(text):match('^%d+$')or tostring(text):find('<LV>',1,true)then
+    if not scope.battleNameScope and (tostring(text):match('^[%d%s/]+$') or tostring(text):match('^HP') or (y==8 or y==64) or tostring(text):find('<LV>',1,true))then
      scope.battleFontScope=false
     elseif scope.battleHudCapture and (y==0 or y==56) then
      scope.battleFontScale=.75
      y=y-2
     end
-    local result={pcall(render,text,x,y,...)}
+    local result={pcall(function(...)
+     local palette=current.palette or menuPalette
+     if palette then return palette.withText(scope.battleNameScope and 'name' or 'battle',render,text,x,y,...)end
+     return render(text,x,y,...)
+    end,...)}
     scope.battleFontScope,scope.battleFontScale,scope.battleNameScope=prior,scale,nameScope
     if not result[1]then error(result[2],0)end
     return unpack(result,2)
@@ -278,7 +284,11 @@ return function(mod,catalog)
    if n==start.index then start.selection={x=textX,y=y,width=shown,selector=selector} end
    return result
   end
-  Font.draw=function(text,x,y,...)return label(text,x,y,draw,...)end
+  Font.draw=function(text,x,y,...)
+   local c=Font._menuCustomizerGB;local e=c and c.mod.exports
+   local kind=e and e.battleNameScope and 'name' or e and e.battleFontScope and 'battle' or 'menu'
+   return (c and c.palette or menuPalette).withText(kind,label,text,x,y,draw,...)
+  end
   -- GBC palette printing paints paper and individual glyphs directly, bypassing
   -- Font.draw. Move the whole print operation, including its background.
   Font._menuCustomizerLabel=label
@@ -290,9 +300,11 @@ return function(mod,catalog)
    local rx,ry=current and current.drawScope and not current.inBox and current.resizeX or 1,current and current.drawScope and not current.inBox and current.resizeY or 1
    G.push('all');G.translate(x,y);G.scale(1/rx,1/ry)
    local result
-   if not (current and current.theme and current.theme.enabled() and current.theme.gbGlyph(glyph,0,0)) then
+   local vanillaHud=current and current.mod.exports.battleHudScope and not current.mod.exports.battleNameScope
+   if vanillaHud then result=code(glyph,0,0,...)
+   elseif not (current and current.theme and current.theme.enabled() and current.theme.gbGlyph(glyph,0,0)) then
     if current and current.mod.exports.battleNameScope then result=(current.palette or menuPalette).nativeNameGlyph(code,glyph,0,0,...)
-    elseif current and current.drawScope then result=(current.palette or menuPalette).nativeMenuGlyph(code,glyph,0,0,...)
+    elseif current and (current.drawScope or current.dialogueScope) then result=(current.palette or menuPalette).nativeMenuGlyph(code,glyph,0,0,...)
     else result=code(glyph,0,0,...)end
    end
    G.pop();return result
@@ -357,14 +369,27 @@ return function(mod,catalog)
   Renderer._menuCustomizerDialogueColor=true
  end
  local TextBox=require('src.render.TextBox')
+ if not TextBox._menuCustomizerDialogueNew then
+  TextBox._menuCustomizerDialogueNew=TextBox.new
+  TextBox.new=function(...)
+   local current=Font._menuCustomizerGB;local enabled=current and current.live()
+   local old=current and current.dialogueScope;if enabled then current.dialogueScope=true end
+   local result={pcall(TextBox._menuCustomizerDialogueNew,...)}
+   if current then current.dialogueScope=old end
+   if not result[1]then error(result[2],0)end;return unpack(result,2)
+  end
+ end
  if not TextBox._menuCustomizerDialogueDraw then
   TextBox._menuCustomizerDialogueDraw=TextBox.draw
   TextBox.draw=function(self,...)
    local current=Font._menuCustomizerGB
-   local enabled=current and current.live() and current.setting('dialogueBorder')==1
+   local enabled=current and current.live()
    if enabled then current.dialogueScope=true end
    local args={n=select('#',...),...}
-   local ok,result=pcall(function()return TextBox._menuCustomizerDialogueDraw(self,unpack(args,1,args.n))end)
+   local ok,result=pcall(function()
+    local draw=function()return TextBox._menuCustomizerDialogueDraw(self,unpack(args,1,args.n))end
+    if enabled then return current.palette.withText('menu',draw)end;return draw()
+   end)
    if enabled then current.dialogueScope=nil end
    if not ok then error(result,0) end
    return result
@@ -497,6 +522,9 @@ return function(mod,catalog)
   end,step=function(game,dir)
    local n=C.setting(key)+dir*spec[4]
    if choices then n=(n-spec[2])%(spec[3]-spec[2]+1)+spec[2] else n=math.max(spec[2],math.min(spec[3],n)) end
+   if key=='menuTextColor' then n=menuPalette.step('text',C.setting(key),dir)
+   elseif key=='menuTextShadowColor' then n=menuPalette.step('shadow',C.setting(key),dir)
+   elseif key=='menuBackgroundColor' or key=='startMenuBackgroundColor' then n=menuPalette.step('menuBackground',C.setting(key),dir)end
    C.persist(game,key,n)
   end}
  end
@@ -531,8 +559,9 @@ return function(mod,catalog)
  parent[#parent+1]=row('controlsLegend','CONTROL HINTS',{'ALWAYS','AUTO','HIDDEN'})
  parent[#parent+1]=row('menuTransition','TRANSITIONS',Transitions.names)
  parent[#parent+1]=toggle('positionPreview','POSITION PREVIEW')
+ parent[#parent+1]={label='MENU TEXT EFFECTS',activate=function(game)pushPage(game,'MENU TEXT EFFECTS',menuPalette.effects.rows('menu',function(ctx,key,n)C.persist(ctx.game or ctx,key,n);return false end))end}
  parent[#parent+1]={label='BATTLE UI',activate=function(game)
-  local ui=mod.exports.battleUi;if ui then pushPage(game,'BATTLE UI',ui.rows({}))end
+  local ui=mod.exports.battleUi;if ui then pushPage(game,'BATTLE UI',ui.rows({},function(title,children)pushPage(game,title,children)end))end
  end}
  C.rows=parent
  mod.hooks:wrap('ui.options.rows',function(next,game,rows)
@@ -783,7 +812,7 @@ return function(mod,catalog)
   end
  end
  mod.events:on('game.ready',function(event)attach(event.game)end)
- mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.22'
+ mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.23'
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C
 end

@@ -85,8 +85,7 @@ return function(mod)
   end
   local function fillBackground(x,y,w,h)
     if setting('background_color',0)==0 then return end
-    local c={G.getColor()};G.setColor(unpack(textPalette.background()))
-    G.rectangle('fill',x+8,y+8,w-16,h-16);G.setColor(unpack(c))
+    textPalette.paint(textPalette.background(),G.rectangle,'fill',x+8,y+8,w-16,h-16)
   end
   -- Emerald palette and double frame, drawn at each game's native geometry.
   -- Original artwork; no ROM graphics are distributed.
@@ -164,7 +163,15 @@ return function(mod)
     if game.writeOptions then game:writeOptions() end
     return false
   end
-  local function rows(out)
+  local function effectPersist(ctx,key,value)
+    local game=ctx.game or ctx;local options=ctx.options or game.options or game.save and game.save.options
+    assert(options,'Text effects: missing options storage');options.modOptions=options.modOptions or {}
+    local b=options.modOptions[ID] or {};options.modOptions[ID]=b;b[key]=value;mod.save:set(key,value)
+    if game.mods then game.mods.modOptions[ID]=b end
+    if game.save and game.save.options then game.save.options.modOptions=options.modOptions end
+    if game.writeOptions then game:writeOptions()end;return false
+  end
+  local function rows(out,openPage)
     for _, r in ipairs(out) do if r.id == ID..':style' then return out end end
     out[#out+1] = {id=ID..':style',label='BATTLE UI',
       value=function() return ({'VANILLA','EMERALD','MENU BORDER'})[setting('style',1)] end,
@@ -182,19 +189,22 @@ return function(mod)
       step=function(ctx,dir) return persist(ctx,'menu_align',(setting('menu_align',2)+(dir<0 and -1 or 1))%3) end}
     out[#out+1]={id=ID..':text_color',label='BATTLE TEXT COLOR',
       value=function()return textPalette.names[setting('text_color',0)+1]end,
-      step=function(ctx,dir)return persist(ctx,'text_color',(setting('text_color',0)+(dir<0 and -1 or 1))%#textPalette.names)end}
+      step=function(ctx,dir)return persist(ctx,'text_color',textPalette.step('text',setting('text_color',0),dir))end}
     out[#out+1]={id=ID..':background_color',label='BATTLE BACKGROUND',
       value=function()return textPalette.backgroundNames[setting('background_color',0)+1]end,
-      step=function(ctx,dir)return persist(ctx,'background_color',(setting('background_color',0)+(dir<0 and -1 or 1))%#textPalette.backgroundNames)end}
+      step=function(ctx,dir)return persist(ctx,'background_color',textPalette.step('background',setting('background_color',0),dir))end}
     out[#out+1]={id=ID..':shadow_color',label='BATTLE TEXT SHADOW',
       value=function()return textPalette.shadowNames[setting('shadow_color',0)+1]end,
-      step=function(ctx,dir)return persist(ctx,'shadow_color',(setting('shadow_color',0)+(dir<0 and -1 or 1))%#textPalette.shadowNames)end}
+      step=function(ctx,dir)return persist(ctx,'shadow_color',textPalette.step('shadow',setting('shadow_color',0),dir))end}
     out[#out+1]={id=ID..':name_color',label='POKEMON NAME COLOR',
       value=function()return textPalette.names[setting('name_color',0)+1]end,
-      step=function(ctx,dir)return persist(ctx,'name_color',(setting('name_color',0)+(dir<0 and -1 or 1))%#textPalette.names)end}
+      step=function(ctx,dir)return persist(ctx,'name_color',textPalette.step('text',setting('name_color',0),dir))end}
     out[#out+1]={id=ID..':name_shadow_color',label='POKEMON NAME SHADOW',
       value=function()return textPalette.shadowNames[setting('name_shadow_color',0)+1]end,
-      step=function(ctx,dir)return persist(ctx,'name_shadow_color',(setting('name_shadow_color',0)+(dir<0 and -1 or 1))%#textPalette.shadowNames)end}
+      step=function(ctx,dir)return persist(ctx,'name_shadow_color',textPalette.step('shadow',setting('name_shadow_color',0),dir))end}
+    if openPage then for _,kind in ipairs({'battle','name'})do
+      local k=kind;out[#out+1]={id=ID..':fx_'..k,label=k=='name' and 'NAME TEXT EFFECTS' or 'BATTLE TEXT EFFECTS',value=function()return 'OPEN'end,activate=function()openPage(k=='name' and 'NAME TEXT EFFECTS' or 'BATTLE TEXT EFFECTS',textPalette.effects.rows(k,effectPersist))end}
+    end end
     return out
   end
   marker=function(nextFn,game,out) return nextFn(game,out) end
@@ -214,7 +224,7 @@ return function(mod)
     Message.drawText=function(...)
       if enabled() and Message._frame=='battle' then
         return battleFont.scope(function(...)return textPalette.scope(originalText,...)end,...)
-      elseif enabled() then return textPalette.menuScope(originalText,...)end
+      elseif enabled() then return battleFont.scope(function(...)return textPalette.menuScope(originalText,...)end,...)end
       return originalText(...)
     end
     local C = require('src.ui.game3.battle_chrome')

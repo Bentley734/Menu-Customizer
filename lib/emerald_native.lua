@@ -53,7 +53,9 @@ return WideBattle
       for _,key in ipairs({'draw','measure','drawGlyph'})do
         local method=key
         font[method]=function(...)
-          local selected=M.useEmeraldFont and M.useEmeraldFont() and actualFont or M.selectedFont
+          local opts=select(method=='drawGlyph' and 4 or method=='measure' and 2 or 4,...)
+          local selected=M.selectedFont or actualFont
+          if opts and not(opts.colors and opts.colors._effects) then selected=actualFont end
           return selected[method](...)
         end
       end
@@ -175,7 +177,7 @@ return WideBattle
   end
   local presentationPalette
   function M.presentationColors(...)
-    if select(1,...)==nil and M.textPalette then return M.textPalette.colors() end
+    if M.textPalette then return M.textPalette.colors() end
     if M.ready()then return M.colors(...)end
     -- Emerald's original battle-text palette, including PP warning colours.
     -- These values are presentation data and do not depend on a Gen 3 game.
@@ -228,7 +230,7 @@ return WideBattle
     if not ready and not (theme and M.useEmeraldFont and M.useEmeraldFont()) then return false end
     local message=generation==2 and (battle.phase=='intro' or battle.phase=='resolving' or battle.phase=='locked-in')
     if battle.phase~='menu' and battle.phase~='messages' and not message then return false end
-    local G=love.graphics;local F,C=(M.useEmeraldFont and M.useEmeraldFont()) and M.battleFont or M.font,M.chrome
+    local G=love.graphics;local F,C=M.font,M.chrome
     if not ready then F,C=M.presentation() end
     if battle.phase=='menu' and custom.emeraldLayout and custom.frames then
       return custom.emeraldLayout.commands(F,battle,generation,rect,custom,M.presentationColors(),viewport)
