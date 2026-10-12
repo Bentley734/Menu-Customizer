@@ -36,10 +36,13 @@ assert(E.setting('style',1)==2 and E.setting('opacity',100)==30,'legacy settings
 assert(E.setting('menu_stretch',0)==1 and E.setting('menu_align',2)==1,'placement migrated')
 for _,entry in ipairs(Runtime.hooks.chains['ui.options.rows'] or {})do assert(entry.owner~='battleuicustomizer','legacy renderer inert')end
 assert(loader.exports.gen3transparency.borders and loader.exports.gen3transparency.effects or GV.generation()~=3)
-local controls=E.rows({});assert(#controls==5)
+local controls=E.rows({});assert(#controls==6)
 assert(controls[5].value()=='BLACK','default battle colour')
 controls[5].step(game,1);assert(controls[5].value()=='CHARCOAL','colour step')
 assert(game.options.modOptions.gen3transparency.battle_text_color==1,'colour persisted')
+assert(controls[6].value()=='WHITE','default background')
+controls[6].step(game,1);assert(controls[6].value()=='BLACK','black background choice')
+assert(game.options.modOptions.gen3transparency.battle_background_color==1,'background persisted')
 local style,opacity,stretch,align=unpack(controls)
 assert(style.value()=='EMERALD')
 style.step(game,1);assert(style.value()=='MENU BORDER')
@@ -56,10 +59,20 @@ if GV.generation()~=3 then
  local menus
  for _,r in ipairs(rows)do if r.id=='wide_menus' then menus=r end end
  assert(menus);menus.activate(game)
- local parent=game.stack:top();local battleRow
+ local parent=game.stack:top();local battleRow;local textRow
+ for _,r in ipairs(parent.rows)do if r.label=='MENU TEXT COLOR' then textRow=r end end
+ assert(textRow,'menu text chooser');textRow.activate(game)
+ textRow=game.stack:top().rows[1]
+ assert(textRow.value()=='BLACK','default menu colour')
+ textRow.step(game,1);textRow.step(game,1)
+ assert(game.options.modOptions.gen3transparency.menuTextColor==2,'menu colour persisted')
+ for i=1,5 do textRow.step(game,1)end
+ assert(textRow.value()=='BLACK','all menu colours wrap to black')
+ textRow.step(game,1);textRow.step(game,1)
+ assert(game.options.modOptions.gen3transparency.battle_text_color==1,'battle colour independent')
  for _,r in ipairs(parent.rows)do if r.label=='BATTLE UI' then battleRow=r end end
  assert(battleRow);battleRow.activate(game)
- assert(game.stack:top().title=='BATTLE UI' and #game.stack:top().rows==5)
+ assert(game.stack:top().title=='BATTLE UI' and #game.stack:top().rows==6)
 else
  local RomText=require('src.core.game3.rom_text');RomText.at=function(n,i)return n..i end
  local Rows=require('src.ui.game3.option_rows')
@@ -69,10 +82,18 @@ else
  local menus
  for _,r in ipairs(grouped)do if r.label=='MENUS' then menus=r end end
  assert(menus,'menus group exists');menus.activate({game=game})
+ local textRow;for _,r in ipairs(page)do if r.label=='MENU TEXT COLOR' then textRow=r end end
+ assert(textRow and textRow.value()=='BLACK','menu text chooser')
+ textRow.step({game=game},1);textRow.step({game=game},1)
+ assert(game.options.modOptions.gen3transparency.menuTextColor==2,'menu colour persisted')
+ for i=1,5 do textRow.step({game=game},1)end
+ assert(textRow.value()=='BLACK','all menu colours wrap to black')
+ textRow.step({game=game},1);textRow.step({game=game},1)
+ assert(game.options.modOptions.gen3transparency.battle_text_color==1,'battle colour independent')
  local battleRow
  for _,r in ipairs(page)do if r.id=='wide_battle_ui' then battleRow=r end end
  assert(battleRow,'battle submenu inside menus');battleRow.activate()
- assert(title=='BATTLE UI' and #page==5)
+ assert(title=='BATTLE UI' and #page==6)
 end
 -- Border style is live; a changed atlas is used on the next draw.
 local borders=loader.exports.gen3transparency.borders

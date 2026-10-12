@@ -2,7 +2,7 @@
 return function(mod)
   local ID = 'gen3transparency'
   local legacy={}
-  local battleKeys={'style','opacity','menu_stretch','menu_align','text_color'}
+  local battleKeys={'style','opacity','menu_stretch','menu_align','text_color','background_color'}
   local textPalette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
   local G = love.graphics
   local unpack = unpack or table.unpack
@@ -40,6 +40,7 @@ return function(mod)
     local n = tonumber(mod.options:get('battle_'..key))
     if n == nil then n = tonumber(mod.save:get('battle_'..key)) end
     if n == nil then n = tonumber(legacy[key]) end
+    if key == 'background_color' then return math.max(0,math.min(#textPalette.backgroundNames-1,math.floor(n or 0))) end
     if key == 'text_color' then return math.max(0,math.min(#textPalette.names-1,math.floor(n or 0))) end
     if key == 'style' then return n == 3 and 3 or n == 2 and 2 or 1 end
     if key == 'menu_stretch' then return n == 1 and 1 or 0 end
@@ -79,6 +80,11 @@ return function(mod)
     if not result[1] then error(result[2],0) end
     return unpack(result,2)
   end
+  local function fillBackground(x,y,w,h)
+    if setting('background_color',0)==0 then return end
+    local c={G.getColor()};G.setColor(unpack(textPalette.background()))
+    G.rectangle('fill',x+8,y+8,w-16,h-16);G.setColor(unpack(c))
+  end
   -- Emerald palette and double frame, drawn at each game's native geometry.
   -- Original artwork; no ROM graphics are distributed.
   local function panel(x,y,w,h, dark)
@@ -99,6 +105,7 @@ return function(mod)
       if dark then G.setColor(.18,.30,.34,a) else G.setColor(.97,.97,.87,a) end
       G.rectangle('fill',x+6,y+6,w-12,h-12)
     end
+    fillBackground(x,y,w,h)
     G.setColor(unpack(color))
   end
   -- Keep the 3.2.11 frame bounds independent from the Emerald text canvas.
@@ -173,11 +180,22 @@ return function(mod)
     out[#out+1]={id=ID..':text_color',label='BATTLE TEXT COLOR',
       value=function()return textPalette.names[setting('text_color',0)+1]end,
       step=function(ctx,dir)return persist(ctx,'text_color',(setting('text_color',0)+(dir<0 and -1 or 1))%#textPalette.names)end}
+    out[#out+1]={id=ID..':background_color',label='BATTLE BACKGROUND',
+      value=function()return textPalette.backgroundNames[setting('background_color',0)+1]end,
+      step=function(ctx,dir)return persist(ctx,'background_color',(setting('background_color',0)+(dir<0 and -1 or 1))%#textPalette.backgroundNames)end}
     return out
   end
   marker=function(nextFn,game,out) return nextFn(game,out) end
   mod.hooks:wrap('ui.options.rows',marker,620)
   if mod.generation == 3 then
+    local Message=require('src.ui.game3.message')
+    local originalText=Message.drawText
+    Message.drawText=function(...)
+      if enabled() and Message._frame=='battle' then
+        return battleFont.scope(function(...)return textPalette.scope(originalText,...)end,...)
+      elseif enabled() then return textPalette.menuScope(originalText,...)end
+      return originalText(...)
+    end
     local C = require('src.ui.game3.battle_chrome')
     local nativeFrames=C.drawMenuFrames
     local Ui=require('src.core.game3.battle.ui')
@@ -225,7 +243,7 @@ return function(mod)
               if setting('style',1)~=1 then panel(120,112,120,48,false)
               else
                 G.setScissor(120,112,120,48)
-                original(unpack(args));nativeFrames(unpack(args))
+                original(unpack(args));nativeFrames(unpack(args));fillBackground(120,112,120,48)
               end
             end)
           end,120,120,240)
@@ -233,7 +251,11 @@ return function(mod)
         if setting('style',1)==1 then
           return faded(function()
             local result=original(unpack(args))
-            if name=='drawPanel' then nativeFrames(unpack(args)) end
+            if name=='drawPanel' then
+              nativeFrames(unpack(args))
+              if args[1]=='moves' then fillBackground(0,112,160,48);fillBackground(160,112,80,48)
+              else fillBackground(0,112,240,48)end
+            end
             return result
           end)
         end
@@ -756,6 +778,8 @@ return function(mod)
     return nativeEmerald.bottom(battle,mod.generation,rect,api,viewport)
   end
   battleFont.active=enabled
+  api.backgroundColor=function()return setting('background_color',0)~=0 and textPalette.background() or nil end
+  api.fillBackground=fillBackground
   nativeEmerald.textPalette=textPalette
   nativeEmerald.selectedFont=battleFont.selected
   nativeEmerald.useEmeraldFont=battleFont.isEmerald

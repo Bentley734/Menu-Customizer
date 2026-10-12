@@ -10,7 +10,7 @@ local text='Wild '..string.char(252,1,1)..'ZIGZAGOON'..string.char(252,3,3)..' a
 check(M.clean(text)=='Wild ZIGZAGOON appeared!','Ruby embedded palette override removed')
 check(M.clean('A'..string.char(252,8,20)..'B')=='A'..string.char(252,8,20)..'B','timing preserved')
 local recorded
-local F={draw=function(t,x,y,o)recorded={t=t,o=o}end}
+local F={draw=function(t,x,y,o)recorded={t=t,o=o}end,drawGlyph=function(t,x,y,o)recorded={t=t,o=o}end}
 package.loaded['src.ui.game3.frlg_font']=F
 local original=F.draw;local opts={colors={fg={1,1,1,1}},font='normal',maxWidth=200}
 M.scope(function()F.draw(text,8,120,opts)end)
@@ -19,5 +19,12 @@ check(recorded.o.maxWidth==200 and opts.colors.fg[1]==1,'caller options retained
 M.scope(function()F.draw(text,8,20,opts)end)
 check(recorded.t==text and recorded.o==opts,'healthbox palette untouched')
 check(F.draw==original,'restored after success')
+local originalGlyph=F.drawGlyph
+M.scope(function()F.drawGlyph(3,8,120,opts)end)
+check(recorded.o.colors.fg[1]==0 and recorded.o.colors.bg[4]==0,'native dialogue glyph palette')
+check(F.drawGlyph==originalGlyph,'glyph restored after success')
+M.menuScope(function()F.draw('OPTIONS',8,20,opts)end)
+check(recorded.o.colors.fg[1]==0,'menu text palette covers upper rows')
+check(M.backgroundNames[2]=='BLACK','black background option')
 check(not pcall(M.scope,function()error('test')end) and F.draw==original,'restored after error')
 print('PASS '..checks..' battle text palette checks')

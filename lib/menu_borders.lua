@@ -34,7 +34,7 @@ return function(mod,setting,catalog,active)
   return true
  end
  -- Battle callers use full pixel bounds rather than menu interior tiles.
- function M.drawPixels(x,y,w,h)
+ function M.drawPixels(x,y,w,h,background)
   local selection=setting('menuBorder')
   if selection==1 then
    local version=require('src.core.GameVersion').get()
@@ -73,7 +73,8 @@ return function(mod,setting,catalog,active)
      if row==2 and col==2 then
       -- The plain paper is one surface: fractional tile joins can leave
       -- hairline gaps under the independently scaled battle canvas.
-      G.draw(atlas.image,atlas.quads[4],xs[col],ys[row],0,ws[col]/8,hs[row]/8)
+      if background then G.setColor(unpack(background));G.rectangle('fill',xs[col],ys[row],ws[col],hs[row]);G.setColor(1,1,1,1)
+      else G.draw(atlas.image,atlas.quads[4],xs[col],ys[row],0,ws[col]/8,hs[row]/8)end
      else tiled((row-1)*3+col-1,xs[col],ys[row],ws[col],hs[row]) end
     end
    end end
@@ -85,13 +86,15 @@ return function(mod,setting,catalog,active)
  -- screen space so command-width and move-canvas transforms cannot distort
  -- the border. Text keeps its own native transform.
  function M.drawBattlePixels(x,y,w,h)
-  if not G.transformPoint or not G.origin then return M.drawPixels(x,y,w,h) end
+  local ui=mod.exports and mod.exports.battleUi
+  local background=ui and ui.backgroundColor and ui.backgroundColor()
+  if not G.transformPoint or not G.origin then return M.drawPixels(x,y,w,h,background) end
   local left,top=G.transformPoint(x,y)
   local right,bottom=G.transformPoint(x+w,y+h)
   local scale=(bottom-top)/48
   if scale<=0 or right<=left then return false end
   G.push('all');G.origin();G.translate(left,top);G.scale(scale,scale)
-  local ok,result=pcall(M.drawPixels,0,0,(right-left)/scale,48)
+  local ok,result=pcall(M.drawPixels,0,0,(right-left)/scale,48,background)
   G.pop();if not ok then error(result,0)end
   return result
  end

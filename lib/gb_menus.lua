@@ -8,7 +8,8 @@ return function(mod,catalog)
  local C={mod=mod,catalog=catalog,drawScope=false,layouts={},frame=0}
  local MOD_ID='gen3transparency'
  local positions={'DEFAULT','LEFT','RIGHT','TOP LEFT','TOP RIGHT','BOTTOM LEFT','BOTTOM RIGHT','CENTER','TOP CENTER','BOTTOM CENTER'}
- local specs={dialogueBorder={0,0,1,1},menuTheme={2,1,2,1},menuBorder={1,1,#catalog.choices,1},startJustify={1,1,3,1},startSelector={3,1,4,1},hideStartMods={0,0,1,1},
+ local menuPalette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
+ local specs={menuTextColor={0,0,6,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1},menuBorder={1,1,#catalog.choices,1},startJustify={1,1,3,1},startSelector={3,1,4,1},hideStartMods={0,0,1,1},
   backgroundDim={0,0,70,10},controlsLegend={2,1,3,1},menuTransition={3,1,3,1},positionPreview={1,0,1,1}}
  for _,group in ipairs({'start','option','save','other'}) do
   specs[group..'Position']={1,1,10,1}
@@ -116,6 +117,7 @@ return function(mod,catalog)
    if ui and ui.nativeEmerald then return ui.nativeEmerald.presentationColors() end
    return {fg={74/255,74/255,74/255,1},shadow={214/255,214/255,206/255,1}}
   end
+  return menuPalette.colors('menu')
  end
  Font._menuCustomizerGB=C
  if not Font._menuCustomizerGBWrapped then
@@ -282,7 +284,10 @@ return function(mod,catalog)
    local rx,ry=current and current.drawScope and not current.inBox and current.resizeX or 1,current and current.drawScope and not current.inBox and current.resizeY or 1
    G.push('all');G.translate(x,y);G.scale(1/rx,1/ry)
    local result
-   if not (current and current.theme and current.theme.enabled() and current.theme.gbGlyph(glyph,0,0)) then result=code(glyph,0,0,...) end
+   if not (current and current.theme and current.theme.enabled() and current.theme.gbGlyph(glyph,0,0)) then
+    if current and current.drawScope then result=menuPalette.nativeMenuGlyph(code,glyph,0,0,...)
+    else result=code(glyph,0,0,...)end
+   end
    G.pop();return result
   end
   -- Draw after native labels and their opaque palette paper, so selectors
@@ -504,6 +509,8 @@ return function(mod,catalog)
   parent[#parent+1]={label=group:upper(),activate=function(game)pushPage(game,group:upper()..' MENU',children)end}
  end
  parent[#parent+1]=row('menuTheme','MENU FONT',{'NATIVE','EMERALD'})
+ local colorNames={};for i,name in ipairs(menuPalette.names)do colorNames[i-1]=name end
+ parent[#parent+1]=row('menuTextColor','MENU TEXT COLOR',colorNames)
  parent[#parent+1]=row('menuBorder','MENU BORDER',catalog.choices)
  parent[#parent+1]=row('dialogueBorder','DIALOGUE BORDER',{[0]='OFF',[1]='ON'})
  parent[#parent+1]=row('backgroundDim','BACKGROUND DIM')
@@ -760,7 +767,7 @@ return function(mod,catalog)
   end
  end
  mod.events:on('game.ready',function(event)attach(event.game)end)
- mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.18'
+ mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.19'
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C
 end

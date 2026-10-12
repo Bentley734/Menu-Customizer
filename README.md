@@ -1,3 +1,18 @@
+# Menu Customizer 3.2.19
+
+Apply battle text colours to dialogue, add independent menu text colours and selectable battle box backgrounds.
+
+- Battle Text Color now reaches the separate dialogue rendering pass and native glyph printers, including Ruby/Sapphire. Retain reveal timing, native glyph metrics, message controls and healthbox colours.
+- Menus → Menu Text Color independently selects Black, Charcoal, Blue, Green, Red, Purple or White for menu text and field dialogue. Support both native and Emerald menu fonts.
+- Menus → Battle UI → Battle Background offers White (default), Black, Charcoal, Navy, Cream, Pale Blue, Pale Green or Plum. Preserve the selected border artwork, pane geometry and opacity.
+- Choose White battle text with Black, Navy or Plum backgrounds for high contrast. Text and background choices are independent and persist across restarts.
+
+Keep KIM1025 1.7.33 installed and restart after updating.
+
+Validation: actual dialogue function and production hook pixel checks, actual Ruby native glyph printer, black box/white text rendering, pixel-for-pixel border preservation, separate menu/battle colours, all chooser persistence/wrapping, Lua 5.3 and LuaJIT regression suites, 86 composed rendering checks and startup/configuration runs across 11 games. Live ROM gameplay was not exercised.
+
+## Previous release notes
+
 # Menu Customizer 3.2.18
 
 Fix Ruby/Sapphire selector colours, Options side bars and clipped battle names.

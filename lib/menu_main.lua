@@ -64,7 +64,8 @@ return function(mod)
   for pct = 65, 100, 5 do opacityChoices[#opacityChoices+1] = pct end
   local keys = {'startPosition', 'startJustify', 'startSelector', 'optionPosition', 'savePosition', 'otherPosition',
     'startOpacity', 'optionOpacity', 'otherOpacity', 'hideStartMods'}
-  local extra = {dialogueBorder={0,0,1,1},menuTheme={2,1,2,1}, menuBorder={1,1,#borderChoices,1}, backgroundDim={0,0,70,10}, controlsLegend={2,1,3,1},
+  local menuPalette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
+  local extra = {menuTextColor={0,0,6,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1}, menuBorder={1,1,#borderChoices,1}, backgroundDim={0,0,70,10}, controlsLegend={2,1,3,1},
     menuTransition={3,1,3,1}, positionPreview={1,0,1,1}}
   for _, group in ipairs({'start','option','save','other'}) do
     extra[group..'Scale']={100,50,150,10}
@@ -234,6 +235,10 @@ return function(mod)
     entries[#entries+1] = row('startPosition', 'START POSITION')
     entries[#entries+1] = row('startJustify', 'START TEXT', justifyChoices)
     entries[#entries+1] = row('menuTheme','MENU FONT',{'NATIVE','EMERALD'})
+    local colorNames={};for i,name in ipairs(menuPalette.names)do colorNames[i-1]=name end
+    local textRow=row('menuTextColor','MENU TEXT COLOR',colorNames)
+    textRow.step=function(ctx,dir)persist('menuTextColor',(setting('menuTextColor')+(dir<0 and -1 or 1))%#menuPalette.names,ctx);return false end
+    entries[#entries+1]=textRow
     entries[#entries+1] = row('startSelector', 'START SELECTOR', selectorChoices)
     entries[#entries+1] = row('optionPosition', 'OPTION POSITION')
     entries[#entries+1] = row('savePosition', 'SAVE POSITION')
@@ -273,7 +278,7 @@ return function(mod)
           activate=function()openPage(group:upper()..' MENU',children)end}
       end
       for _, r in ipairs(members) do
-        if r.id=='wide_dialogueBorder' or r.id=='wide_menuTheme' or r.id=='wide_menuBorder' or r.id=='wide_backgroundDim' or r.id=='wide_controlsLegend' or r.id=='wide_menuTransition' or r.id=='wide_positionPreview' then parent[#parent+1]=r end
+        if r.id=='wide_dialogueBorder' or r.id=='wide_menuTheme' or r.id=='wide_menuTextColor' or r.id=='wide_menuBorder' or r.id=='wide_backgroundDim' or r.id=='wide_controlsLegend' or r.id=='wide_menuTransition' or r.id=='wide_positionPreview' then parent[#parent+1]=r end
       end
       local battleUi=mod.exports.battleUi
       if battleUi then parent[#parent+1]={id='wide_battle_ui',label='BATTLE UI',value=function()return 'OPEN' end,activate=function()openPage('BATTLE UI',battleUi.rows({}))end} end
@@ -715,7 +720,7 @@ return function(mod)
         return rectangle(kind, rx, ry, rw, rh, ...)
       end
     end
-    local ok, err = pcall(draw)
+    local ok, err = pcall(menuPalette and menuPalette.menuScope or function(f)return f()end,draw)
     love.graphics.rectangle, love.graphics.clear = rectangle, clear
     love.graphics.setCanvas()
     love.graphics.pop()
@@ -768,14 +773,15 @@ return function(mod)
     Option=optionForVersion(gameVersion)
     installOption(Option);originalOption=nativeOptions[Option]
     FX.setMod(mod)
+    menuPalette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
     Theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return active() and (FX.active or mod.exports.battleFontScope) and setting('menuTheme')==2 end)
     FrlgFont._menuCustomizerEmerald=Theme
     mod.hooks:wrap('ui.start_menu.items',startItemsHook)
     Borders=assert(load(assert(mod:read('lib/menu_borders.lua')), '@'..mod.path..'/lib/menu_borders.lua'))()(mod,setting,catalog,active)
     mod.exports.borders=Borders;mod.exports.borderCatalog=catalog
-    mod.exports.effects=FX;mod.exports.version='3.2.18'
+    mod.exports.effects=FX;mod.exports.version='3.2.19'
   end
   mod.exports.effects=FX
-  mod.exports.version = '3.2.18'
+  mod.exports.version = '3.2.19'
   mod.log:info('Menu Customizer: '..gameVersion..' START, OPTION and SAVE placement installed')
 end

@@ -120,7 +120,13 @@ return WideBattle
     for k,v in pairs(M.chrome)do C[k]=v end
     local custom=mod.exports and mod.exports.battleUi
     if custom then
-      C.drawPanel=function(mode)return custom.faded(function()M.chrome.drawPanel(mode);M.chrome.drawMenuFrames(mode)end)end
+      C.drawPanel=function(mode)return custom.faded(function()M.chrome.drawPanel(mode);M.chrome.drawMenuFrames(mode)
+          if custom.fillBackground then
+            if mode=='moves' then custom.fillBackground(0,112,160,48);custom.fillBackground(160,112,80,48)
+            elseif mode=='menu' then custom.fillBackground(0,112,120,48);custom.fillBackground(120,112,120,48)
+            else custom.fillBackground(0,112,240,48)end
+          end
+        end)end
       C.drawMenuFrames=function()end
       for _,key in ipairs({'drawEnemyBox','drawPlayerBox','drawDoublesBox','drawSafariBox'})do
         C[key]=function(...)return custom.faded(M.chrome[key],...)end
