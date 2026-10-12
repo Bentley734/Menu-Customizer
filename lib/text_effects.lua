@@ -66,6 +66,7 @@ return function(mod,palette)
   if not c or not c.animation then return c end
   local t=(love.timer and love.timer.getTime and love.timer.getTime() or 0)*.08*M.get(kind or 'menu','speed',100)/100
   local col=palette.gradients.sample(c.gradient,t) or hue(t%1)
+  col[4]=c[4] or 1
   if c.animation=='GRADIENT' then col.animation='GRADIENT';col.phase=t;col.gradient=c.gradient end
   return col
  end
@@ -102,6 +103,10 @@ return function(mod,palette)
   local glow=palette.color('shadow',M.get(kind,'glow'));local double=palette.color('shadow',M.get(kind,'double'))
   return M.aspect(x,y,function()
    local function layer(c,dx,dy)
+    if c and colors._opacity then
+     local faded={};for key,value in pairs(c)do faded[key]=value end
+     faded[4]=(c[4] or 1)*colors._opacity;c=faded
+    end
     if c and (c[4] or 1)>0 then return M.paint(c,kind,function()return draw(dx,dy)end)end
    end
    layer(double,-3,3);layer(colors.shadow,-1,1);layer(glow,1,-1);return layer(fg,0,0)

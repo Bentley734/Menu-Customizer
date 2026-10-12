@@ -30,12 +30,15 @@ return function(mod)
     target[key]=function(...)
       local prior=mod.exports.battleHudScope
       local capture=mod.exports.battleHudCapture
+      local names=mod.exports.battleHudNames
       local battle=select(1,...)
       mod.exports.battleHudScope=true
       mod.exports.battleHudCapture=type(battle)=='table' and battle._kantoInMotionHudCapture==true
+      mod.exports.battleHudNames=type(battle)=='table' and battle._kimHudNames or nil
       local result={pcall(original,...)}
       mod.exports.battleHudScope=prior
       mod.exports.battleHudCapture=capture
+      mod.exports.battleHudNames=names
       if not result[1]then error(result[2],0)end
       return unpack(result,2)
     end

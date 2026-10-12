@@ -206,6 +206,14 @@ return function(mod,catalog)
    if current and scope.battleHudScope then
     local prior,scale,nameScope=scope.battleFontScope,scope.battleFontScale,scope.battleNameScope
     scope.battleNameScope=(y==0 or y==56)
+    if scope.battleNameScope and scope.battleHudNames then
+     local queue=scope.battleHudNames
+     local result={pcall(queue.presenter.record,queue,text,x,y,y==0 and 'enemy' or 'player')}
+     scope.battleNameScope=nameScope
+     if not result[1]then error(result[2],0)end
+     if result[2]~=nil then return result[2]end
+     scope.battleNameScope=true
+    end
     if not scope.battleNameScope and (tostring(text):match('^[%d%s/]+$') or tostring(text):match('^HP') or (y==8 or y==64) or tostring(text):find('<LV>',1,true))then
      scope.battleFontScope=false
     elseif scope.battleHudCapture and (y==0 or y==56) then
@@ -825,7 +833,7 @@ return function(mod,catalog)
   end
  end
  mod.events:on('game.ready',function(event)attach(event.game)end)
- mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.27'
+ mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.28'
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C
 end
