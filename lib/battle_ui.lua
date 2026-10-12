@@ -2,7 +2,7 @@
 return function(mod)
   local ID = 'gen3transparency'
   local legacy={}
-  local battleKeys={'style','opacity','menu_stretch','menu_align','text_color','background_color','shadow_color'}
+  local battleKeys={'style','opacity','menu_stretch','menu_align','text_color','background_color','shadow_color','name_color','name_shadow_color'}
   local textPalette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
   local G = love.graphics
   local unpack = unpack or table.unpack
@@ -40,6 +40,8 @@ return function(mod)
     local n = tonumber(mod.options:get('battle_'..key))
     if n == nil then n = tonumber(mod.save:get('battle_'..key)) end
     if n == nil then n = tonumber(legacy[key]) end
+    if key == 'name_color' then return math.max(0,math.min(#textPalette.names-1,math.floor(n or 0))) end
+    if key == 'name_shadow_color' then return math.max(0,math.min(#textPalette.shadowNames-1,math.floor(n or 0))) end
     if key == 'shadow_color' then return math.max(0,math.min(#textPalette.shadowNames-1,math.floor(n or 0))) end
     if key == 'background_color' then return math.max(0,math.min(#textPalette.backgroundNames-1,math.floor(n or 0))) end
     if key == 'text_color' then return math.max(0,math.min(#textPalette.names-1,math.floor(n or 0))) end
@@ -187,11 +189,26 @@ return function(mod)
     out[#out+1]={id=ID..':shadow_color',label='BATTLE TEXT SHADOW',
       value=function()return textPalette.shadowNames[setting('shadow_color',0)+1]end,
       step=function(ctx,dir)return persist(ctx,'shadow_color',(setting('shadow_color',0)+(dir<0 and -1 or 1))%#textPalette.shadowNames)end}
+    out[#out+1]={id=ID..':name_color',label='POKEMON NAME COLOR',
+      value=function()return textPalette.names[setting('name_color',0)+1]end,
+      step=function(ctx,dir)return persist(ctx,'name_color',(setting('name_color',0)+(dir<0 and -1 or 1))%#textPalette.names)end}
+    out[#out+1]={id=ID..':name_shadow_color',label='POKEMON NAME SHADOW',
+      value=function()return textPalette.shadowNames[setting('name_shadow_color',0)+1]end,
+      step=function(ctx,dir)return persist(ctx,'name_shadow_color',(setting('name_shadow_color',0)+(dir<0 and -1 or 1))%#textPalette.shadowNames)end}
     return out
   end
   marker=function(nextFn,game,out) return nextFn(game,out) end
   mod.hooks:wrap('ui.options.rows',marker,620)
   if mod.generation == 3 then
+    local Healthbox=require('src.core.game3.battle.healthbox')
+    local originalHealthbox=Healthbox.draw
+    Healthbox.draw=function(...)
+      if not enabled() then return originalHealthbox(...)end
+      local Battle=require('src.core.game3.battle')
+      local side=select(1,...)
+      if Battle._st and Battle._st.safari and (side=='player' or type(side)=='number' and side%2==0) then return originalHealthbox(...)end
+      return textPalette.nameScope(require('src.ui.game3.frlg_font'),originalHealthbox,...)
+    end
     local Message=require('src.ui.game3.message')
     local originalText=Message.drawText
     Message.drawText=function(...)

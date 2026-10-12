@@ -1,3 +1,18 @@
+# Menu Customizer 3.2.21
+
+Add independent battle Pokémon name colours.
+
+- Menus → Battle UI → Pokemon Name Color selects Black, Charcoal, Blue, Green, Red, Purple or White independently of dialogue and command colours. Black is the default.
+- Pokemon Name Shadow independently selects the existing shadow palette, including None (default).
+- Apply to player and enemy names across Gen 1–3, including the native Ruby/Sapphire healthbox font and the Emerald presentation. Preserve fonts, size, clipping and placement.
+- Keep level numbers, HP text, gender symbols, status text and Safari counters on their existing rendering paths. Numeric nicknames do not recolour an identical level number.
+
+Restart after updating. Keep KIM1025 1.7.33 installed.
+
+Validation: actual GB name routing and scope restoration, private Emerald healthbox routing, native Ruby/Sapphire name pixel checks with numeric nicknames and unchanged level/HP pixels, independent persistence across 11 games, Lua 5.3/LuaJIT suites and 86 composed rendering checks. Live ROM gameplay was not exercised.
+
+## Previous release notes
+
 # Menu Customizer 3.2.20
 
 Add independent text shadow colours and let battle backgrounds reach the actual frame.

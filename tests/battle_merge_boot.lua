@@ -36,7 +36,7 @@ assert(E.setting('style',1)==2 and E.setting('opacity',100)==30,'legacy settings
 assert(E.setting('menu_stretch',0)==1 and E.setting('menu_align',2)==1,'placement migrated')
 for _,entry in ipairs(Runtime.hooks.chains['ui.options.rows'] or {})do assert(entry.owner~='battleuicustomizer','legacy renderer inert')end
 assert(loader.exports.gen3transparency.borders and loader.exports.gen3transparency.effects or GV.generation()~=3)
-local controls=E.rows({});assert(#controls==7)
+local controls=E.rows({});assert(#controls==9)
 assert(controls[5].value()=='BLACK','default battle colour')
 controls[5].step(game,1);assert(controls[5].value()=='CHARCOAL','colour step')
 assert(game.options.modOptions.gen3transparency.battle_text_color==1,'colour persisted')
@@ -46,6 +46,10 @@ assert(game.options.modOptions.gen3transparency.battle_background_color==1,'back
 assert(controls[7].value()=='NONE','default shadow disabled')
 controls[7].step(game,1);assert(controls[7].value()=='BLACK','battle shadow colour')
 assert(game.options.modOptions.gen3transparency.battle_shadow_color==1,'battle shadow persisted')
+assert(controls[8].value()=='BLACK' and controls[9].value()=='NONE','name defaults')
+controls[8].step(game,1);controls[8].step(game,1);controls[9].step(game,1)
+assert(game.options.modOptions.gen3transparency.battle_name_color==2 and game.options.modOptions.gen3transparency.battle_name_shadow_color==1,'independent name colours persisted')
+assert(game.options.modOptions.gen3transparency.battle_text_color==1,'name does not alter dialogue')
 local style,opacity,stretch,align=unpack(controls)
 assert(style.value()=='EMERALD')
 style.step(game,1);assert(style.value()=='MENU BORDER')
@@ -81,7 +85,7 @@ if GV.generation()~=3 then
  assert(game.options.modOptions.gen3transparency.battle_shadow_color==1,'battle shadow independent')
  for _,r in ipairs(parent.rows)do if r.label=='BATTLE UI' then battleRow=r end end
  assert(battleRow);battleRow.activate(game)
- assert(game.stack:top().title=='BATTLE UI' and #game.stack:top().rows==7)
+ assert(game.stack:top().title=='BATTLE UI' and #game.stack:top().rows==9)
 else
  local RomText=require('src.core.game3.rom_text');RomText.at=function(n,i)return n..i end
  local Rows=require('src.ui.game3.option_rows')
@@ -107,7 +111,7 @@ else
  local battleRow
  for _,r in ipairs(page)do if r.id=='wide_battle_ui' then battleRow=r end end
  assert(battleRow,'battle submenu inside menus');battleRow.activate()
- assert(title=='BATTLE UI' and #page==7)
+ assert(title=='BATTLE UI' and #page==9)
 end
 -- Border style is live; a changed atlas is used on the next draw.
 local borders=loader.exports.gen3transparency.borders

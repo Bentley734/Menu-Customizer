@@ -33,7 +33,7 @@ function love.load()
     local ref=target(function()originalDraw(name,0,0,opts)end)
     check(actual:newImageData():getString()==ref:newImageData():getString(),version..' native healthbox name changed')
     check(F.measure(name,opts)==originalMeasure(name,opts),version..' native widths changed')
-    write(w..'.work/shadow-border-fix/'..version..'-name-'..name..'.png',actual:newImageData():encode('png'):getString())
+    write(w..'.work/name-colors-fix/'..version..'-name-'..name..'.png',actual:newImageData():encode('png'):getString())
    end
   end
   local ball=assert(source:match('(  local ballPixels.-)  local function drawStartJustified'))
@@ -43,7 +43,7 @@ function love.load()
   check(G.getShader()==shader,'selector shader not restored');G.setShader();G.setCanvas()
   local rr,gg,bb=c:newImageData():getPixel(10,8)
   check(rr>.8 and gg<.1 and bb<.1,'selector red uses mutable RS palette')
-  write(w..'.work/shadow-border-fix/selector.png',c:newImageData():encode('png'):getString())
+  write(w..'.work/name-colors-fix/selector.png',c:newImageData():encode('png'):getString())
   local option={isOpen=function()return true end};local start={},{}
   local apiSource=assert(source:match('(  local canvas\n  local function drawAt.-)  Display.present = function'))
   local fx={scale=function()return 1 end,offset=function()return 0,0 end,record=function()end,motion=function(_,x,y)return x,y,1 end}
@@ -60,7 +60,7 @@ function love.load()
   G.setShader();G.setCanvas()
   local d=result:newImageData();local r,g,b=d:getPixel(50,400)
   check(math.abs(r-.2)<.01 and math.abs(g-.5)<.01,'options side pixels cover field')
-  write(w..'.work/shadow-border-fix/options-transparent.png',d:encode('png'):getString())
+  write(w..'.work/name-colors-fix/options-transparent.png',d:encode('png'):getString())
 
   -- Run the actual RS Options draw, including its nested canvas/fade shader.
   local catalog=assert(loadstring(mod:read('lib/border_catalog.lua')))()
@@ -81,7 +81,7 @@ function love.load()
    drawAt(rs,rs.draw,8,'optionOpacity',1047,699);G.setCanvas()
    local dd=out:newImageData();local r,g,b=dd:getPixel(50,400)
    check(math.abs(r-.2)<.01 and math.abs(g-.5)<.01,version..' real Options still has side bars')
-   write(w..'.work/shadow-border-fix/'..version..'-options.png',dd:encode('png'):getString())
+   write(w..'.work/name-colors-fix/'..version..'-options.png',dd:encode('png'):getString())
   end
   local kim=assert(read(w..'.work/latest-sprite-fix/current-source/kim1025/lib/gen3_frlg.lua'))
   local a=assert(kim:find('  local FRLG_PLATFORM_PLAYER',1,true));local b=assert(kim:find('  -- Game3 renders the FRLG battle into',a,true))
@@ -95,7 +95,7 @@ function love.load()
    check(draw(arena,ox,oy,s,s,geo,{x=0,y=0,w=ww,h=hh}),'HD background unavailable');G.setCanvas()
    local data=canvas:newImageData()
    for _,pos in ipairs({{0,0},{ww-1,0},{0,hh-1},{ww-1,hh-1}})do local r,g,b,a=data:getPixel(pos[1],pos[2]);check(a==1 and (math.abs(r-.92)>.005 or math.abs(g-.94)>.005 or math.abs(b-.96)>.005),'HD frame still visible at edge')end
-   write(w..'.work/shadow-border-fix/background-'..ww..'x'..hh..'.png',data:encode('png'):getString())
+   write(w..'.work/name-colors-fix/background-'..ww..'x'..hh..'.png',data:encode('png'):getString())
   end
 
   -- Exercise the actual selector with canonical art present, then resize.
@@ -124,7 +124,7 @@ function love.load()
     drawExtended(selected,(ww-240*s)/2,(hh-160*s)/2,s,s,geoExtended({file='grass_day'}),{x=0,y=0,w=ww,h=hh});G.setCanvas()
     local d=c:newImageData()
     for _,p in ipairs({{0,0},{ww-1,0},{0,hh-1},{ww-1,hh-1}})do local rr,gg,bb,aa=d:getPixel(p[1],p[2]);check(aa==1 and gg>0,'extension does not fill viewport')end
-    write(w..'.work/shadow-border-fix/extended-'..ww..'x'..hh..'.png',d:encode('png'):getString())
+    write(w..'.work/name-colors-fix/extended-'..ww..'x'..hh..'.png',d:encode('png'):getString())
   end
   local Align=assert(loadstring(assert(read(w..'.work/latest-sprite-fix/current-source/kim1025/lib/gen3_trainer_align.lua'))))()
   local P=require('src.core.game3.trainer_pic')
@@ -149,7 +149,7 @@ function love.load()
   palette.scope(function()F.draw('Wild '..string.char(252,1,1)..'ZIGZAGOON appeared!',8,120,{colors={fg={1,1,1,1},shadow={.5,.5,.5,1}}})end);G.setCanvas()
   local d=c:newImageData();local black=0
   for yy=112,159 do for xx=0,239 do local rr,gg,bb=d:getPixel(xx,yy);if rr<.01 and gg<.01 and bb<.01 then black=black+1 end end end
-  check(black>30,'Ruby dialogue still white');write(w..'.work/shadow-border-fix/black-dialogue.png',d:encode('png'):getString())
+  check(black>30,'Ruby dialogue still white');write(w..'.work/name-colors-fix/black-dialogue.png',d:encode('png'):getString())
 
   local choices={battle_text_color=2,menuTextColor=4,battle_background_color=1}
   local colourMod={options={get=function(_,k)return choices[k]end},save={get=function()end},exports={},
@@ -168,7 +168,7 @@ function love.load()
   local c=G.newCanvas(240,160);G.setCanvas(c);G.origin();G.clear(1,1,1,1);Message.drawText();G.setCanvas()
   local data=c:newImageData();local blue=0
   for yy=112,159 do for xx=0,239 do local rr,gg,bb=data:getPixel(xx,yy);if bb>.45 and rr<.15 and gg<.3 then blue=blue+1 end end end
-  check(blue>30,'actual dialogue bypasses chosen colour');write(w..'.work/shadow-border-fix/blue-dialogue.png',data:encode('png'):getString())
+  check(blue>30,'actual dialogue bypasses chosen colour');write(w..'.work/name-colors-fix/blue-dialogue.png',data:encode('png'):getString())
   -- Real RS printer retains native glyph metrics but changes its opaque ink.
   local RS=require('src.ui.game3.rs.field_auto_scroll_message')
   local state=RS.prepare({fieldWindow={template='gMenuTextWindowTemplate',fontNum=3,textMode=2,left=2,top=15,lineLength=26,autoScroll=true},nativeBytes={187,188,189,255},text='ABC'})
@@ -178,7 +178,7 @@ function love.load()
   data=c:newImageData();local white=0
   for yy=120,135 do for xx=16,223 do local rr,gg,bb=data:getPixel(xx,yy);if rr>.99 and gg>.99 and bb>.99 then white=white+1 end end end
   check(white>10 and white<1000,'RS native glyphs/paper bypass colour settings');RS.close()
-  write(w..'.work/shadow-border-fix/native-white-on-black.png',data:encode('png'):getString())
+  write(w..'.work/name-colors-fix/native-white-on-black.png',data:encode('png'):getString())
   local borderSource=assert(colourMod:read('lib/menu_borders.lua'))
   local border=assert(loadstring(borderSource))()(colourMod,function(k)return k=='menuBorder' and 6 or k=='menuTheme' and 2 or 0 end,catalog,function()return true end)
   colourMod.exports.battleUi={backgroundColor=function()return Palette.background()end}
@@ -193,7 +193,7 @@ function love.load()
     end
   end end
   G.setCanvas(c);G.setColor(1,1,1,1);Palette.scope(function()F.draw('Wild HOOTHOOT appeared!',10,122,{})end);G.setCanvas()
-  write(w..'.work/shadow-border-fix/black-battle-box.png',c:newImageData():encode('png'):getString())
+  write(w..'.work/name-colors-fix/black-battle-box.png',c:newImageData():encode('png'):getString())
   choices.battle_text_color=0
   G.setCanvas(c);G.origin();G.clear(1,1,1,1);Palette.menuScope(function()F.draw('OPTIONS',16,20,{})end);G.setCanvas()
   data=c:newImageData();local red=0
@@ -201,7 +201,13 @@ function love.load()
   check(red>10,'menu colour is not independent');check(Palette.colors().fg[1]==0,'menu overwrote battle choice')
 
   -- Prove that the inner rim joins the chosen paper, rather than remaining white.
-  local referenceData=base:newImageData();local blackData;local removed
+  local referenceData=base:newImageData();local blackData=c:newImageData();local removed=0
+  for yy=112,159 do for xx=0,239 do
+    if xx<8 or xx>=232 or yy<120 or yy>=152 then
+      local r1,g1,b1,a1=referenceData:getPixel(xx,yy);local r2,g2,b2,a2=blackData:getPixel(xx,yy)
+      if math.min(r1,g1,b1)>.97 and a1>0 and r2==0 and g2==0 and b2==0 and a2>0 then removed=removed+1 end
+    end
+  end end
   -- c was reused for menu text above, so render the border anew.
   G.setCanvas(c);G.origin();G.clear();border.drawBattlePixels(0,112,240,48);G.setCanvas()
   blackData=c:newImageData();removed=0
@@ -217,7 +223,7 @@ function love.load()
   local colored=c:newImageData();local redShadow=0
   for yy=120,150 do for xx=8,231 do local rr,gg,bb=colored:getPixel(xx,yy);if rr>.5 and gg<.1 and bb<.1 then redShadow=redShadow+1 end end end
   check(redShadow>10,'battle shadow colour ignored')
-  write(w..'.work/shadow-border-fix/black-box-red-shadow.png',colored:encode('png'):getString())
+  write(w..'.work/name-colors-fix/black-box-red-shadow.png',colored:encode('png'):getString())
   choices.menuTextColor=6;choices.menuTextShadowColor=5
   G.setCanvas(c);G.origin();G.clear(0,0,0,1);Palette.menuScope(function()F.draw('OPTIONS',16,20,{})end);G.setCanvas()
   colored=c:newImageData();local blueShadow=0
@@ -236,8 +242,51 @@ function love.load()
   colored=c:newImageData();blueShadow=0
   for yy=20,40 do for xx=0,239 do local rr,gg,bb=colored:getPixel(xx,yy);if bb>.45 and rr<.15 and gg<.3 then blueShadow=blueShadow+1 end end end
   check(blueShadow==0,'None leaves native shadow pixels')
-  write(w..'.work/shadow-border-fix/result.txt','PASS '..checks..' Ruby/Sapphire font, palette, transparent options and fullscreen background GPU checks')
+
+  choices.battle_name_color=4;choices.battle_name_shadow_color=8
+  choices.battle_text_color=2;choices.battle_shadow_color=0
+  local hbSource=assert(read(w..'.tools/engine-0358/src/core/game3/battle/healthbox.lua'))
+  local ra=assert(hbSource:find('local function draw_rs_row',1,true))
+  local rb=assert(hbSource:find('local function healthbox_gender',ra,true))
+  local na=assert(hbSource:find('local function draw_name_gender',1,true))
+  local nb=assert(hbSource:find('-- pokefirered/src/battle_interface.c:759',na,true))
+  local nativeColors={fg={.3,.3,.3,1},shadow={.8,.8,.8,1},bg={1,1,1,1}}
+  local nameDraw=compile(hbSource:sub(ra,rb-1)..hbSource:sub(na,nb-1)..'return draw_name_gender',setmetatable({FrlgFont=F,
+    rs_layout=function()return true end,TEXT_Y=3,rs_text_colors=function(gender)return gender and F.COLOR.MALE or nativeColors end,
+    BattleChrome={drawElementTile=function()end},small_opts=function(colors)return {small=true,colors=colors}end},{__index=_G}))
+  local uiSource=assert(colourMod:read('lib/battle_ui.lua'))
+  local wrapper=assert(uiSource:match("(    local Healthbox=require%('src.core.game3.battle.healthbox'%).-)%s+local Message=require"))
+  for _,version in ipairs({'ruby','sapphire'})do
+    game=version;GV.set(game);F.invalidate()
+    for _,nickname in ipairs({'TORCHIC','5'})do
+      local H={draw=function()
+        nameDraw(nickname,'M',16,3)
+        F.draw('5',88,0,{font='native_4',textMode=0,colors=nativeColors})
+        F.draw('19/19',80,24,{font='native_4',textMode=0,colors=nativeColors})
+      end}
+      local ref=G.newCanvas(128,48);G.setCanvas(ref);G.origin();G.clear(1,1,1,1);H.draw();G.setCanvas()
+      compile(wrapper,setmetatable({require=function(n)if n=='src.core.game3.battle.healthbox'then return H elseif n=='src.core.game3.battle'then return {_st={}}end;return require(n)end,
+        enabled=function()return true end,textPalette=Palette},{__index=_G}))
+      local actual=G.newCanvas(128,48);G.setCanvas(actual);G.origin();G.clear(1,1,1,1);H.draw('player');G.setCanvas()
+      local ad,rd=actual:newImageData(),ref:newImageData();local red=0
+      for yy=0,47 do for xx=0,127 do
+        local r1,g1,b1,a1=rd:getPixel(xx,yy);local r2,g2,b2,a2=ad:getPixel(xx,yy)
+        if xx>=16 and xx<72 and yy>=8 and yy<16 then
+          if r2>.5 and g2<.1 and b2<.1 then red=red+1 end
+        else check(r1==r2 and g1==g2 and b1==b2 and a1==a2,version..' name colour alters levels or HP')end
+      end end
+      check(red>0,version..' name colour missing for '..nickname)
+      write(w..'.work/name-colors-fix/'..version..'-name-'..nickname..'.png',ad:encode('png'):getString())
+    end
+  end
+  choices.menuTextColor=3
+  G.setCanvas(c);G.origin();G.clear(0,0,0,1)
+  Palette.nativeNameGlyph(function(_,x,y)G.draw(nativeImage,q,x,y)end,0x80,16,20);G.setCanvas()
+  local d=c:newImageData();local red=0
+  for yy=20,35 do for xx=16,30 do local rr,gg,bb=d:getPixel(xx,yy);if rr>.5 and gg<.1 and bb<.1 then red=red+1 end end end
+  check(red>0,'native GB name colour inherits menu colour')
+  write(w..'.work/name-colors-fix/result.txt','PASS '..checks..' Ruby/Sapphire font, palette, transparent options and fullscreen background GPU checks')
  end,debug.traceback)
- if not ok then write(w..'.work/shadow-border-fix/result.txt',err)end
+ if not ok then write(w..'.work/name-colors-fix/result.txt',err)end
  love.event.quit()
 end

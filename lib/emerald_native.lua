@@ -84,6 +84,13 @@ return WideBattle
     overrides['src.core.game3.rom_text']={has=function()return false end}
     overrides['src.ui.game3.summary_chrome']=clone('src.ui.game3.summary_chrome',overrides)
     M.healthbox=clone('src.core.game3.battle.healthbox',overrides)
+    if M.healthbox then
+      local original=M.healthbox.draw
+      M.healthbox.draw=function(...)
+        if M.textPalette then return M.textPalette.nameScope(M.font,original,...)end
+        return original(...)
+      end
+    end
     if M.healthbox then M.healthbox.shouldShowCaughtMarker=function(_,b)return b.caught==true end end
     local function color(v)
       v=tonumber(v)or 0

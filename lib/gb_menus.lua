@@ -9,6 +9,7 @@ return function(mod,catalog)
  local MOD_ID='gen3transparency'
  local positions={'DEFAULT','LEFT','RIGHT','TOP LEFT','TOP RIGHT','BOTTOM LEFT','BOTTOM RIGHT','CENTER','TOP CENTER','BOTTOM CENTER'}
  local menuPalette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
+ C.palette=menuPalette
  local specs={menuTextColor={0,0,6,1},menuTextShadowColor={0,0,9,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1},menuBorder={1,1,#catalog.choices,1},startJustify={1,1,3,1},startSelector={3,1,4,1},hideStartMods={0,0,1,1},
   backgroundDim={0,0,70,10},controlsLegend={2,1,3,1},menuTransition={3,1,3,1},positionPreview={1,0,1,1}}
  for _,group in ipairs({'start','option','save','other'}) do
@@ -112,6 +113,7 @@ return function(mod,catalog)
  -- Use the original glyph size there instead of the dense GB screen size.
  C.theme.gbScale=function()if mod.exports.battleFontScope then return mod.exports.battleFontScale or .5 end;return not C.compactText and (C.drawingStart or C.drawingCheats or C.drawingOptions and C.drawingOptions.fullFont) and 1 or .5 end
  C.theme.gbColors=function()
+  if mod.exports.battleNameScope then return menuPalette.colors('name')end
   if mod.exports.battleFontScope then
    local ui=mod.exports.battleUi
    if ui and ui.nativeEmerald then return ui.nativeEmerald.presentationColors() end
@@ -197,7 +199,8 @@ return function(mod,catalog)
    local current=Font._menuCustomizerGB
    local scope=current and current.mod and current.mod.exports or mod.exports
    if current and scope.battleHudScope then
-    local prior,scale=scope.battleFontScope,scope.battleFontScale
+    local prior,scale,nameScope=scope.battleFontScope,scope.battleFontScale,scope.battleNameScope
+    scope.battleNameScope=(y==0 or y==56)
     if tostring(text):match('^%d+$')or tostring(text):find('<LV>',1,true)then
      scope.battleFontScope=false
     elseif scope.battleHudCapture and (y==0 or y==56) then
@@ -205,7 +208,7 @@ return function(mod,catalog)
      y=y-2
     end
     local result={pcall(render,text,x,y,...)}
-    scope.battleFontScope,scope.battleFontScale=prior,scale
+    scope.battleFontScope,scope.battleFontScale,scope.battleNameScope=prior,scale,nameScope
     if not result[1]then error(result[2],0)end
     return unpack(result,2)
    end
@@ -285,7 +288,8 @@ return function(mod,catalog)
    G.push('all');G.translate(x,y);G.scale(1/rx,1/ry)
    local result
    if not (current and current.theme and current.theme.enabled() and current.theme.gbGlyph(glyph,0,0)) then
-    if current and current.drawScope then result=menuPalette.nativeMenuGlyph(code,glyph,0,0,...)
+    if current and current.mod.exports.battleNameScope then result=(current.palette or menuPalette).nativeNameGlyph(code,glyph,0,0,...)
+    elseif current and current.drawScope then result=(current.palette or menuPalette).nativeMenuGlyph(code,glyph,0,0,...)
     else result=code(glyph,0,0,...)end
    end
    G.pop();return result
@@ -769,7 +773,7 @@ return function(mod,catalog)
   end
  end
  mod.events:on('game.ready',function(event)attach(event.game)end)
- mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.20'
+ mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.21'
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C
 end
