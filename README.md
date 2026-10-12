@@ -1,9 +1,13 @@
-# Menu Customizer 3.2.14
+# Menu Customizer 3.2.15
 
-Fix overlapping Emerald battle letters by clipping glyph atlas cells to their actual widths, matching the native Emerald renderer. Use matching font widths when spacing GB battle HUD text. Draw command panels as two adjacent frames rather than stacking a second frame over a full-width border.
+Restore battle borders to the 3.2.11 frame geometry while using the original Emerald battle fonts.
 
-Keeps the Gen 1/2 generation boundary fix and KIM1025 positioning. Original normal/narrow fonts remain available in dialogue and move selection.
+- Keep the selected border artwork, opacity, command placement and full move-panel bounds.
+- Render original Emerald normal/narrow glyphs and palettes with uniform physical pixels, independently of frame scaling.
+- Fit labels, cursors, PP and complete type names inside the restored frame interiors.
+- Expose a final-window battle text presenter for KIM1025, avoiding the 160px Game Boy intermediate canvas.
+- Retain Gen 1/2 generation isolation and Gen 3 support.
 
-Validation: Windows LOVE checks portable normal/narrow rendered text pixel-for-pixel against the native Emerald font; cached Gen 1/2 safety, Gen 3 rendering and offline fonts pass. All eleven games boot with KIM1025. Menu, font ownership and move layout regressions pass in Lua 5.3/LuaJIT. Rendered move screen inspected; live gameplay was not exercised.
+Update KIM1025 to 1.7.29 alongside this release for crisp Gen 1 fullscreen commands, dialogue and HUD text. Restart after updating.
 
-Restart after updating.
+Validation: pixel comparisons against 3.2.11 borders and native Emerald font rendering in the composed KIM path, plus cached Gen 1/2 safety, Gen 3/offline font checks, eleven-game startup checks and Lua/LuaJIT menu/layout regressions. Live game window capture timed out; gameplay was not verified.

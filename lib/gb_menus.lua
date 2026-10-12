@@ -110,7 +110,13 @@ return function(mod,catalog)
  -- START rows are sixteen pixels apart, just like Emerald's native menu.
  -- Use the original glyph size there instead of the dense GB screen size.
  C.theme.gbScale=function()if mod.exports.battleFontScope then return mod.exports.battleFontScale or .5 end;return not C.compactText and (C.drawingStart or C.drawingCheats or C.drawingOptions and C.drawingOptions.fullFont) and 1 or .5 end
- C.theme.gbColors=function()if mod.exports.battleFontScope then return {fg={.08,.10,.12,1},shadow={.85,.85,.82,1}}end end
+ C.theme.gbColors=function()
+  if mod.exports.battleFontScope then
+   local ui=mod.exports.battleUi
+   if ui and ui.nativeEmerald then return ui.nativeEmerald.presentationColors() end
+   return {fg={74/255,74/255,74/255,1},shadow={214/255,214/255,206/255,1}}
+  end
+ end
  Font._menuCustomizerGB=C
  if not Font._menuCustomizerGBWrapped then
   local box,draw,code,advance=Font.drawBox,Font.draw,Font.drawCode,Font.advanceOf
@@ -740,7 +746,7 @@ return function(mod,catalog)
   end
  end
  mod.events:on('game.ready',function(event)attach(event.game)end)
- mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.14'
+ mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.15'
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C
 end

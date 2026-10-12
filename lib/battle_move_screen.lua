@@ -39,6 +39,25 @@ return function(mod)
     return {x=rect.x,y=rect.y,sx=rect.w/336,sy=rect.h/64,
       textSx=scale/dpiX,textSy=scale/dpiY}
   end
+  function api.emeraldLayout(rect,viewport)
+    local dx,dy=viewport and viewport.dpiX or 1,viewport and viewport.dpiY or 1
+    local inset=8*rect.h/48
+    local innerH=math.max(1,rect.h-2*inset)
+    local leftW=math.max(1,rect.w*2/3-2*inset)
+    local rightW=math.max(1,rect.w/3-2*inset)
+    local pixels=math.min(leftW*dx/160,rightW*dx/80,innerH*dy/48)
+    if pixels>=1 then pixels=math.floor(pixels)end
+    local sx,sy=pixels/dx,pixels/dy
+    local function pane(x,w,nativeX,nativeW)
+      return {x=math.floor((x+(w-nativeW*sx)/2)*dx+.5)/dx,
+        y=math.floor((rect.y+inset+(innerH-48*sy)/2)*dy+.5)/dy,
+        nativeX=nativeX,nativeWidth=nativeW,
+        interior={x=x,y=rect.y+inset,w=w,h=innerH}}
+    end
+    return {sx=sx,sy=sy,pixels=pixels,
+      left=pane(rect.x+inset,leftW,0,160),
+      right=pane(rect.x+rect.w*2/3+inset,rightW,160,80)}
+  end
   function api.wrapName(label,limit)
     label=tostring(label);limit=math.max(1,math.floor(limit))
     if #label<=limit then return {label} end
@@ -49,93 +68,14 @@ return function(mod)
     local second=label:sub(cut):gsub('^%s+','')
     return {first,second}
   end
-  function api.draw(battle, rect, viewport)
-    if battle.phase~='moveSelect' then return false end
-    local custom=customizer()
-    local port=custom and custom.nativeEmerald
-    if custom and (custom.setting('style',1)==2 or custom.emeraldFont and custom.emeraldFont()) and port and (port.presentationReady and port.presentationReady() or port.ready()) then
-      local g=love.graphics
-      local F,C=port.font,port.chrome
-      if port.presentation then F,C=port.presentation()end
-      local moves=battle.player and battle.player.curMoves or {}
-      local colors=(port.presentationColors or port.colors)()
-      -- Emerald's actual 240x160 screen; the lower 48 pixels are the menu.
-      g.push('all')
-      local ok,err=pcall(function()
-        g.origin();g.setShader();g.setScissor()
-        local dx,dy=viewport and viewport.dpiX or 1,viewport and viewport.dpiY or 1
-        local pixels=math.min(rect.w*dx/240,rect.h*dy/48)
-        local sx,sy=pixels/dx,pixels/dy
-        g.translate(rect.x+(rect.w-240*sx)/2,rect.y+rect.h-48*sy);g.scale(sx,sy);g.translate(0,-112)
-        local function frames()
-          if custom.setting('style',1)~=2 or not port.ready() then
-            custom.panel(0,112,160,48,false);custom.panel(160,112,80,48,false)
-          else C.drawPanel('moves');C.drawMenuFrames('moves') end
-        end
-        if custom.fadedScreen then
-          g.push('all');g.origin()
-          custom.fadedScreen(function()
-            g.translate(rect.x+(rect.w-240*sx)/2,rect.y+rect.h-48*sy);g.scale(sx,sy);g.translate(0,-112)
-            frames()
-          end,math.ceil(rect.x+rect.w),math.ceil(rect.y+rect.h))
-          g.pop()
-        else custom.faded(frames) end
-        g.setColor(1,1,1,1)
-        local function label(win,s,dx,narrow)
-          local x,y,w,isNarrow=C.textOrigin(win)
-          F.draw(tostring(s),x+(dx or 0),y,{font=(narrow==nil and isNarrow or narrow) and 'narrow' or 'normal',colors=colors,maxWidth=w-(dx or 0)})
-        end
-        for i=1,4 do
-          local mv=moves[i];local def=mv and battle.data.moves[mv.id]
-          label(C.WIN.MOVE_NAME_1+i-1,def and def.name or '-')
-          if i==battle.moveIndex or i==battle.moveSwapIndex then
-            local _,y=C.textOrigin(C.WIN.MOVE_NAME_1+i-1)
-            F.drawGlyph(F.CHAR_SELECTOR_ARROW,8+72*((i-1)%2),y,{colors=colors})
-          end
-        end
-        local mv=moves[battle.moveIndex or 1];local def=mv and battle.data.moves[mv.id]
-        if def then
-          local base=tonumber(def.pp) or 0
-          local maximum=mv.maxPp or base+(mv.ppUps or 0)*math.floor(base/5)
-          colors=(port.presentationColors or port.colors)(mv.pp or 0,maximum)
-          label(C.WIN.PP,'PP')
-          label(C.WIN.PP_REMAINING,string.format('%2d/%2d',mv.pp or 0,maximum))
-          colors=(port.presentationColors or port.colors)()
-          label(C.WIN.MOVE_TYPE,'TYPE/')
-          label(C.WIN.MOVE_TYPE,TypeChart.displayName(def.type,battle.data),F.measure('TYPE/',{font='narrow'}),false)
-        end
-      end)
-      g.pop();if not ok then error(err,0)end
-      return true
-    end
+  function api.frames(rect, viewport)
     local g=love.graphics
     local p=api.layout(rect,viewport and viewport.dpiX,viewport and viewport.dpiY)
+    local theme=customizer()
     g.push('all')
     local ok,err=pcall(function()
       g.origin();g.setShader();g.setScissor()
       g.translate(p.x,p.y);g.scale(p.sx,p.sy)
-      local function text(label,x,y,width,enlarge)
-        label=tostring(label)
-        local size=enlarge or 1
-        local measured=Font.width and Font.width(label) or #label*8
-        local fit=width and math.min(1,width*p.sx/math.max(1,(measured+.5)*p.textSx*size)) or 1
-        g.push('all');g.translate(x,y)
-        g.scale(p.textSx*fit*size/p.sx,p.textSy*fit*size/p.sy)
-        local drawn,why=pcall(function()
-          Font.draw(label,0,0)
-          -- Half a font pixel strengthens stems without blurring the pixel font.
-          local selected=Font._menuCustomizerGB
-          if not (selected and selected.theme and selected.theme.enabled()) then Font.draw(label,.5,0) end
-        end);g.pop()
-        if not drawn then error(why,0) end
-      end
-      local function cursor(code,x,y)
-        g.push('all');g.translate(x,y)
-        g.scale(p.textSx/p.sx,p.textSy/p.sy)
-        local drawn,why=pcall(Font.drawCode,code,0,0);g.pop()
-        if not drawn then error(why,0) end
-      end
-      local theme=customizer()
       local function emeraldPanel(x,w)
         -- Preserve the imported frame corners and border thickness instead of
         -- squeezing a 240px textbox into the narrow PP/type column.
@@ -201,6 +141,93 @@ return function(mod)
         end,math.ceil(rect.x+rect.w),math.ceil(rect.y+rect.h))
         g.pop()
       elseif theme and type(theme.faded)=='function' then theme.faded(frames) else frames() end
+    end)
+    g.pop();if not ok then error(err,0)end
+    return true
+  end
+  function api.draw(battle, rect, viewport)
+    if battle.phase~='moveSelect' then return false end
+    local custom=customizer()
+    local port=custom and custom.nativeEmerald
+    if custom and (custom.setting('style',1)==2 or custom.emeraldFont and custom.emeraldFont()) and port and (port.presentationReady and port.presentationReady() or port.ready()) then
+      local g=love.graphics
+      local F,C=port.font,port.chrome
+      if port.presentation then F,C=port.presentation()end
+      local moves=battle.player and battle.player.curMoves or {}
+      local colors=(port.presentationColors or port.colors)()
+      -- Emerald's actual 240x160 screen; the lower 48 pixels are the menu.
+      g.push('all')
+      local ok,err=pcall(function()
+        g.origin();g.setShader();g.setScissor()
+        local layout=api.emeraldLayout(rect,viewport)
+        local function at(x,fn)
+          local pane=x>=160 and layout.right or layout.left
+          g.push('all');g.origin();g.translate(pane.x,pane.y)
+          g.scale(layout.sx,layout.sy);g.translate(-pane.nativeX,-112)
+          g.setScissor(pane.interior.x,pane.interior.y,pane.interior.w,pane.interior.h)
+          local result={pcall(fn)};g.pop()
+          if not result[1]then error(result[2],0)end
+        end
+        -- Frame bounds are the same full rectangle used before the Emerald
+        -- font port. The font's square-pixel fit must not shrink the border.
+        if custom.frames then custom.frames('moves',rect,viewport)
+        else api.frames(rect,viewport)end
+        g.setColor(1,1,1,1)
+        local function label(win,s,dx,narrow)
+          local x,y,w,isNarrow=C.textOrigin(win)
+          at(x,function()F.draw(tostring(s),x+(dx or 0),y,{font=(narrow==nil and isNarrow or narrow) and 'narrow' or 'normal',colors=colors})end)
+        end
+        for i=1,4 do
+          local mv=moves[i];local def=mv and battle.data.moves[mv.id]
+          label(C.WIN.MOVE_NAME_1+i-1,def and def.name or '-')
+          if i==battle.moveIndex or i==battle.moveSwapIndex then
+            local _,y=C.textOrigin(C.WIN.MOVE_NAME_1+i-1)
+            at(0,function()F.drawGlyph(F.CHAR_SELECTOR_ARROW,8+72*((i-1)%2),y,{colors=colors})end)
+          end
+        end
+        local mv=moves[battle.moveIndex or 1];local def=mv and battle.data.moves[mv.id]
+        if def then
+          local base=tonumber(def.pp) or 0
+          local maximum=mv.maxPp or base+(mv.ppUps or 0)*math.floor(base/5)
+          colors=(port.presentationColors or port.colors)(mv.pp or 0,maximum)
+          label(C.WIN.PP,'PP')
+          label(C.WIN.PP_REMAINING,string.format('%2d/%2d',mv.pp or 0,maximum))
+          colors=(port.presentationColors or port.colors)()
+          label(C.WIN.MOVE_TYPE,'TYPE/')
+          label(C.WIN.MOVE_TYPE,TypeChart.displayName(def.type,battle.data),F.measure('TYPE/',{font='narrow'}),false)
+        end
+      end)
+      g.pop();if not ok then error(err,0)end
+      return true
+    end
+    local g=love.graphics
+    local p=api.layout(rect,viewport and viewport.dpiX,viewport and viewport.dpiY)
+    g.push('all')
+    local ok,err=pcall(function()
+      g.origin();g.setShader();g.setScissor()
+      g.translate(p.x,p.y);g.scale(p.sx,p.sy)
+      local function text(label,x,y,width,enlarge)
+        label=tostring(label)
+        local size=enlarge or 1
+        local measured=Font.width and Font.width(label) or #label*8
+        local fit=width and math.min(1,width*p.sx/math.max(1,(measured+.5)*p.textSx*size)) or 1
+        g.push('all');g.translate(x,y)
+        g.scale(p.textSx*fit*size/p.sx,p.textSy*fit*size/p.sy)
+        local drawn,why=pcall(function()
+          Font.draw(label,0,0)
+          -- Half a font pixel strengthens stems without blurring the pixel font.
+          local selected=Font._menuCustomizerGB
+          if not (selected and selected.theme and selected.theme.enabled()) then Font.draw(label,.5,0) end
+        end);g.pop()
+        if not drawn then error(why,0) end
+      end
+      local function cursor(code,x,y)
+        g.push('all');g.translate(x,y)
+        g.scale(p.textSx/p.sx,p.textSy/p.sy)
+        local drawn,why=pcall(Font.drawCode,code,0,0);g.pop()
+        if not drawn then error(why,0) end
+      end
+      api.frames(rect,viewport)
       g.setColor(0.08,0.10,0.12,1)
       local moves=battle.player and battle.player.curMoves or {}
       for i=1,4 do

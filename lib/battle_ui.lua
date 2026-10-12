@@ -7,6 +7,7 @@ return function(mod)
   local unpack = unpack or table.unpack
   local marker
   local api
+  local gbFrame
   local protectRegion
   local battleFont=assert(load(assert(mod:read('lib/battle_font.lua'))))()(mod)
   local nativeEmerald=assert(load(assert(mod:read('lib/emerald_native.lua'))))()(mod)
@@ -97,6 +98,44 @@ return function(mod)
       G.rectangle('fill',x+6,y+6,w-12,h-12)
     end
     G.setColor(unpack(color))
+  end
+  -- Keep the 3.2.11 frame bounds independent from the Emerald text canvas.
+  -- Command menus own only their original command pane; dialogue owns the
+  -- whole bottom rectangle. Text fitting must never alter those bounds.
+  local function frameGeometry(mode,rect)
+    local nativeW=rect.nativeWidth or (mod.generation==3 and 240 or 160)
+    local isWide=rect.wide or nativeW==304
+    local nativeH=rect.nativeHeight or (isWide and 40 or 48)
+    local x,w=0,nativeW
+    if mode=='menu' then
+      local commandW=mod.generation==3 and 120 or isWide and 144 or 96
+      local commandX=nativeW-commandW
+      local dest,scale=placement(commandX,commandW,nativeW)
+      x,w=dest,commandW*scale
+    end
+    return {x=rect.x+x*rect.w/nativeW,y=rect.y,w=w*rect.w/nativeW,h=rect.h,
+      nativeWidth=mode=='menu' and (mod.generation==3 and 120 or isWide and 144 or 96) or nativeW,
+      nativeHeight=nativeH,wide=isWide}
+  end
+  local function frames(mode,rect,viewport)
+    if mode=='moves' and api and api.moveScreen then return api.moveScreen.frames(rect,viewport) end
+    local r=frameGeometry(mode,rect)
+    G.push('all')
+    local ok,err=pcall(function()
+      G.origin();G.setShader();G.setScissor()
+      compose(function()
+        G.translate(r.x,r.y);G.scale(r.w/r.nativeWidth,r.h/r.nativeHeight)
+        if setting('style',1)~=1 then panel(0,0,r.nativeWidth,r.nativeHeight,false)
+        elseif gbFrame then gbFrame(0,0,r.nativeWidth/8,r.nativeHeight/8)
+        else
+          -- This API is used by GB presentation. Retain a safe native frame
+          -- if another renderer calls it in a Gen 3 session.
+          require('src.render.Font').drawBox(0,0,r.nativeWidth/8,r.nativeHeight/8)
+        end
+      end,math.ceil(rect.x+rect.w),math.ceil(rect.y+rect.h),0,0)
+    end)
+    G.pop();if not ok then error(err,0)end
+    return r
   end
   local function persist(ctx,key,value)
     local game = ctx.game or ctx
@@ -325,6 +364,7 @@ return function(mod)
     local draw = B[method]
     local mode, battle, wide, offset = nil,nil,false,0
     local nativeBox=mod.generation==2 and require('src.ui.gen2.Chrome').box or Font.drawBox
+    gbFrame=nativeBox
     local nativeText,nativeCode=Font.draw,Font.drawCode
     local customMoves=false
     -- One composited surface owns the outer frame and inset; their opacity
@@ -589,7 +629,7 @@ return function(mod)
         local width=wide and 304 or 160+(mod.generation==2 and (tonumber(select(1,...))or 0)or 0)*8
         local y=wide and 104 or 96;local h=wide and 40 or 48
         local x1,y1=G.transformPoint(0,y);local x2,y2=G.transformPoint(width,y+h)
-        if nativeEmerald.bottom(self,mod.generation,{x=x1,y=y1,w=x2-x1,h=y2-y1},api) then
+        if nativeEmerald.bottom(self,mod.generation,{x=x1,y=y1,w=x2-x1,h=y2-y1,nativeWidth=width,nativeHeight=h,wide=wide},api) then
           protect(0,y,width,h);return
         end
       end
@@ -684,10 +724,7 @@ return function(mod)
       local native=Wide.draw
       Wide.draw=function(self,...)
         if not enabled() then return native(self,...) end
-        if setting('style',1)==2 then
-          if nativeEmerald.ready()then return nativeEmerald.wideDraw(self,...)end
-          return native(self,...)
-        end
+        if setting('style',1)==2 and nativeEmerald.ready()then return nativeEmerald.wideDraw(self,...)end
         local priorMode,priorBattle,priorCustom=mode,battle,customMoves
         customMoves=false
         mode,battle,wide='wide',self,true
@@ -699,7 +736,18 @@ return function(mod)
       end
     end
   end
-  api={emeraldFont=battleFont.isEmerald,setting=setting,panel=panel,faded=faded,fadedScreen=function(fn,w,h)return compose(fn,w,h,0,0)end,placement=placement,textPlaced=textPlaced,rows=rows,nativeEmerald=nativeEmerald,protect=protectRegion}
+  api={frames=frames,frameGeometry=frameGeometry,emeraldFont=battleFont.isEmerald,setting=setting,panel=panel,faded=faded,fadedScreen=function(fn,w,h)return compose(fn,w,h,0,0)end,placement=placement,textPlaced=textPlaced,rows=rows,nativeEmerald=nativeEmerald,protect=protectRegion}
+  function api.canDrawBottom(battle)
+    if not enabled() or battle.safari or battle.contest then return false end
+    if not (battleFont.isEmerald() or setting('style',1)==2 and nativeEmerald.ready()) then return false end
+    local phase=battle.phase
+    return phase=='menu' or phase=='messages' or mod.generation==2 and
+      (phase=='intro' or phase=='resolving' or phase=='locked-in') or false
+  end
+  function api.drawBottom(battle,rect,viewport)
+    if not api.canDrawBottom(battle) then return false end
+    return nativeEmerald.bottom(battle,mod.generation,rect,api,viewport)
+  end
   battleFont.active=enabled
   nativeEmerald.selectedFont=battleFont.selected
   nativeEmerald.useEmeraldFont=battleFont.isEmerald

@@ -165,9 +165,33 @@ return WideBattle
   function M.presentationReady()
     return M.ready() or M.useEmeraldFont and M.useEmeraldFont() and bundledTheme()~=nil
   end
+  local presentationPalette
   function M.presentationColors(...)
     if M.ready()then return M.colors(...)end
-    return {fg={.08,.10,.12,1},shadow={.85,.85,.82,1}}
+    -- Emerald's original battle-text palette, including PP warning colours.
+    -- These values are presentation data and do not depend on a Gen 3 game.
+    local pp,maximum=...
+    if presentationPalette==nil then presentationPalette=tableAt('data/generated/gba/pokemon/battle/manifest.lua') or {} end
+    local manifest=presentationPalette
+    local p=manifest.windowTextPal or { [14]=9513,[16]=26458 }
+    local fg,shadow=p[14],p[16]
+    if pp~=nil and maximum then
+      local state
+      if maximum==pp then state=3
+      elseif maximum<=2 then state=pp>1 and 3 or 2-pp
+      elseif maximum<=7 then state=pp>2 and 3 or 2-pp
+      elseif pp==0 then state=2
+      elseif pp<=math.floor(maximum/4)then state=1
+      elseif pp>math.floor(maximum/2)then state=3
+      else state=0 end
+      local q=manifest.ppTextPal or {794,18399,543,15295,124,20350,9513,28539}
+      fg,shadow=q[state*2+1]or fg,q[state*2+2]or shadow
+    end
+    local function color(v)
+      local function c(n)return (n*8+math.floor(n/4))/255 end
+      return {c(v%32),c(math.floor(v/32)%32),c(math.floor(v/1024)%32),1}
+    end
+    return {fg=color(fg or 9513),shadow=color(shadow or 26458),bg={0,0,0,0}}
   end
   function M.presentation()
     if M.ready()then return M.font,M.chrome end
@@ -188,7 +212,7 @@ return WideBattle
     function C.textOrigin(id)return (unpack or table.unpack)(assert(origins[id]))end
     return F,C
   end
-  function M.bottom(battle,generation,rect,custom)
+  function M.bottom(battle,generation,rect,custom,viewport)
     if battle.safari or battle.contest then return false end
     local ready=M.ready()
     local theme=bundledTheme()
@@ -199,27 +223,50 @@ return WideBattle
     if not ready then F,C=M.presentation() end
     G.push('all')
     local ok,err=pcall(function()
-      local scale=math.min(rect.w/240,rect.h/48)
-      G.origin();G.setShader();G.setScissor();G.translate(rect.x+(rect.w-240*scale)/2,rect.y+rect.h-48*scale)
-      G.scale(scale,scale);G.translate(0,-112)
       local menu=battle.phase=='menu'
-      custom.faded(function()
+      local legacyFrames=custom.frames and generation~=3
+      local textRect=rect
+      if legacyFrames then textRect=custom.frames(menu and 'menu' or 'none',rect,viewport) or rect end
+      local clipRect
+      if legacyFrames then
+        local inset=math.min(8*textRect.h/48,textRect.w/2-1,textRect.h/2-1)
+        clipRect={x=textRect.x+inset,y=textRect.y+inset,
+          w=textRect.w-2*inset,h=textRect.h-2*inset}
+        if menu then textRect=clipRect end
+      end
+      local width=legacyFrames and menu and 120 or 240
+      local dx,dy=viewport and viewport.dpiX or 1,viewport and viewport.dpiY or 1
+      if dx<=0 then dx=1 end;if dy<=0 then dy=1 end
+      local pixels=math.min(textRect.w*dx/width,textRect.h*dy/48)
+      if legacyFrames and pixels>=1 then pixels=math.floor(pixels) end
+      local sx,sy=pixels/dx,pixels/dy
+      G.origin();G.setShader();G.setScissor()
+      if clipRect then G.setScissor(clipRect.x,clipRect.y,clipRect.w,clipRect.h)end
+      local tx=textRect.x+(textRect.w-width*sx)/2
+      local ty=legacyFrames and textRect.y+(textRect.h-48*sy)/2 or textRect.y+textRect.h-48*sy
+      if legacyFrames then tx=math.floor(tx*dx+.5)/dx;ty=math.floor(ty*dy+.5)/dy end
+      G.translate(tx,ty)
+      G.scale(sx,sy);G.translate(0,-112)
+      if not legacyFrames then custom.faded(function()
         if ready and custom.setting('style',1)==2 then C.drawPanel(menu and 'menu' or 'none');C.drawMenuFrames(menu and 'menu' or 'none')
         else custom.panel(0,112,menu and 120 or 240,48,false);if menu then custom.panel(120,112,120,48,false)end end
-      end)
+      end)end
       G.setColor(1,1,1,1)
       if menu then
         local p=battle.player
         local mon=generation==2 and battle:activeMon('player') or p and p.mon
         local name=p and p.name or mon and (mon.nickname or mon.name) or 'POKéMON'
-        F.draw('What will',9,121,{colors=M.presentationColors()})
-        F.draw(name..' do?',9,137,{colors=M.presentationColors(),maxWidth=104})
+        if not legacyFrames then
+          F.draw('What will',9,121,{colors=M.presentationColors()})
+          F.draw(name..' do?',9,137,{colors=M.presentationColors(),maxWidth=104})
+        end
+        local left=legacyFrames and 0 or 120
         local labels={'FIGHT','BAG','POKéMON','RUN'}
         for i,s in ipairs(labels)do
-          F.draw(s,128+56*((i-1)%2),121+16*math.floor((i-1)/2),{colors=ready and M.colors() or C.textboxColors()})
+          F.draw(s,left+8+56*((i-1)%2),121+16*math.floor((i-1)/2),{colors=ready and M.colors() or C.textboxColors()})
         end
         local c=(battle.menuIndex or 1)-1
-        F.drawGlyph(F.CHAR_SELECTOR_ARROW,120+56*(c%2),121+16*math.floor(c/2),{colors=ready and M.colors() or C.textboxColors()})
+        F.drawGlyph(F.CHAR_SELECTOR_ARROW,left+56*(c%2),121+16*math.floor(c/2),{colors=ready and M.colors() or C.textboxColors()})
       else
         local lines=generation==2 and battle:messageLines() or battle.shown or {}
         for i,line in ipairs(lines)do if i<=2 then F.draw(M.decode(line),16,121+(i-1)*16+(battle.scrollPx or 0),{colors=M.presentationColors(),maxWidth=208})end end
