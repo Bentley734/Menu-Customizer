@@ -1,3 +1,10 @@
+# Menu Customizer 3.2.35
+
+Eight new Start menu selectors: STAR, HEART, LIGHTNING, CRESCENT, DIAMOND, FLAME, PSYCHIC EYE and SPIRAL.
+Colourful pixel icons for Gen 1-3, with existing selector IDs preserved. Choose them in START SELECTOR / SELECTOR.
+
+Testing was explicitly skipped at the user's request to conserve usage. Restart the game after updating.
+
 # Menu Customizer 3.2.34
 
 Eight trippy animated borders: ACID RIBBONS, PLASMA BEADS, KALEIDO GEMS, MOLTEN DREAM, NEON CIRCUIT, WORMHOLE, CHECKER MELT and AURORA BRAID.

@@ -58,7 +58,8 @@ return function(mod)
   local LEGACY_MOD_ID = 'firered_widescreen_qol'
   local choices = {'DEFAULT', 'LEFT', 'RIGHT', 'TOP LEFT', 'TOP RIGHT', 'BOTTOM LEFT', 'BOTTOM RIGHT', 'CENTER', 'TOP CENTER', 'BOTTOM CENTER'}
   local justifyChoices = {'LEFT', 'CENTER', 'RIGHT'}
-  local selectorChoices = {'POKÉBALL', 'UNDERLINE', 'ARROW', 'DOTS'}
+  local Selectors=assert(load(assert(mod:read('lib/menu_selectors.lua'))))()
+  local selectorChoices = Selectors.names
   local borderChoices = catalog.choices
   local opacityChoices = {}
   for pct = 65, 100, 5 do opacityChoices[#opacityChoices+1] = pct end
@@ -628,6 +629,9 @@ return function(mod)
         x, width = labelPosition(text)
         local selected = not Start._confirmExit and index == Start.cursor
         local result = originalPrint(text, x, y, opts)
+        if selected and selector>=5 then
+          Selectors.draw(selector,x-10,y+3+(love.system and love.system.getOS and love.system.getOS()=='iOS' and 2 or 0))
+        end
         if selected and (selector == 2 or selector == 4) then
           local color = (opts and opts.colors or FrlgFont.COLOR.NORMAL).fg
           local r, g, b, a = love.graphics.getColor()
@@ -837,9 +841,9 @@ return function(mod)
     mod.hooks:wrap('ui.start_menu.items',startItemsHook)
     Borders=assert(load(assert(mod:read('lib/menu_borders.lua')), '@'..mod.path..'/lib/menu_borders.lua'))()(mod,setting,catalog,active)
     mod.exports.borders=Borders;mod.exports.borderCatalog=catalog
-    mod.exports.effects=FX;mod.exports.version='3.2.34'
+    mod.exports.effects=FX;mod.exports.version='3.2.35'
   end
   mod.exports.effects=FX
-  mod.exports.version = '3.2.34'
+  mod.exports.version = '3.2.35'
   mod.log:info('Menu Customizer: '..gameVersion..' START, OPTION and SAVE placement installed')
 end

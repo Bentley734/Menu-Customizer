@@ -6,13 +6,14 @@ return function(mod,catalog)
  local Viewport=require('src.render.GameViewport')
  local G=love.graphics
  local C={mod=mod,catalog=catalog,drawScope=false,layouts={},frame=0}
+ C.selectors=assert(load(assert(mod:read('lib/menu_selectors.lua'))))()
  local MOD_ID='gen3transparency'
  local positions={'DEFAULT','LEFT','RIGHT','TOP LEFT','TOP RIGHT','BOTTOM LEFT','BOTTOM RIGHT','CENTER','TOP CENTER','BOTTOM CENTER'}
  local menuPalette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
  C.palette=menuPalette
  local Transitions=assert(load(assert(mod:read('lib/menu_transitions.lua'))))()
  mod.exports.menuBackground=function()if C.drawScope or C.dialogueScope then return menuPalette.menuBackground(C.paperGroup)end end
- local specs={menuTextColor={0,0,#menuPalette.names-1,1},menuTextShadowColor={0,0,#menuPalette.shadowNames-1,1},menuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},startMenuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1},menuBorder={1,1,#catalog.choices,1},startJustify={1,1,3,1},startSelector={3,1,4,1},hideStartMods={0,0,1,1},
+ local specs={menuTextColor={0,0,#menuPalette.names-1,1},menuTextShadowColor={0,0,#menuPalette.shadowNames-1,1},menuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},startMenuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1},menuBorder={1,1,#catalog.choices,1},startJustify={1,1,3,1},startSelector={3,1,#C.selectors.names,1},hideStartMods={0,0,1,1},
   backgroundDim={0,0,70,10},controlsLegend={2,1,3,1},menuTransition={3,1,#Transitions.names,1},positionPreview={1,0,1,1}}
  for k,v in pairs(menuPalette.effects.specs('menu'))do specs[k]=v end
  for _,group in ipairs({'start','option','save','other'}) do
@@ -279,7 +280,7 @@ return function(mod,catalog)
    local selector=start.options and 3 or current.setting('startSelector')
    local left=start.left+8
    local right=start.left+start.width-8
-   local reserve=selector==1 or selector==3
+   local reserve=selector==1 or selector==3 or selector>=5
    local minimum=math.max(start.labelX,left+(reserve and 10 or selector==4 and 4 or 0))
    local maximum=right-(selector==4 and 4 or 0)
    if not start.inlineValues then text=windowText(text,math.max(1,maximum-minimum),n==start.index) end
@@ -332,7 +333,8 @@ return function(mod,catalog)
     -- Centre the selector on Emerald's visible ink, above the native GB row.
     y=y-2
    end
-   if sel.selector==3 then code(0xED,x-10,y)
+   if sel.selector>=5 then C.selectors.draw(sel.selector,x-10,y)
+   elseif sel.selector==3 then code(0xED,x-10,y)
    elseif sel.selector==2 then G.rectangle('fill',x,y+8,width,1)
    elseif sel.selector==4 then
     G.rectangle('fill',x-4,y+3,2,2);G.rectangle('fill',x+width+2,y+3,2,2)
@@ -563,7 +565,7 @@ return function(mod,catalog)
   if group=='start' then
    children[#children+1]=row('startJustify','TEXT',{'LEFT','CENTER','RIGHT'})
    children[#children+1]=row('startMenuBackgroundColor','BACKGROUND',startBgNames)
-   children[#children+1]=row('startSelector','SELECTOR',{'POKEBALL','UNDERLINE','ARROW','DOTS'})
+   children[#children+1]=row('startSelector','SELECTOR',C.selectors.names)
    children[#children+1]=toggle('hideStartMods','HIDE START MODS')
   end
   parent[#parent+1]={label=group:upper(),activate=function(game)pushPage(game,group:upper()..' MENU',children)end}
@@ -833,7 +835,7 @@ return function(mod,catalog)
   end
  end
  mod.events:on('game.ready',function(event)attach(event.game)end)
- mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.34'
+ mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.35'
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C
 end
