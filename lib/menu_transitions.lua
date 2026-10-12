@@ -1,5 +1,5 @@
 -- Short, draw-only transitions: input and game state remain on the native stack.
-local M={names={'INSTANT','FADE','SLIDE/FADE','RETRO POP','CRT POWER','LINK CABLE','POKEBALL IRIS','TILE WIPE','PSYCHIC SWIRL'}}
+local M={names={'INSTANT','FADE','SLIDE/FADE','RETRO POP','CRT POWER','LINK CABLE','POKEBALL IRIS','TILE WIPE','PSYCHIC SWIRL','POKEBALL BOUNCE','SURF WAVE','TELEPORT'}}
 function M.sample(style,p,w,h)
  p=math.max(0,math.min(1,p));local e=1-(1-p)^3
  local t={sx=1,sy=1,dx=0,dy=0,rotation=0}
@@ -9,7 +9,10 @@ function M.sample(style,p,w,h)
  elseif style==6 then t.dx=-(w or 240)*.5*(1-p)^2
  elseif style==7 then t.mask=1
  elseif style==8 then t.mask=2
- elseif style==9 then t.rotation=.22*math.sin(p*math.pi)*(1-p);t.sx=.8+.2*e;t.sy=t.sx end
+ elseif style==9 then t.rotation=.22*math.sin(p*math.pi)*(1-p);t.sx=.8+.2*e;t.sy=t.sx
+ elseif style==10 then t.dy=-(h or 160)*.24*math.abs(math.sin(p*math.pi*2))*(1-p);t.sx=.65+.35*e;t.sy=t.sx
+ elseif style==11 then t.dx=(w or 240)*.12*math.sin(p*math.pi*2)*(1-p);t.dy=(h or 160)*.08*math.sin(p*math.pi*3)*(1-p)
+ elseif style==12 then t.sx=.15+.85*e;t.sy=t.sx;t.rotation=.35*math.sin(p*math.pi*4)*(1-p) end
  return t
 end
 local shader

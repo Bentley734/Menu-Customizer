@@ -1,3 +1,10 @@
+# Menu Customizer 3.2.31
+
+Three new menu transitions: POKEBALL BOUNCE (a settling bounce), SURF WAVE (a gentle sideways wave), and TELEPORT (a spinning zoom).
+Existing saved transition choices keep their IDs. New zooms preserve the menu aspect ratio.
+
+Testing was explicitly skipped at the user's request to conserve usage. Restart the game after updating.
+
 # Menu Customizer 3.2.30
 
 Add 14 animated Pokémon background choices for menu paper, the separate Start menu background, and battle UI paper. Find them in the new POKEMON group in each background chooser. Existing saved colours, gradients and font choices keep their IDs and appearance.
