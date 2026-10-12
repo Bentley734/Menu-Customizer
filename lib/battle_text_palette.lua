@@ -89,6 +89,12 @@ return function(mod)
   -- Every static colour and the two other animation IDs keep their meaning.
   animated('AURORA','aurora');animated('ROTATING',nil,'ROTATING');animated('ANIMATED GRADIENT')
   for i=2,#M.gradients.entries do local e=M.gradients.entries[i];animated(e.name,e.key)end
+  local pokemonSource=mod.read and mod:read('lib/pokemon_backgrounds.lua')
+  M.pokemonBackgrounds=(pokemonSource and assert(load(pokemonSource))() or assert(loadfile('lib/pokemon_backgrounds.lua'))())(mod)
+  -- Background-only additions: never shift saved font/shadow/gradient IDs.
+  for _,e in ipairs(M.pokemonBackgrounds.entries)do
+    M.backgroundNames[#M.backgroundNames+1]=e.name;backgrounds[#backgrounds+1]=M.pokemonBackgrounds.color(e.key)
+  end
   local lists={text=foreground,shadow=shadows,background=backgrounds}
   function M.color(kind,n)local l=lists[kind] or foreground;return l[math.max(0,math.min(#l-1,math.floor(n or 0)))+1]end
   local function hue(c)
@@ -134,7 +140,7 @@ return function(mod)
   -- IDs stay flat in storage; navigation groups the same colours by hue.
   function M.groups(kind,defaultLabel)
     local names=kind=='shadow' and M.shadowNames or kind=='background' and M.backgroundNames or kind=='menuBackground' and M.menuBackgroundNames or M.names
-    local families={'SPECIAL','NEUTRALS','REDS','ORANGES','YELLOWS','GREENS','CYANS','BLUES','PURPLES','PINKS','BROWNS','ANIMATED'}
+    local families={'SPECIAL','NEUTRALS','REDS','ORANGES','YELLOWS','GREENS','CYANS','BLUES','PURPLES','PINKS','BROWNS','ANIMATED','POKEMON'}
     local buckets={};for _,name in ipairs(families)do buckets[name]={label=name,ids={}}end
     local count=#names
     for i=0,count-1 do
@@ -143,7 +149,8 @@ return function(mod)
       else
         c=M.color(kind=='menuBackground' and 'background' or kind,kind=='menuBackground' and i-1 or i)
         label=names[i+1]
-        if c.animation then family='ANIMATED'
+        if c.pokemon then family='POKEMON'
+        elseif c.animation then family='ANIMATED'
         else
           local h,v=hue(c);local lo=math.min(c[1],c[2],c[3]);local sat=v>0 and (v-lo)/v or 0
           if h<0 or sat<.06 then family='NEUTRALS'
@@ -165,6 +172,7 @@ return function(mod)
       local group=buckets[family]
       if #group.ids>0 then
         table.sort(group.ids,function(a,b)
+          if family=='POKEMON'then return a<b end
           local ia=kind=='menuBackground' and a-1 or a;local ib=kind=='menuBackground' and b-1 or b
           if ia<0 or ib<0 then return a<b end
           local base=baseCounts[kind=='menuBackground' and 'background' or kind] or baseCounts.text
@@ -189,7 +197,7 @@ return function(mod)
       for _,group in ipairs(groups)do
         local g=group
         rows[#rows+1]={id=row.id..':'..g.label,label=g.label,group=true,
-          value=function()return #g.ids..' COLORS'end,
+          value=function()return #g.ids..(g.label=='POKEMON'and' THEMES'or' COLORS')end,
           selected=function()for _,id in ipairs(g.ids)do if get()==id then return true end end;return false end,
           activate=function(nextCtx)
             local shades={}
@@ -222,7 +230,7 @@ return function(mod)
   function M.background()
     local n=tonumber(mod.options:get('battle_background_color') or mod.save:get('battle_background_color')) or 0
     local color=backgrounds[math.max(0,math.min(#backgrounds-1,math.floor(n)))+1]
-    if color.animation then return {color[1],color[2],color[3],color[4],animation=color.animation,gradient=color.gradient,_kind='battle'}end
+    if color.animation then return {color[1],color[2],color[3],color[4],animation=color.animation,gradient=color.gradient,pokemon=color.pokemon,_kind='battle'}end
     return color
   end
   function M.colors(kind)

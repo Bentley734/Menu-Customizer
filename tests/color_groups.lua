@@ -11,7 +11,8 @@ for _,kind in ipairs({'text','shadow','background','menuBackground'})do
   end
  end
  check(total==#names,'no colours omitted')
- check(found[#names-1]=='ANIMATED' and found[#names-2]=='ANIMATED' and found[#names-3]=='ANIMATED','animated modes grouped together')
+ local lastGroup=(kind=='background'or kind=='menuBackground')and'POKEMON'or'ANIMATED'
+ check(found[#names-1]==lastGroup and found[#names-2]==lastGroup and found[#names-3]==lastGroup,'animated modes grouped together')
  if kind=='text' then check(found[0]=='NEUTRALS' and found[2]=='BLUES' and found[3]=='GREENS' and found[4]=='REDS' and found[5]=='PURPLES','base hues correct')end
  if kind=='background' then check(found[5]=='BLUES' and found[6]=='GREENS','pale blue and green retain their base hue')end
  if kind=='shadow' or kind=='menuBackground' then check(found[0]=='SPECIAL','NONE or inherited background available')end

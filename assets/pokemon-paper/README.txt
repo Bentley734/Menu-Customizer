@@ -1,0 +1,1 @@
+Animated Pokémon artwork reused from the existing KIM1025 HD sprite asset cache. Sheets are bundled unchanged; metadata trims transparent padding when sampling them. Pokémon characters belong to their respective owners. These backgrounds are decorative menu paper, not replacements for battle sprites.

@@ -75,7 +75,7 @@ return function(mod,setting,catalog,active)
  -- This removes shared geometry edges as well as neighbouring atlas samples.
  local function wholePanel(atlas,image,paper,x,y,w,h,background)
   if not G.newShader then return false end
-  if not panelShader then panelShader=G.newShader(palette.gradients.glsl..palette.gradients.glsl:gsub('customGradient','paperCustomGradient'):gsub('stopA','paperStopA'):gsub('stopB','paperStopB'):gsub('stopC','paperStopC'):gsub('stopD','paperStopD'):gsub('gradientColor','paperGradientColor')..[[
+  if not panelShader then panelShader=G.newShader(palette.gradients.glsl..palette.pokemonBackgrounds.glsl..palette.gradients.glsl:gsub('customGradient','paperCustomGradient'):gsub('stopA','paperStopA'):gsub('stopB','paperStopB'):gsub('stopC','paperStopC'):gsub('stopD','paperStopD'):gsub('gradientColor','paperGradientColor')..[[
    extern vec2 extent;extern bool usePaper;extern Image paperTexture;
    extern vec4 paperColor;extern bool paperGradient;extern float paperPhase;
    extern bool rainbow;extern float phase;extern int borderEffect;
@@ -92,7 +92,7 @@ return function(mod,setting,catalog,active)
     vec2 coord=(cell*10.0+vec2(1.5)+clamp(floor(localPixel),vec2(0.0),vec2(7.0)))/30.0;
     vec4 ink=Texel(tex,coord);
     if(usePaper){vec4 paper=Texel(paperTexture,coord);
-     if(paper.a>0.0){vec3 rgb=paperGradient?paperGradientColor(paperPhase+pixel.x/320.0+pixel.y/640.0):paperColor.rgb;
+     if(paper.a>0.0){vec3 rgb=pokeStyle>0?pokemonPaper(p):paperGradient?paperGradientColor(paperPhase+pixel.x/320.0+pixel.y/640.0):paperColor.rgb;
       return vec4(rgb,paper.a*paperColor.a*color.a);}}
     vec3 rgb=rainbow?gradientColor(phase+uv.x*.65+uv.y*.35)*(.18+.82*ink.r):ink.rgb;
     if(borderEffect>0){
@@ -145,6 +145,7 @@ return function(mod,setting,catalog,active)
   local function byte(c)return math.floor(c*255)/255 end
   panelShader:send('paperTexture',paper or image);panelShader:send('paperColor',{byte(resolved[1]),byte(resolved[2]),byte(resolved[3]),byte(resolved[4] or 1)})
   panelShader:send('paperGradient',resolved.animation=='GRADIENT');panelShader:send('paperPhase',resolved.phase or 0)
+  palette.pokemonBackgrounds.send(panelShader,resolved.pokemon,resolved.phase,image)
   palette.gradients.send(panelShader,atlas.gradient)
   -- The two palette uniforms are independent: frame motion never tints paper.
   local paperStops=palette.gradients.byKey[resolved.gradient]

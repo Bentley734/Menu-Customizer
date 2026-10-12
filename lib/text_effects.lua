@@ -64,6 +64,11 @@ return function(mod,palette)
  end
  function M.resolve(c,kind)
   if not c or not c.animation then return c end
+  if c.animation=='POKEMON'then
+   local col={};for k,v in pairs(c)do col[k]=v end
+   col.phase=(love.timer and love.timer.getTime and love.timer.getTime() or 0)*M.get(kind or 'menu','speed',100)/100
+   return col
+  end
   local t=(love.timer and love.timer.getTime and love.timer.getTime() or 0)*.08*M.get(kind or 'menu','speed',100)/100
   local col=palette.gradients.sample(c.gradient,t) or hue(t%1)
   col[4]=c[4] or 1
@@ -73,7 +78,16 @@ return function(mod,palette)
  function M.paint(c,kind,fn,...)
   local G=love.graphics;local color=M.resolve(c,kind)
   G.push('all');G.setColor(unpack(color))
-  if color.animation=='GRADIENT' and G.newShader then
+  if color.animation=='POKEMON' and G.newShader then
+   if not M.pokemonShader then M.pokemonShader=G.newShader(palette.pokemonBackgrounds.glsl..[[
+    extern vec2 pokeOrigin;extern vec2 pokeScale;
+    vec4 effect(vec4 c,Image tex,vec2 uv,vec2 pixel){return vec4(pokemonPaper((pixel-pokeOrigin)/pokeScale),c.a)*Texel(tex,uv);}
+   ]])end
+   local ax,ay=G.transformPoint(0,0);local bx,by=G.transformPoint(1,1)
+   local target=G.getCanvas();local dpi=target and target:getDPIScale() or G.getDPIScale()
+   M.pokemonShader:send('pokeOrigin',{ax*dpi,ay*dpi});M.pokemonShader:send('pokeScale',{math.max(.0001,(bx-ax)*dpi),math.max(.0001,(by-ay)*dpi)})
+   palette.pokemonBackgrounds.send(M.pokemonShader,color.pokemon,color.phase);G.setShader(M.pokemonShader)
+  elseif color.animation=='GRADIENT' and G.newShader then
    if not shader then shader=G.newShader(palette.gradients.glsl..[[extern float phase;extern bool darkInk;
     vec4 effect(vec4 c,Image tex,vec2 uv,vec2 pixel){
      float h=fract(phase+pixel.x/320.0+pixel.y/640.0);
