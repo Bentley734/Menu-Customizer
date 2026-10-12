@@ -1,3 +1,6 @@
+Menu Customizer 3.2.13
+Fix Gen 1/2 crashes when Emerald extraction assets are present. Gen 1/2 use the bundled original Emerald normal/narrow battle fonts for dialogue, commands and move selection, without loading Gen 3 engine modules. Gen 3 retains its native Emerald renderer. Generation-native GB HUDs and KIM1025 positioning remain in use. Restart after updating.
+
 Menu Customizer 3.2.12
 Fixes unreadable Emerald battle text using Emerald's actual normal and narrow battle fonts and renderer.
 

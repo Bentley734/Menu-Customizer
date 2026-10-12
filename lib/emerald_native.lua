@@ -32,6 +32,9 @@ return WideBattle
     return assert(Compiler(source,'@emerald-port/'..path,env))()
   end
   function M.ready()
+    -- Cached Emerald assets do not make Gen 3 engine modules safe in GB games.
+    -- Use the bundled, generation-independent battle faces for Gen 1 and 2.
+    if (mod.generation or require('src.core.GameVersion').generation()) ~= 3 then return false end
     if M.font then return true end
     local manifest=tableAt('data/generated/gba/pokemon/battle/manifest.lua')
     local metrics=tableAt('data/generated/gba/chrome/fonts/metrics.lua')

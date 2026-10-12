@@ -1,5 +1,5 @@
-local w=assert(os.getenv('BATTLE_UI_WORKSPACE'),'set BATTLE_UI_WORKSPACE')..'/'
-local a=assert(os.getenv('POKEMON_CACHE_ROOT'),'set POKEMON_CACHE_ROOT')..'/'
+local w=assert(os.getenv('BATTLE_UI_WORKSPACE'))..'/'
+local a=assert(os.getenv('POKEMON_CACHE_ROOT'))..'/'
 local function read(p)local f=io.open(p,'rb');if not f then return end;local s=f:read('*a');f:close();return s end
 package.path=w..'.tools/engine-0358/?.lua;'..w..'.tools/engine-0358/?/init.lua;'..package.path
 function love.load()
@@ -48,7 +48,7 @@ function love.load()
   local fd,cp,pf=F.draw,C.drawPanel,P.forSession
   port.scope(function()assert(P.forSession().font==port.profile.font);assert(C.layout()=='rse');assert(F.draw==port.font.draw)end)
   assert(F.draw==fd and C.drawPanel==cp and P.forSession==pf,'scope not restored')
-  for _,game in ipairs({'red','blue','yellow','gold','silver','crystal','ruby','sapphire','emerald','firered','leafgreen'})do
+  for _,game in ipairs({'ruby','sapphire','emerald','firered','leafgreen'})do
     GV.set(game)
     assert(port.ready());assert(port.font.face({font='narrow'}).height==16)
     port.scope(function()assert(P.forSession().font==port.profile.font);assert(C.layout()=='rse')end)
@@ -107,6 +107,32 @@ function love.load()
     local f=assert(io.open(w..'.work/menu-battle-font/'..shot[1]..'.png','wb'));f:write(c:newImageData():encode('png'):getString());f:close()
   end
 
+  -- Exercise cached assets inside a strict per-generation require boundary.
+  for _,game in ipairs({'red','blue','yellow','gold','silver','crystal'})do
+    GV.set(game)
+    mod.generation=GV.generation()
+    local gbEnv=Sandbox.envFor({modId='gen3transparency',permissions={engine_internals=true}})
+    local originalRequire=gbEnv.require
+    gbEnv.require=function(name)
+      assert(not name:match('^src%.core%.game3') and not name:match('^src%.ui%.game3'), 'cross-generation require: '..name)
+      return originalRequire(name)
+    end
+    local oldSource=mod:read('lib/emerald_native.lua'):gsub("    if %(mod.generation or require%('src.core.GameVersion'%).generation%(%)%) ~= 3 then return false end",'')
+    local oldPort=assert(Sandbox.compile(oldSource,'@previous-'..game,gbEnv))()(mod)
+    local oldOk,oldError=pcall(oldPort.ready)
+    assert(not oldOk and tostring(oldError):find('cross-generation require',1,true),'previous crash must reproduce: '..game)
+    local gbPort=assert(Sandbox.compile(mod:read('lib/emerald_native.lua'),'@cached-'..game,gbEnv))()(mod)
+    gbPort.useEmeraldFont=function()return true end
+    assert(not gbPort.ready() and gbPort.presentationReady(),game..' must use portable fonts with cache present')
+    assert(not gbPort.hud(battle,mod.generation,'player'),game..' must retain generation-native HUD')
+    local gbUI={nativeEmerald=gbPort,emeraldFont=ui.emeraldFont,setting=ui.setting,faded=ui.faded,panel=ui.panel}
+    local gbMoves=assert(loadstring(mod:read('lib/battle_move_screen.lua')))()({find=function()return {exports=gbUI}end})
+    local gbBattle=mod.generation==2 and {phase='resolving',messageLines=function()return {'Wild KRICKETUNE','appeared!'}end,messageArrowVisible=function()return true end} or {phase='messages',shown={GBFont.encode('Wild KRICKETUNE'),GBFont.encode('appeared!')}}
+    local canvas=G.newCanvas(1047,729);G.setCanvas(canvas);G.clear(.2,.48,.2,1)
+    assert(gbPort.bottom(gbBattle,mod.generation,{x=136,y=496,w=774,h=232},gbUI))
+    G.setCanvas();G.setCanvas(canvas);assert(gbMoves.draw(battle,{x=136,y=496,w=774,h=232},{}));G.setCanvas()
+  end
+  GV.set('ruby');mod.generation=3
   local cache=require('src.import.CacheFs');local previousRead=cache.readAt
   cache.readAt=function()end
   local offline=assert(Sandbox.compile(mod:read('lib/emerald_native.lua'),'@offline-battle-font',env))()(mod)
