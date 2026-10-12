@@ -23,6 +23,23 @@ return function(mod)
       return unpack(result,2)
     end
   end
+  function api.wrapHud(target,key)
+    api.wrap(target,key)
+    local original=target and target[key]
+    if type(original)~='function'then return end
+    target[key]=function(...)
+      local prior=mod.exports.battleHudScope
+      local capture=mod.exports.battleHudCapture
+      local battle=select(1,...)
+      mod.exports.battleHudScope=true
+      mod.exports.battleHudCapture=type(battle)=='table' and battle._kantoInMotionHudCapture==true
+      local result={pcall(original,...)}
+      mod.exports.battleHudScope=prior
+      mod.exports.battleHudCapture=capture
+      if not result[1]then error(result[2],0)end
+      return unpack(result,2)
+    end
+  end
   local selected
   if mod.generation==3 then
     local F=require('src.ui.game3.frlg_font')

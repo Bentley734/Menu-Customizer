@@ -193,6 +193,20 @@ return function(mod,catalog)
 
   local function label(text,x,y,render,...)
    local current=Font._menuCustomizerGB
+   local scope=current and current.mod and current.mod.exports or mod.exports
+   if current and scope.battleHudScope then
+    local prior,scale=scope.battleFontScope,scope.battleFontScale
+    if tostring(text):match('^%d+$')or tostring(text):find('<LV>',1,true)then
+     scope.battleFontScope=false
+    elseif scope.battleHudCapture and (y==0 or y==56) then
+     scope.battleFontScale=.75
+     y=y-2
+    end
+    local result={pcall(render,text,x,y,...)}
+    scope.battleFontScope,scope.battleFontScale=prior,scale
+    if not result[1]then error(result[2],0)end
+    return unpack(result,2)
+   end
    if current and current.drawingParty and text=='' and x==24 and y%16==0 then
     -- Transferred mons can carry an empty nickname. Resolve the displayed
     -- row name without editing the party record or its persisted nickname.
@@ -746,7 +760,7 @@ return function(mod,catalog)
   end
  end
  mod.events:on('game.ready',function(event)attach(event.game)end)
- mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.15'
+ mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.16'
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C
 end

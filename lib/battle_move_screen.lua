@@ -153,6 +153,10 @@ return function(mod)
       local g=love.graphics
       local F,C=port.font,port.chrome
       if port.presentation then F,C=port.presentation()end
+      if custom.emeraldLayout then
+        return custom.emeraldLayout.moves(F,battle,rect,custom,
+          port.presentationColors or port.colors,TypeChart.displayName,viewport)
+      end
       local moves=battle.player and battle.player.curMoves or {}
       local colors=(port.presentationColors or port.colors)()
       -- Emerald's actual 240x160 screen; the lower 48 pixels are the menu.

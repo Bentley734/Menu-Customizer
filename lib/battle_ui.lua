@@ -737,6 +737,7 @@ return function(mod)
     end
   end
   api={frames=frames,frameGeometry=frameGeometry,emeraldFont=battleFont.isEmerald,setting=setting,panel=panel,faded=faded,fadedScreen=function(fn,w,h)return compose(fn,w,h,0,0)end,placement=placement,textPlaced=textPlaced,rows=rows,nativeEmerald=nativeEmerald,protect=protectRegion}
+  api.emeraldLayout=assert(load(assert(mod:read('lib/emerald_battle_layout.lua'))))()(G)
   function api.canDrawBottom(battle)
     if not enabled() or battle.safari or battle.contest then return false end
     if not (battleFont.isEmerald() or setting('style',1)==2 and nativeEmerald.ready()) then return false end
@@ -782,7 +783,7 @@ return function(mod)
   else
     local B=require(mod.generation==2 and 'src.ui.gen2.BattleState' or 'src.battle.BattleState')
     battleFont.wrap(B,mod.generation==2 and 'drawBottom' or 'drawTextArea')
-    for _,key in ipairs({'drawHUDs','drawEnemyHud','drawPlayerHud'})do battleFont.wrap(B,key)end
+    for _,key in ipairs({'drawHUDs','drawEnemyHud','drawPlayerHud'})do battleFont.wrapHud(B,key)end
     if mod.generation==1 then battleFont.wrap(require('src.battle.WideBattle'),'draw') end
   end
 

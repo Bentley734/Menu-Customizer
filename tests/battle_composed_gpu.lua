@@ -83,6 +83,7 @@ function love.load()
     end
     local compose=assert(loadstring(mod:read('lib/battle_compositor.lua')))()(G,function()return 100 end)
     local api={setting=setting,nativeEmerald=port,emeraldFont=port.useEmeraldFont}
+    api.emeraldLayout=assert(loadstring(mod:read('lib/emerald_battle_layout.lua')))()(G)
     local uiSource=mod:read('lib/battle_ui.lua')
     local env=setmetatable({G=G,mod=mod,setting=setting,placement=placement,compose=compose,api=api,
       emeraldArt=function()error('style 3 should use selected menu border')end},{__index=_G})
@@ -123,11 +124,12 @@ function love.load()
       captureBattleText=function()error('Emerald text was downsampled through the 160px capture')end},{__index=_G})
     local kimSource=extract(assert(read(kimRoot..'main.lua')),'  local function drawNativeBattleText(','  if mod.hooks and type(mod.hooks.wrap)')
     local drawKim=assert(Sandbox.compile(kimSource..'\nreturn drawNativeBattleText','@production-KIM-final-presenter',kimEnv))()
+    write(output..'metrics.txt', 'POISON STING='..nativeFont.measure('POISON STING',{font='narrow'})..' SEISMIC TOSS='..nativeFont.measure('SEISMIC TOSS',{font='narrow'})..' POKEMON='..nativeFont.measure('POKéMON')..' arrow='..tostring(nativeFont.measure('>',{font='normal'})))
     local battle={phase='menu',menuIndex=2,
       shown={Font.encode('Wild KRICKETUNE'),Font.encode('appeared!')},msgWaiting=true,
       player={name='NIDOKING',mon={name='NIDOKING'},curMoves={{id=1,pp=34},{id=2,pp=11},{id=3,pp=5},{id=4,pp=0}}},
-      data={moves={[1]={name='SCRATCH',pp=35,type='NORMAL'},[2]={name='THUNDERBOLT',pp=15,type='ELECTRIC'},
-        [3]={name='DOUBLE KICK',pp=30,type='FIGHTING'},[4]={name='POISON STING',pp=35,type='POISON'}}},moveIndex=2}
+      data={moves={[1]={name='SURF',pp=35,type='NORMAL'},[2]={name='HORN ATTACK',pp=15,type='ELECTRIC'},
+        [3]={name='POISON STING',pp=30,type='FIGHTING'},[4]={name='SEISMIC TOSS',pp=35,type='POISON'}}},moveIndex=2}
 
     local function canvas(width,height,draw,solid)
       local c=G.newCanvas(width,height,{dpiscale=1,format='rgba8'});c:setFilter('nearest','nearest')
@@ -154,12 +156,18 @@ function love.load()
     local function oldFrames(mode,rect)
       if mode=='moves'then check(oldMoves.draw(battle,rect,{}),'legacy move frames');return end
       local x,width=0,160
-      if mode=='menu'then x,width=placement(64,96,160);width=96*width end
+      if mode=='menu'then mode='dialogue' end
       G.push('all');G.translate(rect.x+x*rect.w/160,rect.y)
       G.scale((mode=='menu'and width or 160)*rect.w/160/(mode=='menu'and 96 or 160),rect.h/48)
       oldPanel(0,0,mode=='menu'and 96 or 160,48,false);G.pop()
     end
     local function referenceText(mode,rect)
+      if mode=='menu' or mode=='moves'then
+        local ref={frames=function()end}
+        if mode=='menu'then return api.emeraldLayout.commands(nativeFont,battle,1,rect,ref,native.colors(),{})end
+        return api.emeraldLayout.moves(nativeFont,battle,rect,ref,native.colors,function(t)return t end,{})
+      end
+
       local r=rect
       if mode=='menu'then
         local x,s=placement(64,96,160);r={x=rect.x+x*rect.w/160,y=rect.y,w=96*s*rect.w/160,h=rect.h}
@@ -229,7 +237,7 @@ function love.load()
       local viewport={width=width,height=height,dpiX=1,dpiY=1}
       for _,mode in ipairs({'menu','moves','dialogue'})do
         battle.phase=mode=='moves'and'moveSelect'or mode=='dialogue'and'messages'or'menu'
-        local actualFrame=canvas(width,height,function()api.frames(mode=='dialogue'and'none'or mode,rect,viewport)end)
+        local actualFrame=canvas(width,height,function()api.frames((mode=='dialogue'or mode=='menu')and'none'or mode,rect,viewport)end)
         local expectedFrame=canvas(width,height,function()oldFrames(mode,rect)end)
         equal(actualFrame,expectedFrame,'3.2.11 border pixels differ: '..mode..' '..width)
         actualFrame:release();expectedFrame:release()
@@ -245,7 +253,7 @@ function love.load()
       local rect=rectFor(1047,729)
       for _,mode in ipairs({'menu','moves','dialogue'})do
         battle.phase=mode=='moves'and'moveSelect'or mode=='dialogue'and'messages'or'menu'
-        local actual=canvas(1047,729,function()api.frames(mode=='dialogue'and'none'or mode,rect,{})end)
+        local actual=canvas(1047,729,function()api.frames((mode=='dialogue'or mode=='menu')and'none'or mode,rect,{})end)
         local expected=canvas(1047,729,function()oldFrames(mode,rect)end)
         equal(actual,expected,'3.2.11 alternate border '..border..' '..mode)
         actual:release();expected:release()

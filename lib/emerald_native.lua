@@ -221,6 +221,9 @@ return WideBattle
     if battle.phase~='menu' and battle.phase~='messages' and not message then return false end
     local G=love.graphics;local F,C=(M.useEmeraldFont and M.useEmeraldFont()) and M.battleFont or M.font,M.chrome
     if not ready then F,C=M.presentation() end
+    if battle.phase=='menu' and custom.emeraldLayout and custom.frames then
+      return custom.emeraldLayout.commands(F,battle,generation,rect,custom,M.presentationColors(),viewport)
+    end
     G.push('all')
     local ok,err=pcall(function()
       local menu=battle.phase=='menu'

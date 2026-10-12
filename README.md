@@ -1,13 +1,12 @@
-# Menu Customizer 3.2.15
+# Menu Customizer 3.2.16
 
-Restore battle borders to the 3.2.11 frame geometry while using the original Emerald battle fonts.
+Emerald command prompt, larger commands, centered move grid and larger Pokemon names.
 
-- Keep the selected border artwork, opacity, command placement and full move-panel bounds.
-- Render original Emerald normal/narrow glyphs and palettes with uniform physical pixels, independently of frame scaling.
-- Fit labels, cursors, PP and complete type names inside the restored frame interiors.
-- Expose a final-window battle text presenter for KIM1025, avoiding the 160px Game Boy intermediate canvas.
-- Retain Gen 1/2 generation isolation and Gen 3 support.
+- Show What will [Pokemon] do? on the left of the full selected frame, with larger FIGHT/BAG/POKEMON/RUN commands on the right.
+- Center each move name in its own quarter and fit larger original Emerald narrow glyphs to the actual space. Keep complete type names, PP values, swap cursors and square pixel scaling.
+- Enlarge captured Gen 1 Pokemon names by 50 percent while keeping level digits and the LV marker in the original game font.
+- Preserve selected border artwork, opacity, Gen 1/2 engine isolation and Gen 3 compatibility.
 
-Update KIM1025 to 1.7.29 alongside this release for crisp Gen 1 fullscreen commands, dialogue and HUD text. Restart after updating.
+Use KIM1025 1.7.31 alongside this version for the enlarged HUD name capture. Restart after updating.
 
-Validation: pixel comparisons against 3.2.11 borders and native Emerald font rendering in the composed KIM path, plus cached Gen 1/2 safety, Gen 3/offline font checks, eleven-game startup checks and Lua/LuaJIT menu/layout regressions. Live game window capture timed out; gameplay was not verified.
+Validation: Windows LOVE composed rendering at normal, 1080p and ultrawide sizes, original Emerald normal/narrow glyph pixel comparisons, original level-font pixel comparisons, focused prompt/grid/HUD scope tests in Lua 5.3/LuaJIT, all KIM regression suites and startup checks across eleven games. Live ROM gameplay was not exercised.
