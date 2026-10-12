@@ -15,6 +15,14 @@ return function(mod)
   {key='dragonair_dream',name='DRAGONAIR DREAM',pokemon='dragonair',style=10,a='E4EDFD',b='EDE4FA',ink='889AC4'},
   {key='umbreon_moonlight',name='UMBREON MOONLIGHT',pokemon='umbreon',style=11,a='172A3C',b='292142',ink='DCC78B'},
   {key='snorlax_snooze',name='SNORLAX SNOOZE',pokemon='snorlax',style=12,a='E5F2EF',b='E7ECFA',ink='7C9EAA'},
+  {key='acid_spiral',name='ACID SPIRAL',pokemon='mew',style=13,a='19102E',b='183C39',ink='B69AF5'},
+  {key='liquid_aurora',name='LIQUID AURORA',pokemon='mew',style=14,a='102B35',b='392453',ink='7DDDBB'},
+  {key='kaleido_dream',name='KALEIDO DREAM',pokemon='mew',style=15,a='281536',b='223656',ink='C696D8'},
+  {key='neon_grid',name='NEON GRID',pokemon='mew',style=16,a='141E32',b='302047',ink='69CACC'},
+  {key='plasma_cloud',name='PLASMA CLOUD',pokemon='mew',style=17,a='301938',b='153D45',ink='9CAAED'},
+  {key='liquid_chrome',name='LIQUID CHROME',pokemon='mew',style=18,a='202B39',b='34454D',ink='A6CDD9'},
+  {key='cosmic_tunnel',name='COSMIC TUNNEL',pokemon='mew',style=19,a='17192F',b='35204E',ink='A797EA'},
+  {key='dream_waves',name='DREAM WAVES',pokemon='mew',style=20,a='E4E6FB',b='D9F0E9',ink='AD91CB'},
  }}
  local function rgb(hex)return{tonumber(hex:sub(1,2),16)/255,tonumber(hex:sub(3,4),16)/255,tonumber(hex:sub(5,6),16)/255}end
  M.byKey={}
@@ -47,6 +55,20 @@ return function(mod)
    p=floor(p)+vec2(.5);float t=pokePhase;
    float flow=.5+.5*sin(p.x*.027+p.y*.021+t*.16);
    vec3 rgb=mix(pokeBaseA,pokeBaseB,flow);
+   // Abstract paper uses the same clock and pixel grid, without Pokemon stamps.
+   if(pokeStyle>=13){
+    vec2 z=(p-vec2(120.0,64.0))*.035;float r=length(z);float a=atan(z.y,z.x);float v=0.0;
+    if(pokeStyle==13){v=.5+.5*sin(r*7.0-a*3.0-t*.65);}
+    else if(pokeStyle==14){v=.5+.5*sin(z.x*2.0+sin(z.y*2.3+t*.35)*2.5+t*.25);}
+    else if(pokeStyle==15){v=.5+.5*cos(cos(a*8.0+t*.2)*r*3.0-t*.5);}
+    else if(pokeStyle==16){vec2 g=abs(sin(z*3.0+vec2(t*.2,-t*.15)));v=1.0-smoothstep(.04,.18,min(g.x,g.y));}
+    else if(pokeStyle==17){v=.5+(.25*sin(z.x*2.0+t*.4)+.25*cos(z.y*2.7-t*.3))*cos(r*1.5-t*.2);}
+    else if(pokeStyle==18){v=.5+.5*sin(z.x*3.0+sin(z.y*3.0+t*.3)+sin(r*4.0-t*.4));v=v*v;}
+    else if(pokeStyle==19){v=.5+.5*sin(log(1.0+r)*18.0-t*.8+a*.6);}
+    else {v=.5+.5*sin(z.y*3.0+sin(z.x*1.5+t*.25)*1.8-t*.35);}
+    rgb=mix(pokeBaseA,pokeBaseB,v);
+    return mix(rgb,pokeAccent,v*.24);
+   }
    // Staggered rows, uniform sprite aspect, and transparent padding excluded.
    vec2 drift=p+vec2(t*.75,0.0);float row=floor(drift.y/56.0);
    drift.x+=mod(row,2.0)*36.0;vec2 cell=floor(drift/vec2(72.0,56.0));float seed=paperHash(cell);

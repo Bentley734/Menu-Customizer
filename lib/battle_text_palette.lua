@@ -140,7 +140,7 @@ return function(mod)
   -- IDs stay flat in storage; navigation groups the same colours by hue.
   function M.groups(kind,defaultLabel)
     local names=kind=='shadow' and M.shadowNames or kind=='background' and M.backgroundNames or kind=='menuBackground' and M.menuBackgroundNames or M.names
-    local families={'SPECIAL','NEUTRALS','REDS','ORANGES','YELLOWS','GREENS','CYANS','BLUES','PURPLES','PINKS','BROWNS','ANIMATED','POKEMON'}
+    local families={'SPECIAL','NEUTRALS','REDS','ORANGES','YELLOWS','GREENS','CYANS','BLUES','PURPLES','PINKS','BROWNS','ANIMATED','POKEMON','TRIPPY'}
     local buckets={};for _,name in ipairs(families)do buckets[name]={label=name,ids={}}end
     local count=#names
     for i=0,count-1 do
@@ -149,7 +149,7 @@ return function(mod)
       else
         c=M.color(kind=='menuBackground' and 'background' or kind,kind=='menuBackground' and i-1 or i)
         label=names[i+1]
-        if c.pokemon then family='POKEMON'
+        if c.pokemon then family=M.pokemonBackgrounds.byKey[c.pokemon].style>=13 and 'TRIPPY' or 'POKEMON'
         elseif c.animation then family='ANIMATED'
         else
           local h,v=hue(c);local lo=math.min(c[1],c[2],c[3]);local sat=v>0 and (v-lo)/v or 0

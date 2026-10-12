@@ -1,18 +1,25 @@
-Menu Customizer 3.2.32
+Menu Customizer 3.2.33
+
+Eight animated abstract backgrounds in the new TRIPPY background group: ACID SPIRAL, LIQUID AURORA, KALEIDO DREAM, NEON GRID, PLASMA CLOUD, LIQUID CHROME, COSMIC TUNNEL and DREAM WAVES.
+Available for menu, Start menu and battle paper. COLOR SPEED controls their motion. Existing saved choices retain their IDs. Most pair with light text; pastel DREAM WAVES pairs with dark text.
+
+Testing was explicitly skipped at the user's request to conserve usage. Restart the game after updating.
+
+Menu Customizer 3.2.33
 
 Twelve new menu transitions: VORTEX, ORBIT, RUBBER ZOOM, PENDULUM, SPIRAL IRIS, RIPPLE BLOOM, KALEIDOSCOPE, DIAMOND PORTAL, VENETIAN DREAM, STARDUST DISSOLVE, ZIGZAG PORTAL and CHECKER PHASE.
 Spinning entrances, orbiting motion, springy zooms and patterned reveals. Existing saved transition choices keep their IDs. Zooms preserve the menu aspect ratio; effects settle into the normal menu.
 
 Testing was explicitly skipped at the user's request to conserve usage. Restart the game after updating.
 
-Menu Customizer 3.2.32
+Menu Customizer 3.2.33
 
 Three new menu transitions: POKEBALL BOUNCE (a settling bounce), SURF WAVE (a gentle sideways wave), and TELEPORT (a spinning zoom).
 Existing saved transition choices keep their IDs. New zooms preserve the menu aspect ratio.
 
 Testing was explicitly skipped at the user's request to conserve usage. Restart the game after updating.
 
-Menu Customizer 3.2.32
+Menu Customizer 3.2.33
 
 Add 14 animated Pokémon background choices for menu paper, the separate Start menu background, and battle UI paper. Find them in the new POKEMON group in each background chooser. Existing saved colours, gradients and font choices keep their IDs and appearance.
 
