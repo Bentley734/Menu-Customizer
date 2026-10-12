@@ -7,7 +7,8 @@ for _,version in ipairs({'ruby','sapphire'})do
  for theme=1,2 do for alignment=1,3 do for selector=1,4 do
   local nativeBoxes,arrows,marks,labels=0,0,0,0
   local selectedY
-  local G={getColor=function()return 1,1,1,1 end,setColor=function()end,rectangle=function(_,x,y)marks=marks+1;selectedY=selectedY or y end}
+  local shader='indexed';local shaderStack={}
+  local G={push=function()shaderStack[#shaderStack+1]=shader end,pop=function()shader=table.remove(shaderStack)end,setShader=function(v)shader=v end,getColor=function()return 1,1,1,1 end,setColor=function()end,rectangle=function(_,x,y)marks=marks+1;selectedY=selectedY or y end}
   local data={window={left=20,top=1,width=8},textX=0,textY=1,rowPitch=16,drawCursor=function()nativeBoxes=nativeBoxes+1 end}
   local Start={_data=data,ENTRIES={{label='POKEDEX'},{label='POKEMON'}},cursor=2,contentTemplate=function()return {left=20,top=1,w=8}end}
   local Window={CURSOR_WIDTH=8,optionHeight=function()return 16 end,template=function(l,t,w)return {left=l,top=t,w=w}end,
@@ -25,7 +26,7 @@ for _,version in ipairs({'ruby','sapphire'})do
    emeraldLayout={window={left=20,top=1,width=8},textX=8,textY=1,rowPitch=16},active=function()return true end,
    setting=function(k)return k=='startSelector' and selector or alignment end,originalNativeStartDraw=native,unpack=unpack or table.unpack},{__index=_G})
   local run=assert(load(fragment..' return drawStartJustified','rs selectors','t',env))()
-  run();assert(nativeBoxes==0,version..' bypassed custom selector')
+  run();assert(shader=='indexed','selector restores inherited palette shader');assert(nativeBoxes==0,version..' bypassed custom selector')
   assert(labels==2 and Start._data==data and data.drawCursor~=nil,'state restored')
   if selector==3 then assert(arrows==1,'arrow rendered')else assert(arrows==0 and marks>0,'custom selector rendered')end
   local key=version..theme..alignment..selector

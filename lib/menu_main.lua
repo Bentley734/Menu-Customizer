@@ -19,8 +19,15 @@ return function(mod)
     return false
   end
   local Start = require('src.ui.game3.start_menu')
-  local Option = require((gameVersion == 'emerald' or gameVersion == 'ruby' or gameVersion == 'sapphire')
-    and 'src.ui.game3.rse.option_menu' or 'src.ui.game3.option_menu')
+  local function optionForVersion(version)
+    if version=='ruby' or version=='sapphire'then
+      local ok,menu=pcall(require,'src.ui.game3.rs.option_menu')
+      if ok then return menu end
+    end
+    return require((version=='emerald' or version=='ruby' or version=='sapphire')
+      and 'src.ui.game3.rse.option_menu' or 'src.ui.game3.option_menu')
+  end
+  local Option = optionForVersion(gameVersion)
   local Save = require('src.ui.game3.save_menu')
   local Stack = require('src.ui.game3.stack')
   local Fade = require('src.ui.game3.fade')
@@ -468,19 +475,20 @@ return function(mod)
   FrlgFont._menuCustomizerEmerald=Theme
   if not FrlgFont._menuCustomizerEmeraldWrapped then
     local draw,measure,glyph=FrlgFont.draw,FrlgFont.measure,FrlgFont.drawGlyph
+    local function nativeFace(opts)return opts and tostring(opts.font):match('^native_')end
     FrlgFont.draw=function(text,x,y,opts)
       local theme=FrlgFont._menuCustomizerEmerald
-      if theme.enabled() then local result=theme.draw(text,x,y,opts);if result~=nil then return result end end
+      if theme.enabled() and not nativeFace(opts)then local result=theme.draw(text,x,y,opts);if result~=nil then return result end end
       return draw(text,x,y,opts)
     end
     FrlgFont.measure=function(text,opts)
       local theme=FrlgFont._menuCustomizerEmerald
-      if theme.enabled() then local result=theme.measure(text,opts);if result~=nil then return result end end
+      if theme.enabled() and not nativeFace(opts)then local result=theme.measure(text,opts);if result~=nil then return result end end
       return measure(text,opts)
     end
     FrlgFont.drawGlyph=function(id,x,y,opts)
       local theme=FrlgFont._menuCustomizerEmerald
-      if theme.enabled() and theme.glyph(id,x,y,opts) then return end
+      if theme.enabled() and not nativeFace(opts)and theme.glyph(id,x,y,opts) then return end
       return glyph(id,x,y,opts)
     end
     FrlgFont._menuCustomizerEmeraldWrapped=true
@@ -512,9 +520,12 @@ return function(mod)
   end
   local ballPixels = {'..1111..', '.122221.', '12222221', '11144111',
     '13344331', '13333331', '.133331.', '..1111..'}
-  local ballColors = {[1]=FrlgFont.STDPAL[2], [2]=FrlgFont.STDPAL[4],
-    [3]=FrlgFont.STDPAL[1], [4]=FrlgFont.STDPAL[3]}
+  -- RS swaps STDPAL to its indexed primary-colour palette at font sync.
+  -- Selector artwork is true colour and must not borrow those mutable slots.
+  local ballColors = {[1]={98/255,98/255,98/255,1}, [2]={230/255,8/255,8/255,1},
+    [3]={1,1,1,1}, [4]={213/255,213/255,205/255,1}}
   local function drawBallCursor(x, y)
+    love.graphics.push('all');love.graphics.setShader()
     local r, g, b, a = love.graphics.getColor()
     for py, pixels in ipairs(ballPixels) do
       for px = 1, #pixels do
@@ -526,6 +537,7 @@ return function(mod)
       end
     end
     love.graphics.setColor(r, g, b, a)
+    love.graphics.pop()
   end
   local function drawStartJustified(...)
     if not active() then return nativeStartDraw(...) end
@@ -688,6 +700,7 @@ return function(mod)
     love.graphics.push('all')
     love.graphics.setCanvas(canvas)
     love.graphics.origin()
+    love.graphics.setShader()
     love.graphics.clear(0, 0, 0, 0)
     -- Keep the input legend, omitting its blue background and the full-screen
     -- black backdrop. Both are solid fills; the glyphs draw afterward.
@@ -710,6 +723,7 @@ return function(mod)
     love.graphics.push('all')
     love.graphics.origin()
     love.graphics.setBlendMode('alpha', 'premultiplied')
+    love.graphics.setShader()
     -- Premultiplied canvas RGB must fall with alpha. Lowering only alpha
     -- leaves full-strength pale menu pixels that wash out the field below.
     local alpha = (opacityChoices[setting(opacity)] or 100)/100*transitionAlpha
@@ -751,8 +765,7 @@ return function(mod)
     values=nil;lastStartRows=nil;lastAmbientTick=nil
     if fieldSnapshot and fieldSnapshot.release then fieldSnapshot:release() end
     fieldSnapshot=nil
-    Option=require((gameVersion=='ruby' or gameVersion=='sapphire' or gameVersion=='emerald')
-      and 'src.ui.game3.rse.option_menu' or 'src.ui.game3.option_menu')
+    Option=optionForVersion(gameVersion)
     installOption(Option);originalOption=nativeOptions[Option]
     FX.setMod(mod)
     Theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return active() and (FX.active or mod.exports.battleFontScope) and setting('menuTheme')==2 end)
@@ -760,9 +773,9 @@ return function(mod)
     mod.hooks:wrap('ui.start_menu.items',startItemsHook)
     Borders=assert(load(assert(mod:read('lib/menu_borders.lua')), '@'..mod.path..'/lib/menu_borders.lua'))()(mod,setting,catalog,active)
     mod.exports.borders=Borders;mod.exports.borderCatalog=catalog
-    mod.exports.effects=FX;mod.exports.version='3.2.16'
+    mod.exports.effects=FX;mod.exports.version='3.2.17'
   end
   mod.exports.effects=FX
-  mod.exports.version = '3.2.16'
+  mod.exports.version = '3.2.17'
   mod.log:info('Menu Customizer: '..gameVersion..' START, OPTION and SAVE placement installed')
 end

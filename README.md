@@ -1,12 +1,12 @@
-# Menu Customizer 3.2.16
+# Menu Customizer 3.2.17
 
-Emerald command prompt, larger commands, centered move grid and larger Pokemon names.
+Fix Ruby/Sapphire selector colours, Options side bars and clipped battle names.
 
-- Show What will [Pokemon] do? on the left of the full selected frame, with larger FIGHT/BAG/POKEMON/RUN commands on the right.
-- Center each move name in its own quarter and fit larger original Emerald narrow glyphs to the actual space. Keep complete type names, PP values, swap cursors and square pixel scaling.
-- Enlarge captured Gen 1 Pokemon names by 50 percent while keeping level digits and the LV marker in the original game font.
-- Preserve selected border artwork, opacity, Gen 1/2 engine isolation and Gen 3 compatibility.
+- Use fixed true-colour Pokeball selector pixels instead of Ruby/Sapphire's mutable primary-colour font palette; restore shader state after drawing.
+- Route Ruby/Sapphire to their actual RS Options module, including reloads and a fallback for older engines. Replay it on a transparent canvas and suspend inherited palette shaders for composition.
+- Preserve explicit native indexed font requests, so the original RS healthbox text fits its eight-pixel strips. Other menus retain the selected font.
+- Keep existing borders, Gen 1/2 rendering and other Gen 3 option routing.
 
-Use KIM1025 1.7.31 alongside this version for the enlarged HUD name capture. Restart after updating.
+Restart after updating. Use KIM1025 1.7.32 for fullscreen HD backgrounds and native RS KIM settings integration.
 
-Validation: Windows LOVE composed rendering at normal, 1080p and ultrawide sizes, original Emerald normal/narrow glyph pixel comparisons, original level-font pixel comparisons, focused prompt/grid/HUD scope tests in Lua 5.3/LuaJIT, all KIM regression suites and startup checks across eleven games. Live ROM gameplay was not exercised.
+Validation: real Ruby/Sapphire cached font pixel comparisons; actual RS Options rendering with transparent side regions; selector colours under a hostile inherited shader; native settings routing/persistence checks; eleven-game startup checks and Lua 5.3/LuaJIT regressions. These are renderer tests; live ROM gameplay was not exercised.
