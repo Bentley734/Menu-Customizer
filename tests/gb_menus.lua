@@ -446,20 +446,33 @@ check(Renderer:fitScale()==1,'battle keeps its own surface scale')
 check(Renderer.uiWidth==640 and Renderer.uiHeight==576,'battle surface request is unchanged')
 game.stack.states={world};Renderer:setUISize(160,144)
 check(Renderer:fitScale()==4,'closing party restores normal field fit')
--- iOS selectors shift by two logical pixels, without changing glyph/layout bounds.
+-- Desktop Emerald START markers match the glyph baseline. iOS and OPTIONS
+-- retain their previous anchors; resizing must not magnify the logical offset.
 C2.resizeX,C2.resizeY=1,1
 surface=1;G.origin()
-for selector=1,4 do
- local first
- for _,platform in ipairs({'Windows','iOS'})do
-  love.system={getOS=function()return platform end}
-  calls={};C2.drawSelector({selection={x=40,y=30,width=50,selector=selector}})
-  check(#calls>0,'selector draws on '..platform)
-  if first then
-   check(#calls==#first,'iOS selector retains geometry')
-   for i,call in ipairs(calls)do check(call.x==first[i].x and call.y==first[i].y+2,'iOS selector offset exactly two pixels')end
-  else first=calls end
+for theme=1,2 do for _,options in ipairs({false,true})do
+ values.menuTheme=theme
+ for _,resize in ipairs({1,2,4})do
+  C2.resizeX,C2.resizeY=resize,resize
+  for selector=1,4 do
+   local baseline
+   for _,platform in ipairs({'Linux','Windows','iOS'})do
+    love.system={getOS=function()return platform end}
+    calls={};C2.drawSelector({options=options,selection={x=40,y=30,width=50,selector=selector}})
+    check(#calls>0,'selector draws on '..platform)
+    local dy=platform=='iOS' and 2 or platform=='Windows' and theme==2 and not options and -3 or 0
+    if baseline then
+     check(#calls==#baseline,'selector retains geometry')
+     for i,call in ipairs(calls)do
+      check(call.x==baseline[i].x and math.abs(call.y-baseline[i].y-dy/resize)<.00001,
+       'selector platform offset in logical pixels, without changing horizontal placement')
+     end
+    else baseline=calls end
+    check(#stack==0,'selector restores transform')
+   end
+  end
  end
-end
+end end
+C2.resizeX,C2.resizeY=1,1
 love.system=nil
 print('PASS Menu Customizer native GBC palette, selectors, reload, Emerald theme and layout: '..checks..' checks')

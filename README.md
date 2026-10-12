@@ -1,3 +1,11 @@
+# Menu Customizer 3.2.24
+
+Move the Windows Gen 1/2 Start-menu selector up three logical pixels when using the Emerald font, aligning it with the menu labels. All four selector styles use the corrected anchor at every menu scale.
+
+Preserve the existing iOS placement, native-font placement, options-menu selectors and Gen 3 layouts. The text effects and vanilla HP rendering from 3.2.23 are unchanged.
+
+Validation: Lua 5.3 and LuaJIT regression suites, including 2,480 GB/GBC layout and selector checks across platforms, font styles, menu contexts and scales. Restart the game after installing.
+
 # Menu Customizer 3.2.23
 
 Add five-colour text alternation, animated colours, glow and double shadows, and improve dialogue and battle text styling.
