@@ -77,12 +77,18 @@ return function(mod)
     M.shadowNames[#M.shadowNames+1]=swatch.name;shadows[#shadows+1]=c
     M.backgroundNames[#M.backgroundNames+1]=swatch.name;backgrounds[#backgrounds+1]=c
   end
-  for _,name in ipairs({'RGB','ROTATING','ANIMATED GRADIENT'})do
-    local c={1,1,1,1,animation=name=='ANIMATED GRADIENT' and 'GRADIENT' or name=='ROTATING' and 'ROTATING' or 'RGB'}
+  local gradientSource=mod.read and mod:read('lib/animated_gradients.lua')
+  M.gradients=gradientSource and assert(load(gradientSource))() or assert(loadfile('lib/animated_gradients.lua'))()
+  local function animated(name,key,mode)
+    local c={1,1,1,1,animation=mode or 'GRADIENT',gradient=key}
     M.names[#M.names+1]=name;foreground[#foreground+1]=c
     M.shadowNames[#M.shadowNames+1]=name;shadows[#shadows+1]=c
     M.backgroundNames[#M.backgroundNames+1]=name;backgrounds[#backgrounds+1]=c
   end
+  -- Keep the three old animation slots: RGB becomes a gentle Aurora gradient.
+  -- Every static colour and the two other animation IDs keep their meaning.
+  animated('AURORA','aurora');animated('ROTATING',nil,'ROTATING');animated('ANIMATED GRADIENT')
+  for i=2,#M.gradients.entries do local e=M.gradients.entries[i];animated(e.name,e.key)end
   local lists={text=foreground,shadow=shadows,background=backgrounds}
   function M.color(kind,n)local l=lists[kind] or foreground;return l[math.max(0,math.min(#l-1,math.floor(n or 0)))+1]end
   local function hue(c)
@@ -216,7 +222,7 @@ return function(mod)
   function M.background()
     local n=tonumber(mod.options:get('battle_background_color') or mod.save:get('battle_background_color')) or 0
     local color=backgrounds[math.max(0,math.min(#backgrounds-1,math.floor(n)))+1]
-    if color.animation then return {color[1],color[2],color[3],color[4],animation=color.animation,_kind='battle'}end
+    if color.animation then return {color[1],color[2],color[3],color[4],animation=color.animation,gradient=color.gradient,_kind='battle'}end
     return color
   end
   function M.colors(kind)

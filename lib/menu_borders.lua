@@ -13,7 +13,7 @@ return function(mod,setting,catalog,active)
   image:setFilter('nearest','nearest')
   local w,h=image:getDimensions()
   assert(w==24 and h==24,'Menu Customizer: invalid border atlas '..entry.path)
-  local atlas={image=image,quads={},animation=entry.animation}
+  local atlas={image=image,quads={},animation=entry.animation,gradient=entry.gradient}
   for n=0,8 do atlas.quads[n]=G.newQuad(n%3*8,math.floor(n/3)*8,8,8,w,h) end
   M.atlases[selection]=atlas
   return atlas
@@ -75,10 +75,10 @@ return function(mod,setting,catalog,active)
  -- This removes shared geometry edges as well as neighbouring atlas samples.
  local function wholePanel(atlas,image,paper,x,y,w,h,background)
   if not G.newShader then return false end
-  if not panelShader then panelShader=G.newShader([[
+  if not panelShader then panelShader=G.newShader(palette.gradients.glsl..palette.gradients.glsl:gsub('customGradient','paperCustomGradient'):gsub('stopA','paperStopA'):gsub('stopB','paperStopB'):gsub('stopC','paperStopC'):gsub('stopD','paperStopD'):gsub('gradientColor','paperGradientColor')..[[
    extern vec2 extent;extern bool usePaper;extern Image paperTexture;
    extern vec4 paperColor;extern bool paperGradient;extern float paperPhase;
-   extern bool rainbow;extern float phase;
+   extern bool rainbow;extern float phase;extern int borderEffect;
    vec3 hue(float h){return clamp(abs(fract(h+vec3(0.0,2.0/3.0,1.0/3.0))*6.0-3.0)-1.0,0.0,1.0);}
    vec4 effect(vec4 color,Image tex,vec2 uv,vec2 pixel){
     vec2 p=uv*extent;vec2 edge=min(vec2(8.0),extent*.5);
@@ -92,9 +92,51 @@ return function(mod,setting,catalog,active)
     vec2 coord=(cell*10.0+vec2(1.5)+clamp(floor(localPixel),vec2(0.0),vec2(7.0)))/30.0;
     vec4 ink=Texel(tex,coord);
     if(usePaper){vec4 paper=Texel(paperTexture,coord);
-     if(paper.a>0.0){vec3 rgb=paperGradient?hue(fract(paperPhase+pixel.x/320.0+pixel.y/640.0)):paperColor.rgb;
+     if(paper.a>0.0){vec3 rgb=paperGradient?paperGradientColor(paperPhase+pixel.x/320.0+pixel.y/640.0):paperColor.rgb;
       return vec4(rgb,paper.a*paperColor.a*color.a);}}
-    vec3 rgb=rainbow?hue(fract(phase+uv.x*.65+uv.y*.35))*(.18+.82*ink.r):ink.rgb;
+    vec3 rgb=rainbow?gradientColor(phase+uv.x*.65+uv.y*.35)*(.18+.82*ink.r):ink.rgb;
+    if(borderEffect>0){
+     // Follow the nearest edge around the complete perimeter, including corners.
+     float depth=min(min(p.x,extent.x-p.x),min(p.y,extent.y-p.y));float along;
+     if(depth==p.y)along=p.x;else if(depth==extent.x-p.x)along=extent.x+p.y;
+     else if(depth==extent.y-p.y)along=extent.x+extent.y+extent.x-p.x;
+     else along=2.0*extent.x+extent.y+extent.y-p.y;
+     float s=along-phase*96.0;float bevel=.35+.65*ink.r;
+     if(borderEffect==1){
+      rgb=vec3(.12,.17,.27)*bevel;
+      vec2 d=vec2(mod(s+8.0,16.0)-8.0,depth-4.0);float radius=length(d);
+      float spin=phase*32.0;vec2 q=vec2(cos(spin)*d.x-sin(spin)*d.y,sin(spin)*d.x+cos(spin)*d.y);
+      if(radius<3.45){rgb=radius>2.8?vec3(.035):q.y<0.0?vec3(.94,.16,.22):vec3(.92,.96,1.0);
+       if(abs(q.y)<.48)rgb=vec3(.035);if(radius<1.1)rgb=vec3(.035);if(radius<.55)rgb=vec3(.83,.9,.98);}
+     }else if(borderEffect==2){
+      float zig=4.0+1.9*(abs(mod(along*.18+phase*3.0,2.0)-1.0)*2.0-1.0);
+      float bolt=abs(depth-zig);rgb=vec3(.025,.08,.22)*bevel;
+      rgb+=vec3(.13,.27,.43)*max(0.0,1.0-bolt/2.0);
+      if(bolt<.8)rgb=vec3(1.0,.82,.26);if(bolt<.3)rgb=vec3(1.0,.99,.85);
+     }else if(borderEffect==3){
+      float wave=3.8+1.4*sin(along*.24-phase*25.0)+.6*sin(along*.53+phase*13.0);
+      rgb=mix(vec3(.035,.19,.44),vec3(.13,.61,.77),depth/8.0)*bevel;
+      if(abs(depth-wave)<.55)rgb=vec3(.69,.95,.9);else rgb+=vec3(.04,.15,.18)*max(0.0,1.0-abs(depth-wave)/2.0);
+     }else if(borderEffect==4){
+      float wisp=3.8+1.4*sin(along*.13+phase*15.0);float trail=mod(s,23.0);
+      float glow=exp(-abs(depth-wisp)*1.7)*exp(-trail*.18);
+      rgb=vec3(.14,.06,.27)*bevel+vec3(.47,.35,.7)*glow;
+      if(trail<2.0 && abs(depth-wisp)<.8)rgb=vec3(.78,.84,1.0);
+     }else if(borderEffect==5){
+      float star=abs(mod(s+12.0,24.0)-12.0);float height=abs(depth-4.0);
+      rgb=vec3(.07,.06,.2)*bevel;
+      if(star+height<2.6)rgb=mix(vec3(.58,.8,1.0),vec3(1.0,.9,.56),.5+.5*sin(along*.2+phase*20.0));
+      if(star<.65 && height<2.7 || height<.65 && star<2.7)rgb=vec3(.96,.97,1.0);
+      rgb+=vec3(.12,.2,.3)*exp(-abs(depth-4.0)*2.0)*max(0.0,1.0-mod(s+12.0,24.0)/12.0);
+     }else if(borderEffect==6){
+      float stem=4.0+.5*sin(along*.16+phase*8.0);float leaf=mod(along,12.0)-6.0;
+      float side=mod(floor(along/12.0),2.0)<1.0?1.0:-1.0;
+      rgb=vec3(.045,.17,.14)*bevel;
+      if(abs(depth-stem)<.55)rgb=vec3(.27,.62,.35);
+      if(abs(leaf)*.5+abs(depth-stem-side*1.35)<1.7)
+       rgb=mix(vec3(.16,.46,.28),vec3(.57,.83,.4),.5+.5*sin(along*.12-phase*12.0));
+     }
+    }
     return vec4(rgb*color.rgb,ink.a*color.a);
    }]])end
   local resolved=background and palette.effects.resolve(background,background._kind or 'menu') or {1,1,1,1}
@@ -103,25 +145,32 @@ return function(mod,setting,catalog,active)
   local function byte(c)return math.floor(c*255)/255 end
   panelShader:send('paperTexture',paper or image);panelShader:send('paperColor',{byte(resolved[1]),byte(resolved[2]),byte(resolved[3]),byte(resolved[4] or 1)})
   panelShader:send('paperGradient',resolved.animation=='GRADIENT');panelShader:send('paperPhase',resolved.phase or 0)
+  palette.gradients.send(panelShader,atlas.gradient)
+  -- The two palette uniforms are independent: frame motion never tints paper.
+  local paperStops=palette.gradients.byKey[resolved.gradient]
+  panelShader:send('paperCustomGradient',paperStops~=nil)
+  for i,label in ipairs({'paperStopA','paperStopB','paperStopC','paperStopD'})do panelShader:send(label,paperStops and paperStops.stops[i] or {0,0,0})end
   panelShader:send('rainbow',atlas.animation=='gradient')
+  panelShader:send('borderEffect',({balls=1,lightning=2,water=3,ghost=4,stars=5,vines=6})[atlas.animation] or 0)
   local phase=0
-  if atlas.animation=='gradient' then phase=(love.timer and love.timer.getTime and love.timer.getTime() or 0)*.08*palette.effects.get('menu','speed',100)/100 end
+  if atlas.animation then phase=(love.timer and love.timer.getTime and love.timer.getTime() or 0)*.08*palette.effects.get('menu','speed',100)/100 end
   panelShader:send('phase',phase)
   G.setShader(panelShader);G.draw(image,x,y,0,w/30,h/30)
   return true
  end
  local function gradient(atlas,x,y,w,h)
   if atlas.animation~='gradient' or not G.newShader then return false end
-  if not gradientShader then gradientShader=G.newShader([[
+  if not gradientShader then gradientShader=G.newShader(palette.gradients.glsl..[[
    extern vec2 anchor;extern vec2 span;extern float phase;
    vec4 effect(vec4 color,Image tex,vec2 uv,vec2 pixel){
     vec4 ink=Texel(tex,uv);
     float h=fract(phase+(pixel.x-anchor.x)/span.x*.65+(pixel.y-anchor.y)/span.y*.35);
-    vec3 rgb=clamp(abs(fract(h+vec3(0.0,2.0/3.0,1.0/3.0))*6.0-3.0)-1.0,0.0,1.0);
+    vec3 rgb=gradientColor(h);
     return vec4(rgb*(.18+.82*ink.r),color.a*ink.a);
    }]])end
   local ax,ay,bx,by=x,y,x+w,y+h
   if G.transformPoint then ax,ay=G.transformPoint(x,y);bx,by=G.transformPoint(x+w,y+h)end
+  palette.gradients.send(gradientShader,atlas.gradient)
   gradientShader:send('anchor',{ax,ay});gradientShader:send('span',{math.max(1,bx-ax),math.max(1,by-ay)})
   local speed=palette.effects.get('menu','speed',100)/100
   gradientShader:send('phase',(love.timer and love.timer.getTime and love.timer.getTime() or 0)*.08*speed)

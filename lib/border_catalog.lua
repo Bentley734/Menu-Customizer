@@ -60,7 +60,22 @@ local C={entries={
  {label="UMBREON",path="assets/borders/pokemon_umbreon.png"},
  {label="EEVEE",path="assets/borders/pokemon_eevee.png"},
  {label="MEW",path="assets/borders/pokemon_mew.png"},
- {label="ANIMATED GRADIENT",path="assets/borders/pokemon_gradient.png",animation="gradient"},
+ {label="RAINBOW FLOW",path="assets/borders/pokemon_gradient.png",animation="gradient"},
+ {label="ROLLING POKE BALLS",path="assets/borders/pokemon_gradient.png",animation="balls"},
+ {label="LIGHTNING",path="assets/borders/pokemon_gradient.png",animation="lightning"},
+ {label="WATER RIPPLE",path="assets/borders/pokemon_gradient.png",animation="water"},
+ {label="GHOST WISPS",path="assets/borders/pokemon_gradient.png",animation="ghost"},
+ {label="SHOOTING STARS",path="assets/borders/pokemon_gradient.png",animation="stars"},
+ {label="LIVING VINES",path="assets/borders/pokemon_gradient.png",animation="vines"},
+ {label="AURORA",path="assets/borders/pokemon_gradient.png",animation="gradient",gradient="aurora"},
+ {label="AMETHYST TIDE",path="assets/borders/pokemon_gradient.png",animation="gradient",gradient="violet"},
+ {label="MINT LAGOON",path="assets/borders/pokemon_gradient.png",animation="gradient",gradient="lagoon"},
+ {label="DREAM MIST",path="assets/borders/pokemon_gradient.png",animation="gradient",gradient="dream"},
+ {label="DEEP SPACE",path="assets/borders/pokemon_gradient.png",animation="gradient",gradient="cosmos"},
+ {label="MOONLIT FOREST",path="assets/borders/pokemon_gradient.png",animation="gradient",gradient="forest"},
+ {label="COTTON CANDY",path="assets/borders/pokemon_gradient.png",animation="gradient",gradient="candy"},
+ {label="SUNSET DREAM",path="assets/borders/pokemon_gradient.png",animation="gradient",gradient="sunset"},
+ {label="GOLDEN HOUR",path="assets/borders/pokemon_gradient.png",animation="gradient",gradient="ember"},
 },legacy={1,2,3,4,5,6,7,8,9,10,11,12,3,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,12,3,13,14,31,16,32,18,33,34,21,35,36,37,25,26,38,28,39,30,40,41,42,43,44,45,46,47,48}}
 C.choices={}
 for i,entry in ipairs(C.entries) do C.choices[i]=entry.label end

@@ -369,8 +369,8 @@ function love.load()
   check(gradient:newImageData():getString()~=image('ANIMATED GRADIENT'):newImageData():getString(),'gradient text not animated')
   choices.battle_text_color=choice('ROTATING');clock=0;local rotate=image('ROTATING COLORS');clock=4
   check(rotate:newImageData():getString()~=image('ROTATING COLORS'):newImageData():getString(),'rotating text not animated')
-  choices.battle_text_color=choice('RGB');clock=0;local rgb=image('RGB COLORS');clock=5
-  check(rgb:newImageData():getString()~=image('RGB COLORS'):newImageData():getString(),'RGB text not animated')
+  choices.battle_text_color=choice('AURORA');clock=0;local rgb=image('AURORA COLORS');clock=5
+  check(rgb:newImageData():getString()~=image('AURORA COLORS'):newImageData():getString(),'Aurora text not animated')
   choices.battle_text_color=6
   local square=image('SQUARE PIXELS',3,3);local stretched=image('SQUARE PIXELS',6,3)
   local function inkBounds(c)
@@ -390,7 +390,7 @@ function love.load()
   -- Animated paper reaches the exact transparent border edge.
   colourMod.exports.menuBackground=function()return Palette.menuBackground(bgKind)end
   mod.exports.menuBackground=colourMod.exports.menuBackground
-  for _,label in ipairs({'RGB','ROTATING','ANIMATED GRADIENT'})do
+  for _,label in ipairs({'AURORA','ROTATING','ANIMATED GRADIENT'})do
     local n;for i,name in ipairs(Palette.backgroundNames)do if name==label then n=i;break end end
     choices.menuBackgroundColor=n;choices.startMenuBackgroundColor=0;bgKind='other'
     clock=0;G.setCanvas(c);G.origin();G.clear(0,0,0,0);border.draw(1,1,20,10);G.setCanvas();local first=c:newImageData():getString()

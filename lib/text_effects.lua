@@ -65,21 +65,21 @@ return function(mod,palette)
  function M.resolve(c,kind)
   if not c or not c.animation then return c end
   local t=(love.timer and love.timer.getTime and love.timer.getTime() or 0)*.08*M.get(kind or 'menu','speed',100)/100
-  if c.animation=='RGB' then return ({ {1,0,0,1},{0,1,0,1},{0,0,1,1} })[math.floor(t*3)%3+1]end
-  local col=hue(t%1);if c.animation=='GRADIENT' then col.animation='GRADIENT';col.phase=t end
+  local col=palette.gradients.sample(c.gradient,t) or hue(t%1)
+  if c.animation=='GRADIENT' then col.animation='GRADIENT';col.phase=t;col.gradient=c.gradient end
   return col
  end
  function M.paint(c,kind,fn,...)
   local G=love.graphics;local color=M.resolve(c,kind)
   G.push('all');G.setColor(unpack(color))
   if color.animation=='GRADIENT' and G.newShader then
-   if not shader then shader=G.newShader([[extern float phase;extern bool darkInk;
+   if not shader then shader=G.newShader(palette.gradients.glsl..[[extern float phase;extern bool darkInk;
     vec4 effect(vec4 c,Image tex,vec2 uv,vec2 pixel){
      float h=fract(phase+pixel.x/320.0+pixel.y/640.0);
-     vec3 rgb=clamp(abs(fract(h+vec3(0.0,2.0/3.0,1.0/3.0))*6.0-3.0)-1.0,0.0,1.0);
+     vec3 rgb=gradientColor(h);
      vec4 s=Texel(tex,uv);if(darkInk)s=vec4(1.0,1.0,1.0,s.a*(1.0-min(s.r,min(s.g,s.b))));return vec4(rgb,c.a)*s;
     }]])end
-   shader:send('phase',color.phase);shader:send('darkInk',M.darkInk or false);G.setShader(shader)
+   palette.gradients.send(shader,color.gradient);shader:send('phase',color.phase);shader:send('darkInk',M.darkInk or false);G.setShader(shader)
   end
   local result={pcall(fn,...)};G.pop()
   if not result[1]then error(result[2],0)end;return unpack(result,2)
