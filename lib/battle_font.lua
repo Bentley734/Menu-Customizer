@@ -50,6 +50,7 @@ return function(mod)
       if not result[1]then error(result[2],0)end
     end
   end
+  function api.isEmerald()return tonumber(mod.options:get("menuTheme") or mod.save:get("menuTheme") or 2)==2 end
   api.selected=selected
   return api
 end

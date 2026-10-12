@@ -583,8 +583,8 @@ return function(mod)
     end
     B[method]=function(self,...)
       if not enabled() then return draw(self,...) end
-      if setting('style',1)==2 and not nativeEmerald.ready()then return draw(self,...)end
-      if setting('style',1)==2 and G.transformPoint and nativeEmerald.ready() then
+      if setting('style',1)==2 and not nativeEmerald.ready() and not battleFont.isEmerald()then return draw(self,...)end
+      if (setting('style',1)==2 or battleFont.isEmerald()) and G.transformPoint then
         if self.bottomUIVisible and not self:bottomUIVisible()then return end
         local width=wide and 304 or 160+(mod.generation==2 and (tonumber(select(1,...))or 0)or 0)*8
         local y=wide and 104 or 96;local h=wide and 40 or 48
@@ -699,9 +699,10 @@ return function(mod)
       end
     end
   end
-  api={setting=setting,panel=panel,faded=faded,fadedScreen=function(fn,w,h)return compose(fn,w,h,0,0)end,placement=placement,textPlaced=textPlaced,rows=rows,nativeEmerald=nativeEmerald,protect=protectRegion}
+  api={emeraldFont=battleFont.isEmerald,setting=setting,panel=panel,faded=faded,fadedScreen=function(fn,w,h)return compose(fn,w,h,0,0)end,placement=placement,textPlaced=textPlaced,rows=rows,nativeEmerald=nativeEmerald,protect=protectRegion}
   battleFont.active=enabled
   nativeEmerald.selectedFont=battleFont.selected
+  nativeEmerald.useEmeraldFont=battleFont.isEmerald
   mod.exports.battleUi=api
   local function migrate(payload)
     local loader=payload and payload.loader

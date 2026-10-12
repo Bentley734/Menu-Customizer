@@ -4,8 +4,8 @@ return function(mod,enabled)
  local charmap=assert(load(assert(mod:read('assets/emerald/charmap.lua'))))()
  local function glyphId(c)return charmap[c] or charmap['?'] end
  local M={enabled=enabled};local faces={}
- local function face(small)
-  local name=small and 'small' or 'normal'
+ local function face(small,battle,narrow)
+  local name=battle and (narrow and 'battle_narrow' or 'battle_normal') or small and 'small' or 'normal'
   if not faces[name] then
    local dir='assets/emerald/'..name
    local f={fg=mod.assets:image(dir..'_fg.png'),shadow=mod.assets:image(dir..'_shadow.png'),
@@ -27,14 +27,14 @@ return function(mod,enabled)
  end
  function M.measure(text,opts)
   local ids=glyphs(text);if not ids then return nil end
-  local f=face(opts and opts.small);local width=0
+  local f=face(opts and opts.small,opts and opts.battle or mod.exports and mod.exports.battleFontScope,opts and opts.font=="narrow");local width=0
   for _,id in ipairs(ids)do width=width+(f.widths[id] or 6) end
   return width
  end
  function M.glyph(id,x,y,opts)
   -- Space is advance-only, even if the imported atlas's reserved cell has ink.
   if id==0 then return true end
-  local f=face(opts and opts.small);local q=f.quads[id];if not q then return false end
+  local f=face(opts and opts.small,opts and opts.battle or mod.exports and mod.exports.battleFontScope,opts and opts.font=="narrow");local q=f.quads[id];if not q then return false end
   local colors=opts and opts.colors or {fg={.38,.38,.38,1},shadow={.84,.84,.8,1}}
   G.push('all');G.setShader()
   G.setColor(unpack(colors.shadow or {.84,.84,.8,1}));G.draw(f.shadow,q,x,y)
@@ -43,7 +43,7 @@ return function(mod,enabled)
  end
  function M.draw(text,x,y,opts)
   local ids=glyphs(text);if not ids then return nil end
-  local f=face(opts and opts.small);local pen=x
+  local f=face(opts and opts.small,opts and opts.battle or mod.exports and mod.exports.battleFontScope,opts and opts.font=="narrow");local pen=x
   for i,id in ipairs(ids)do
    if opts and opts.limitChars and i>opts.limitChars then break end
    local width=f.widths[id] or 6

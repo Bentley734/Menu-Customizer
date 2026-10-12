@@ -53,11 +53,12 @@ return function(mod)
     if battle.phase~='moveSelect' then return false end
     local custom=customizer()
     local port=custom and custom.nativeEmerald
-    if custom and custom.setting('style',1)==2 and port and port.ready() then
+    if custom and (custom.setting('style',1)==2 or custom.emeraldFont and custom.emeraldFont()) and port and (port.presentationReady and port.presentationReady() or port.ready()) then
       local g=love.graphics
       local F,C=port.font,port.chrome
+      if port.presentation then F,C=port.presentation()end
       local moves=battle.player and battle.player.curMoves or {}
-      local colors=port.colors()
+      local colors=(port.presentationColors or port.colors)()
       -- Emerald's actual 240x160 screen; the lower 48 pixels are the menu.
       g.push('all')
       local ok,err=pcall(function()
@@ -67,7 +68,7 @@ return function(mod)
         local sx,sy=pixels/dx,pixels/dy
         g.translate(rect.x+(rect.w-240*sx)/2,rect.y+rect.h-48*sy);g.scale(sx,sy);g.translate(0,-112)
         local function frames()
-          if custom.setting('style',1)==3 then
+          if custom.setting('style',1)~=2 or not port.ready() then
             custom.panel(0,112,160,48,false);custom.panel(160,112,80,48,false)
           else C.drawPanel('moves');C.drawMenuFrames('moves') end
         end
@@ -96,10 +97,10 @@ return function(mod)
         if def then
           local base=tonumber(def.pp) or 0
           local maximum=mv.maxPp or base+(mv.ppUps or 0)*math.floor(base/5)
-          colors=port.colors(mv.pp or 0,maximum)
+          colors=(port.presentationColors or port.colors)(mv.pp or 0,maximum)
           label(C.WIN.PP,'PP')
           label(C.WIN.PP_REMAINING,string.format('%2d/%2d',mv.pp or 0,maximum))
-          colors=port.colors()
+          colors=(port.presentationColors or port.colors)()
           label(C.WIN.MOVE_TYPE,'TYPE/')
           label(C.WIN.MOVE_TYPE,TypeChart.displayName(def.type,battle.data),F.measure('TYPE/',{font='narrow'}),false)
         end

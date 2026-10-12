@@ -43,6 +43,18 @@ return WideBattle
     local font=clone('src.ui.game3.frlg_font',overrides)
     if not font then return false end
     if not font.face or not font.face({font='normal'})or not font.face({font='narrow'})then return false end
+    local actualFont=font
+    M.battleFont=actualFont
+    if M.selectedFont then
+      font=setmetatable({}, {__index=actualFont})
+      for _,key in ipairs({'draw','measure','drawGlyph'})do
+        local method=key
+        font[method]=function(...)
+          local selected=M.useEmeraldFont and M.useEmeraldFont() and actualFont or M.selectedFont
+          return selected[method](...)
+        end
+      end
+    end
     overrides['src.ui.game3.frlg_font']=font
     overrides['src.ui.game3.chrome']=clone('src.ui.game3.chrome',overrides)
     local chrome=clone('src.ui.game3.battle_chrome',overrides)
@@ -59,8 +71,6 @@ return WideBattle
       elseif borders and mode=='menu' then borders.drawBattlePixels(120,112,120,48)
       else nativeFrames(mode)end
     end
-    local selected=M.selectedFont
-    if selected then for _,key in ipairs({'draw','measure','drawGlyph'})do font[key]=selected[key] end; font.CHAR_SELECTOR_ARROW=selected.CHAR_SELECTOR_ARROW end
     M.font,M.chrome,M.profile=font,chrome,profile
     M.overrides=overrides
     overrides['src.ui.game3.battle_chrome']=chrome
@@ -143,35 +153,75 @@ return WideBattle
     local out={};for _,c in ipairs(line or {})do out[#out+1]=gbMap[c]or '?'end
     return table.concat(out)
   end
+  local function bundledTheme()
+    local gb=mod.exports and mod.exports.gbMenus
+    if gb then return gb.theme end
+    local F=require('src.ui.game3.frlg_font')
+    return F._menuCustomizerEmerald
+  end
+  function M.presentationReady()
+    return M.ready() or M.useEmeraldFont and M.useEmeraldFont() and bundledTheme()~=nil
+  end
+  function M.presentationColors(...)
+    if M.ready()then return M.colors(...)end
+    return {fg={.08,.10,.12,1},shadow={.85,.85,.82,1}}
+  end
+  function M.presentation()
+    if M.ready()then return M.font,M.chrome end
+    local theme=assert(bundledTheme(),'Emerald battle font unavailable')
+    local F={CHAR_SELECTOR_ARROW=0xEF}
+    for _,key in ipairs({'draw','measure','drawGlyph'})do
+      local method=key
+      F[method]=function(text,x,y,opts)
+        if method=='measure'then opts=x end
+        opts=opts or {};opts.battle=true
+        if method=='drawGlyph'then return theme.glyph(text,x,y,opts)end
+        if method=='measure'then return theme.measure(text,opts)end
+        return theme.draw(text,x,y,opts)
+      end
+    end
+    local origins={[3]={16,121,64,true},[4]={88,121,64,true},[5]={16,137,64,true},[6]={88,137,64,true},[7]={168,121,32,true},[9]={202,121,32,false},[10]={168,137,64,true}}
+    local C={WIN={MOVE_NAME_1=3,PP=7,PP_REMAINING=9,MOVE_TYPE=10},textboxColors=M.presentationColors}
+    function C.textOrigin(id)return (unpack or table.unpack)(assert(origins[id]))end
+    return F,C
+  end
   function M.bottom(battle,generation,rect,custom)
-    if not M.ready() or battle.safari or battle.contest then return false end
+    if battle.safari or battle.contest then return false end
+    local ready=M.ready()
+    local theme=bundledTheme()
+    if not ready and not (theme and M.useEmeraldFont and M.useEmeraldFont()) then return false end
     local message=generation==2 and (battle.phase=='intro' or battle.phase=='resolving' or battle.phase=='locked-in')
     if battle.phase~='menu' and battle.phase~='messages' and not message then return false end
-    local G=love.graphics;local F,C=M.font,M.chrome
+    local G=love.graphics;local F,C=(M.useEmeraldFont and M.useEmeraldFont()) and M.battleFont or M.font,M.chrome
+    if not ready then F,C=M.presentation() end
     G.push('all')
     local ok,err=pcall(function()
       local scale=math.min(rect.w/240,rect.h/48)
       G.origin();G.setShader();G.setScissor();G.translate(rect.x+(rect.w-240*scale)/2,rect.y+rect.h-48*scale)
       G.scale(scale,scale);G.translate(0,-112)
       local menu=battle.phase=='menu'
-      custom.faded(function()C.drawPanel(menu and 'menu' or 'none');C.drawMenuFrames(menu and 'menu' or 'none')end)
+      custom.faded(function()
+        if ready and custom.setting('style',1)==2 then C.drawPanel(menu and 'menu' or 'none');C.drawMenuFrames(menu and 'menu' or 'none')
+        else custom.panel(0,112,240,48,false);if menu then custom.panel(120,112,120,48,false)end end
+      end)
       G.setColor(1,1,1,1)
       if menu then
         local p=battle.player
         local mon=generation==2 and battle:activeMon('player') or p and p.mon
         local name=p and p.name or mon and (mon.nickname or mon.name) or 'POKéMON'
-        F.draw('What will\n'..name..' do?',9,113,{colors=C.textboxColors(1,6)})
+        F.draw('What will',9,121,{colors=M.presentationColors()})
+        F.draw(name..' do?',9,137,{colors=M.presentationColors(),maxWidth=104})
         local labels={'FIGHT','BAG','POKéMON','RUN'}
         for i,s in ipairs(labels)do
-          F.draw(s,128+56*((i-1)%2),121+16*math.floor((i-1)/2),{colors=M.colors()})
+          F.draw(s,128+56*((i-1)%2),121+16*math.floor((i-1)/2),{colors=ready and M.colors() or C.textboxColors()})
         end
         local c=(battle.menuIndex or 1)-1
-        F.drawGlyph(F.CHAR_SELECTOR_ARROW,120+56*(c%2),121+16*math.floor(c/2),{colors=M.colors()})
+        F.drawGlyph(F.CHAR_SELECTOR_ARROW,120+56*(c%2),121+16*math.floor(c/2),{colors=ready and M.colors() or C.textboxColors()})
       else
         local lines=generation==2 and battle:messageLines() or battle.shown or {}
-        for i,line in ipairs(lines)do if i<=2 then F.draw(M.decode(line),10,113+(i-1)*16+(battle.scrollPx or 0),{colors=C.textboxColors(1,6),maxWidth=222})end end
+        for i,line in ipairs(lines)do if i<=2 then F.draw(M.decode(line),16,121+(i-1)*16+(battle.scrollPx or 0),{colors=M.presentationColors(),maxWidth=208})end end
         local arrow=generation==2 and battle:messageArrowVisible() or battle.msgWaiting or battle.msgPrompt
-        if arrow then F.drawGlyph(0x7A,224,137,{colors=C.textboxColors(1,6)})end
+        if arrow then F.drawGlyph(0x7A,224,137,{colors=M.presentationColors()})end
       end
     end)
     G.pop();if not ok then error(err,0)end;return true

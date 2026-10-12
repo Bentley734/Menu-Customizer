@@ -1,12 +1,12 @@
-# Menu Customizer 3.2.11
+# Menu Customizer 3.2.12
 
-Fixes START selector alignment on iOS and makes battle UI honor MENU FONT.
+Fixes unreadable Emerald battle text using Emerald's actual normal and narrow battle fonts and renderer.
 
-- Move START selectors down two logical pixels on iOS.
-- Use selected NATIVE or EMERALD fonts in battle UI, Emerald layouts and KIM1025 move panels.
-- Use proportional Emerald measurements, readable contrast and larger full-size move-panel glyphs. Preserve native row spacing and restore font state after errors.
-- Retain the local Ruby/Sapphire selector routing fix.
+- Dialogue and command menus render complete strings at Emerald's native line spacing, avoiding the Game Boy fixed-glyph path that broke the text.
+- Move selection uses the actual Emerald battle fonts for move names, PP, type information and cursors, across battle styles when MENU FONT is EMERALD.
+- Bundle original Emerald battle glyph masks and widths so the font works without an Emerald extraction.
+- Keep the actual battle font isolated from the selected menu adapter, preserve selected borders and retain the iOS selector correction.
 
-Restart after updating.
+Restart after updating. Choose MENU FONT > EMERALD.
 
-Validation: sandbox boots across all 11 games with KIM1025 and optional legacy Battle UI Customizer; selector, font ownership, state restoration, scaling, move layout and border tests pass in Lua 5.3 and LuaJIT. Windows LOVE rendering passes 560 real-font glyph/bounds checks at desktop, ultrawide and portrait sizes. iOS was checked using platform-specific rendering tests, not on an iPhone.
+Validation: all 11 games boot with KIM1025; menu/layout and font ownership regressions pass in Lua 5.3 and LuaJIT. Windows LOVE rendering checks dialogue and moves with and without Emerald cache files, verifies bundled normal/narrow mask pixels exactly match the Emerald extraction, and compares the native move panel pixel-for-pixel. Gameplay input was not exercised.
