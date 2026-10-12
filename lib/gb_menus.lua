@@ -106,17 +106,18 @@ return function(mod,catalog)
  -- around it so colored GBA frames retain their original colors on GBC.
  local Borders=assert(load(assert(mod:read('lib/menu_borders.lua')),'@'..mod.path..'/lib/menu_borders.lua'))()(mod,C.setting,catalog,function()return C.live() and (C.drawScope or C.dialogueScope) end)
  C.borders=Borders
- C.theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return C.drawScope and C.setting('menuTheme')==2 end)
+ C.theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return (C.drawScope or mod.exports.battleFontScope) and C.setting('menuTheme')==2 end)
  -- START rows are sixteen pixels apart, just like Emerald's native menu.
  -- Use the original glyph size there instead of the dense GB screen size.
- C.theme.gbScale=function()return not C.compactText and (C.drawingStart or C.drawingCheats or C.drawingOptions and C.drawingOptions.fullFont) and 1 or .5 end
+ C.theme.gbScale=function()if mod.exports.battleFontScope then return mod.exports.battleFontScale or .5 end;return not C.compactText and (C.drawingStart or C.drawingCheats or C.drawingOptions and C.drawingOptions.fullFont) and 1 or .5 end
+ C.theme.gbColors=function()if mod.exports.battleFontScope then return {fg={.08,.10,.12,1},shadow={.85,.85,.82,1}}end end
  Font._menuCustomizerGB=C
  if not Font._menuCustomizerGBWrapped then
   local box,draw,code,advance=Font.drawBox,Font.draw,Font.drawCode,Font.advanceOf
   Font.advanceOf=function(glyph)
    local current=Font._menuCustomizerGB
    if current and current.theme.enabled() then
-    local width=current.theme.gbAdvance(glyph);if width then return width/(current.resizeX or 1) end
+    local width=current.theme.gbAdvance(glyph);if width then return width/(current.drawScope and current.resizeX or 1) end
    end
    return advance(glyph)/(current and current.drawScope and current.resizeX or 1)
   end
@@ -273,6 +274,7 @@ return function(mod,catalog)
    local current=Font._menuCustomizerGB
    local rx,ry=current.resizeX or 1,current.resizeY or 1
    G.translate(x,y);G.scale(1/rx,1/ry);width=width*rx;x,y=0,0
+   if love.system and love.system.getOS and love.system.getOS()=='iOS' then y=y+2 end
    if sel.selector==3 then code(0xED,x-10,y)
    elseif sel.selector==2 then G.rectangle('fill',x,y+8,width,1)
    elseif sel.selector==4 then
@@ -738,7 +740,7 @@ return function(mod,catalog)
   end
  end
  mod.events:on('game.ready',function(event)attach(event.game)end)
- mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.9'
+ mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.11'
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C
 end

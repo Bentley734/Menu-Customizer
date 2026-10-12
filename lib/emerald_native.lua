@@ -59,6 +59,8 @@ return WideBattle
       elseif borders and mode=='menu' then borders.drawBattlePixels(120,112,120,48)
       else nativeFrames(mode)end
     end
+    local selected=M.selectedFont
+    if selected then for _,key in ipairs({'draw','measure','drawGlyph'})do font[key]=selected[key] end; font.CHAR_SELECTOR_ARROW=selected.CHAR_SELECTOR_ARROW end
     M.font,M.chrome,M.profile=font,chrome,profile
     M.overrides=overrides
     overrides['src.ui.game3.battle_chrome']=chrome
@@ -99,7 +101,7 @@ return WideBattle
     local F=require('src.ui.game3.frlg_font')
     local C=require('src.ui.game3.battle_chrome')
     local oldProfile=P.forSession;local savedF,savedC={},{}
-    for k,v in pairs(M.font)do if type(v)=='function' then savedF[k]=F[k];F[k]=v end end
+    for k,v in pairs(M.font)do if type(v)=='function' and (not M.selectedFont or k=='draw' or k=='measure' or k=='drawGlyph') then savedF[k]={value=F[k]};F[k]=v end end
     for k,v in pairs(C)do savedC[k]=v end
     for k,v in pairs(M.chrome)do C[k]=v end
     local custom=mod.exports and mod.exports.battleUi
@@ -112,11 +114,11 @@ return WideBattle
     end
     P.forSession=function(...)
       local native=oldProfile(...)
-      return setmetatable({font=M.profile.font,ui=M.profile.ui},{__index=native})
+      return setmetatable({font=M.selectedFont and native.font or M.profile.font,ui=M.profile.ui},{__index=native})
     end
     local result={pcall(fn,...)}
     P.forSession=oldProfile
-    for k in pairs(M.font)do if type(M.font[k])=='function'then F[k]=savedF[k]end end
+    for k,v in pairs(savedF)do F[k]=v.value end
     for k in pairs(M.chrome)do C[k]=savedC[k]end
     if not result[1]then error(result[2],0)end
     return (unpack or table.unpack)(result,2)

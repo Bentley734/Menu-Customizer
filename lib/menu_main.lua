@@ -464,7 +464,7 @@ return function(mod)
   -- Suppress the canvas menu pass, then render the same menus in screen space.
   local Window = require('src.ui.game3.window')
   local FrlgFont = require('src.ui.game3.frlg_font')
-  local Theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return active() and FX.active and setting('menuTheme')==2 end)
+  local Theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return active() and (FX.active or mod.exports.battleFontScope) and setting('menuTheme')==2 end)
   FrlgFont._menuCustomizerEmerald=Theme
   if not FrlgFont._menuCustomizerEmeraldWrapped then
     local draw,measure,glyph=FrlgFont.draw,FrlgFont.measure,FrlgFont.drawGlyph
@@ -494,11 +494,16 @@ return function(mod)
     return Window.template(emeraldLayout.window.left,emeraldLayout.window.top,emeraldLayout.window.width,n*2+2)
   end
   local function nativeStartDraw(...)
-    if not Theme.enabled() then return originalNativeStartDraw(...) end
-    local previous=Start._data;local adapted={}
+    local previous=Start._data
+    if not Theme.enabled() and not (active() and previous and previous.drawCursor) then return originalNativeStartDraw(...) end
+    local adapted={}
     for k,v in pairs(previous or {})do adapted[k]=v end
-    adapted.window=emeraldLayout.window;adapted.textX=emeraldLayout.textX
-    adapted.textY=emeraldLayout.textY;adapted.rowPitch=emeraldLayout.rowPitch
+    if Theme.enabled() then
+      adapted.window=emeraldLayout.window;adapted.textX=emeraldLayout.textX
+      adapted.textY=emeraldLayout.textY;adapted.rowPitch=emeraldLayout.rowPitch
+    end
+    -- RS otherwise bypasses Window.cursorPx with its native red outline.
+    if active() then adapted.drawCursor=nil end
     Start._data=adapted
     local ok,result=pcall(originalNativeStartDraw,...)
     Start._data=previous
@@ -526,16 +531,17 @@ return function(mod)
     if not active() then return nativeStartDraw(...) end
     local alignment = setting('startJustify')
     local selector = setting('startSelector')
-    if alignment == 1 and selector == 3 then return nativeStartDraw(...) end
+    if alignment == 1 and selector == 3 and not (love.system and love.system.getOS and love.system.getOS()=='iOS') then return nativeStartDraw(...) end
     local tpl
     if Theme.enabled() then
       local n=math.min(#Start.ENTRIES,(Start._data and Start._data.maxVisible) or Start.MAX_VISIBLE or 8)
       tpl=Window.template(emeraldLayout.window.left,emeraldLayout.window.top,emeraldLayout.window.width,n*2+2)
     else tpl=Start.contentTemplate() end
     local cursorX = tpl.left * 8
-    local labelX = tpl.left * 8 + Window.CURSOR_WIDTH
-    local labelWidth = tpl.w * 8 - Window.CURSOR_WIDTH
     local data = Theme.enabled() and emeraldLayout or Start._data
+    local textInset=data and data.textX or Window.CURSOR_WIDTH
+    local labelX = tpl.left * 8 + textInset
+    local labelWidth = tpl.w * 8 - textInset
     local pitch = data and data.rowPitch or Window.optionHeight()
     local scroll = Start._scrollOffset or 0
     local topY = tpl.top * 8 + (data and data.textY or 0)
@@ -559,12 +565,13 @@ return function(mod)
           local entry = Start.ENTRIES[Start.cursor]
           if entry then
             local textX = labelPosition(entry.label)
-            drawBallCursor(textX - #ballPixels[1] - 1, y)
+            drawBallCursor(textX - #ballPixels[1] - 1, y+(love.system and love.system.getOS and love.system.getOS()=='iOS' and 2 or 0))
           end
         end
         return
       end
-      return originalCursor(x, y, opts)
+      local dy=love.system and love.system.getOS and love.system.getOS()=='iOS' and 2 or 0
+      return originalCursor(x, y+dy, opts)
     end
     Window.printPx = function(text, x, y, opts)
       local row = (y-topY)/pitch + 1 + scroll
@@ -579,6 +586,7 @@ return function(mod)
           local color = (opts and opts.colors or FrlgFont.COLOR.NORMAL).fg
           local r, g, b, a = love.graphics.getColor()
           love.graphics.setColor(color[1], color[2], color[3], color[4] or 1)
+          if love.system and love.system.getOS and love.system.getOS()=='iOS' then y=y+2 end
           if selector == 2 then
             love.graphics.rectangle('fill', x, y + 13, width, 1)
           else
@@ -747,14 +755,14 @@ return function(mod)
       and 'src.ui.game3.rse.option_menu' or 'src.ui.game3.option_menu')
     installOption(Option);originalOption=nativeOptions[Option]
     FX.setMod(mod)
-    Theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return active() and FX.active and setting('menuTheme')==2 end)
+    Theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return active() and (FX.active or mod.exports.battleFontScope) and setting('menuTheme')==2 end)
     FrlgFont._menuCustomizerEmerald=Theme
     mod.hooks:wrap('ui.start_menu.items',startItemsHook)
     Borders=assert(load(assert(mod:read('lib/menu_borders.lua')), '@'..mod.path..'/lib/menu_borders.lua'))()(mod,setting,catalog,active)
     mod.exports.borders=Borders;mod.exports.borderCatalog=catalog
-    mod.exports.effects=FX;mod.exports.version='3.2.9'
+    mod.exports.effects=FX;mod.exports.version='3.2.11'
   end
   mod.exports.effects=FX
-  mod.exports.version = '3.2.9' 
+  mod.exports.version = '3.2.11'
   mod.log:info('Menu Customizer: '..gameVersion..' START, OPTION and SAVE placement installed')
 end

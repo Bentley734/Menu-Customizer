@@ -1,6 +1,6 @@
 from pathlib import Path
 import os,sys
-root=Path(__file__).resolve().parents[2];sys.path.insert(0,str(root/'.tools/lua-test'))
+root=Path(__file__).resolve().parents[2];sys.path.insert(0,str(root/'.work/latest-sprite-fix/python'))
 from lupa.luajit21 import LuaRuntime
 os.chdir(root/'.tools/engine-0358')
 for version in ['red','blue','yellow','gold','silver','crystal','ruby','sapphire','emerald','firered','leafgreen']:

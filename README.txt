@@ -1,3 +1,6 @@
+Menu Customizer 3.2.11
+Move START selectors down two logical pixels on iOS. Battle UI now uses MENU FONT, including native and Emerald battle layouts and KIM1025 move panels. Emerald uses proportional measurements, readable contrast and uniform scaling; full-size panels use larger glyphs while native panels retain their row spacing. Existing Ruby/Sapphire custom selector routing is retained. Restart after updating.
+
 Menu Customizer 3.2.9
 Inset battle dialogue two pixels from the left border.
 

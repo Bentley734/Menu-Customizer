@@ -8,6 +8,7 @@ return function(mod)
   local marker
   local api
   local protectRegion
+  local battleFont=assert(load(assert(mod:read('lib/battle_font.lua'))))()(mod)
   local nativeEmerald=assert(load(assert(mod:read('lib/emerald_native.lua'))))()(mod)
   local emerald
   local function emeraldArt()
@@ -699,6 +700,8 @@ return function(mod)
     end
   end
   api={setting=setting,panel=panel,faded=faded,fadedScreen=function(fn,w,h)return compose(fn,w,h,0,0)end,placement=placement,textPlaced=textPlaced,rows=rows,nativeEmerald=nativeEmerald,protect=protectRegion}
+  battleFont.active=enabled
+  nativeEmerald.selectedFont=battleFont.selected
   mod.exports.battleUi=api
   local function migrate(payload)
     local loader=payload and payload.loader
@@ -724,6 +727,15 @@ return function(mod)
   mod.events:on('game.ready',migrate)
   local flatMod={find=function()return {exports=api}end}
   api.moveScreen=assert(load(assert(mod:read('lib/battle_move_screen.lua'))))()(flatMod)
+  battleFont.wrap(api.moveScreen,'draw',.75)
+  if mod.generation==3 then
+    battleFont.wrap(require('src.core.game3.battle.ui'),'draw')
+  else
+    local B=require(mod.generation==2 and 'src.ui.gen2.BattleState' or 'src.battle.BattleState')
+    battleFont.wrap(B,mod.generation==2 and 'drawBottom' or 'drawTextArea')
+    for _,key in ipairs({'drawHUDs','drawEnemyHud','drawPlayerHud'})do battleFont.wrap(B,key)end
+    if mod.generation==1 then battleFont.wrap(require('src.battle.WideBattle'),'draw') end
+  end
 
 end
 

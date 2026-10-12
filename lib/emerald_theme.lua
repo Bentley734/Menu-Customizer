@@ -90,7 +90,7 @@ return function(mod,enabled)
   -- so the final row clears the frame without changing the row spacing.
   G.push('all');G.translate(x,y-(scale==1 and 6 or 0));G.scale(scale,scale)
   local pen=0;local f=face(false)
-  for _,id in ipairs(ids) do M.glyph(id,pen,0);pen=pen+(f.widths[id] or 6) end
+  for _,id in ipairs(ids) do M.glyph(id,pen,0,M.gbColors and {colors=M.gbColors()} or nil);pen=pen+(f.widths[id] or 6) end
   G.pop();return true
  end
  return M

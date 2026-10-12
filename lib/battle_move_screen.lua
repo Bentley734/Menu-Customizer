@@ -123,7 +123,8 @@ return function(mod)
         local drawn,why=pcall(function()
           Font.draw(label,0,0)
           -- Half a font pixel strengthens stems without blurring the pixel font.
-          Font.draw(label,.5,0)
+          local selected=Font._menuCustomizerGB
+          if not (selected and selected.theme and selected.theme.enabled()) then Font.draw(label,.5,0) end
         end);g.pop()
         if not drawn then error(why,0) end
       end
@@ -208,9 +209,13 @@ return function(mod)
         local mv=moves[i];local def=mv and battle.data.moves[mv.id]
         local label=def and def.name or mv and tostring(mv.id) or '-'
         local limit=math.max(1,math.floor(89*p.sx/(8*p.textSx*1.2)))
-        local lines=api.wrapName(label,limit)
+        local width=Font.width and Font.width(label) or #label*8
+        local budget=89*p.sx/(p.textSx*1.2)
+        local lines=width<=budget and {label} or api.wrapName(label,limit)
         -- Center the complete one/two-line name in its invisible quarter.
-        local glyphHeight=8*p.textSy*1.2/p.sy
+        local current=Font._menuCustomizerGB
+        local height=current and current.theme and current.theme.enabled() and 14*(current.theme.gbScale and current.theme.gbScale() or .5) or 8
+        local glyphHeight=height*p.textSy*1.2/p.sy
         local lineStep=11*p.textSy*1.2/p.sy
         local blockHeight=glyphHeight+(#lines-1)*lineStep
         local y=cellTop+(24-blockHeight)/2
