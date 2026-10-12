@@ -36,13 +36,16 @@ assert(E.setting('style',1)==2 and E.setting('opacity',100)==30,'legacy settings
 assert(E.setting('menu_stretch',0)==1 and E.setting('menu_align',2)==1,'placement migrated')
 for _,entry in ipairs(Runtime.hooks.chains['ui.options.rows'] or {})do assert(entry.owner~='battleuicustomizer','legacy renderer inert')end
 assert(loader.exports.gen3transparency.borders and loader.exports.gen3transparency.effects or GV.generation()~=3)
-local controls=E.rows({});assert(#controls==6)
+local controls=E.rows({});assert(#controls==7)
 assert(controls[5].value()=='BLACK','default battle colour')
 controls[5].step(game,1);assert(controls[5].value()=='CHARCOAL','colour step')
 assert(game.options.modOptions.gen3transparency.battle_text_color==1,'colour persisted')
 assert(controls[6].value()=='WHITE','default background')
 controls[6].step(game,1);assert(controls[6].value()=='BLACK','black background choice')
 assert(game.options.modOptions.gen3transparency.battle_background_color==1,'background persisted')
+assert(controls[7].value()=='NONE','default shadow disabled')
+controls[7].step(game,1);assert(controls[7].value()=='BLACK','battle shadow colour')
+assert(game.options.modOptions.gen3transparency.battle_shadow_color==1,'battle shadow persisted')
 local style,opacity,stretch,align=unpack(controls)
 assert(style.value()=='EMERALD')
 style.step(game,1);assert(style.value()=='MENU BORDER')
@@ -70,9 +73,15 @@ if GV.generation()~=3 then
  assert(textRow.value()=='BLACK','all menu colours wrap to black')
  textRow.step(game,1);textRow.step(game,1)
  assert(game.options.modOptions.gen3transparency.battle_text_color==1,'battle colour independent')
+ local shadowRow;for _,r in ipairs(parent.rows)do if r.label=='MENU TEXT SHADOW'then shadowRow=r end end
+ assert(shadowRow,'menu shadow chooser');shadowRow.activate(game);shadowRow=game.stack:top().rows[1]
+ assert(shadowRow.value()=='NONE','default menu shadow disabled')
+ for i=1,5 do shadowRow.step(game,1)end
+ assert(shadowRow.value()=='BLUE' and game.options.modOptions.gen3transparency.menuTextShadowColor==5,'menu shadow persisted')
+ assert(game.options.modOptions.gen3transparency.battle_shadow_color==1,'battle shadow independent')
  for _,r in ipairs(parent.rows)do if r.label=='BATTLE UI' then battleRow=r end end
  assert(battleRow);battleRow.activate(game)
- assert(game.stack:top().title=='BATTLE UI' and #game.stack:top().rows==6)
+ assert(game.stack:top().title=='BATTLE UI' and #game.stack:top().rows==7)
 else
  local RomText=require('src.core.game3.rom_text');RomText.at=function(n,i)return n..i end
  local Rows=require('src.ui.game3.option_rows')
@@ -90,10 +99,15 @@ else
  assert(textRow.value()=='BLACK','all menu colours wrap to black')
  textRow.step({game=game},1);textRow.step({game=game},1)
  assert(game.options.modOptions.gen3transparency.battle_text_color==1,'battle colour independent')
+ local shadowRow;for _,r in ipairs(page)do if r.label=='MENU TEXT SHADOW'then shadowRow=r end end
+ assert(shadowRow and shadowRow.value()=='NONE','menu shadow chooser')
+ for i=1,5 do shadowRow.step({game=game},1)end
+ assert(shadowRow.value()=='BLUE' and game.options.modOptions.gen3transparency.menuTextShadowColor==5,'menu shadow persisted')
+ assert(game.options.modOptions.gen3transparency.battle_shadow_color==1,'battle shadow independent')
  local battleRow
  for _,r in ipairs(page)do if r.id=='wide_battle_ui' then battleRow=r end end
  assert(battleRow,'battle submenu inside menus');battleRow.activate()
- assert(title=='BATTLE UI' and #page==6)
+ assert(title=='BATTLE UI' and #page==7)
 end
 -- Border style is live; a changed atlas is used on the next draw.
 local borders=loader.exports.gen3transparency.borders

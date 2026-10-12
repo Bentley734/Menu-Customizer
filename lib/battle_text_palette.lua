@@ -2,6 +2,8 @@
 return function(mod)
   local M={names={'BLACK','CHARCOAL','BLUE','GREEN','RED','PURPLE','WHITE'}}
   local foreground={{0,0,0,1},{.18,.18,.18,1},{.05,.18,.55,1},{.05,.35,.12,1},{.6,.05,.05,1},{.4,.1,.5,1},{1,1,1,1}}
+  M.shadowNames={'NONE','BLACK','CHARCOAL','GREY','LIGHT GREY','BLUE','GREEN','RED','PURPLE','WHITE'}
+  local shadows={{0,0,0,0},{0,0,0,1},{.18,.18,.18,1},{.5,.5,.5,1},{.72,.72,.72,1},foreground[3],foreground[4],foreground[5],foreground[6],foreground[7]}
   M.backgroundNames={'WHITE','BLACK','CHARCOAL','NAVY','CREAM','PALE BLUE','PALE GREEN','PLUM'}
   local backgrounds={{1,1,1,1},{0,0,0,1},{.12,.12,.14,1},{.04,.08,.18,1},{1,.96,.82,1},{.82,.91,1,1},{.84,.95,.85,1},{.18,.06,.22,1}}
   function M.background()
@@ -12,7 +14,10 @@ return function(mod)
     local key=kind=='menu' and 'menuTextColor' or 'battle_text_color'
     local n=tonumber(mod.options:get(key) or mod.save:get(key)) or 0
     n=math.max(0,math.min(#foreground-1,math.floor(n)))
-    return {fg=foreground[n+1],shadow=n==6 and {.25,.25,.25,1} or {.72,.72,.72,1},bg={0,0,0,0}}
+    local shadowKey=kind=='menu' and 'menuTextShadowColor' or 'battle_shadow_color'
+    local sh=tonumber(mod.options:get(shadowKey) or mod.save:get(shadowKey)) or 0
+    sh=math.max(0,math.min(#shadows-1,math.floor(sh)))
+    return {fg=foreground[n+1],shadow=shadows[sh+1],bg={0,0,0,0}}
   end
   function M.clean(text)
     if type(text)~='string' then return text end
@@ -62,7 +67,15 @@ return function(mod)
       if not inkShader then inkShader=G.newShader([[vec4 effect(vec4 c,Image t,vec2 uv,vec2 p){vec4 s=Texel(t,uv);return vec4(c.rgb,c.a*s.a*(1.0-min(s.r,min(s.g,s.b))));}]])end
       G.setShader(inkShader)
     else G.setShader()end
-    local result={pcall(fn,id,...)};G.pop()
+    local result={pcall(function(...)
+      local colors=M.colors('menu')
+      if colors.shadow[4]>0 then
+        G.push('all');G.translate(1,1);G.setColor((unpack or table.unpack)(colors.shadow))
+        local painted={pcall(fn,id,...)};G.pop()
+        if not painted[1]then error(painted[2],0)end
+      end
+      G.setColor((unpack or table.unpack)(colors.fg));return fn(id,...)
+    end,...)};G.pop()
     if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
   end
   return M

@@ -105,7 +105,7 @@ return WideBattle
         else state=0 end
         local q=manifest.ppTextPal or {};fg,shadow=q[state*2+1]or fg,q[state*2+2]or shadow
       end
-      return {fg=color(fg),shadow=color(shadow),bg={0,0,0,0}}
+      return {fg=color(fg),shadow=M.textPalette and M.textPalette.colors().shadow or color(shadow),bg={0,0,0,0}}
     end
     return true
   end
@@ -199,7 +199,7 @@ return WideBattle
       local function c(n)return (n*8+math.floor(n/4))/255 end
       return {c(v%32),c(math.floor(v/32)%32),c(math.floor(v/1024)%32),1}
     end
-    return {fg=color(fg or 9513),shadow=color(shadow or 26458),bg={0,0,0,0}}
+    return {fg=color(fg or 9513),shadow=M.textPalette and M.textPalette.colors().shadow or color(shadow or 26458),bg={0,0,0,0}}
   end
   function M.presentation()
     if M.ready()then return M.font,M.chrome end

@@ -1,3 +1,15 @@
+Menu Customizer 3.2.20
+Add independent text shadow colours and let battle backgrounds reach the actual frame.
+
+- Menus → Menu Text Shadow and Menus → Battle UI → Battle Text Shadow offer None, Black, Charcoal, Grey, Light Grey, Blue, Green, Red, Purple and White. None is the default, removing the old automatic grey shadow.
+- Apply the choices to native and Emerald menu fonts, dialogue, battle commands and moves. Keep foreground colours independent and persist each shadow choice.
+- Remove the white and pale-grey paper connected to the interior of the selected battle border. Composite the selected background through those pixels while preserving coloured frame pixels and disconnected outer highlights. Ordinary menu border atlases stay intact.
+- Keep existing frame geometry, positioning, opacity and background choices.
+
+Restart after updating. Keep KIM1025 1.7.33 installed.
+
+Validation: real native and Emerald glyph shadow pixel checks, None removes shadow pixels, actual battle dialogue and RS printer checks, interior-rim removal with coloured-border preservation, connected-paper/disconnected-highlight checks, separate chooser persistence in all 11 games, Lua 5.3/LuaJIT regression suites, 86 composed rendering checks. Live ROM gameplay was not exercised.
+
 Menu Customizer 3.2.19
 Apply battle text colours to dialogue, add independent menu text colours and selectable battle box backgrounds.
 

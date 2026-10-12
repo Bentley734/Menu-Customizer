@@ -65,7 +65,7 @@ return function(mod)
   local keys = {'startPosition', 'startJustify', 'startSelector', 'optionPosition', 'savePosition', 'otherPosition',
     'startOpacity', 'optionOpacity', 'otherOpacity', 'hideStartMods'}
   local menuPalette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
-  local extra = {menuTextColor={0,0,6,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1}, menuBorder={1,1,#borderChoices,1}, backgroundDim={0,0,70,10}, controlsLegend={2,1,3,1},
+  local extra = {menuTextColor={0,0,6,1},menuTextShadowColor={0,0,9,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1}, menuBorder={1,1,#borderChoices,1}, backgroundDim={0,0,70,10}, controlsLegend={2,1,3,1},
     menuTransition={3,1,3,1}, positionPreview={1,0,1,1}}
   for _, group in ipairs({'start','option','save','other'}) do
     extra[group..'Scale']={100,50,150,10}
@@ -239,6 +239,9 @@ return function(mod)
     local textRow=row('menuTextColor','MENU TEXT COLOR',colorNames)
     textRow.step=function(ctx,dir)persist('menuTextColor',(setting('menuTextColor')+(dir<0 and -1 or 1))%#menuPalette.names,ctx);return false end
     entries[#entries+1]=textRow
+    local shadowNames={};for i,name in ipairs(menuPalette.shadowNames)do shadowNames[i-1]=name end
+    entries[#entries+1]={id='wide_menuTextShadowColor',label='MENU TEXT SHADOW',value=function()return shadowNames[setting('menuTextShadowColor')]end,
+      step=function(ctx,dir)persist('menuTextShadowColor',(setting('menuTextShadowColor')+(dir<0 and -1 or 1))%#menuPalette.shadowNames,ctx);return false end}
     entries[#entries+1] = row('startSelector', 'START SELECTOR', selectorChoices)
     entries[#entries+1] = row('optionPosition', 'OPTION POSITION')
     entries[#entries+1] = row('savePosition', 'SAVE POSITION')
@@ -278,7 +281,7 @@ return function(mod)
           activate=function()openPage(group:upper()..' MENU',children)end}
       end
       for _, r in ipairs(members) do
-        if r.id=='wide_dialogueBorder' or r.id=='wide_menuTheme' or r.id=='wide_menuTextColor' or r.id=='wide_menuBorder' or r.id=='wide_backgroundDim' or r.id=='wide_controlsLegend' or r.id=='wide_menuTransition' or r.id=='wide_positionPreview' then parent[#parent+1]=r end
+        if r.id=='wide_dialogueBorder' or r.id=='wide_menuTheme' or r.id=='wide_menuTextColor' or r.id=='wide_menuTextShadowColor' or r.id=='wide_menuBorder' or r.id=='wide_backgroundDim' or r.id=='wide_controlsLegend' or r.id=='wide_menuTransition' or r.id=='wide_positionPreview' then parent[#parent+1]=r end
       end
       local battleUi=mod.exports.battleUi
       if battleUi then parent[#parent+1]={id='wide_battle_ui',label='BATTLE UI',value=function()return 'OPEN' end,activate=function()openPage('BATTLE UI',battleUi.rows({}))end} end
@@ -779,9 +782,9 @@ return function(mod)
     mod.hooks:wrap('ui.start_menu.items',startItemsHook)
     Borders=assert(load(assert(mod:read('lib/menu_borders.lua')), '@'..mod.path..'/lib/menu_borders.lua'))()(mod,setting,catalog,active)
     mod.exports.borders=Borders;mod.exports.borderCatalog=catalog
-    mod.exports.effects=FX;mod.exports.version='3.2.19'
+    mod.exports.effects=FX;mod.exports.version='3.2.20'
   end
   mod.exports.effects=FX
-  mod.exports.version = '3.2.19'
+  mod.exports.version = '3.2.20'
   mod.log:info('Menu Customizer: '..gameVersion..' START, OPTION and SAVE placement installed')
 end

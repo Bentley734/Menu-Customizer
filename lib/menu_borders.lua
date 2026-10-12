@@ -16,6 +16,24 @@ return function(mod,setting,catalog,active)
   M.atlases[selection]=atlas
   return atlas
  end
+ -- Battle-only transparent paper masks, leaving the shared menu atlas intact.
+ function M.battleAtlas(atlas,selection)
+  if atlas.battleImage then return atlas.battleImage,atlas.paperImage end
+  if not (love.image and love.image.newImageData and love.filesystem and G.newImage) then return atlas.image end
+  local source=mod:read(catalog.entries[selection].path)
+  local data=love.image.newImageData(love.filesystem.newFileData(source,'border.png'))
+  local mask=assert(load(assert(mod:read('lib/border_paper.lua'))))()(data)
+  local paper=love.image.newImageData(24,24)
+  for key in pairs(mask)do
+    local x,y=(key-1)%24,math.floor((key-1)/24)
+    local _,_,_,a=data:getPixel(x,y)
+    paper:setPixel(x,y,1,1,1,a);data:setPixel(x,y,0,0,0,0)
+  end
+  atlas.battleImage=G.newImage(data);atlas.paperImage=G.newImage(paper)
+  atlas.battleImage:setFilter('nearest','nearest');atlas.paperImage:setFilter('nearest','nearest')
+  if data.release then data:release()end;if paper.release then paper:release()end
+  return atlas.battleImage,atlas.paperImage
+ end
  function M.draw(tx,ty,tw,th)
   if active and not active() then return false end
   local selection=setting('menuBorder')
@@ -45,6 +63,8 @@ return function(mod,setting,catalog,active)
   end
   local atlas=M.atlas(selection)
   if not atlas or w<=0 or h<=0 then return false end
+  local image,paper=atlas.image,nil
+  if background then image,paper=M.battleAtlas(atlas,selection)end
   local edge=math.min(8,w/2,h/2)
   local xs,ys={x,x+edge,x+w-edge},{y,y+edge,y+h-edge}
   local ws,hs={edge,w-2*edge,edge},{edge,h-2*edge,edge}
@@ -65,7 +85,10 @@ return function(mod,setting,catalog,active)
        atlas.fragments[key]=quad
       end
      end
-     G.draw(atlas.image,quad,rx+dx,ry+dy)
+     if paper then
+      G.setColor(unpack(background));G.draw(paper,quad,rx+dx,ry+dy);G.setColor(1,1,1,1)
+     end
+     G.draw(image,quad,rx+dx,ry+dy)
     end end
    end
    for row=1,3 do for col=1,3 do

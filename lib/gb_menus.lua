@@ -9,7 +9,7 @@ return function(mod,catalog)
  local MOD_ID='gen3transparency'
  local positions={'DEFAULT','LEFT','RIGHT','TOP LEFT','TOP RIGHT','BOTTOM LEFT','BOTTOM RIGHT','CENTER','TOP CENTER','BOTTOM CENTER'}
  local menuPalette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
- local specs={menuTextColor={0,0,6,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1},menuBorder={1,1,#catalog.choices,1},startJustify={1,1,3,1},startSelector={3,1,4,1},hideStartMods={0,0,1,1},
+ local specs={menuTextColor={0,0,6,1},menuTextShadowColor={0,0,9,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1},menuBorder={1,1,#catalog.choices,1},startJustify={1,1,3,1},startSelector={3,1,4,1},hideStartMods={0,0,1,1},
   backgroundDim={0,0,70,10},controlsLegend={2,1,3,1},menuTransition={3,1,3,1},positionPreview={1,0,1,1}}
  for _,group in ipairs({'start','option','save','other'}) do
   specs[group..'Position']={1,1,10,1}
@@ -511,6 +511,8 @@ return function(mod,catalog)
  parent[#parent+1]=row('menuTheme','MENU FONT',{'NATIVE','EMERALD'})
  local colorNames={};for i,name in ipairs(menuPalette.names)do colorNames[i-1]=name end
  parent[#parent+1]=row('menuTextColor','MENU TEXT COLOR',colorNames)
+ local shadowNames={};for i,name in ipairs(menuPalette.shadowNames)do shadowNames[i-1]=name end
+ parent[#parent+1]=row('menuTextShadowColor','MENU TEXT SHADOW',shadowNames)
  parent[#parent+1]=row('menuBorder','MENU BORDER',catalog.choices)
  parent[#parent+1]=row('dialogueBorder','DIALOGUE BORDER',{[0]='OFF',[1]='ON'})
  parent[#parent+1]=row('backgroundDim','BACKGROUND DIM')
@@ -767,7 +769,7 @@ return function(mod,catalog)
   end
  end
  mod.events:on('game.ready',function(event)attach(event.game)end)
- mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.19'
+ mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.20'
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C
 end

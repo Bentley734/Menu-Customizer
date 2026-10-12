@@ -26,5 +26,11 @@ check(F.drawGlyph==originalGlyph,'glyph restored after success')
 M.menuScope(function()F.draw('OPTIONS',8,20,opts)end)
 check(recorded.o.colors.fg[1]==0,'menu text palette covers upper rows')
 check(M.backgroundNames[2]=='BLACK','black background option')
+local choices={battle_shadow_color=5,menuTextShadowColor=7,battle_text_color=6,menuTextColor=3}
+mod.options.get=function(_,k)return choices[k]end
+check(M.colors().shadow[3]>.5 and M.colors().shadow[1]<.1,'blue battle shadow')
+check(M.colors('menu').shadow[1]>.5 and M.colors('menu').shadow[2]<.1,'independent red menu shadow')
+choices.battle_shadow_color=0
+check(M.colors().shadow[4]==0,'None disables shadow')
 check(not pcall(M.scope,function()error('test')end) and F.draw==original,'restored after error')
 print('PASS '..checks..' battle text palette checks')

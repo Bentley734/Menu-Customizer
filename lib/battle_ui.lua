@@ -2,7 +2,7 @@
 return function(mod)
   local ID = 'gen3transparency'
   local legacy={}
-  local battleKeys={'style','opacity','menu_stretch','menu_align','text_color','background_color'}
+  local battleKeys={'style','opacity','menu_stretch','menu_align','text_color','background_color','shadow_color'}
   local textPalette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
   local G = love.graphics
   local unpack = unpack or table.unpack
@@ -40,6 +40,7 @@ return function(mod)
     local n = tonumber(mod.options:get('battle_'..key))
     if n == nil then n = tonumber(mod.save:get('battle_'..key)) end
     if n == nil then n = tonumber(legacy[key]) end
+    if key == 'shadow_color' then return math.max(0,math.min(#textPalette.shadowNames-1,math.floor(n or 0))) end
     if key == 'background_color' then return math.max(0,math.min(#textPalette.backgroundNames-1,math.floor(n or 0))) end
     if key == 'text_color' then return math.max(0,math.min(#textPalette.names-1,math.floor(n or 0))) end
     if key == 'style' then return n == 3 and 3 or n == 2 and 2 or 1 end
@@ -183,6 +184,9 @@ return function(mod)
     out[#out+1]={id=ID..':background_color',label='BATTLE BACKGROUND',
       value=function()return textPalette.backgroundNames[setting('background_color',0)+1]end,
       step=function(ctx,dir)return persist(ctx,'background_color',(setting('background_color',0)+(dir<0 and -1 or 1))%#textPalette.backgroundNames)end}
+    out[#out+1]={id=ID..':shadow_color',label='BATTLE TEXT SHADOW',
+      value=function()return textPalette.shadowNames[setting('shadow_color',0)+1]end,
+      step=function(ctx,dir)return persist(ctx,'shadow_color',(setting('shadow_color',0)+(dir<0 and -1 or 1))%#textPalette.shadowNames)end}
     return out
   end
   marker=function(nextFn,game,out) return nextFn(game,out) end
