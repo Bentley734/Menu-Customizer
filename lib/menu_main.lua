@@ -680,6 +680,8 @@ return function(mod)
     return left, top, width, height
   end
   local canvas
+  local textCanvas
+  local MenuText=assert(load(assert(mod:read('lib/menu_text_surface.lua'))))()(mod,FrlgFont or require('src.ui.game3.frlg_font'))
   local function drawAt(menu, draw, mode, opacity, winW, winH, previewOnly, previewGroup)
     if not previewOnly and not menu.isOpen() then return end
     local sx, defaultX, defaultY, _, _, sy = Display.fit(winW, winH)
@@ -751,12 +753,31 @@ return function(mod)
     end
     local priorPaper=mod.exports.menuPaperScope;mod.exports.menuPaperScope=group
     local priorAspect=mod.exports.fontAspect;mod.exports.fontAspect={pxScale,sy}
-    local ok, err = pcall(menuPalette and menuPalette.menuScope or function(f)return f()end,draw)
+    local ok, queue = pcall(MenuText.capture,function()
+      return (menuPalette and menuPalette.menuScope or function(f)return f()end)(draw)
+    end)
     mod.exports.menuPaperScope=priorPaper;mod.exports.fontAspect=priorAspect
     love.graphics.rectangle, love.graphics.clear = rectangle, clear
     love.graphics.setCanvas()
     love.graphics.pop()
-    if not ok then error(err, 0) end
+    if not ok then error(queue, 0) end
+    -- Composite native-resolution frames/backgrounds first. Deferred fonts
+    -- then land on square integer physical pixels without shrinking the atlas.
+    local target=love.graphics.getCanvas()
+    local dpi=target and target:getDPIScale() or love.graphics.getDPIScale()
+    if not textCanvas or textCanvas:getWidth()~=winW or textCanvas:getHeight()~=winH or textCanvas:getDPIScale()~=dpi then
+      if textCanvas then textCanvas:release()end
+      textCanvas=love.graphics.newCanvas(winW,winH,{dpiscale=dpi})
+      textCanvas:setFilter('nearest','nearest')
+    end
+    love.graphics.push('all');love.graphics.setCanvas(textCanvas);love.graphics.origin()
+    love.graphics.setShader();love.graphics.setScissor();love.graphics.clear(0,0,0,0)
+    love.graphics.setBlendMode('alpha','premultiplied');love.graphics.setColor(1,1,1,1)
+    love.graphics.draw(canvas,x,y,0,pxScale,sy)
+    love.graphics.setBlendMode('alpha','alphamultiply')
+    local rendered,err=pcall(MenuText.draw,queue,x,y,pxScale,sy,dpi)
+    love.graphics.pop()
+    if not rendered then error(err,0)end
     love.graphics.push('all')
     love.graphics.origin()
     love.graphics.setBlendMode('alpha', 'premultiplied')
@@ -766,8 +787,8 @@ return function(mod)
     local alpha = (opacityChoices[setting(opacity)] or 100)/100*transitionAlpha
     love.graphics.setColor(alpha, alpha, alpha, alpha)
     if Transitions then
-      Transitions.scope(setting('menuTransition'),progress or 1,{x=x+left,y=y+upper,w=bw,h=bh},function()love.graphics.draw(canvas,x,y,0,pxScale,sy)end,{left/width,upper/height,bw/width,bh/height})
-    else love.graphics.draw(canvas,x,y,0,pxScale,sy)end
+      Transitions.scope(setting('menuTransition'),progress or 1,{x=x+left,y=y+upper,w=bw,h=bh},function()love.graphics.draw(textCanvas,0,0)end,{(x+left)/winW,(y+upper)/winH,bw/winW,bh/winH})
+    else love.graphics.draw(textCanvas,0,0)end
     love.graphics.pop()
   end
   Display.present = function(game, w, h)
@@ -816,9 +837,9 @@ return function(mod)
     mod.hooks:wrap('ui.start_menu.items',startItemsHook)
     Borders=assert(load(assert(mod:read('lib/menu_borders.lua')), '@'..mod.path..'/lib/menu_borders.lua'))()(mod,setting,catalog,active)
     mod.exports.borders=Borders;mod.exports.borderCatalog=catalog
-    mod.exports.effects=FX;mod.exports.version='3.2.28'
+    mod.exports.effects=FX;mod.exports.version='3.2.29'
   end
   mod.exports.effects=FX
-  mod.exports.version = '3.2.28'
+  mod.exports.version = '3.2.29'
   mod.log:info('Menu Customizer: '..gameVersion..' START, OPTION and SAVE placement installed')
 end

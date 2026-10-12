@@ -45,9 +45,10 @@ function love.load()
   check(rr>.8 and gg<.1 and bb<.1,'selector red uses mutable RS palette')
   write(w..'.work/rs-render-fix/selector.png',c:newImageData():encode('png'):getString())
   local option={isOpen=function()return true end};local start={},{}
-  local apiSource=assert(source:match('(  local canvas\n  local function drawAt.-)  Display.present = function'))
+  local apiSource=assert(source:match('(  local canvas\n.-)  Display.present = function'))
   local fx={scale=function()return 1 end,offset=function()return 0,0 end,record=function()end,motion=function(_,x,y)return x,y,1 end}
   local env=setmetatable({Display={fit=function(ww,hh)local s=math.min(ww/240,hh/160);return s,(ww-240*s)/2,(hh-160*s)/2,nil,nil,s end},FX=fx,Option=option,Start=start,Save={},opacityChoices={[1]=100},setting=function()return 1 end},{__index=_G})
+  env.mod=mod;env.FrlgFont=F
   local drawAt=compile(apiSource..'return drawAt',env)
   local innerCanvas=G.newCanvas(240,160)
   local function rsOptions()
