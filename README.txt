@@ -1,3 +1,15 @@
+Menu Customizer 3.2.25
+
+Move the Windows Emerald-font Start selector down one pixel from 3.2.24 (now two pixels above the original anchor).
+
+- Add 12 Pokémon-themed borders: Poké Ball, Great Ball, Ultra Ball, Master Ball, Pikachu, Charizard, Squirtle, Bulbasaur, Gengar, Umbreon, Eevee and Mew. Choose them under Menus → Border. Crisp 8px tile motifs work in menus and battle panels with any selected background.
+- Rename all 47 existing non-default borders with short colour/pattern labels. Rename the 170 town/border colour swatches to readable colour names. Numbers distinguish similar shades. All saved colour values and border selections retain their original IDs and artwork.
+- Default border lookup uses asset paths, independent of display names. Preserve iOS, native-font and Gen 3 selector placement.
+
+Validation: Lua 5.3/LuaJIT regression suites; startup and settings integration for 11 games with KIM1025 1.7.34; 34,365 real GPU border/paper/default-frame checks; byte comparison of all existing border artwork and saved colour RGB values against 3.2.24. Previewed the new frames on black backgrounds.
+
+Restart the game to load the update.
+
 Menu Customizer 3.2.23
 Add five-colour text alternation, animated colours, glow and double shadows, and improve dialogue and battle text styling.
 

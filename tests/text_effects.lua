@@ -9,9 +9,10 @@ for _,kind in ipairs({'text','shadow','background','menuBackground'})do
  for i=1,#names do check(not seen[n],'chooser repeats before complete cycle');seen[n]=true;n=P.step(kind,n,1)end
  check(n==0,'chooser wraps');check(P.step(kind,P.step(kind,0,1),-1)==0,'chooser reversible')
 end
-local sampled={};for _,s in ipairs(assert(loadfile('lib/color_swatches.lua'))())do sampled[s.name]=s.rgb end
-check(sampled['BORDER #246CCC']~=nil or next(sampled)~=nil,'exact border catalogue present')
-check(sampled.VIRIDIAN[2]==130/255 and sampled.CERULEAN[3]==167/255,'town swatches available')
+local sampled=assert(loadfile('lib/color_swatches.lua'))()
+check(#sampled==170,'exact border catalogue present')
+check(sampled[2].rgb[2]==130/255 and sampled[4].rgb[3]==167/255,'town colour RGB values retain their saved IDs')
+for _,s in ipairs(sampled)do check(not s.name:find('#') and not s.name:find('BORDER'),'swatches use colour names')end
 settings.battle_fx_alternate=1;settings.battle_fx_count=5
 local expected={0,2,3,4,5,0}
 P.withText('battle',function()

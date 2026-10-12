@@ -321,8 +321,8 @@ return function(mod,catalog)
    local platform=love.system and love.system.getOS and love.system.getOS()
    if platform=='iOS' then y=y+2
    elseif platform=='Windows' and not start.options and current.setting('menuTheme')==2 then
-    -- Full-size Emerald labels begin three pixels above the native GB row.
-    y=y-3
+    -- Centre the selector on Emerald's visible ink, above the native GB row.
+    y=y-2
    end
    if sel.selector==3 then code(0xED,x-10,y)
    elseif sel.selector==2 then G.rectangle('fill',x,y+8,width,1)
@@ -817,7 +817,7 @@ return function(mod,catalog)
   end
  end
  mod.events:on('game.ready',function(event)attach(event.game)end)
- mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.24'
+ mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.25'
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C
 end

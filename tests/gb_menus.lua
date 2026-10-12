@@ -460,7 +460,7 @@ for theme=1,2 do for _,options in ipairs({false,true})do
     love.system={getOS=function()return platform end}
     calls={};C2.drawSelector({options=options,selection={x=40,y=30,width=50,selector=selector}})
     check(#calls>0,'selector draws on '..platform)
-    local dy=platform=='iOS' and 2 or platform=='Windows' and theme==2 and not options and -3 or 0
+    local dy=platform=='iOS' and 2 or platform=='Windows' and theme==2 and not options and -2 or 0
     if baseline then
      check(#calls==#baseline,'selector retains geometry')
      for i,call in ipairs(calls)do

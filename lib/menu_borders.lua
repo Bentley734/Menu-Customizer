@@ -61,10 +61,10 @@ return function(mod,setting,catalog,active)
   local selection=setting('menuBorder')
   if selection==1 then
    local version=require('src.core.GameVersion').get()
-   local label=setting('menuTheme')>1 and 'EMERALD 03 / R/S 03' or
-    (mod.generation==1 and 'R/B/Y' or mod.generation==2 and 'G/S/C 01' or
-     (version=='firered' or version=='leafgreen') and 'FR/LG 01' or 'EMERALD 01 / R/S 01')
-   for i,e in ipairs(catalog.entries)do if e.label==label then selection=i;break end end
+   local path=setting('menuTheme')>1 and 'assets/borders/emerald_03.png' or
+    (mod.generation==1 and 'assets/borders/rby_01.png' or mod.generation==2 and 'assets/borders/gsc_01.png' or
+     (version=='firered' or version=='leafgreen') and 'assets/borders/frlg_01.png' or 'assets/borders/emerald_01.png')
+   for i,e in ipairs(catalog.entries)do if e.path==path then selection=i;break end end
   end
   local atlas=M.atlas(selection)
   if not atlas or w<=0 or h<=0 then return false end
