@@ -72,29 +72,35 @@ if GV.generation()~=3 then
  assert(menus);menus.activate(game)
  local parent=game.stack:top();local battleRow;local textRow
  for _,r in ipairs(parent.rows)do if r.label=='MENU TEXT COLOR' then textRow=r end end
- assert(textRow,'menu text chooser');textRow.activate(game)
- textRow=game.stack:top().rows[1]
+ assert(textRow and textRow.activate,'grouped menu text chooser')
+ local function pick(row,family,name)
+  row.activate(game);local groups=game.stack:top().rows;local group
+  for _,r in ipairs(groups)do if r.label==family then group=r end end
+  assert(group,'missing family '..family);group.activate(game)
+  for _,r in ipairs(game.stack:top().rows)do if r.label==name then r.activate(game);assert(r.selected(),'chosen shade marked');return end end
+  error('missing grouped shade '..name)
+ end
  assert(textRow.value()=='BLACK','default menu colour')
- choose(textRow,'BLUE')
+ pick(textRow,'BLUES','BLUE')
  assert(game.options.modOptions.gen3transparency.menuTextColor==2,'menu colour persisted')
  local start=textRow.value();for i=1,#E.palette.names do textRow.step(game,1)end
  assert(textRow.value()==start,'all menu colours wrap exactly once')
  choose(textRow,'BLUE')
  assert(game.options.modOptions.gen3transparency.battle_text_color==1,'battle colour independent')
  local shadowRow;for _,r in ipairs(parent.rows)do if r.label=='MENU TEXT SHADOW'then shadowRow=r end end
- assert(shadowRow,'menu shadow chooser');shadowRow.activate(game);shadowRow=game.stack:top().rows[1]
+ assert(shadowRow and shadowRow.activate,'grouped menu shadow chooser')
  assert(shadowRow.value()=='NONE','default menu shadow disabled')
- choose(shadowRow,'BLUE')
+ pick(shadowRow,'BLUES','BLUE')
  assert(shadowRow.value()=='BLUE' and game.options.modOptions.gen3transparency.menuTextShadowColor==5,'menu shadow persisted')
  assert(game.options.modOptions.gen3transparency.battle_shadow_color==1,'battle shadow independent')
  local bg;for _,r in ipairs(parent.rows)do if r.label=='MENU BACKGROUND'then bg=r end end
- assert(bg,'menu background chooser');bg.activate(game);bg=game.stack:top().rows[1]
- choose(bg,'BLACK');assert(bg.value()=='BLACK' and game.options.modOptions.gen3transparency.menuBackgroundColor==2,'menu background persisted')
+ assert(bg and bg.activate,'grouped menu background chooser')
+ pick(bg,'NEUTRALS','BLACK');assert(bg.value()=='BLACK' and game.options.modOptions.gen3transparency.menuBackgroundColor==2,'menu background persisted')
  local start;for _,r in ipairs(parent.rows)do if r.label=='START'then start=r end end
  start.activate(game);local startPage=game.stack:top();local startBg
  for _,r in ipairs(startPage.rows)do if r.label=='BACKGROUND'then startBg=r end end
- assert(startBg,'separate start background');startBg.activate(game);startBg=game.stack:top().rows[1]
- assert(startBg.value()=='USE MENU');choose(startBg,'LIGHT BLUE')
+ assert(startBg and startBg.activate,'grouped separate start background')
+ assert(startBg.value()=='USE MENU');pick(startBg,'BLUES','LIGHT BLUE')
  assert(startBg.value()=='LIGHT BLUE' and game.options.modOptions.gen3transparency.startMenuBackgroundColor==10,'start background persisted independently')
  local transitions;for _,r in ipairs(parent.rows)do if r.label=='TRANSITIONS'then transitions=r end end
  transitions.activate(game);transitions=game.stack:top().rows[1]
@@ -109,12 +115,19 @@ else
  local built=Rows.build({game=game,options=game.options})
  local title,page
  local grouped=Rows.group(built,function(t,p)title,page=t,p end)
+ local function pick(row,family,name)
+  assert(row.activate,'grouped chooser activation');row.activate({game=game});local group
+  for _,r in ipairs(page)do if r.label==family then group=r end end
+  assert(group,'missing family '..family);group.activate({game=game})
+  for _,r in ipairs(page)do if r.label==name then r.activate({game=game});assert(r.selected(),'chosen shade marked');return end end
+  error('missing grouped shade '..name)
+ end
  local menus
  for _,r in ipairs(grouped)do if r.label=='MENUS' then menus=r end end
  assert(menus,'menus group exists');menus.activate({game=game})
  local textRow;for _,r in ipairs(page)do if r.label=='MENU TEXT COLOR' then textRow=r end end
  assert(textRow and textRow.value()=='BLACK','menu text chooser')
- choose(textRow,'BLUE',{game=game})
+ local menusPage=page;pick(textRow,'BLUES','BLUE');page=menusPage
  assert(game.options.modOptions.gen3transparency.menuTextColor==2,'menu colour persisted')
  local start=textRow.value();for i=1,#E.palette.names do textRow.step({game=game},1)end
  assert(textRow.value()==start,'all menu colours wrap exactly once')
@@ -122,18 +135,18 @@ else
  assert(game.options.modOptions.gen3transparency.battle_text_color==1,'battle colour independent')
  local shadowRow;for _,r in ipairs(page)do if r.label=='MENU TEXT SHADOW'then shadowRow=r end end
  assert(shadowRow and shadowRow.value()=='NONE','menu shadow chooser')
- choose(shadowRow,'BLUE',{game=game})
+ pick(shadowRow,'BLUES','BLUE');page=menusPage
  assert(shadowRow.value()=='BLUE' and game.options.modOptions.gen3transparency.menuTextShadowColor==5,'menu shadow persisted')
  assert(game.options.modOptions.gen3transparency.battle_shadow_color==1,'battle shadow independent')
  local parentPage=page;local bg
  for _,r in ipairs(parentPage)do if r.label=='MENU BACKGROUND'then bg=r end end
- assert(bg,'menu background chooser');choose(bg,'BLACK',{game=game})
+ assert(bg,'menu background chooser');pick(bg,'NEUTRALS','BLACK');page=menusPage
  assert(bg.value()=='BLACK' and game.options.modOptions.gen3transparency.menuBackgroundColor==2,'menu background persisted')
  local start;for _,r in ipairs(parentPage)do if r.label=='START'then start=r end end
  start.activate();local startBg
  for _,r in ipairs(page)do if r.label=='START BACKGROUND'then startBg=r end end
  assert(startBg and startBg.value()=='USE MENU','separate start background')
- choose(startBg,'LIGHT BLUE',{game=game})
+ pick(startBg,'BLUES','LIGHT BLUE')
  assert(startBg.value()=='LIGHT BLUE' and game.options.modOptions.gen3transparency.startMenuBackgroundColor==10,'start background independent')
  page=parentPage
  local transitions;for _,r in ipairs(parentPage)do if r.label=='TRANSITIONS'then transitions=r end end

@@ -13,11 +13,11 @@ return function(mod,palette)
   for i=1,5 do s[p..'color'..i]={({0,2,3,4,5})[i],0,#palette.names-1,1}end
   return s
  end
- function M.rows(kind,persist)
+ function M.rows(kind,persist,openPage)
   local p=prefixes[kind];local rows={}
   local function row(key,label,labels,default)
    local k=p..key;local spec=M.specs(kind)[k]
-   rows[#rows+1]={id='fx_'..k,label=label,value=function()
+   local entry={id='fx_'..k,label=label,value=function()
     local n=M.get(kind,key,default or spec[1]);return labels and labels[n+1] or tostring(n)..(key=='speed' and '%' or '')
    end,step=function(ctx,dir)
     local n=M.get(kind,key,default or spec[1]);dir=dir and dir<0 and -1 or 1
@@ -26,6 +26,9 @@ return function(mod,palette)
     else n=(n-spec[2]+dir*spec[4])%(spec[3]-spec[2]+spec[4])+spec[2]end
     return persist(ctx,k,n)
    end}
+   local colorKind=key:match('^color') and 'text' or (key=='glow' or key=='double') and 'shadow'
+   if colorKind then palette.picker(entry,colorKind,function()return M.get(kind,key,default or spec[1])end,function(ctx,n)return persist(ctx,k,n)end,openPage)end
+   rows[#rows+1]=entry
   end
   row('alternate','ALTERNATE',{'OFF','BY LETTER','BY WORD'})
   row('count','COLOR COUNT')

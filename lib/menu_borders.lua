@@ -13,7 +13,7 @@ return function(mod,setting,catalog,active)
   image:setFilter('nearest','nearest')
   local w,h=image:getDimensions()
   assert(w==24 and h==24,'Menu Customizer: invalid border atlas '..entry.path)
-  local atlas={image=image,quads={}}
+  local atlas={image=image,quads={},animation=entry.animation}
   for n=0,8 do atlas.quads[n]=G.newQuad(n%3*8,math.floor(n/3)*8,8,8,w,h) end
   M.atlases[selection]=atlas
   return atlas
@@ -36,6 +36,97 @@ return function(mod,setting,catalog,active)
   if data.release then data:release()end;if paper.release then paper:release()end
   return atlas.battleImage,atlas.paperImage
  end
+ -- Duplicate each cell's boundary into a one-pixel gutter. Fractional
+ -- transforms can sample just outside a quad; adjacent corner art must never
+ -- bleed into an edge tile or its paper. Keep the public 24px atlas intact.
+ local function renderAtlas(atlas,selection,trim)
+  if not (love.image and love.image.newImageData and love.filesystem and G.newImage) then
+   local image,paper=atlas.image,nil
+   if trim then image,paper=M.battleAtlas(atlas,selection)end
+   return image,paper,atlas.quads,24
+  end
+  atlas.padded=atlas.padded or {};local key=trim and 'trim' or 'plain'
+  local cached=atlas.padded[key]
+  if cached then return cached.image,cached.paper,cached.quads,30 end
+  local source=love.image.newImageData(love.filesystem.newFileData(mod:read(catalog.entries[selection].path),'border.png'))
+  local mask=trim and assert(load(assert(mod:read('lib/border_paper.lua'))))()(source)
+  local data=love.image.newImageData(30,30);local paper=trim and love.image.newImageData(30,30) or nil
+  local quads={}
+  for n=0,8 do
+   local tx,ty=n%3,math.floor(n/3)
+   quads[n]=G.newQuad(tx*10+1,ty*10+1,8,8,30,30)
+   for py=0,9 do for px=0,9 do
+    local sx,sy=tx*8+math.max(0,math.min(7,px-1)),ty*8+math.max(0,math.min(7,py-1))
+    local r,g,b,a=source:getPixel(sx,sy);local x,y=tx*10+px,ty*10+py
+    if mask and mask[sy*24+sx+1] then data:setPixel(x,y,0,0,0,0);paper:setPixel(x,y,1,1,1,a)
+    else data:setPixel(x,y,r,g,b,a)end
+   end end
+  end
+  cached={image=G.newImage(data),paper=paper and G.newImage(paper),quads=quads}
+  cached.image:setFilter('nearest','nearest');if cached.paper then cached.paper:setFilter('nearest','nearest')end
+  atlas.padded[key]=cached
+  for _,d in ipairs({source,data,paper})do if d.release then d:release()end end
+  return cached.image,cached.paper,cached.quads,30
+ end
+ local gradientShader
+ local panelShader
+ -- One quad owns the entire frame. Slice the texture in the fragment shader,
+ -- rather than rasterising hundreds of separately transformed edge quads.
+ -- This removes shared geometry edges as well as neighbouring atlas samples.
+ local function wholePanel(atlas,image,paper,x,y,w,h,background)
+  if not G.newShader then return false end
+  if not panelShader then panelShader=G.newShader([[
+   extern vec2 extent;extern bool usePaper;extern Image paperTexture;
+   extern vec4 paperColor;extern bool paperGradient;extern float paperPhase;
+   extern bool rainbow;extern float phase;
+   vec3 hue(float h){return clamp(abs(fract(h+vec3(0.0,2.0/3.0,1.0/3.0))*6.0-3.0)-1.0,0.0,1.0);}
+   vec4 effect(vec4 color,Image tex,vec2 uv,vec2 pixel){
+    vec2 p=uv*extent;vec2 edge=min(vec2(8.0),extent*.5);
+    vec2 cell=vec2(p.x<edge.x?0.0:p.x>=extent.x-edge.x?2.0:1.0,
+                   p.y<edge.y?0.0:p.y>=extent.y-edge.y?2.0:1.0);
+    vec2 start=vec2(cell.x<.5?0.0:cell.x>1.5?extent.x-edge.x:edge.x,
+                    cell.y<.5?0.0:cell.y>1.5?extent.y-edge.y:edge.y);
+    vec2 localPixel=mod(p-start,8.0);
+    if(cell.x==1.0 && cell.y==1.0)
+     localPixel=(p-edge)/max(vec2(.0001),extent-2.0*edge)*8.0;
+    vec2 coord=(cell*10.0+vec2(1.5)+clamp(floor(localPixel),vec2(0.0),vec2(7.0)))/30.0;
+    vec4 ink=Texel(tex,coord);
+    if(usePaper){vec4 paper=Texel(paperTexture,coord);
+     if(paper.a>0.0){vec3 rgb=paperGradient?hue(fract(paperPhase+pixel.x/320.0+pixel.y/640.0)):paperColor.rgb;
+      return vec4(rgb,paper.a*paperColor.a*color.a);}}
+    vec3 rgb=rainbow?hue(fract(phase+uv.x*.65+uv.y*.35))*(.18+.82*ink.r):ink.rgb;
+    return vec4(rgb*color.rgb,ink.a*color.a);
+   }]])end
+  local resolved=background and palette.effects.resolve(background,background._kind or 'menu') or {1,1,1,1}
+  panelShader:send('extent',{w,h});panelShader:send('usePaper',paper~=nil)
+  -- Match LOVE's byte vertex-colour conversion used by the original fills.
+  local function byte(c)return math.floor(c*255)/255 end
+  panelShader:send('paperTexture',paper or image);panelShader:send('paperColor',{byte(resolved[1]),byte(resolved[2]),byte(resolved[3]),byte(resolved[4] or 1)})
+  panelShader:send('paperGradient',resolved.animation=='GRADIENT');panelShader:send('paperPhase',resolved.phase or 0)
+  panelShader:send('rainbow',atlas.animation=='gradient')
+  local phase=0
+  if atlas.animation=='gradient' then phase=(love.timer and love.timer.getTime and love.timer.getTime() or 0)*.08*palette.effects.get('menu','speed',100)/100 end
+  panelShader:send('phase',phase)
+  G.setShader(panelShader);G.draw(image,x,y,0,w/30,h/30)
+  return true
+ end
+ local function gradient(atlas,x,y,w,h)
+  if atlas.animation~='gradient' or not G.newShader then return false end
+  if not gradientShader then gradientShader=G.newShader([[
+   extern vec2 anchor;extern vec2 span;extern float phase;
+   vec4 effect(vec4 color,Image tex,vec2 uv,vec2 pixel){
+    vec4 ink=Texel(tex,uv);
+    float h=fract(phase+(pixel.x-anchor.x)/span.x*.65+(pixel.y-anchor.y)/span.y*.35);
+    vec3 rgb=clamp(abs(fract(h+vec3(0.0,2.0/3.0,1.0/3.0))*6.0-3.0)-1.0,0.0,1.0);
+    return vec4(rgb*(.18+.82*ink.r),color.a*ink.a);
+   }]])end
+  local ax,ay,bx,by=x,y,x+w,y+h
+  if G.transformPoint then ax,ay=G.transformPoint(x,y);bx,by=G.transformPoint(x+w,y+h)end
+  gradientShader:send('anchor',{ax,ay});gradientShader:send('span',{math.max(1,bx-ax),math.max(1,by-ay)})
+  local speed=palette.effects.get('menu','speed',100)/100
+  gradientShader:send('phase',(love.timer and love.timer.getTime and love.timer.getTime() or 0)*.08*speed)
+  G.setShader(gradientShader);return true
+ end
  function M.draw(tx,ty,tw,th)
   if active and not active() then return false end
   local selection=setting('menuBorder')
@@ -45,6 +136,7 @@ return function(mod,setting,catalog,active)
   local atlas=M.atlas(selection)
   if not atlas then return false end
   if tw<2 or th<2 then return false end
+  if atlas.animation or (love.image and love.image.newImageData and G.newImage) then return M.drawPixels(tx*8,ty*8,tw*8,th*8)end
   G.push('all');G.setShader();G.setColor(1,1,1,1)
   G.rectangle('fill',(tx+1)*8,(ty+1)*8,(tw-2)*8,(th-2)*8)
   local function cell(n,x,y) G.draw(atlas.image,atlas.quads[n],x*8,y*8) end
@@ -68,32 +160,36 @@ return function(mod,setting,catalog,active)
   end
   local atlas=M.atlas(selection)
   if not atlas or w<=0 or h<=0 then return false end
-  local image,paper=atlas.image,nil
-  if background then image,paper=M.battleAtlas(atlas,selection)end
+  if atlas.animation and not background then background={1,1,1,1}end
+  local image,paper,quads,textureSize=renderAtlas(atlas,selection,background~=nil)
   local edge=math.min(8,w/2,h/2)
   local xs,ys={x,x+edge,x+w-edge},{y,y+edge,y+h-edge}
   local ws,hs={edge,w-2*edge,edge},{edge,h-2*edge,edge}
   G.push('all');G.setShader();G.setColor(1,1,1,1)
   local ok,err=pcall(function()
+   if textureSize==30 and wholePanel(atlas,image,paper,x,y,w,h,background)then return end
    -- Repeat original 8px cells; crop the last cell rather than stretching
    -- an entire edge. Corners and patterned interiors keep the same pixel size.
    atlas.fragments=atlas.fragments or {}
    local function tiled(n,rx,ry,rw,rh)
     for dy=0,rh-0.000001,8 do for dx=0,rw-0.000001,8 do
      local cw,ch=math.min(8,rw-dx),math.min(8,rh-dy)
-     local quad=atlas.quads[n]
+      local quad=quads[n]
      if cw<8 or ch<8 then
-      local key=n..':'..cw..':'..ch
+      local key=textureSize..':'..n..':'..cw..':'..ch
       quad=atlas.fragments[key]
       if not quad then
-       quad=G.newQuad(n%3*8,math.floor(n/3)*8,cw,ch,24,24)
+       local step,offset=textureSize==30 and 10 or 8,textureSize==30 and 1 or 0
+       quad=G.newQuad(n%3*step+offset,math.floor(n/3)*step+offset,cw,ch,textureSize,textureSize)
        atlas.fragments[key]=quad
       end
      end
      if paper then
       paint(background,G.draw,paper,quad,rx+dx,ry+dy);G.setColor(1,1,1,1)
      end
+     gradient(atlas,x,y,w,h)
      G.draw(image,quad,rx+dx,ry+dy)
+     G.setShader()
     end end
    end
    for row=1,3 do for col=1,3 do

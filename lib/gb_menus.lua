@@ -473,7 +473,7 @@ return function(mod,catalog)
     else entries[#entries+1]=original end
    end
   end
-  local page=setmetatable({game=game,title=title,rows=entries,detail=detail,index=1,scroll=0,screenId='MenuCustomizerOptions'},Page)
+  local page=setmetatable({game=game,title=title,rows=entries,detail=detail,colorChoice=entries[1] and entries[1].colorChoice,index=1,scroll=0,screenId='MenuCustomizerOptions'},Page)
   game.stack:push(page);return page
  end
  C.openPage=pushPage
@@ -499,6 +499,10 @@ return function(mod,catalog)
    if i<=#self.rows+1 then
     local y=24+(slot-1)*(self.detail and 32 or 16)
     Font.draw(row and row.label or 'BACK',24,y)
+    if row and row.selected and row.selected() then
+     G.rectangle('fill',16,y+2,1,2);G.rectangle('fill',17,y+3,1,2)
+     G.rectangle('fill',18,y+2,1,2);G.rectangle('fill',19,y+1,1,2)
+    end
     if row and self.detail then
      local value=row.value and row.value() or 'OPEN'
      -- The cartridge fonts have no percent glyph. Draw it explicitly rather
@@ -516,12 +520,12 @@ return function(mod,catalog)
    end
   end
   C.compactText=true
-  Font.draw(self.detail and 'A:CHANGE B:BACK' or 'A:OPEN B:BACK',8,128)
+  Font.draw(self.colorChoice and 'A:SELECT B:BACK' or self.detail and 'A:CHANGE B:BACK' or 'A:OPEN B:BACK',8,128)
   C.compactText=nil
  end
  local function row(key,label,choices)
   local spec=specs[key]
-  return {id='wide_'..key,label=label,value=function()
+  local entry={id='wide_'..key,label=label,value=function()
    local n=C.setting(key)
    return choices and choices[n] or tostring(n)..((key:find('Opacity') or key:find('Scale') or key:find('Width') or key:find('Height') or key=='backgroundDim') and '%' or '')
   end,step=function(game,dir)
@@ -532,6 +536,10 @@ return function(mod,catalog)
    elseif key=='menuBackgroundColor' or key=='startMenuBackgroundColor' then n=menuPalette.step('menuBackground',C.setting(key),dir)end
    C.persist(game,key,n)
   end}
+  local kind=key=='menuTextColor' and 'text' or key=='menuTextShadowColor' and 'shadow' or (key=='menuBackgroundColor' or key=='startMenuBackgroundColor') and 'menuBackground'
+  if kind then menuPalette.picker(entry,kind,function()return C.setting(key)end,function(ctx,n)C.persist(ctx.game or ctx,key,n);return false end,
+   function(title,rows,ctx)return pushPage(ctx.game or ctx,title,rows)end,key=='startMenuBackgroundColor' and 'USE MENU' or nil)end
+  return entry
  end
  local function toggle(key,label)
   local r=row(key,label);r.value=function()return C.setting(key)==1 and 'ON' or 'OFF' end
@@ -564,7 +572,7 @@ return function(mod,catalog)
  parent[#parent+1]=row('controlsLegend','CONTROL HINTS',{'ALWAYS','AUTO','HIDDEN'})
  parent[#parent+1]=row('menuTransition','TRANSITIONS',Transitions.names)
  parent[#parent+1]=toggle('positionPreview','POSITION PREVIEW')
- parent[#parent+1]={label='MENU TEXT EFFECTS',activate=function(game)pushPage(game,'MENU TEXT EFFECTS',menuPalette.effects.rows('menu',function(ctx,key,n)C.persist(ctx.game or ctx,key,n);return false end))end}
+ parent[#parent+1]={label='MENU TEXT EFFECTS',activate=function(game)pushPage(game,'MENU TEXT EFFECTS',menuPalette.effects.rows('menu',function(ctx,key,n)C.persist(ctx.game or ctx,key,n);return false end,function(title,rows,ctx)pushPage(ctx.game or ctx or game,title,rows)end))end}
  parent[#parent+1]={label='BATTLE UI',activate=function(game)
   local ui=mod.exports.battleUi;if ui then pushPage(game,'BATTLE UI',ui.rows({},function(title,children)pushPage(game,title,children)end))end
  end}
@@ -817,7 +825,7 @@ return function(mod,catalog)
   end
  end
  mod.events:on('game.ready',function(event)attach(event.game)end)
- mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.25'
+ mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.26'
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C
 end

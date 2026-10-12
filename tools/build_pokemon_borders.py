@@ -74,6 +74,18 @@ def build():
    corner.transpose(Image.Transpose.FLIP_TOP_BOTTOM),top.transpose(Image.Transpose.FLIP_TOP_BOTTOM),corner.transpose(Image.Transpose.ROTATE_180)]
   for i,tile in enumerate(tiles):atlas.paste(tile,(i%3*8,i//3*8))
   atlas.save(ROOT/'assets/borders'/('pokemon_'+slug+'.png'))
- print('Built',len(THEMES),'Pokémon-themed 24x24 border atlases')
+ # A neutral double frame supplies the gradient shader with bevel brightness.
+ gradient=Image.new('RGBA',(24,24),'white');d=ImageDraw.Draw(gradient)
+ for inset,c in enumerate(('#101010','#b0b0b0','#777777','#e0e0e0','#aaaaaa','#555555','#222222')):
+  d.rectangle((inset,inset,23-inset,23-inset),outline=c)
+ # Middle edge cells repeat one constant bevel profile, not a corner profile.
+ for x in range(8,16):
+  for y,c in enumerate(('#101010','#b0b0b0','#777777','#e0e0e0','#aaaaaa','#555555','#222222')):
+   gradient.putpixel((x,y),ImageColor.getcolor(c,'RGBA'));gradient.putpixel((x,23-y),ImageColor.getcolor(c,'RGBA'))
+ for y in range(8,16):
+  for x,c in enumerate(('#101010','#b0b0b0','#777777','#e0e0e0','#aaaaaa','#555555','#222222')):
+   gradient.putpixel((x,y),ImageColor.getcolor(c,'RGBA'));gradient.putpixel((23-x,y),ImageColor.getcolor(c,'RGBA'))
+ gradient.save(ROOT/'assets/borders/pokemon_gradient.png')
+ print('Built',len(THEMES),'Pokémon-themed atlases and the animated gradient bevel')
 
 if __name__=='__main__':build()

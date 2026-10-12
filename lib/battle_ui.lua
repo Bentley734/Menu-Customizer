@@ -202,8 +202,14 @@ return function(mod)
     out[#out+1]={id=ID..':name_shadow_color',label='POKEMON NAME SHADOW',
       value=function()return textPalette.shadowNames[setting('name_shadow_color',0)+1]end,
       step=function(ctx,dir)return persist(ctx,'name_shadow_color',textPalette.step('shadow',setting('name_shadow_color',0),dir))end}
-    if openPage then for _,kind in ipairs({'battle','name'})do
-      local k=kind;out[#out+1]={id=ID..':fx_'..k,label=k=='name' and 'NAME TEXT EFFECTS' or 'BATTLE TEXT EFFECTS',value=function()return 'OPEN'end,activate=function()openPage(k=='name' and 'NAME TEXT EFFECTS' or 'BATTLE TEXT EFFECTS',textPalette.effects.rows(k,effectPersist))end}
+    if openPage then
+      for _,entry in ipairs(out)do
+        local key=entry.id and entry.id:match('^'..ID..':(.*)')
+        local kind=(key=='text_color' or key=='name_color') and 'text' or (key=='shadow_color' or key=='name_shadow_color') and 'shadow' or key=='background_color' and 'background'
+        if kind then textPalette.picker(entry,kind,function()return setting(key,0)end,function(ctx,n)return persist(ctx,key,n)end,openPage)end
+      end
+      for _,kind in ipairs({'battle','name'})do
+      local k=kind;out[#out+1]={id=ID..':fx_'..k,label=k=='name' and 'NAME TEXT EFFECTS' or 'BATTLE TEXT EFFECTS',value=function()return 'OPEN'end,activate=function()openPage(k=='name' and 'NAME TEXT EFFECTS' or 'BATTLE TEXT EFFECTS',textPalette.effects.rows(k,effectPersist,openPage))end}
     end end
     return out
   end

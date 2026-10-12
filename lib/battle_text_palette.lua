@@ -69,6 +69,7 @@ return function(mod)
   M.backgroundNames[#M.backgroundNames+1]='INDIGO';backgrounds[#backgrounds+1]={0.22,0.15,0.55,1}
   M.backgroundNames[#M.backgroundNames+1]='SILVER';backgrounds[#backgrounds+1]={0.75,0.78,0.82,1}
   M.backgroundNames[#M.backgroundNames+1]='BROWN';backgrounds[#backgrounds+1]={0.4,0.24,0.12,1}
+  local baseCounts={text=#foreground,shadow=#shadows,background=#backgrounds}
   local swatches=mod.read and assert(load(assert(mod:read('lib/color_swatches.lua'))))() or {}
   for _,swatch in ipairs(swatches)do
     local c={swatch.rgb[1],swatch.rgb[2],swatch.rgb[3],1}
@@ -124,6 +125,82 @@ return function(mod)
   end
   M.menuBackgroundNames={'DEFAULT'}
   for _,name in ipairs(M.backgroundNames)do M.menuBackgroundNames[#M.menuBackgroundNames+1]=name end
+  -- IDs stay flat in storage; navigation groups the same colours by hue.
+  function M.groups(kind,defaultLabel)
+    local names=kind=='shadow' and M.shadowNames or kind=='background' and M.backgroundNames or kind=='menuBackground' and M.menuBackgroundNames or M.names
+    local families={'SPECIAL','NEUTRALS','REDS','ORANGES','YELLOWS','GREENS','CYANS','BLUES','PURPLES','PINKS','BROWNS','ANIMATED'}
+    local buckets={};for _,name in ipairs(families)do buckets[name]={label=name,ids={}}end
+    local count=#names
+    for i=0,count-1 do
+      local family,c,label
+      if kind=='menuBackground' and i==0 or kind=='shadow' and i==0 then family='SPECIAL'
+      else
+        c=M.color(kind=='menuBackground' and 'background' or kind,kind=='menuBackground' and i-1 or i)
+        label=names[i+1]
+        if c.animation then family='ANIMATED'
+        else
+          local h,v=hue(c);local lo=math.min(c[1],c[2],c[3]);local sat=v>0 and (v-lo)/v or 0
+          if h<0 or sat<.06 then family='NEUTRALS'
+          elseif label:find('BROWN') or label:find('TAN') or label:find('SAND') or label:find('BEIGE') then family='BROWNS'
+          elseif h<.04 or h>=.96 then family='REDS'
+          elseif h<.12 then family='ORANGES'
+          elseif h<.19 then family='YELLOWS'
+          elseif h<.45 then family='GREENS'
+          elseif h<.55 then family='CYANS'
+          elseif h<.72 then family='BLUES'
+          elseif h<.86 then family='PURPLES'
+          else family='PINKS'end
+        end
+      end
+      local ids=buckets[family].ids;ids[#ids+1]=i
+    end
+    local result={}
+    for _,family in ipairs(families)do
+      local group=buckets[family]
+      if #group.ids>0 then
+        table.sort(group.ids,function(a,b)
+          local ia=kind=='menuBackground' and a-1 or a;local ib=kind=='menuBackground' and b-1 or b
+          if ia<0 or ib<0 then return a<b end
+          local base=baseCounts[kind=='menuBackground' and 'background' or kind] or baseCounts.text
+          if ia<base or ib<base then
+            if ia<base and ib<base then return a<b end
+            return ia<base
+          end
+          local ca,cb=M.color(kind=='menuBackground' and 'background' or kind,ia),M.color(kind=='menuBackground' and 'background' or kind,ib)
+          local _,va=hue(ca);local _,vb=hue(cb)
+          if math.abs(va-vb)>.000001 then return va<vb end;return a<b
+        end)
+        result[#result+1]=group
+      end
+    end
+    return result,names
+  end
+  function M.picker(row,kind,get,persist,openPage,defaultLabel)
+    if not openPage then return row end
+    row.group=true
+    row.activate=function(ctx)
+      local groups,names=M.groups(kind,defaultLabel);local rows={}
+      for _,group in ipairs(groups)do
+        local g=group
+        rows[#rows+1]={id=row.id..':'..g.label,label=g.label,group=true,
+          value=function()return #g.ids..' COLORS'end,
+          selected=function()for _,id in ipairs(g.ids)do if get()==id then return true end end;return false end,
+          activate=function(nextCtx)
+            local shades={}
+            for _,id in ipairs(g.ids)do
+              local n=id
+              shades[#shades+1]={id=row.id..':color:'..n,label=n==0 and defaultLabel or names[n+1],colorChoice=true,
+                value=function()return get()==n and 'SELECTED' or 'USE'end,
+                selected=function()return get()==n end,
+                activate=function(selectCtx)return persist(selectCtx or nextCtx or ctx,n)end}
+            end
+            openPage(g.label,shades,nextCtx or ctx)
+          end}
+      end
+      return openPage(row.label,rows,ctx)
+    end
+    return row
+  end
   function M.tintFill(fn,mode,x,y,w,h,...)
     local G=love.graphics;local bg=mod.exports and mod.exports.menuBackground and mod.exports.menuBackground()
     if not bg or not G.getColor then return fn(mode,x,y,w,h,...)end

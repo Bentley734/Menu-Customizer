@@ -282,6 +282,11 @@ return function(mod)
     if not active() then return originalGroup(entries,openPage) end
     return originalGroup(entries,function(title,members)
       if title~='MENUS' then return openPage(title,members) end
+      for _,r in ipairs(members)do
+        local key=r.id:match('^wide_(.*)')
+        local kind=key=='menuTextColor' and 'text' or key=='menuTextShadowColor' and 'shadow' or (key=='menuBackgroundColor' or key=='startMenuBackgroundColor') and 'menuBackground'
+        if kind then menuPalette.picker(r,kind,function()return setting(key)end,function(ctx,n)persist(key,n,ctx);return false end,openPage,key=='startMenuBackgroundColor' and 'USE MENU' or nil)end
+      end
       local parent={}
       for _, group in ipairs({'start','option','save','other'}) do
         local children={}
@@ -294,7 +299,7 @@ return function(mod)
       for _, r in ipairs(members) do
         if r.id=='wide_dialogueBorder' or r.id=='wide_menuTheme' or r.id=='wide_menuTextColor' or r.id=='wide_menuBackgroundColor' or r.id=='wide_menuTextShadowColor' or r.id=='wide_menuBorder' or r.id=='wide_backgroundDim' or r.id=='wide_controlsLegend' or r.id=='wide_menuTransition' or r.id=='wide_positionPreview' then parent[#parent+1]=r end
       end
-      parent[#parent+1]={id='wide_text_fx',label='MENU TEXT EFFECTS',value=function()return 'OPEN'end,activate=function()openPage('MENU TEXT EFFECTS',menuPalette.effects.rows('menu',function(ctx,key,n)persist(key,n,ctx);return false end))end}
+      parent[#parent+1]={id='wide_text_fx',label='MENU TEXT EFFECTS',value=function()return 'OPEN'end,activate=function()openPage('MENU TEXT EFFECTS',menuPalette.effects.rows('menu',function(ctx,key,n)persist(key,n,ctx);return false end,openPage))end}
       local battleUi=mod.exports.battleUi
       if battleUi then parent[#parent+1]={id='wide_battle_ui',label='BATTLE UI',value=function()return 'OPEN' end,activate=function()openPage('BATTLE UI',battleUi.rows({},openPage))end} end
       openPage(title,parent)
@@ -811,9 +816,9 @@ return function(mod)
     mod.hooks:wrap('ui.start_menu.items',startItemsHook)
     Borders=assert(load(assert(mod:read('lib/menu_borders.lua')), '@'..mod.path..'/lib/menu_borders.lua'))()(mod,setting,catalog,active)
     mod.exports.borders=Borders;mod.exports.borderCatalog=catalog
-    mod.exports.effects=FX;mod.exports.version='3.2.25'
+    mod.exports.effects=FX;mod.exports.version='3.2.26'
   end
   mod.exports.effects=FX
-  mod.exports.version = '3.2.25'
+  mod.exports.version = '3.2.26'
   mod.log:info('Menu Customizer: '..gameVersion..' START, OPTION and SAVE placement installed')
 end
