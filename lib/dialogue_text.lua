@@ -26,13 +26,13 @@ return function(mod,Message,Font,active)
   local show=Message.show
   Message.show=function(...)
    local result=show(...)
-   if active()and factor()>1 and Message._frame~='battle' and Message._frame~='braille' and Message._pages then
+   if active()and Message._frame~='battle' and Message._frame~='braille' and Message._pages then
     local oldFixed,oldScope=mod.exports.dialogueFixedSize,mod.exports.dialogueFontScope
     mod.exports.dialogueFixedSize,mod.exports.dialogueFontScope=true,true
     local ok,pages=pcall(function()
      local out={};local _,_,w=Chrome.dialogueWindow()
      for _,page in ipairs(Message._pages)do
-      local limit=w*8-8
+      local limit=w*8-12
       -- Native word wrapping leaves unusually long names unbroken. Split
       -- plain UTF-8 words at glyph boundaries, preserving control sequences.
       page=page:gsub('%S+',function(word)
@@ -64,10 +64,36 @@ return function(mod,Message,Font,active)
   local source=G.getCanvas()
   if not source then return originalText(...)end
   local args={...};local unpack=unpack or table.unpack
-  G.push('all');G.translate(0,-3)
-  local prior=mod.exports.dialogueFixedSize;mod.exports.dialogueFixedSize=true
-  local ok,queue=pcall(text.capture,function()return originalText(unpack(args))end,true)
-  mod.exports.dialogueFixedSize=prior
+  G.push('all')
+  local prior,priorScope=mod.exports.dialogueFixedSize,mod.exports.dialogueFontScope;mod.exports.dialogueFixedSize,mod.exports.dialogueFontScope=true,true
+  local originalDrawText,draw=Font.draw,Font.draw
+  local alignedDraw=function(page,x,y,opts,...)
+   local Chrome=require('src.ui.game3.chrome');local left,top,width,height=Chrome.dialogueWindow()
+   local f=factor();local pitch=math.max(16,Font.linePitch and Font.linePitch()or 16)*f
+   local alignment=tonumber(mod.options:get('dialogueJustify')or mod.save:get('dialogueJustify'))or 1
+   local inner=width*8-12;local baseX=left*8+6
+   -- Reserve two lines even during typing, keeping page changes stationary.
+   local baseY=top*8+math.floor((height*8-(pitch+11*f))/2)-2*f
+   local limit=opts and opts.limitChars;local count,lastX,lastY=0,baseX,baseY
+   local row=0
+   for line in (page..'\n'):gmatch('(.-)\n')do
+    local w=Font.measure(line);local slack=math.max(0,inner-w)
+    local dx=alignment==2 and math.floor(slack/2)or alignment==3 and slack or 0
+    local copy={};for k,v in pairs(opts or {})do copy[k]=v end
+    copy.maxWidth=inner;copy._fixedSize=true;copy.limitChars=limit and math.max(0,limit-count)or nil
+    local n,ex,ey=draw(line,baseX+dx,baseY+row*pitch,copy,...)
+    count=count+(n or 0);lastX,lastY=ex or baseX+dx,ey or baseY+row*pitch
+    if limit and count>=limit then break end
+    row=row+1
+   end
+   return count,lastX,lastY
+  end
+  local ok,queue=pcall(text.capture,function()
+   draw=Font.draw;Font.draw=alignedDraw
+   return originalText(unpack(args))
+  end,true)
+  Font.draw=originalDrawText
+  mod.exports.dialogueFixedSize,mod.exports.dialogueFontScope=prior,priorScope
   G.pop()
   if not ok then error(queue,0)end
   M.queues[source]=queue

@@ -24,7 +24,10 @@ return function(mod,Font,setting,active,version)
    G.setColor(.25,.65,1,setting('selectionHighlight')/100)
    G.rectangle('fill',x,y,w,h)
    G.setColor(1,1,1,1)
-   Font.drawGlyph(Font.CHAR_SELECTOR_ARROW,x,y,{colors=Font.COLOR and Font.COLOR.NORMAL})
+   local row=page.rows and page.rows[page.index or 1]
+   local label=row and row.label or 'BACK'
+   Font.drawGlyph(Font.CHAR_SELECTOR_ARROW,x,y,{colors=Font.COLOR and Font.COLOR.NORMAL,
+    _selectionHighlight=true,_selectorWidth=Font.measure and math.min(w-8,Font.measure(label))or 8,_selectorInset=8})
    G.pop()
    return (unpack or table.unpack)(result,2)
   end

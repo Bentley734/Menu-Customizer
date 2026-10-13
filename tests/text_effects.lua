@@ -26,19 +26,21 @@ end)
 check(not pcall(P.withText,'battle',function()error('probe')end),'error propagated')
 P.withText('battle',function()check(E.ink(P.colors(),false)==P.color('text',0),'sequence restored after error')end)
 local persisted={};local rows=E.rows('name',function(_,key,n)settings[key]=n;persisted[key]=n;return false end)
-check(#rows==10,'all effect controls present');rows[1].step({},1);rows[2].step({},1);rows[8].step({},1);rows[9].step({},1)
+local byId={};for _,row in ipairs(rows)do byId[row.id]=row end
+byId.fx_battle_name_fx_alternate.step({},1);byId.fx_battle_name_fx_count.step({},1)
+byId.fx_battle_name_fx_shadow_transparency.step({},1)
 check(persisted.battle_name_fx_alternate==1 and persisted.battle_name_fx_count==3,'alternate settings persist independently')
-check(persisted.battle_name_fx_glow~=nil and persisted.battle_name_fx_double~=nil,'independent layer colors persist')
+check(persisted.battle_name_fx_shadow_transparency==5,'effect transparency persists independently')
+check(not byId.fx_battle_name_fx_glow and not byId.fx_battle_name_fx_double,'retired effect controls removed')
 settings.battle_fx_alternate=0;settings.battle_fx_double=1;settings.battle_fx_glow=5;settings.battle_shadow_color=7
 local stack,commands={},{};local color={1,1,1,1};love={timer={getTime=function()return 0 end},graphics={
  push=function()stack[#stack+1]=color end,pop=function()color=table.remove(stack)end,setColor=function(...)color={...}end,
  transformPoint=function(x,y)return x*4,y*2 end,translate=function()end,scale=function(x,y)commands[#commands+1]={scale={x,y}}end}}
 E.glyph(P.colors(),10,10,function(x,y)commands[#commands+1]={x=x,y=y,color=color}end)
 check(commands[1].scale[1]==.5 and commands[1].scale[2]==1,'glyph pixels compensate nonuniform aspect')
-check(commands[2].x==-3 and commands[2].y==3,'double shadow drawn first')
-check(commands[3].x==-1 and commands[3].y==1,'shadow drawn next down-left')
-check(commands[4].x==1 and commands[4].y==-1,'glow drawn above shadow up-right')
-check(commands[5].x==0 and commands[5].y==0,'foreground last');check(#stack==0,'state restored')
+check(commands[2].x==-1 and commands[2].y==1,'single shadow drawn down-left')
+check(commands[3].x==0 and commands[3].y==0 and #commands==3,'foreground last; legacy glow and double shadow are ignored')
+check(#stack==0,'state restored')
 check(not pcall(E.glyph,P.colors(),10,10,function()error('probe')end) and #stack==0,'effect state restored after draw failure')
 check(E.resolve({1,1,1,.5,animation='GRADIENT',gradient='aurora'},'name')[4]==.5,'animated name opacity retained')
 print('PASS '..checks..' text effect sequence, palette, layer order, aspect and persistence checks')

@@ -214,7 +214,7 @@ return function(mod)
         if kind then textPalette.picker(entry,kind,function()return setting(key,0)end,function(ctx,n)return persist(ctx,key,n)end,openPage)end
       end
       for _,kind in ipairs({'battle','name'})do
-      local k=kind;out[#out+1]={id=ID..':fx_'..k,label=k=='name' and 'NAME TEXT EFFECTS' or 'BATTLE TEXT EFFECTS',value=function()return 'OPEN'end,activate=function()openPage(k=='name' and 'NAME TEXT EFFECTS' or 'BATTLE TEXT EFFECTS',textPalette.effects.rows(k,effectPersist,openPage))end}
+      local k=kind;out[#out+1]={id=ID..':fx_'..k,label=k=='name' and 'NAME TEXT EFFECTS' or 'BATTLE TEXT EFFECTS',children=textPalette.effects.rows(k,effectPersist,openPage),value=function()return 'OPEN'end,activate=function()openPage(k=='name' and 'NAME TEXT EFFECTS' or 'BATTLE TEXT EFFECTS',textPalette.effects.rows(k,effectPersist,openPage))end}
     end end
     return out
   end
@@ -290,7 +290,7 @@ return function(mod)
     for _,spec in ipairs({{'src.ui.game3.window','cursorPx'},{'src.ui.game3.rs.menu_cursor','draw'}}) do
       local target=require(spec[1]);local native=target[spec[2]]
       target[spec[2]]=function(x,y,...)
-        if enabled() and command and x>=120 and y>=112 then return textPlaced(native,120,120,240,x>=184 and 1 or 0,2,x,y,...) end
+        if enabled() and command and x>=120 and y>=112 then return textPlaced(native,120,120,240,x>=184 and 1 or 0,2,x-1,y,...) end
         return native(x,y,...)
       end
     end
@@ -669,6 +669,7 @@ return function(mod)
     end
     local code=Font.drawCode
     Font.drawCode=function(c,x,y,...)
+      if enabled() and commandMenu() and (c==0xED or c==0xEC)then x=x-1 end
       if mode=='background' then return end
       if mode=='text' and moves() and ((x==32 and y==96) or (x==80 and y==96))
         and (c==Font.BORDER.h or c==Font.BORDER.br) then return end

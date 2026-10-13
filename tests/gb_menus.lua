@@ -48,13 +48,14 @@ local mod={id='gen3transparency',path=root,generation=2,exports={},options={get=
  events={on=function()end},log={info=function()end}}
 function mod:read(path)return read(root..'/'..path)end
 local catalog=assert(load(mod:read('lib/border_catalog.lua')))()
+mod.exports.settingsProfiles={commit=function()end,row=function()return {id='wide_settingsScope',label='SETTINGS PROFILE'}end}
 mod.generation=1
 assert(load(mod:read('lib/gb_menus.lua')))()(mod,catalog)
 mod.generation=2
 local C=assert(load(mod:read('lib/gb_menus.lua')))()(mod,catalog)
 -- Independent global setting persists and covers native secondary arrows.
 local arrowRow
-for _,row in ipairs(C.rows)do if row.id=='wide_arrowSelector' then arrowRow=row end end
+for _,group in ipairs(C.rows)do for _,row in ipairs(group.children or {})do if row.id=='wide_arrowSelector'then arrowRow=row end end end
 check(arrowRow~=nil and C.setting('arrowSelector')==1,'global arrow row defaults to native')
 local arrowGame={options={},writeOptions=function()end}
 C.persist(arrowGame,'arrowSelector',2)
@@ -356,14 +357,14 @@ local originalDialogue=TextBox._menuCustomizerDialogueDraw
 TextBox._menuCustomizerDialogueDraw=function()Font.drawBox(0,12,20,6)end
 for _,enabled in ipairs({0,1})do
  values.dialogueBorder=enabled;calls={};C2.drawScope=false
- TextBox.draw({})
+ TextBox.draw({boxTx=0,boxTy=12,boxTw=20,boxTh=6,textX=8,line1Y=112,line2Y=128,shown={}})
  local tiles=0;for _,call in ipairs(calls)do if call.kind=='image' then tiles=tiles+1 end end
  check((tiles>0)==(enabled==1),'dialogue border follows toggle')
  check(not C2.dialogueScope,'dialogue rendering restores scope')
 end
-mod.generation=1;values.dialogueBorder=1;C2.dialogueRects={};TextBox.draw({})
-check(#C2.dialogueRects==4,'Gen 1 dialogue marks four colored border strips')
-for _,rect in ipairs(C2.dialogueRects)do check(rect.colors==false and (rect.w==8 or rect.h==8),'dialogue border bypasses palette remapping without covering its interior')end
+mod.generation=1;values.dialogueBorder=1;C2.dialogueRects={};TextBox.draw({boxTx=0,boxTy=12,boxTw=20,boxTh=6,textX=8,line1Y=112,line2Y=128,shown={}})
+check(#C2.dialogueRects==1,'Gen 1 dialogue preserves RGB across the complete window')
+for _,rect in ipairs(C2.dialogueRects)do check(rect.colors==false and rect.w==160 and rect.h==48,'dialogue background and glyphs bypass palette remapping')end
 mod.generation=2;C2.dialogueRects={}
 TextBox._menuCustomizerDialogueDraw=originalDialogue;values.dialogueBorder=0
 -- Gen 2 menu-account descriptions must not affect START docking.

@@ -13,7 +13,7 @@ return function(mod,catalog)
  C.palette=menuPalette
  local Transitions=assert(load(assert(mod:read('lib/menu_transitions.lua'))))()
  mod.exports.menuBackground=function()if C.drawScope or C.dialogueScope then return menuPalette.menuBackground(C.paperGroup)end end
- local specs={selectionHighlight={25,0,100,5},menuTextColor={0,0,#menuPalette.names-1,1},menuTextShadowColor={0,0,#menuPalette.shadowNames-1,1},menuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},startMenuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1},menuBorder={1,1,#catalog.choices,1},startJustify={1,1,3,1},startSelector={3,1,#C.selectors.names,1},arrowSelector={1,1,10,1},hideStartMods={0,0,1,1},
+ local specs={selectionHighlight={25,0,100,5},menuTextColor={0,0,#menuPalette.names-1,1},menuTextShadowColor={0,0,#menuPalette.shadowNames-1,1},menuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},startMenuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1},menuBorder={1,1,#catalog.choices,1},startJustify={1,1,3,1},startSelector={3,1,#C.selectors.names,1},arrowSelector={1,1,13,1},selectorColor={0,0,#menuPalette.names-1,1},dialogueJustify={1,1,3,1},hideStartMods={0,0,1,1},
   backgroundDim={0,0,70,10},controlsLegend={2,1,3,1},menuTransition={3,1,#Transitions.names,1},positionPreview={1,0,1,1}}
 
  for _,scope in ipairs({'start','battle','option','save','other','dialogue'})do specs[scope..'BorderChoice']={0,0,#catalog.choices,1}end
@@ -31,7 +31,7 @@ return function(mod,catalog)
  for _,key in ipairs({'building_in','building_out','battle_in','battle_out'})do specs['scene_'..key]={1,1,#SceneEffects.names,1}end
  local marker
  C.arrows=assert(load(assert(mod:read('lib/arrow_selectors.lua'))))()(mod,C.selectors,function(key)return C.setting(key)end,function()return C.live()end)
- mod.exports.arrowSelectors=C.arrows
+ mod.exports.arrowSelectors=C.arrows;mod.exports.selectorPalette=menuPalette
  function C.live()
   local chain=Runtime.hooks and Runtime.hooks.chains and Runtime.hooks.chains['ui.start_menu.items']
   for _,entry in ipairs(chain or {}) do if entry.owner==mod.id and entry.callback==marker then return true end end
@@ -156,7 +156,7 @@ return function(mod,catalog)
     if current.drawScope then local rx,ry=current.resizeX or 1,current.resizeY or 1;x,y,w,h=x*rx,y*ry,w*rx,h*ry end
     if not b then current.bounds={x=x,y=y,w=w,h=h}
     else local r,d=math.max(b.x+b.w,x+w),math.max(b.y+b.h,y+h);b.x,b.y=math.min(b.x,x),math.min(b.y,y);b.w,b.h=r-b.x,d-b.y end
-    if current.dialogueScope and current.mod.generation==1 then
+    if (current.dialogueScope or current.mod.exports.previewScope) and current.mod.generation==1 then
      current.dialogueRects=current.dialogueRects or {}
      current.dialogueRects[#current.dialogueRects+1]={colors=false,x=tx*8,y=ty*8,w=tw*8,h=th*8}
     end
@@ -304,7 +304,7 @@ return function(mod,catalog)
    local selector=start.options and current.arrows.id() or current.setting('startSelector')
    local left=start.left+8
    local right=start.left+start.width-8
-   local reserve=selector==1 or selector==3 or selector>=5
+   local reserve=selector==1 or selector==3 or selector>=5 and selector<=12
    local minimum=math.max(start.labelX,left+(reserve and 10 or selector==4 and 4 or 0))
    local maximum=right-(selector==4 and 4 or 0)
    if not start.inlineValues then text=windowText(text,math.max(1,maximum-minimum),n==start.index) end
@@ -362,10 +362,14 @@ return function(mod,catalog)
     -- The old iOS +2 correction moved every marker below its selected label.
     y=y-2
    end
-   if sel.selector>=5 then C.selectors.draw(sel.selector,x-10,y)
+   if sel.selector==0 then G.pop();return end
+   if sel.selector==13 then
+    G.setColor(.25,.65,1,current.setting('selectionHighlight')/100);G.rectangle('fill',((start.left or 0)+8-sel.x)*rx,y-2,math.max(1,(start.width or 160)-16)*rx,start.pitch or 16)
+   elseif sel.selector>=5 then C.selectors.draw(sel.selector,x-10,y)
    elseif sel.selector==3 then code(0xED,x-10,y)
-   elseif sel.selector==2 then G.rectangle('fill',x,y+8,width,1)
+   elseif sel.selector==2 then G.setColor(unpack(current.palette.effects.resolve(current.palette.color('text',current.setting('selectorColor')),'menu')));G.rectangle('fill',x,y+8,width,1)
    elseif sel.selector==4 then
+    G.setColor(unpack(current.palette.effects.resolve(current.palette.color('text',current.setting('selectorColor')),'menu')))
     G.rectangle('fill',x-4,y+3,2,2);G.rectangle('fill',x+width+2,y+3,2,2)
    else
     local pixels={'..1111..','.122221.','12222221','11144111','13344331','13333331','.133331.','..1111..'}
@@ -414,6 +418,15 @@ return function(mod,catalog)
  end
  C.dialogueText=assert(load(assert(mod:read('lib/gb_dialogue_text.lua'))))()(Font)
  local TextBox=require('src.render.TextBox')
+ if not TextBox._menuCustomizerPaginateInset then
+  local paginate=TextBox.paginate
+  TextBox.paginate=function(text,cols,...)
+   local current=Font._menuCustomizerGB
+   if current and current.live() and current.dialogueScope then cols=math.max(1,(cols or 18)-1)end
+   return paginate(text,cols,...)
+  end
+  TextBox._menuCustomizerPaginateInset=true
+ end
  if not TextBox._menuCustomizerDialogueNew then
   TextBox._menuCustomizerDialogueNew=TextBox.new
   TextBox.new=function(...)
@@ -429,13 +442,39 @@ return function(mod,catalog)
   TextBox.draw=function(self,...)
    local current=Font._menuCustomizerGB
    local enabled=current and current.live()
+   local priorDialogue=current and current.dialogueScope
    if enabled then current.dialogueScope=true end
+   local oldX,oldY1,oldY2=self.textX,self.line1Y,self.line2Y
+   local glyph=Font.drawCode
+   if enabled then
+    local themed=current.setting('dialogueTheme')==2
+    local inkTop,inkHeight=themed and -.5 or 0,themed and 8.25 or 8
+    self.textX=self.boxTx*8+12
+    self.line1Y=self.boxTy*8+math.floor((self.boxTh*8-(16+inkHeight))/2)-inkTop
+    self.line2Y=self.line1Y+16
+    local shifts={};local alignment=current.setting('dialogueJustify')
+    for i,line in ipairs(self.shown or {})do
+     local source=self.shownSource and self.shownSource[i]
+     local page=self.pages and self.pages[self.pageIndex or 1]
+     local full=source and page and page[source]
+     local w=0
+     if full then w=Font.width(full)else for _,id in ipairs(line)do w=w+Font.advanceOf(id)end end
+     local slack=math.max(0,self.boxTw*8-24-w)
+     shifts[i]=alignment==2 and math.floor(slack/2)or alignment==3 and slack or 0
+    end
+    Font.drawCode=function(id,x,y,...)
+     local ys={self.line1Y+(self.scrollPx or 0),self.line2Y}
+     for i=1,2 do if y==ys[i] and x>=self.textX and x<self.boxTx*8+(self.boxTw-1)*8 then x=x+(shifts[i]or 0);break end end
+     return glyph(id,x,y,...)
+    end
+   end
    local args={n=select('#',...),...}
    local ok,result=pcall(function()
     local draw=function()return TextBox._menuCustomizerDialogueDraw(self,unpack(args,1,args.n))end
     if enabled then return current.palette.withText('menu',draw)end;return draw()
    end)
-   if enabled then current.dialogueScope=nil end
+   Font.drawCode=glyph;self.textX,self.line1Y,self.line2Y=oldX,oldY1,oldY2
+   if enabled then current.dialogueScope=priorDialogue end
    if not ok then error(result,0) end
    return result
   end
@@ -575,12 +614,12 @@ return function(mod,catalog)
   end,step=function(game,dir)
    local n=C.setting(key)+dir*spec[4]
    if choices then n=(n-spec[2])%(spec[3]-spec[2]+1)+spec[2] else n=math.max(spec[2],math.min(spec[3],n)) end
-   if key=='menuTextColor'or key=='dialogueTextColor' then n=menuPalette.step('text',C.setting(key),dir)
+   if key=='menuTextColor'or key=='dialogueTextColor'or key=='selectorColor' then n=menuPalette.step('text',C.setting(key),dir)
    elseif key=='menuTextShadowColor'or key=='dialogueTextShadowColor' then n=menuPalette.step('shadow',C.setting(key),dir)
    elseif key=='menuBackgroundColor' or key=='startMenuBackgroundColor' or key=='dialogueBackgroundColor' then n=menuPalette.step('menuBackground',C.setting(key),dir)end
    C.persist(game,key,n)
   end}
-  local kind=(key=='menuTextColor'or key=='dialogueTextColor') and 'text' or (key=='menuTextShadowColor'or key=='dialogueTextShadowColor') and 'shadow' or (key=='menuBackgroundColor' or key=='startMenuBackgroundColor' or key=='dialogueBackgroundColor') and 'menuBackground'
+  local kind=(key=='menuTextColor'or key=='dialogueTextColor'or key=='selectorColor') and 'text' or (key=='menuTextShadowColor'or key=='dialogueTextShadowColor') and 'shadow' or (key=='menuBackgroundColor' or key=='startMenuBackgroundColor' or key=='dialogueBackgroundColor') and 'menuBackground'
   if kind then menuPalette.picker(entry,kind,function()return C.setting(key)end,function(ctx,n)C.persist(ctx.game or ctx,key,n);return false end,
    function(title,rows,ctx)return pushPage(ctx.game or ctx,title,rows)end,key=='startMenuBackgroundColor' and 'USE MENU' or nil)end
   if key=='menuBorder'or key:match('BorderChoice$')then
@@ -600,47 +639,54 @@ return function(mod,catalog)
  local parent={mod.exports.settingsProfiles.row()}
  for _,group in ipairs({'start','option','save','other'})do
   for _,suffix in ipairs({'Position','Scale','Width','Height','OffsetX','OffsetY'})do
-   parent[#parent+1]=row(group..suffix,suffix:upper(),suffix=='Position'and positions or nil)
+   parent[#parent+1]=row(group..suffix,group:upper()..' '..(({OffsetX='X OFFSET',OffsetY='Y OFFSET'})[suffix]or suffix:upper()),suffix=='Position'and positions or nil)
   end
-  if group~='save'then parent[#parent+1]=row(group..'Opacity','OPACITY')end
+  if group~='save'then parent[#parent+1]=row(group..'Opacity',group:upper()..' OPACITY')end
  end
- parent[#parent+1]=row('startJustify','TEXT',{'LEFT','CENTER','RIGHT'})
- parent[#parent+1]=row('startMenuBackgroundColor','BACKGROUND',startBgNames)
+ parent[#parent+1]=row('startJustify','START ALIGNMENT',{'LEFT','CENTER','RIGHT'})
+ parent[#parent+1]=row('dialogueJustify','DIALOGUE ALIGNMENT',{'LEFT','CENTER','RIGHT'})
+ local selectorNames={};for i,name in ipairs(menuPalette.names)do selectorNames[i-1]=name end
+ parent[#parent+1]=row('selectorColor','UNDERLINE / DOTS COLOR',selectorNames)
+ parent[#parent+1]=row('startMenuBackgroundColor','START BACKGROUND',startBgNames)
  parent[#parent+1]=row('startSelector','START SELECTOR',C.selectors.names)
  parent[#parent+1]=toggle('hideStartMods','HIDE START MODS')
- parent[#parent+1]=row('arrowSelector','OTHER SELECTORS',C.arrows.names)
+ parent[#parent+1]=row('arrowSelector','ARROW SELECTOR',C.arrows.names)
  parent[#parent+1]=row('selectionHighlight','HIGHLIGHT INTENSITY')
  parent[#parent+1]=row('menuTheme','MENU FONT',{'NATIVE','EMERALD'})
  local colorNames={};for i,name in ipairs(menuPalette.names)do colorNames[i-1]=name end
- parent[#parent+1]=row('menuTextColor','TEXT COLOR',colorNames)
+ parent[#parent+1]=row('menuTextColor','MENU TEXT COLOR',colorNames)
  local shadowNames={};for i,name in ipairs(menuPalette.shadowNames)do shadowNames[i-1]=name end
- parent[#parent+1]=row('menuTextShadowColor','TEXT SHADOW',shadowNames)
- parent[#parent+1]=row('menuBackgroundColor','BACKGROUND',bgNames)
+ parent[#parent+1]=row('menuTextShadowColor','MENU TEXT SHADOW',shadowNames)
+ parent[#parent+1]=row('menuBackgroundColor','MENU BACKGROUND',bgNames)
  parent[#parent+1]=row('menuBorder','DEFAULT BORDER',catalog.choices)
  for _,scope in ipairs({'start','battle','option','save','other','dialogue'})do
   local choices={[0]='USE MENU'};for i,name in ipairs(catalog.choices)do choices[i]=name end
   parent[#parent+1]=row(scope..'BorderChoice',scope:upper()..' BORDER',choices)
  end
- parent[#parent+1]=toggle('dialogueBorder','CUSTOM BORDER')
+ parent[#parent+1]=toggle('dialogueBorder','DIALOGUE BORDER ON/OFF')
  parent[#parent+1]=row('dialogueTheme','DIALOGUE FONT',{'NATIVE','EMERALD'})
  parent[#parent+1]=row('dialogueBackgroundColor','DIALOGUE BACKGROUND',bgNames)
- parent[#parent+1]=row('dialogueTextColor','FONT COLOR',colorNames)
- parent[#parent+1]=row('dialogueTextShadowColor','FONT SHADOW',shadowNames)
+ parent[#parent+1]=row('dialogueTextColor','DIALOGUE TEXT COLOR',colorNames)
+ parent[#parent+1]=row('dialogueTextShadowColor','DIALOGUE TEXT SHADOW',shadowNames)
  parent[#parent+1]=row('backgroundDim','BACKGROUND DIM')
  parent[#parent+1]=row('controlsLegend','CONTROL HINTS',{'ALWAYS','AUTO','HIDDEN'})
  parent[#parent+1]=row('menuTransition','MENU ANIMATION',Transitions.names)
  parent[#parent+1]=toggle('positionPreview','POSITION PREVIEW')
- parent[#parent+1]={id='wide_text_fx',label='TEXT EFFECTS',activate=function(game)pushPage(game,'MENU TEXT EFFECTS',menuPalette.effects.rows('menu',function(ctx,key,n)C.persist(ctx.game or ctx,key,n);return false end,function(title,rows,ctx)pushPage(ctx.game or ctx or game,title,rows)end))end}
- parent[#parent+1]={id='wide_battle_ui',label='BATTLE SETTINGS',activate=function(game)
+ parent[#parent+1]={id='wide_text_fx',label='TEXT EFFECTS',children=menuPalette.effects.rows('menu',function(ctx,key,n)C.persist(ctx.game or ctx,key,n);return false end,function(title,rows,ctx)pushPage(ctx.game or ctx or C.game,title,rows)end),activate=function(game)pushPage(game,'MENU TEXT EFFECTS',menuPalette.effects.rows('menu',function(ctx,key,n)C.persist(ctx.game or ctx,key,n);return false end,function(title,rows,ctx)pushPage(ctx.game or ctx or game,title,rows)end))end}
+ parent[#parent+1]={id='wide_battle_ui',label='BATTLE SETTINGS',children=function()local ui=mod.exports.battleUi;return ui and ui.rows({},function(title,children,ctx)pushPage(ctx and (ctx.game or ctx)or C.game,title,children)end)or {}end,activate=function(game)
   local ui=mod.exports.battleUi;if ui then pushPage(game,'BATTLE',ui.rows({},function(title,children)pushPage(game,title,children)end))end
  end}
  for _,spec in ipairs({{'building_in','BUILDING ENTER'},{'building_out','BUILDING EXIT'},{'battle_in','BATTLE ENTER'},{'battle_out','BATTLE EXIT'}})do parent[#parent+1]=row('scene_'..spec[1],spec[2],SceneEffects.names)end
+ local menuEntries=parent
  parent=assert(load(assert(mod:read('lib/menu_organization.lua'))))()(parent,function(title,rows,ctx)return pushPage(ctx.game or ctx,title,rows)end)
  C.rows=parent
  mod.hooks:wrap('ui.options.rows',function(next,game,rows)
   local entries=next(game,rows)
   entries[#entries+1]={id='wide_menus',label='MENUS',group=true,value=function()return 'OPEN' end,
-   activate=function(g)pushPage(g,'MENUS',parent)end}
+   activate=function(g)
+    local rows=assert(load(assert(mod:read('lib/menu_organization.lua'))))()(menuEntries,function(title,children,ctx)return pushPage(ctx and (ctx.game or ctx)or g,title,children)end)
+    C.rows=rows;pushPage(g,'MENUS',rows)
+   end}
   return entries
  end)
  marker=function(next,game,items)
@@ -891,7 +937,9 @@ return function(mod,catalog)
   end
  end
  mod.events:on('game.ready',function(event)attach(event.game)end)
- mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.56'
+ mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;
+ assert(load(assert(mod:read('lib/preview_windows.lua'))))()(mod,menuPalette,function()return C.live()end)
+ mod.exports.version='3.2.57'
  assert(load(assert(mod:read('lib/scene_transitions.lua'))))()(mod,function()return C.live()end)
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C

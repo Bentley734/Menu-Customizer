@@ -24,6 +24,7 @@ function love.load()
   local sizing=loadMod('battle_font_size.lua')(mod,function()return true end)
   sizing.decorate(F,'draw','measure','drawGlyph',false)
   local Message={open=true,_frame='dialogue',drawText=function()return F.draw('TTTT',16,121,opts)end}
+  package.loaded['src.ui.game3.chrome']={dialogueWindow=function()return 2,15,26,4 end}
   local D=loadMod('dialogue_text.lua')(mod,Message,F,function()return true end)
   local source=G.newCanvas(240,160,{dpiscale=1});source:setFilter('nearest','nearest')
   local unit=0

@@ -289,7 +289,7 @@ return WideBattle
           F.draw(s,left+8+56*((i-1)%2),121+16*math.floor((i-1)/2),{colors=ready and M.colors() or C.textboxColors()})
         end
         local c=(battle.menuIndex or 1)-1
-        F.drawGlyph(F.CHAR_SELECTOR_ARROW,left+56*(c%2),121+16*math.floor(c/2),{colors=ready and M.colors() or C.textboxColors()})
+        F.drawGlyph(F.CHAR_SELECTOR_ARROW,left-1+56*(c%2),121+16*math.floor(c/2),{colors=ready and M.colors() or C.textboxColors()})
       else
         local lines=generation==2 and battle:messageLines() or battle.shown or {}
         for i,line in ipairs(lines)do if i<=2 then F.draw(M.decode(line),16,121+(i-1)*16*fontFactor+(battle.scrollPx or 0),{colors=M.presentationColors(),maxWidth=208,_fixedSize=true})end end

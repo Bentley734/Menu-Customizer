@@ -42,7 +42,8 @@ function love.load()
   local messages={'GARY: Wait, ASH!','GARY: Wait, ASH!\nLet\'s check out our POKeMON!',
    'This longer conversation must wrap into extra pages while every letter keeps exactly the same chosen size.',
    'SUPERCALIFRAGILISTICEXPIALIDOCIOUSSUPERCALIFRAGILISTICEXPIALIDOCIOUS'}
-  for _,size in ipairs({1,2})do choices.battle_font_size=size;local expected=size==1 and 4 or 6
+  for _,align in ipairs({1,2,3})do choices.dialogueJustify=align
+  for _,size in ipairs({0,1,2})do choices.battle_font_size=size;local expected=({3,4,6})[size+1]
    for _,s in ipairs(messages)do
     check(M.show(s,{speed=0})==M,'native message show contract')
     local reconstructed={}
@@ -55,6 +56,11 @@ function love.load()
      reconstructed[#reconstructed+1]=page
      M._page=i;M._revealed=F.countChars(page);D.beginFrame()
      G.setCanvas(source);G.origin();G.clear(0,0,0,0);M.drawText();G.setCanvas()
+     local item=D.queues[source][1];local L,Top,W,H=Chrome.dialogueWindow()
+     local first=page:match('([^\n]*)');mod.exports.dialogueFontScope,mod.exports.dialogueFixedSize=true,true
+     local slack=math.max(0,W*8-12-F.measure(first));mod.exports.dialogueFontScope,mod.exports.dialogueFixedSize=nil,nil
+     local shift=align==2 and math.floor(slack/2)or align==3 and slack or 0
+     check(math.abs(item.anchor[1]-(L*8+6+shift))<.001,'full-page alignment is stable during capture')
      local _,y,_,h=Chrome.dialogueWindow();bounds={top=10+y*8*3.47,bottom=10+(y+h)*8*3.47}
      widths={};G.origin();G.draw(source,10,10,0,3.47,3.47)
      check(#widths>0,'dialogue remains visible')
@@ -64,6 +70,7 @@ function love.load()
    end
   end
   check(T.measure('ASH\nGARY')==math.max(T.measure('ASH'),T.measure('GARY')),'multiline uses the same Emerald face')
+  end
   write('dialogue-result.txt','PASS '..checks..' GPU fixed-size, two-line bounds, wrapping, pagination and text-preservation checks\n')
  end,debug.traceback)
  if not ok then write('dialogue-result.txt','FAIL '..tostring(err))end

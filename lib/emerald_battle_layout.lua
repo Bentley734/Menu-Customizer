@@ -25,7 +25,7 @@ return function(G)
   local y=rect.y+(rect.h-16*sy)/2
   at(rect,sx,sy,dx,dy,x,y,function()
    F.draw(s,0,0,{font=font,colors=colors})
-   if cursor then F.drawGlyph(F.CHAR_SELECTOR_ARROW,-8,0,{colors=colors})end
+   if cursor then F.drawGlyph(F.CHAR_SELECTOR_ARROW,-9,0,{colors=colors})end
   end)
  end
  function M.commands(F,battle,generation,rect,custom,colors,viewport)

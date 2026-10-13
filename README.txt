@@ -1,3 +1,21 @@
+# Menu Customizer 3.2.57
+
+Organize customization by type and add dialogue alignment, selector colors, and effect transparency.
+
+- Seven categories: TEXT, BORDERS, BACKGROUNDS, TRANSITIONS, SELECTORS, POSITION, TRANSPARENCY. Battle controls follow the same categories on all eleven games.
+- Dialogue alignment: LEFT (default), CENTER, RIGHT. Retain the full line's alignment while typing, vertically center the two-line block between the borders, and add horizontal padding. Keep custom font sizes and whole square pixels stable across pages.
+- Starter picture and YES/NO windows use the menu background and text palette, independently of dialogue colors.
+- Move battle command and move selection markers one logical pixel left.
+- Add a shared UNDERLINE / DOTS COLOR picker. Both styles are available under ARROW SELECTOR, alongside NONE for a transparent highlight without a marker. START SELECTOR adds HIGHLIGHT, using the existing HIGHLIGHT INTENSITY setting.
+- Rename the general transition control MISC TRANSITIONS.
+- Remove GLOW and DOUBLE SHADOW controls and rendering, including legacy saved effects.
+- Independent 0–100% HIGHLIGHT, OUTLINE, SHADOW transparency for menu, battle and Pokemon-name text, in 5% steps.
+- Preserve existing saved selector, palette and border IDs.
+
+Validation: 4,251 real GPU checks for dialogue placement, integer glyph geometry, RGB preservation, selector ownership, preview/YES-NO palettes, and effect alpha. LuaJIT and Lua 5.3 regressions; actual startup and category navigation for all eleven games with current KIM1025 source. GPU checks use isolated render fixtures; the running gameplay session was left open.
+
+Restart the game after installation to load the update.
+
 # Menu Customizer 3.2.56
 
 Fix Gen 1 field dialogue backgrounds and fonts, and duplicate menu selectors.
