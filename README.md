@@ -1,3 +1,11 @@
+# Menu Customizer 3.2.62
+
+Move Gen 1 Pokedex entry behavior to KIM1025 1.7.38.
+
+Menu Customizer now supplies screen/font classification and shared border/background settings only. It no longer wraps entry drawing, sprite orientation, measurements or pagination. This removes the competing sprite draw hook; install KIM1025 1.7.38 to retain the entry improvements.
+
+RAINY ROUTE and existing settings remain available. Restart after installing both updates.
+
 # Menu Customizer 3.2.61
 
 Add RAINY ROUTE to the ANIMATED background choices, using the user-provided rainy Pokemon scene.
