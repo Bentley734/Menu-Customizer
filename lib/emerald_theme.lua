@@ -29,13 +29,14 @@ return function(mod,enabled)
  local function glyphs(text)
   text=tostring(text)
   if text:find('[<>{}]') then return nil end
-  local out={};for c in chars(text)do if not supported[c] then return nil end;out[#out+1]=glyphId(c) end;return out
+  local out={};for c in chars(text)do if c=='\n' then out[#out+1]=-1 elseif not supported[c]then return nil else out[#out+1]=glyphId(c)end end;return out
  end
  function M.measure(text,opts)
   local ids=glyphs(text);if not ids then return nil end
   local f=face(opts and opts.small,opts and opts.battle or mod.exports and mod.exports.battleFontScope,opts and opts.font=="narrow");local width=0
-  for _,id in ipairs(ids)do width=width+(f.widths[id] or 6) end
-  return width
+  local maximum=0
+  for _,id in ipairs(ids)do if id==-1 then maximum=math.max(maximum,width);width=0 else width=width+(f.widths[id]or 6)end end
+  return math.max(maximum,width)
  end
  function M.glyph(id,x,y,opts)
   local arrows=mod.exports and mod.exports.arrowSelectors
@@ -61,13 +62,17 @@ return function(mod,enabled)
   end
   local ids=glyphs(text);if not ids then return nil end
   local f=face(opts and opts.small,opts and opts.battle or mod.exports and mod.exports.battleFontScope,opts and opts.font=="narrow");local pen=x
-  for i,id in ipairs(ids)do
-   if opts and opts.limitChars and i>opts.limitChars then break end
-   local width=f.widths[id] or 6
-   if opts and opts.maxWidth and pen-x+width>opts.maxWidth then break end
-   M.glyph(id,pen,y,opts);pen=pen+width
+  local py,maximum,count=y,0,0
+  for _,id in ipairs(ids)do
+   if id==-1 then maximum=math.max(maximum,pen-x);pen=x;py=py+16
+   else
+    count=count+1;if opts and opts.limitChars and count>opts.limitChars then break end
+    local width=f.widths[id]or 6
+    if not opts or not opts.maxWidth or pen-x+width<=opts.maxWidth then M.glyph(id,pen,py,opts)end
+    pen=pen+width
+   end
   end
-  return pen-x
+  return math.max(maximum,pen-x),pen,py
  end
  local GB=require('src.render.Font')
  local map,signature

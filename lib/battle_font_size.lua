@@ -3,12 +3,12 @@ return function(mod,enabled)
  local G=love.graphics;local M={depth=0,scopeDepth=0}
  local unpack=unpack or table.unpack
  function M.factor()
-  if not enabled()or not(M.scopeDepth>0 or mod.exports.battleFontScope)then return 1 end
+  if not enabled()or not(M.scopeDepth>0 or mod.exports.battleFontScope or mod.exports.dialogueFontScope)then return 1 end
   local n=tonumber(mod.options:get('battle_font_size')or mod.save:get('battle_font_size'))or 0
   return ({1,1.5,2})[math.max(0,math.min(2,math.floor(n)))+1]
  end
  local function fitted(f,text,opts,width)
-  if type(opts)=='table'and opts.maxWidth and width and width>0 then f=math.min(f,opts.maxWidth/width)end
+  if not mod.exports.dialogueFixedSize and not(opts and opts._fixedSize) and type(opts)=='table'and opts.maxWidth and width and width>0 then f=math.min(f,opts.maxWidth/width)end
   return math.max(.01,f)
  end
  local function transform(x,y,f)

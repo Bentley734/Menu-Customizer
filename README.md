@@ -1,3 +1,15 @@
+# Menu Customizer 3.2.54
+
+- Animated borders now follow one closed rounded path. Patterns flow around all four corners and the loop closes without restarting on each edge. Animated frames use one solid strip instead of separate atlas corner pieces.
+- Custom-size field dialogue retains the chosen size across messages. Long text wraps into two-line pages instead of shrinking to fit the current string. Long plain names can wrap at UTF-8 glyph boundaries.
+- Large and Extra Large dialogue boxes grow upward by a fixed amount for their selected size, keeping both lines inside the borders.
+- Multiline Emerald dialogue uses the same glyph face and line spacing on every page. Prompt end positions follow the final line.
+- Retain the selector visibility and highlight intensity controls from 3.2.53.
+
+Validation: 2,520 real GPU checks for arc length, loop closure, thickness and solid corners across all 16 animated families; 1,439 GPU checks for stable custom font sizes, horizontal/vertical bounds, wrapping, pagination and text preservation; previous selector GPU regression; LuaJIT/Lua 5.3 rendering regressions; startup checks for all eleven games.
+
+Restart the game after installation. Gameplay was left running.
+
 # Menu Customizer 3.2.53
 
 Built from the actual 3.2.52 release package, retaining its backgrounds, borders, organization and saved settings. The repository source now includes the complete release contents.

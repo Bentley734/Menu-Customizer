@@ -74,6 +74,7 @@ return function(mod,setting,catalog,active)
   for _,d in ipairs({source,data,paper})do if d.release then d:release()end end
   return cached.image,cached.paper,cached.quads,30
  end
+ local Path=assert(load(assert(mod:read('lib/border_path.lua'))))()
  local gradientShader
  local panelShader
  -- One quad owns the entire frame. Slice the texture in the fragment shader,
@@ -81,7 +82,7 @@ return function(mod,setting,catalog,active)
  -- This removes shared geometry edges as well as neighbouring atlas samples.
  local function wholePanel(atlas,image,paper,x,y,w,h,background)
   if not G.newShader then return false end
-  if not panelShader then panelShader=G.newShader(palette.gradients.glsl..palette.pokemonBackgrounds.glsl..palette.gradients.glsl:gsub('customGradient','paperCustomGradient'):gsub('stopA','paperStopA'):gsub('stopB','paperStopB'):gsub('stopC','paperStopC'):gsub('stopD','paperStopD'):gsub('gradientColor','paperGradientColor')..[[
+  if not panelShader then panelShader=G.newShader(Path.glsl..palette.gradients.glsl..palette.pokemonBackgrounds.glsl..palette.gradients.glsl:gsub('customGradient','paperCustomGradient'):gsub('stopA','paperStopA'):gsub('stopB','paperStopB'):gsub('stopC','paperStopC'):gsub('stopD','paperStopD'):gsub('gradientColor','paperGradientColor')..[[
    extern vec2 extent;extern bool usePaper;extern Image paperTexture;
    extern vec4 paperColor;extern bool paperGradient;extern float paperPhase;
    extern bool rainbow;extern float phase;extern int borderEffect;extern float pokemonMotif;
@@ -98,16 +99,16 @@ return function(mod,setting,catalog,active)
     vec2 coord=(cell*10.0+vec2(1.5)+clamp(floor(localPixel),vec2(0.0),vec2(7.0)))/30.0;
     vec4 ink=Texel(tex,coord);
     if(usePaper){vec4 paper=Texel(paperTexture,coord);
-     if(paper.a>0.0){vec3 rgb=pokeStyle>0?pokemonPaper(p):paperGradient?paperGradientColor(paperPhase+pixel.x/320.0+pixel.y/640.0):paperColor.rgb;
+     if(paper.a>0.0 && !((rainbow || borderEffect>0) && (cell.x!=1.0 || cell.y!=1.0))){vec3 rgb=pokeStyle>0?pokemonPaper(p):paperGradient?paperGradientColor(paperPhase+pixel.x/320.0+pixel.y/640.0):paperColor.rgb;
       return vec4(rgb,paper.a*paperColor.a*color.a);}}
-    vec3 rgb=rainbow?gradientColor(phase+uv.x*.65+uv.y*.35)*(.18+.82*ink.r):ink.rgb;
+    vec3 path=borderPath(p,extent);float depth=path.y;
+    float along=path.x*path.z;
+    bool animated=rainbow || borderEffect>0;
+    if(animated && (cell.x!=1.0 || cell.y!=1.0))ink.a=depth>=0.0?1.0:0.0;
+    float bevel=animated?.6+.4*(1.0-abs(depth-4.0)/4.0):(.35+.65*ink.r);
+    vec3 rgb=rainbow?gradientColor(phase+path.x)*bevel:ink.rgb;
     if(borderEffect>0){
-     // Follow the nearest edge around the complete perimeter, including corners.
-     float depth=min(min(p.x,extent.x-p.x),min(p.y,extent.y-p.y));float along;
-     if(depth==p.y)along=p.x;else if(depth==extent.x-p.x)along=extent.x+p.y;
-     else if(depth==extent.y-p.y)along=extent.x+extent.y+extent.x-p.x;
-     else along=2.0*extent.x+extent.y+extent.y-p.y;
-     float s=along-phase*96.0;float bevel=.35+.65*ink.r;
+     float s=borderRepeat(path,16.0)-phase*96.0;
      if(borderEffect==1){
       rgb=vec3(.12,.17,.27)*bevel;
       vec2 d=vec2(mod(s+8.0,16.0)-8.0,depth-4.0);float radius=length(d);
@@ -115,45 +116,45 @@ return function(mod,setting,catalog,active)
       if(radius<3.45){rgb=radius>2.8?vec3(.035):q.y<0.0?vec3(.94,.16,.22):vec3(.92,.96,1.0);
        if(abs(q.y)<.48)rgb=vec3(.035);if(radius<1.1)rgb=vec3(.035);if(radius<.55)rgb=vec3(.83,.9,.98);}
      }else if(borderEffect==2){
-      float zig=4.0+1.9*(abs(mod(along*.18+phase*3.0,2.0)-1.0)*2.0-1.0);
+      float zig=4.0+1.9*(abs(mod(borderRepeat(path,2.0/.18)*.18+phase*3.0,2.0)-1.0)*2.0-1.0);
       float bolt=abs(depth-zig);rgb=vec3(.025,.08,.22)*bevel;
       rgb+=vec3(.13,.27,.43)*max(0.0,1.0-bolt/2.0);
       if(bolt<.8)rgb=vec3(1.0,.82,.26);if(bolt<.3)rgb=vec3(1.0,.99,.85);
      }else if(borderEffect==3){
-      float wave=3.8+1.4*sin(along*.24-phase*25.0)+.6*sin(along*.53+phase*13.0);
+      float wave=3.8+1.4*borderWave(path,.24,-phase*25.0)+.6*borderWave(path,.53,phase*13.0);
       rgb=mix(vec3(.035,.19,.44),vec3(.13,.61,.77),depth/8.0)*bevel;
       if(abs(depth-wave)<.55)rgb=vec3(.69,.95,.9);else rgb+=vec3(.04,.15,.18)*max(0.0,1.0-abs(depth-wave)/2.0);
      }else if(borderEffect==4){
-      float wisp=3.8+1.4*sin(along*.13+phase*15.0);float trail=mod(s,23.0);
+      float wisp=3.8+1.4*borderWave(path,.13,phase*15.0);float trail=mod(borderRepeat(path,23.0)-phase*96.0,23.0);
       float glow=exp(-abs(depth-wisp)*1.7)*exp(-trail*.18);
       rgb=vec3(.14,.06,.27)*bevel+vec3(.47,.35,.7)*glow;
       if(trail<2.0 && abs(depth-wisp)<.8)rgb=vec3(.78,.84,1.0);
      }else if(borderEffect==5){
-      float star=abs(mod(s+12.0,24.0)-12.0);float height=abs(depth-4.0);
+      float star=abs(mod(borderRepeat(path,24.0)-phase*96.0+12.0,24.0)-12.0);float height=abs(depth-4.0);
       rgb=vec3(.07,.06,.2)*bevel;
-      if(star+height<2.6)rgb=mix(vec3(.58,.8,1.0),vec3(1.0,.9,.56),.5+.5*sin(along*.2+phase*20.0));
+      if(star+height<2.6)rgb=mix(vec3(.58,.8,1.0),vec3(1.0,.9,.56),.5+.5*borderWave(path,.2,phase*20.0));
       if(star<.65 && height<2.7 || height<.65 && star<2.7)rgb=vec3(.96,.97,1.0);
-      rgb+=vec3(.12,.2,.3)*exp(-abs(depth-4.0)*2.0)*max(0.0,1.0-mod(s+12.0,24.0)/12.0);
+      rgb+=vec3(.12,.2,.3)*exp(-abs(depth-4.0)*2.0)*max(0.0,1.0-mod(borderRepeat(path,24.0)-phase*96.0+12.0,24.0)/12.0);
      }else if(borderEffect==6){
-      float stem=4.0+.5*sin(along*.16+phase*8.0);float leaf=mod(along,12.0)-6.0;
-      float side=mod(floor(along/12.0),2.0)<1.0?1.0:-1.0;
+      float stem=4.0+.5*borderWave(path,.16,phase*8.0);float leaf=mod(borderRepeat(path,24.0),12.0)-6.0;
+      float side=mod(floor(borderRepeat(path,24.0)/12.0),2.0)<1.0?1.0:-1.0;
       rgb=vec3(.045,.17,.14)*bevel;
       if(abs(depth-stem)<.55)rgb=vec3(.27,.62,.35);
       if(abs(leaf)*.5+abs(depth-stem-side*1.35)<1.7)
-       rgb=mix(vec3(.16,.46,.28),vec3(.57,.83,.4),.5+.5*sin(along*.12-phase*12.0));
+       rgb=mix(vec3(.16,.46,.28),vec3(.57,.83,.4),.5+.5*borderWave(path,.12,-phase*12.0));
      }else if(borderEffect>=7){
       // Perimeter-space patterns share one quad, keeping the frame seam-free.
       float t=phase*12.0;float v=0.0;
-      if(borderEffect==7){v=.5+.5*sin(along*.28+sin(depth*.9+t)*2.0-t);}
-      else if(borderEffect==8){vec2 d=vec2(mod(s+7.0,14.0)-7.0,depth-4.0);v=exp(-dot(d,d)*.16)*(.7+.3*sin(t+along*.1));}
-      else if(borderEffect==9){vec2 d=vec2(mod(s+6.0,12.0)-6.0,depth-4.0);v=.5+.5*cos((abs(d.x)+abs(d.y))*1.3-t);}
-      else if(borderEffect==10){v=.5+.5*sin(along*.16+sin(depth*.8-t)*2.8+sin(along*.07+t));}
-      else if(borderEffect==11){float line=abs(depth-(4.0+2.0*sin(floor(along/8.0)+t*.3)));v=exp(-line*2.0);v=max(v,exp(-abs(mod(s,24.0)-12.0)*1.4)*.8);}
-      else if(borderEffect==12){v=.5+.5*sin(s*.5+abs(depth-4.0)*2.0);}
-      else if(borderEffect==13){v=mod(floor((along+sin(depth+t)*3.0-t*3.0)/4.0)+floor(depth/2.0),2.0);}
+      if(borderEffect==7){v=.5+.5*borderWave(path,.28,sin(depth*.9+t)*2.0-t);}
+      else if(borderEffect==8){vec2 d=vec2(mod(borderRepeat(path,14.0)-phase*96.0+7.0,14.0)-7.0,depth-4.0);v=exp(-dot(d,d)*.16)*(.7+.3*borderWave(path,.1,t));}
+      else if(borderEffect==9){vec2 d=vec2(mod(borderRepeat(path,12.0)-phase*96.0+6.0,12.0)-6.0,depth-4.0);v=.5+.5*cos((abs(d.x)+abs(d.y))*1.3-t);}
+      else if(borderEffect==10){v=.5+.5*borderWave(path,.16,sin(depth*.8-t)*2.8+borderWave(path,.07,t));}
+      else if(borderEffect==11){float line=abs(depth-(4.0+2.0*borderWave(path,1.0/8.0,t*.3)));v=exp(-line*2.0);v=max(v,exp(-abs(mod(borderRepeat(path,24.0)-phase*96.0,24.0)-12.0)*1.4)*.8);}
+      else if(borderEffect==12){v=.5+.5*borderWave(path,.5,-phase*48.0+abs(depth-4.0)*2.0);}
+      else if(borderEffect==13){v=mod(floor((borderRepeat(path,8.0)+sin(depth+t)*3.0-t*3.0)/4.0)+floor(depth/2.0),2.0);}
       else if(borderEffect==15){
        float family=mod(pokemonMotif-1.0,6.0);float pitch=12.0+mod(pokemonMotif,5.0)*2.0;
-       vec2 q=vec2(mod(along-t*(1.0+mod(pokemonMotif,3.0))+pitch*.5,pitch)-pitch*.5,depth-4.0);
+       vec2 q=vec2(mod(borderRepeat(path,pitch)-t*(1.0+mod(pokemonMotif,3.0))+pitch*.5,pitch)-pitch*.5,depth-4.0);
        if(family<1.0){v=exp(-abs(q.x+sin(q.y*2.4+t)*1.7)*1.4);}
        else if(family<2.0){v=exp(-abs(q.x)*.65)*(.5+.5*sin(q.y*2.0+q.x-t*2.0));}
        else if(family<3.0){v=exp(-abs(q.y-sin(q.x*.65-t)*2.0)*1.8);}
@@ -161,8 +162,8 @@ return function(mod,setting,catalog,active)
        else if(family<5.0){v=max(exp(-abs(length(q*vec2(.7,1.1))-2.5)*2.3),exp(-length(q)*1.6));}
        else{v=exp(-abs(length(q)-2.7)*2.0);v=max(v,exp(-abs(q.y)*3.0)*step(abs(q.x),2.5));}
       }
-      else {float a=abs(depth-4.0-2.0*sin(along*.2-t));float b=abs(depth-4.0+2.0*sin(along*.2-t));v=exp(-min(a,b)*1.6);}
-      vec3 tint=gradientColor(phase+along*.008+v*.22);
+      else {float a=abs(depth-4.0-2.0*borderWave(path,.2,-t));float b=abs(depth-4.0+2.0*borderWave(path,.2,-t));v=exp(-min(a,b)*1.6);}
+      vec3 tint=gradientColor(phase+path.x+v*.22);
       rgb=mix(tint*.13,tint,v)*bevel;
       rgb+=vec3(.18,.22,.25)*pow(v,8.0);
      }

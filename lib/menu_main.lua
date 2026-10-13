@@ -561,7 +561,7 @@ return function(mod)
       local theme=FrlgFont._menuCustomizerEmerald
       if text=='▶' and mod.exports.arrowSelectors.draw(x,y,16,opts) then return 1,x+8,y end
       if theme.menuOptions then opts=theme.menuOptions(opts)end
-      if theme.enabled() and not nativeFace(opts)then local width=theme.draw(text,x,y,opts);if width~=nil then return width,x+width,y end end
+      if theme.enabled() and not nativeFace(opts)then local width,endX,endY=theme.draw(text,x,y,opts);if width~=nil then return width,endX or x+width,endY or y end end
       if theme.palette then return theme.palette.nativeText(draw,measure,text,x,y,opts)end
       return draw(text,x,y,opts)
     end
@@ -912,10 +912,10 @@ return function(mod)
     mod.hooks:wrap('ui.start_menu.items',startItemsHook)
     Borders=assert(load(assert(mod:read('lib/menu_borders.lua')), '@'..mod.path..'/lib/menu_borders.lua'))()(mod,setting,catalog,active)
     mod.exports.borders=Borders;mod.exports.borderCatalog=catalog
-    mod.exports.effects=FX;mod.exports.version='3.2.53'
+    mod.exports.effects=FX;mod.exports.version='3.2.54'
   end
   mod.exports.effects=FX
-  mod.exports.version = '3.2.53'
+  mod.exports.version = '3.2.54'
   assert(load(assert(mod:read('lib/scene_transitions.lua'))))()(mod,active)
   mod.log:info('Menu Customizer: '..gameVersion..' START, OPTION and SAVE placement installed')
 end
