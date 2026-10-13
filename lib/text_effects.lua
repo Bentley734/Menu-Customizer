@@ -1,6 +1,12 @@
 -- Draw-only text effects. Settings and layout remain independent of animation.
 return function(mod,palette)
  local M={};local unpack=unpack or table.unpack
+ local presets=assert(load(assert(mod:read('lib/font_color_presets.lua'))))()
+ local presetNames={'CUSTOM'}
+ for _,e in ipairs(presets)do
+  presetNames[#presetNames+1]=e.name;e.colors={}
+  for _,h in ipairs(e.hex)do e.colors[#e.colors+1]={tonumber(h:sub(1,2),16)/255,tonumber(h:sub(3,4),16)/255,tonumber(h:sub(5,6),16)/255,1}end
+ end
  local prefixes={menu='menu_fx_',battle='battle_fx_',name='battle_name_fx_'}
  function M.get(kind,key,default)
   local k=(prefixes[kind] or prefixes.battle)..key
@@ -8,7 +14,10 @@ return function(mod,palette)
  end
  function M.specs(kind)
   local p=prefixes[kind];local s={}
+  s[p..'preset']={0,0,#presets,1}
   s[p..'alternate']={0,0,2,1};s[p..'count']={2,2,5,1};s[p..'speed']={100,25,200,25}
+  s[p..'highlight']={0,0,1,1};s[p..'highlight_color']={6,0,#palette.names-1,1}
+  s[p..'outline']={0,0,1,1};s[p..'outline_color']={0,0,#palette.names-1,1}
   s[p..'glow']={0,0,#palette.shadowNames-1,1};s[p..'double']={0,0,#palette.shadowNames-1,1}
   for i=1,5 do s[p..'color'..i]={({0,2,3,4,5})[i],0,#palette.names-1,1}end
   return s
@@ -21,18 +30,30 @@ return function(mod,palette)
     local n=M.get(kind,key,default or spec[1]);return labels and labels[n+1] or tostring(n)..(key=='speed' and '%' or '')
    end,step=function(ctx,dir)
     local n=M.get(kind,key,default or spec[1]);dir=dir and dir<0 and -1 or 1
-    if key:match('^color') then n=palette.step('text',n,dir)
+    if key:match('^color')or key=='highlight_color'or key=='outline_color'then n=palette.step('text',n,dir)
     elseif key=='glow' or key=='double' then n=palette.step('shadow',n,dir)
     else n=(n-spec[2]+dir*spec[4])%(spec[3]-spec[2]+spec[4])+spec[2]end
     return persist(ctx,k,n)
    end}
-   local colorKind=key:match('^color') and 'text' or (key=='glow' or key=='double') and 'shadow'
+   local colorKind=(key:match('^color')or key=='highlight_color'or key=='outline_color')and 'text' or (key=='glow' or key=='double') and 'shadow'
    if colorKind then palette.picker(entry,colorKind,function()return M.get(kind,key,default or spec[1])end,function(ctx,n)return persist(ctx,k,n)end,openPage)end
    rows[#rows+1]=entry
   end
+  row('preset','COLOR PRESET',presetNames)
+  local parent=rows
+  if kind=='menu'then rows={}end
   row('alternate','ALTERNATE',{'OFF','BY LETTER','BY WORD'})
   row('count','COLOR COUNT')
   for i=1,5 do row('color'..i,'COLOR '..i,palette.names)end
+  if kind=='menu'then
+   local alternateRows=rows;rows=parent
+   rows[#rows+1]={id='fx_'..p..'alternate_menu',label='ALTERNATE',value=function()return 'OPEN'end,
+    activate=function(ctx)return openPage('ALTERNATE',alternateRows,ctx)end}
+  end
+  row('highlight','HIGHLIGHT',{'OFF','ON'})
+  row('highlight_color','HIGHLIGHT COLOR',palette.names)
+  row('outline','OUTLINE',{'OFF','ON'})
+  row('outline_color','OUTLINE COLOR',palette.names)
   row('glow','GLOW COLOR',palette.shadowNames)
   row('double','DOUBLE SHADOW',palette.shadowNames)
   row('speed','COLOR SPEED')
@@ -51,9 +72,11 @@ return function(mod,palette)
   end
   local mode=M.get(kind,'alternate');local count=math.max(2,math.min(5,math.floor(M.get(kind,'count',2))))
   local fg=colors.fg
+  local preset=presets[M.get(kind,'preset')]
+  if preset then mode=mode==2 and 2 or 1;count=#preset.colors end
   if mode>0 and s and not space then
    local index=((mode==2 and s.word or s.letter)-1)%count+1
-   fg=palette.color('text',M.get(kind,'color'..index,({0,2,3,4,5})[index]))
+   fg=preset and preset.colors[index] or palette.color('text',M.get(kind,'color'..index,({0,2,3,4,5})[index]))
   end
   return fg
  end
@@ -112,7 +135,7 @@ return function(mod,palette)
   local s=math.min(sx,sy);G.push('all');G.translate(x,y);G.scale(s/sx,s/sy);G.translate(-x,-y)
   local result={pcall(fn,...)};G.pop();if not result[1]then error(result[2],0)end;return unpack(result,2)
  end
- function M.glyph(colors,x,y,draw)
+ function M.glyph(colors,x,y,draw,metrics)
   local kind=colors._kind or 'battle';local fg=M.ink(colors,false)
   local glow=palette.color('shadow',M.get(kind,'glow'));local double=palette.color('shadow',M.get(kind,'double'))
   return M.aspect(x,y,function()
@@ -123,7 +146,21 @@ return function(mod,palette)
     end
     if c and (c[4] or 1)>0 then return M.paint(c,kind,function()return draw(dx,dy)end)end
    end
-   layer(double,-3,3);layer(colors.shadow,-1,1);layer(glow,1,-1);return layer(fg,0,0)
+   if M.get(kind,'highlight')==1 then
+    local m=metrics or {width=8,top=0,height=8}
+    local c=palette.color('text',M.get(kind,'highlight_color',6))
+    if colors._opacity then local copy={};for k,v in pairs(c)do copy[k]=v end;copy[4]=(c[4]or 1)*colors._opacity;c=copy end
+    -- Rectangle textures are white; do not apply native black-glyph inversion.
+    local old=M.darkInk;M.darkInk=false
+    local result={pcall(M.paint,c,kind,function()love.graphics.rectangle('fill',x,y+(m.top or 0),math.max(1,m.width or 8),m.height or 8)end)}
+    M.darkInk=old;if not result[1]then error(result[2],0)end
+   end
+   layer(double,-3,3);layer(colors.shadow,-1,1)
+   if M.get(kind,'outline')==1 then
+    local c=palette.color('text',M.get(kind,'outline_color'))
+    for dy=-1,1 do for dx=-1,1 do if dx~=0 or dy~=0 then layer(c,dx,dy)end end end
+   end
+   layer(glow,1,-1);return layer(fg,0,0)
   end)
  end
  return M

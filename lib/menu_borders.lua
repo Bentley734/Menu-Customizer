@@ -5,6 +5,12 @@ return function(mod,setting,catalog,active)
  local M={atlases={}}
  local palette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
  local function paint(c,fn,...)return palette.paint(c,fn,...)end
+ local function selection(scope)
+  local gb=mod.exports.gbMenus
+  scope=scope or M.scope or mod.exports.menuPaperScope or (gb and gb.drawScope and gb.paperGroup)or (gb and gb.dialogueScope and 'dialogue')or 'other'
+  local n=setting(scope..'BorderChoice')or 0
+  return n>0 and n or setting('menuBorder')
+ end
  function M.atlas(selection)
   local entry=catalog.entries[selection]
   if not entry or not entry.path then return nil end
@@ -13,7 +19,7 @@ return function(mod,setting,catalog,active)
   image:setFilter('nearest','nearest')
   local w,h=image:getDimensions()
   assert(w==24 and h==24,'Menu Customizer: invalid border atlas '..entry.path)
-  local atlas={image=image,quads={},animation=entry.animation,gradient=entry.gradient}
+  local atlas={image=image,quads={},animation=entry.animation,gradient=entry.gradient,pokemonMotif=entry.pokemonMotif}
   for n=0,8 do atlas.quads[n]=G.newQuad(n%3*8,math.floor(n/3)*8,8,8,w,h) end
   M.atlases[selection]=atlas
   return atlas
@@ -78,7 +84,7 @@ return function(mod,setting,catalog,active)
   if not panelShader then panelShader=G.newShader(palette.gradients.glsl..palette.pokemonBackgrounds.glsl..palette.gradients.glsl:gsub('customGradient','paperCustomGradient'):gsub('stopA','paperStopA'):gsub('stopB','paperStopB'):gsub('stopC','paperStopC'):gsub('stopD','paperStopD'):gsub('gradientColor','paperGradientColor')..[[
    extern vec2 extent;extern bool usePaper;extern Image paperTexture;
    extern vec4 paperColor;extern bool paperGradient;extern float paperPhase;
-   extern bool rainbow;extern float phase;extern int borderEffect;
+   extern bool rainbow;extern float phase;extern int borderEffect;extern float pokemonMotif;
    vec3 hue(float h){return clamp(abs(fract(h+vec3(0.0,2.0/3.0,1.0/3.0))*6.0-3.0)-1.0,0.0,1.0);}
    vec4 effect(vec4 color,Image tex,vec2 uv,vec2 pixel){
     vec2 p=uv*extent;vec2 edge=min(vec2(8.0),extent*.5);
@@ -145,6 +151,16 @@ return function(mod,setting,catalog,active)
       else if(borderEffect==11){float line=abs(depth-(4.0+2.0*sin(floor(along/8.0)+t*.3)));v=exp(-line*2.0);v=max(v,exp(-abs(mod(s,24.0)-12.0)*1.4)*.8);}
       else if(borderEffect==12){v=.5+.5*sin(s*.5+abs(depth-4.0)*2.0);}
       else if(borderEffect==13){v=mod(floor((along+sin(depth+t)*3.0-t*3.0)/4.0)+floor(depth/2.0),2.0);}
+      else if(borderEffect==15){
+       float family=mod(pokemonMotif-1.0,6.0);float pitch=12.0+mod(pokemonMotif,5.0)*2.0;
+       vec2 q=vec2(mod(along-t*(1.0+mod(pokemonMotif,3.0))+pitch*.5,pitch)-pitch*.5,depth-4.0);
+       if(family<1.0){v=exp(-abs(q.x+sin(q.y*2.4+t)*1.7)*1.4);}
+       else if(family<2.0){v=exp(-abs(q.x)*.65)*(.5+.5*sin(q.y*2.0+q.x-t*2.0));}
+       else if(family<3.0){v=exp(-abs(q.y-sin(q.x*.65-t)*2.0)*1.8);}
+       else if(family<4.0){v=exp(-abs(abs(q.x)*.55+abs(q.y)-2.3)*2.0);}
+       else if(family<5.0){v=max(exp(-abs(length(q*vec2(.7,1.1))-2.5)*2.3),exp(-length(q)*1.6));}
+       else{v=exp(-abs(length(q)-2.7)*2.0);v=max(v,exp(-abs(q.y)*3.0)*step(abs(q.x),2.5));}
+      }
       else {float a=abs(depth-4.0-2.0*sin(along*.2-t));float b=abs(depth-4.0+2.0*sin(along*.2-t));v=exp(-min(a,b)*1.6);}
       vec3 tint=gradientColor(phase+along*.008+v*.22);
       rgb=mix(tint*.13,tint,v)*bevel;
@@ -165,8 +181,9 @@ return function(mod,setting,catalog,active)
   local paperStops=palette.gradients.byKey[resolved.gradient]
   panelShader:send('paperCustomGradient',paperStops~=nil)
   for i,label in ipairs({'paperStopA','paperStopB','paperStopC','paperStopD'})do panelShader:send(label,paperStops and paperStops.stops[i] or {0,0,0})end
+  panelShader:send('pokemonMotif',atlas.pokemonMotif or 0)
   panelShader:send('rainbow',atlas.animation=='gradient')
-  panelShader:send('borderEffect',({balls=1,lightning=2,water=3,ghost=4,stars=5,vines=6,acid=7,plasma=8,kaleido=9,molten=10,circuit=11,tunnel=12,checker=13,braid=14})[atlas.animation] or 0)
+  panelShader:send('borderEffect',({balls=1,lightning=2,water=3,ghost=4,stars=5,vines=6,acid=7,plasma=8,kaleido=9,molten=10,circuit=11,tunnel=12,checker=13,braid=14,pokemon=15})[atlas.animation] or 0)
   local phase=0
   if atlas.animation then phase=(love.timer and love.timer.getTime and love.timer.getTime() or 0)*.08*palette.effects.get('menu','speed',100)/100 end
   panelShader:send('phase',phase)
@@ -191,16 +208,17 @@ return function(mod,setting,catalog,active)
   gradientShader:send('phase',(love.timer and love.timer.getTime and love.timer.getTime() or 0)*.08*speed)
   G.setShader(gradientShader);return true
  end
- function M.draw(tx,ty,tw,th)
+ function M.draw(tx,ty,tw,th,scope)
+  if M.nativeDialogue then return false end
   if active and not active() then return false end
-  local selection=setting('menuBorder')
+  local selection=selection(scope)
   if selection==1 and setting('menuTheme')>1 then selection=13 end
   local background=mod.exports and mod.exports.menuBackground and mod.exports.menuBackground()
-  if background then return M.drawPixels(tx*8,ty*8,tw*8,th*8,background)end
+  if background then return M.drawPixels(tx*8,ty*8,tw*8,th*8,background,scope)end
   local atlas=M.atlas(selection)
   if not atlas then return false end
   if tw<2 or th<2 then return false end
-  if atlas.animation or (love.image and love.image.newImageData and G.newImage) then return M.drawPixels(tx*8,ty*8,tw*8,th*8)end
+  if atlas.animation or (love.image and love.image.newImageData and G.newImage) then return M.drawPixels(tx*8,ty*8,tw*8,th*8,nil,scope)end
   G.push('all');G.setShader();G.setColor(1,1,1,1)
   G.rectangle('fill',(tx+1)*8,(ty+1)*8,(tw-2)*8,(th-2)*8)
   local function cell(n,x,y) G.draw(atlas.image,atlas.quads[n],x*8,y*8) end
@@ -212,9 +230,9 @@ return function(mod,setting,catalog,active)
   return true
  end
  -- Battle callers use full pixel bounds rather than menu interior tiles.
- function M.drawPixels(x,y,w,h,background)
+ function M.drawPixels(x,y,w,h,background,scope)
   background=background or mod.exports and mod.exports.menuBackground and mod.exports.menuBackground()
-  local selection=setting('menuBorder')
+  local selection=selection(scope)
   if selection==1 then
    local version=require('src.core.GameVersion').get()
    local path=setting('menuTheme')>1 and 'assets/borders/emerald_03.png' or
@@ -276,13 +294,13 @@ return function(mod,setting,catalog,active)
  function M.drawBattlePixels(x,y,w,h)
   local ui=mod.exports and mod.exports.battleUi
   local background=ui and ui.backgroundColor and ui.backgroundColor()
-  if not G.transformPoint or not G.origin then return M.drawPixels(x,y,w,h,background) end
+  if not G.transformPoint or not G.origin then return M.drawPixels(x,y,w,h,background,'battle') end
   local left,top=G.transformPoint(x,y)
   local right,bottom=G.transformPoint(x+w,y+h)
   local scale=(bottom-top)/48
   if scale<=0 or right<=left then return false end
   G.push('all');G.origin();G.translate(left,top);G.scale(scale,scale)
-  local ok,result=pcall(M.drawPixels,0,0,(right-left)/scale,48,background)
+  local ok,result=pcall(M.drawPixels,0,0,(right-left)/scale,48,background,'battle')
   G.pop();if not ok then error(result,0)end
   return result
  end
@@ -297,9 +315,19 @@ return function(mod,setting,catalog,active)
      local borders=Chrome._menuCustomizerBorders
      if borders.dialogueEnabled() then
       local x,y,w,h=Chrome.dialogueWindow()
-      if borders.draw(x-1,y-1,w+2,h+2) then return end
+      if borders.draw(x-1,y-1,w+2,h+2,'dialogue') then return end
      end
-     return original(...)
+     -- Native dialogue frames can call our wrapped userFrame internally.
+     -- Fence those calls so OFF really retains the native border.
+     local prior=borders.nativeDialogue;borders.nativeDialogue=true
+     local result={pcall(original,...)};borders.nativeDialogue=prior
+     if not result[1]then error(result[2],0)end
+     local bg=palette.menuBackground('dialogue')
+     if bg and active()then
+      local x,y,w,h=Chrome.dialogueWindow()
+      G.push('all');paint(bg,G.rectangle,'fill',x*8,y*8,w*8,h*8);G.pop()
+     end
+     return (unpack or table.unpack)(result,2)
     end
    end
    Chrome._menuCustomizerDialogueWrapped=true

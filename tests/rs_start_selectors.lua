@@ -1,5 +1,5 @@
 local f=assert(io.open('lib/menu_main.lua'));local source=f:read('*a');f:close()
-local fragment=assert(source:match('(  local function nativeStartDraw.-)  local originalStart, originalOption'))
+local fragment=assert(source:match('(  local function nativeStartUnscoped.-)  local originalStart, originalOption'))
 local checks=0
 local positions={}
 for _,platform in ipairs({"Windows","iOS"})do
@@ -22,7 +22,7 @@ for _,version in ipairs({'ruby','sapphire'})do
     Window.printPx(e.label,t.left*8+d.textX,y)
    end
   end
-  local env=setmetatable({love={graphics=G,system={getOS=function()return platform end}},Start=Start,Window=Window,FrlgFont=F,Theme={enabled=function()return theme==2 end},
+  local env=setmetatable({mod={exports={}},love={graphics=G,system={getOS=function()return platform end}},Start=Start,Window=Window,FrlgFont=F,Theme={enabled=function()return theme==2 end},
    emeraldLayout={window={left=20,top=1,width=8},textX=8,textY=1,rowPitch=16},active=function()return true end,
    setting=function(k)return k=='startSelector' and selector or alignment end,originalNativeStartDraw=native,unpack=unpack or table.unpack},{__index=_G})
   local run=assert(load(fragment..' return drawStartJustified','rs selectors','t',env))()
@@ -30,7 +30,7 @@ for _,version in ipairs({'ruby','sapphire'})do
   assert(labels==2 and Start._data==data and data.drawCursor~=nil,'state restored')
   if selector==3 then assert(arrows==1,'arrow rendered')else assert(arrows==0 and marks>0,'custom selector rendered')end
   local key=version..theme..alignment..selector
-  if platform=="Windows" then positions[key]=selectedY else assert(selectedY==positions[key]+2,"iOS selector two-pixel offset");checks=checks+1 end
+  if platform=="Windows" then positions[key]=selectedY else assert(selectedY==positions[key],"iOS START selector shares the label anchor");checks=checks+1 end
   checks=checks+3
  end end end
 end

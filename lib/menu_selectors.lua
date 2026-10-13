@@ -16,4 +16,14 @@ function M.draw(id,x,y)
  for row,s in ipairs(pixels)do for col=1,8 do if s:sub(col,col)=='1'then G.rectangle('fill',x+col-1,y+row-1,1,1)end end end
  G.pop()
 end
+-- Integer-pixel downsample for tight native cursor columns.
+function M.drawCompact(id,x,y)
+ local pixels=art[id-4];if not pixels then return end
+ local G=love.graphics;G.push('all');G.setShader();G.setColor(unpack(colors[id-4]))
+ for row=1,6 do for col=1,6 do
+  local sy=math.floor((row-.5)*8/6)+1;local sx=math.floor((col-.5)*8/6)+1
+  if pixels[sy]:sub(sx,sx)=='1'then G.rectangle('fill',x+col-1,y+row-1,1,1)end
+ end end
+ G.pop()
+end
 return M

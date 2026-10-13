@@ -2,7 +2,7 @@
 return function(mod)
   local ID = 'gen3transparency'
   local legacy={}
-  local battleKeys={'style','opacity','menu_stretch','menu_align','text_color','background_color','shadow_color','name_color','name_shadow_color'}
+  local battleKeys={'style','opacity','font_size','menu_stretch','menu_align','text_color','background_color','shadow_color','name_color','name_shadow_color'}
   local textPalette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
   local G = love.graphics
   local unpack = unpack or table.unpack
@@ -47,6 +47,7 @@ return function(mod)
     if key == 'text_color' then return math.max(0,math.min(#textPalette.names-1,math.floor(n or 0))) end
     if key == 'style' then return n == 3 and 3 or n == 2 and 2 or 1 end
     if key == 'menu_stretch' then return n == 1 and 1 or 0 end
+    if key == 'font_size' then return math.max(0,math.min(2,math.floor(n or 0)))end
     if key == 'menu_align' then return n == 0 and 0 or n == 1 and 1 or 2 end
     return math.max(0, math.min(100, n or default))
   end
@@ -160,6 +161,7 @@ return function(mod)
     if game.mods then game.mods.modOptions[ID] = bucket end
     if game.save and game.save.options then game.save.options.modOptions = options.modOptions end
     mod.save:set('battle_'..key,value)
+    if mod.exports.settingsProfiles then mod.exports.settingsProfiles.commit(ctx or game)end
     if game.writeOptions then game:writeOptions() end
     return false
   end
@@ -169,13 +171,16 @@ return function(mod)
     local b=options.modOptions[ID] or {};options.modOptions[ID]=b;b[key]=value;mod.save:set(key,value)
     if game.mods then game.mods.modOptions[ID]=b end
     if game.save and game.save.options then game.save.options.modOptions=options.modOptions end
-    if game.writeOptions then game:writeOptions()end;return false
+    if mod.exports.settingsProfiles then mod.exports.settingsProfiles.commit(ctx or game)end;if game.writeOptions then game:writeOptions()end;return false
   end
   local function rows(out,openPage)
     for _, r in ipairs(out) do if r.id == ID..':style' then return out end end
     out[#out+1] = {id=ID..':style',label='BATTLE UI',
       value=function() return ({'VANILLA','EMERALD','MENU BORDER'})[setting('style',1)] end,
       step=function(ctx,dir) return persist(ctx,'style',(setting('style',1)-1+(dir and dir<0 and -1 or 1))%3+1) end}
+    out[#out+1]={id=ID..':font_size',label='BATTLE FONT SIZE',
+      value=function()return ({'NORMAL','LARGE (150%)','EXTRA LARGE (200%)'})[setting('font_size',0)+1]end,
+      step=function(ctx,dir)return persist(ctx,'font_size',(setting('font_size',0)+(dir and dir<0 and -1 or 1))%3)end}
     out[#out+1] = {id=ID..':opacity',label='BATTLE OPACITY',
       value=function() return tostring(setting('opacity',100))..'%' end,
       step=function(ctx,dir)
@@ -828,6 +833,11 @@ return function(mod)
   end
   function api.drawBottom(battle,rect,viewport)
     if not api.canDrawBottom(battle) then return false end
+    local factor=api.fontSizing and api.fontSizing.factor()or 1
+    if factor>1 then
+      local h=math.min(rect.h*factor,rect.y+rect.h)
+      rect={x=rect.x,y=rect.y+rect.h-h,w=rect.w,h=h}
+    end
     return nativeEmerald.bottom(battle,mod.generation,rect,api,viewport)
   end
   battleFont.active=enabled
@@ -872,6 +882,26 @@ return function(mod)
     battleFont.wrap(B,mod.generation==2 and 'drawBottom' or 'drawTextArea')
     for _,key in ipairs({'drawHUDs','drawEnemyHud','drawPlayerHud'})do battleFont.wrapHud(B,key)end
     if mod.generation==1 then battleFont.wrap(require('src.battle.WideBattle'),'draw') end
+  end
+
+  local sizing=assert(load(assert(mod:read('lib/battle_font_size.lua'))))()(mod,enabled)
+  mod.exports.battleFontSizing=sizing
+  api.fontSizing=sizing
+  sizing.decorate(require('src.render.Font'),'draw','width','drawCode',true)
+  if mod.generation==3 then sizing.decorate(require('src.ui.game3.frlg_font'),'draw','measure','drawGlyph',false)end
+  sizing.decorate(battleFont.selected,'draw','measure','drawGlyph',false)
+  local gb=require('src.render.Font')._menuCustomizerGB
+  if gb and gb.mod==mod then sizing.decorate(gb.theme,'draw','measure','glyph',false)end
+  sizing.scope(api.moveScreen,'draw');sizing.scope(api,'drawBottom')
+  local drawMovesSized,drawBottomSized=api.moveScreen.draw,api.drawBottom
+  api.moveScreen.draw=function(battle,rect,viewport)return sizing.viewport(viewport,drawMovesSized,battle,rect,viewport)end
+  api.drawBottom=function(battle,rect,viewport)return sizing.viewport(viewport,drawBottomSized,battle,rect,viewport)end
+  if mod.generation==3 then
+    sizing.scope(require('src.core.game3.battle'),'draw')
+    sizing.scope(require('src.core.game3.battle.ui'),'draw')
+  else
+    sizing.scope(require(mod.generation==2 and 'src.ui.gen2.BattleState' or 'src.battle.BattleState'),'draw')
+    if mod.generation==1 then sizing.scope(require('src.battle.WideBattle'),'draw')end
   end
 
 end

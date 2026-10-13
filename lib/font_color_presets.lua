@@ -1,0 +1,22 @@
+return {
+{name="POKE BALL",hex={"E95C6A","F0F0EF","A7B4C9"}},
+{name="GREAT BALL",hex={"6999EE","EA7284","DAE7F8"}},
+{name="ULTRA BALL",hex={"F3D468","ADB5C7","F4F0D5"}},
+{name="MASTER BALL",hex={"C59AF0","EE9BDD","DDD0F9"}},
+{name="KANTO STARTERS",hex={"7CD1A0","F5A178","8CD2EA"}},
+{name="JOHTO STARTERS",hex={"9BDC88","F4C574","81BFE8"}},
+{name="HOENN STARTERS",hex={"89D5A7","E8A185","92CDEC"}},
+{name="PIKACHU",hex={"FFE075","F4B068"}},
+{name="EEVEE",hex={"E5C39C","FFF1CE"}},
+{name="GENGAR",hex={"C6A1EC","F0A2D5"}},
+{name="MEW",hex={"F7BDE0","D5BBF4","B8E4F1"}},
+{name="UMBREON",hex={"F4D878","C8CFF0"}},
+{name="ESPEON",hex={"D3B0F1","E9A5E4"}},
+{name="SYLVEON",hex={"F4B9DC","B4D5F4","ECEAF8"}},
+{name="LUCARIO",hex={"A3CFEF","C6B8F0"}},
+{name="GARDEVOIR",hex={"B2E6C9","F4D6E5"}},
+{name="LUGIA",hex={"E2EFF4","AFCFEE"}},
+{name="HO-OH",hex={"F0B974","AEDAAF","C5A8EC"}},
+{name="RAYQUAZA",hex={"A3DDBB","F1D67C"}},
+{name="DRAGONITE",hex={"F3C387","B3E0C6"}}
+}

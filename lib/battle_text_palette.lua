@@ -79,6 +79,7 @@ return function(mod)
   end
   local gradientSource=mod.read and mod:read('lib/animated_gradients.lua')
   M.gradients=gradientSource and assert(load(gradientSource))() or assert(loadfile('lib/animated_gradients.lua'))()
+  M.gradients.register(assert(load(assert(mod:read('lib/pokemon_border_palettes.lua'))))())
   local function animated(name,key,mode)
     local c={1,1,1,1,animation=mode or 'GRADIENT',gradient=key}
     M.names[#M.names+1]=name;foreground[#foreground+1]=c
@@ -128,7 +129,10 @@ return function(mod)
   function M.withText(kind,fn,...)return M.effects.sequence(kind,fn,...)end
   function M.menuBackground(kind)
     local n=tonumber(mod.options:get('menuBackgroundColor') or mod.save:get('menuBackgroundColor')) or 0
-    if kind=='start' then
+    local gb=mod.exports.gbMenus
+    if kind=='dialogue'or mod.exports.dialogueFontScope or gb and gb.dialogueScope then
+      n=tonumber(mod.options:get('dialogueBackgroundColor')or mod.save:get('dialogueBackgroundColor'))or 0
+    elseif kind=='start' then
       local start=tonumber(mod.options:get('startMenuBackgroundColor') or mod.save:get('startMenuBackgroundColor')) or 0
       if start>0 then n=start end
     end
@@ -189,6 +193,7 @@ return function(mod)
     end
     return result,names
   end
+  M.designPicker=assert(load(assert(mod:read('lib/design_picker.lua'))))()
   function M.picker(row,kind,get,persist,openPage,defaultLabel)
     if not openPage then return row end
     row.group=true
@@ -197,9 +202,21 @@ return function(mod)
       for _,group in ipairs(groups)do
         local g=group
         rows[#rows+1]={id=row.id..':'..g.label,label=g.label,group=true,
-          value=function()return #g.ids..(g.label=='POKEMON'and' THEMES'or' COLORS')end,
+          value=function()return #g.ids..(g.label=='POKEMON'and' BACKGROUNDS'or' COLORS')end,
           selected=function()for _,id in ipairs(g.ids)do if get()==id then return true end end;return false end,
           activate=function(nextCtx)
+            if g.label=='POKEMON' then
+              local designs,lookup={},{}
+              for _,id in ipairs(g.ids)do
+                local c=M.color(kind=='menuBackground' and 'background' or kind,kind=='menuBackground' and id-1 or id)
+                local e=M.pokemonBackgrounds.byKey[c.pokemon]
+                local label=e.design or ({'STARFALL','DREAM CURRENT','MOON GARDEN'})[e.variant or 0] or 'CLASSIC PAPER'
+                if not lookup[label]then lookup[label]={label=label,choices={}};designs[#designs+1]=lookup[label]end
+                lookup[label].choices[#lookup[label].choices+1]={id=id,label=e.pokemonName or e.name}
+              end
+              local picker=M.designPicker({id=row.id..':pokemon',label='BACKGROUND DESIGN'},designs,get,persist,openPage)
+              return picker.activate(nextCtx or ctx)
+            end
             local shades={}
             for _,id in ipairs(g.ids)do
               local n=id
@@ -235,9 +252,13 @@ return function(mod)
   end
   function M.colors(kind)
     local key=kind=='menu' and 'menuTextColor' or kind=='name' and 'battle_name_color' or 'battle_text_color'
+    local gb=mod.exports.gbMenus
+    local dialogue=kind=='menu'and(mod.exports.dialogueFontScope or gb and gb.dialogueScope)
+    if dialogue then key='dialogueTextColor'end
     local n=tonumber(mod.options:get(key) or mod.save:get(key)) or 0
     n=math.max(0,math.min(#foreground-1,math.floor(n)))
     local shadowKey=kind=='menu' and 'menuTextShadowColor' or kind=='name' and 'battle_name_shadow_color' or 'battle_shadow_color'
+    if dialogue then shadowKey='dialogueTextShadowColor'end
     local sh=tonumber(mod.options:get(shadowKey) or mod.save:get(shadowKey)) or 0
     sh=math.max(0,math.min(#shadows-1,math.floor(sh)))
     return {fg=foreground[n+1],shadow=shadows[sh+1],bg={0,0,0,0},_kind=kind or 'battle',_effects=M.effects}
@@ -321,7 +342,7 @@ return function(mod)
     else G.setShader()end
     local old=M.effects.darkInk;M.effects.darkInk=id<0x400000
     local args={...};local colors=M.colors(kind)
-    local result={pcall(M.effects.glyph,colors,0,0,function(dx,dy)
+    local result={pcall(M.effects.glyph,colors,tonumber(args[1])or 0,tonumber(args[2])or 0,function(dx,dy)
       G.push('all');G.translate(dx,dy);local painted={pcall(fn,id,(unpack or table.unpack)(args))};G.pop()
       if not painted[1]then error(painted[2],0)end;return (unpack or table.unpack)(painted,2)
     end)};M.effects.darkInk=old;G.pop()
@@ -338,7 +359,7 @@ return function(mod)
         local copy={};for k,v in pairs(opts or {})do copy[k]=v end
         copy.colors={fg={love.graphics.getColor()},shadow={0,0,0,0},bg={0,0,0,0}}
         return draw(t,px+dx,py+dy,copy)
-      end)
+      end,{width=measure and measure(t,opts)or 8,top=opts and opts.small and 3 or 2,height=opts and opts.small and 9 or 11})
     end
     if type(text)~='string' or not measure or text:find('[<>]') or text:find('[\128-\191\245-\255]') then return one(text,x,y)end
     return M.withText(colors._kind or 'battle',function()

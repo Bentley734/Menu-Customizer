@@ -17,6 +17,13 @@ for _,entry in ipairs(M.entries)do
  for _,h in ipairs(entry.hex)do entry.stops[#entry.stops+1]={tonumber(h:sub(1,2),16)/255,tonumber(h:sub(3,4),16)/255,tonumber(h:sub(5,6),16)/255}end
  M.byKey[entry.key]=entry
 end
+function M.register(entries)
+ for _,entry in ipairs(entries)do
+  local e={stops={}}
+  for _,h in ipairs(entry.hex)do e.stops[#e.stops+1]={tonumber(h:sub(1,2),16)/255,tonumber(h:sub(3,4),16)/255,tonumber(h:sub(5,6),16)/255}end
+  M.byKey[entry.key]=e
+ end
+end
 function M.sample(key,t)
  local entry=M.byKey[key];if not entry then return nil end
  local pos=(t%1)*4;local i=math.floor(pos);local f=pos-i;f=f*f*(3-2*f)

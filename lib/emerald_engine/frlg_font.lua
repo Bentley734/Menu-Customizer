@@ -1207,6 +1207,7 @@ local function japanese_step(glyphId, w, minW, jpn, opts, small)
 end
 
 function FrlgFont.measure(text, opts)
+  if type(text)=='string'then text=text:gsub('{LV_2}','Lv'):gsub('<LV_2>','Lv')end
   opts = opts or {}
   local activeOpts = opts
   local ls = opts.letterSpacing or 0
@@ -1332,6 +1333,7 @@ end
 -- opts.limitChars: only draw first N printable characters (typewriter).
 -- opts.small: use FONT_SMALL (party menu).
 function FrlgFont.draw(text, x, y, opts)
+  if type(text)=='string'then text=text:gsub('{LV_2}','Lv'):gsub('<LV_2>','Lv')end
   opts = opts or {}
   local activeOpts = opts
   local face = faceFor(opts)

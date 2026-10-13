@@ -148,6 +148,11 @@ return function(mod)
   function api.draw(battle, rect, viewport)
     if battle.phase~='moveSelect' then return false end
     local custom=customizer()
+    local factor=custom and custom.fontSizing and custom.fontSizing.factor()or 1
+    if factor>1 then
+      local h=math.min(rect.h*factor,rect.y+rect.h)
+      rect={x=rect.x,y=rect.y+rect.h-h,w=rect.w,h=h}
+    end
     local port=custom and custom.nativeEmerald
     if custom and (custom.setting('style',1)==2 or custom.emeraldFont and custom.emeraldFont()) and port and (port.presentationReady and port.presentationReady() or port.ready()) then
       local g=love.graphics
@@ -225,59 +230,62 @@ return function(mod)
         end);g.pop()
         if not drawn then error(why,0) end
       end
-      local function cursor(code,x,y)
+      local function cursor(code,x,y,size)
         g.push('all');g.translate(x,y)
-        g.scale(p.textSx/p.sx,p.textSy/p.sy)
+        g.scale(p.textSx*(size or 1)/p.sx,p.textSy*(size or 1)/p.sy)
         local drawn,why=pcall(Font.drawCode,code,0,0);g.pop()
         if not drawn then error(why,0) end
       end
       api.frames(rect,viewport)
       g.setColor(0.08,0.10,0.12,1)
+      local large=custom and custom.fontSizing and custom.fontSizing.factor()or 1
       local moves=battle.player and battle.player.curMoves or {}
       for i=1,4 do
         local col=(i-1)%2;local row=math.floor((i-1)/2)
-        local x=22+col*101
+        local inset=large>1 and 12 or 0
+        local x=22+inset+col*101
+        local available=89-inset
         local cellTop=8+row*24
         local mv=moves[i];local def=mv and battle.data.moves[mv.id]
         local label=def and def.name or mv and tostring(mv.id) or '-'
-        local limit=math.max(1,math.floor(89*p.sx/(8*p.textSx*1.2)))
+        local limit=math.max(1,math.floor(available*p.sx/(8*p.textSx*1.2*large)))
         local width=Font.width and Font.width(label) or #label*8
-        local budget=89*p.sx/(p.textSx*1.2)
+        local budget=available*p.sx/(p.textSx*1.2)
         local lines=width<=budget and {label} or api.wrapName(label,limit)
         -- Center the complete one/two-line name in its invisible quarter.
         local current=Font._menuCustomizerGB
         local height=current and current.theme and current.theme.enabled() and 14*(current.theme.gbScale and current.theme.gbScale() or .5) or 8
-        local glyphHeight=height*p.textSy*1.2/p.sy
-        local lineStep=11*p.textSy*1.2/p.sy
+        local size=1.2*math.min(1,22*p.sy/((height+(#lines-1)*11)*p.textSy*1.2*large))
+        local glyphHeight=height*p.textSy*size*large/p.sy
+        local lineStep=11*p.textSy*size*large/p.sy
         local blockHeight=glyphHeight+(#lines-1)*lineStep
         local y=cellTop+(24-blockHeight)/2
-        if #lines==1 then text(lines[1],x,y,89,1.2)
+        if #lines==1 then text(lines[1],x,y,available,size)
         else
-          text(lines[1],x,y,89,1.2)
-          text(lines[2],x,y+lineStep,89,1.2)
+          text(lines[1],x,y,available,size)
+          text(lines[2],x,y+lineStep,available,size)
         end
-        if battle.moveIndex==i then cursor(0xED,x-9,y) end
-        if battle.moveSwapIndex==i and battle.moveIndex~=i then cursor(0xEC,x-9,y) end
+        if battle.moveIndex==i then cursor(0xED,x-(8*large*size+1)*p.textSx/p.sx,y,size) end
+        if battle.moveSwapIndex==i and battle.moveIndex~=i then cursor(0xEC,x-(8*large*size+1)*p.textSx/p.sx,y,size) end
       end
       local selected=moves[battle.moveIndex or 1]
       local def=selected and battle.data.moves[selected.id]
-      text('PP',248,15,24)
       local pp='--/--'
       if def then
         local base=tonumber(def.pp) or 0
         local maximum=tonumber(selected.maxPp) or base+(selected.ppUps or 0)*math.floor(base/5)
         pp=string.format('%d/%d',tonumber(selected.pp) or 0,maximum)
       end
-      text(pp,312-#pp*8*p.textSx/p.sx,15,#pp*8*p.textSx/p.sx)
+      text('PP '..pp,248,large>1 and 10 or 15,76)
       local function centeredInfo(label,y)
         local width=(Font.width and Font.width(label) or #label*8)*p.textSx/p.sx
-        text(label,280-width/2,y,72)
+        text(label,248,y,72)
       end
-      centeredInfo('TYPE/',32)
+      centeredInfo('TYPE/',large>1 and 29 or 32)
       local name=def and def.type and TypeChart.displayName(def.type,battle.data) or '--'
       -- The native pixel font is eight pixels wide. Long type names get a
       -- separate line, keeping the detail column legible without stretching.
-      centeredInfo(name,44)
+      centeredInfo(name,large>1 and 47 or 44)
       if battle.player and battle.player.disabledSlot==battle.moveIndex then
         centeredInfo('DISABLED',25)
       end

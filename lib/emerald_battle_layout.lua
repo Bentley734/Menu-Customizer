@@ -20,7 +20,7 @@ return function(G)
  end
  local function label(F,s,rect,sx,sy,dx,dy,font,colors,cursor,centerName)
   local width=F.measure(s,{font=font})or 0
-  local x=rect.x+(rect.w-(width+8)*sx)/2+8*sx
+  local x=rect.x+8*sx
   if centerName then x=rect.x+(rect.w-width*sx)/2 end
   local y=rect.y+(rect.h-16*sy)/2
   at(rect,sx,sy,dx,dy,x,y,function()
@@ -36,7 +36,7 @@ return function(G)
   local commands={'FIGHT','BAG','POKéMON','RUN'}
   local width=0;for _,s in ipairs(commands)do width=math.max(width,F.measure(s,{font='normal'})or 0)end
   local cell={w=commandWidth/2,h=pane.h/2}
-  local sx,sy,dx,dy=scale(cell,width+8,18,viewport)
+  local sx,sy,dx,dy=scale(cell,width+8,18*(custom.fontSizing and custom.fontSizing.factor()or 1),viewport)
   for i,s in ipairs(commands)do
    local c={x=pane.x+promptWidth+(i-1)%2*cell.w,y=pane.y+math.floor((i-1)/2)*cell.h,w=cell.w,h=cell.h}
    label(F,s,c,sx,sy,dx,dy,'normal',colors,i==(battle.menuIndex or 1))
@@ -46,7 +46,7 @@ return function(G)
   local name=p and p.name or mon and(mon.nickname or mon.name)or 'POKéMON'
   local first,last='What will',name..' do?'
   local left={x=pane.x,y=pane.y,w=promptWidth-4*sx,h=pane.h}
-  local px,py,pdx,pdy=scale(left,math.max(F.measure(first)or 0,F.measure(last)or 0)+8,36,viewport)
+  local px,py,pdx,pdy=scale(left,math.max(F.measure(first)or 0,F.measure(last)or 0)+8,36*(custom.fontSizing and custom.fontSizing.factor()or 1),viewport)
   local x=left.x+4*px;local y=left.y+(left.h-32*py)/2
   at(left,px,py,pdx,pdy,x,y,function()
    F.draw(first,0,0,{colors=colors});F.draw(last,0,16,{colors=colors})
@@ -64,7 +64,7 @@ return function(G)
    names[i]=def and def.name or '-'
    width=math.max(width,F.measure(names[i],{font='narrow'})or 0)
   end
-  local sx,sy,dx,dy=scale(cell,width+16,18,viewport)
+  local sx,sy,dx,dy=scale(cell,width+16,18*(custom.fontSizing and custom.fontSizing.factor()or 1),viewport)
   for i,s in ipairs(names)do
    local c={x=pane.x+(i-1)%2*cell.w,y=pane.y+math.floor((i-1)/2)*cell.h,w=cell.w,h=cell.h}
    label(F,s,c,sx,sy,dx,dy,'narrow',colors(),i==(battle.moveIndex or 1)or i==battle.moveSwapIndex,true)
@@ -79,10 +79,10 @@ return function(G)
    local right=inner(rect,rect.w*2/3,rect.w/3)
    local typeW=(F.measure('TYPE/',{font='narrow'})or 0)+(F.measure(kind)or 0)
    local ppW=(F.measure('PP',{font='narrow'})or 0)+8+(F.measure(pp)or 0)
-   local rsx,rsy,rdx,rdy=scale(right,math.max(typeW,ppW)+8,36,viewport)
+   local rsx,rsy,rdx,rdy=scale(right,math.max(typeW,ppW)+8,36*(custom.fontSizing and custom.fontSizing.factor()or 1),viewport)
    for row=0,1 do
     local w=row==0 and ppW or typeW
-    local x=right.x+(right.w-w*rsx)/2
+    local x=right.x+4*rsx
     local y=right.y+row*right.h/2+(right.h/2-16*rsy)/2
     at(right,rsx,rsy,rdx,rdy,x,y,function()
      local prefix=row==0 and 'PP' or 'TYPE/'

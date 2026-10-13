@@ -38,12 +38,14 @@ return function(mod,enabled)
   return width
  end
  function M.glyph(id,x,y,opts)
+  local arrows=mod.exports and mod.exports.arrowSelectors
+  if id==0xEF and arrows and arrows.draw(x,y,16,opts) then return true end
   -- Space is advance-only, even if the imported atlas's reserved cell has ink.
   if id==0 then if opts and opts.colors and opts.colors._effects then opts.colors._effects.ink(opts.colors,true)end;return true end
   local f=face(opts and opts.small,opts and opts.battle or mod.exports and mod.exports.battleFontScope,opts and opts.font=="narrow");local q=f.quads[id];if not q then return false end
   local colors=opts and opts.colors or {fg={.38,.38,.38,1},shadow={.84,.84,.8,1}}
   G.push('all');G.setShader()
-  if colors._effects then colors._effects.glyph(colors,x,y,function(dx,dy)G.draw(f.fg,q,x+dx,y+dy)end)
+  if colors._effects then colors._effects.glyph(colors,x,y,function(dx,dy)G.draw(f.fg,q,x+dx,y+dy)end,{width=f.widths[id]or 6,top=opts and opts.small and 3 or 2,height=opts and opts.small and 9 or 11})
   else
    G.setColor(unpack(colors.shadow or {.84,.84,.8,1}));G.draw(f.shadow,q,x,y)
    G.setColor(unpack(colors.fg or {.38,.38,.38,1}));G.draw(f.fg,q,x,y)

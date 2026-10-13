@@ -30,9 +30,76 @@ return function(mod)
   {key='interbeing',name='INTERBEING',pokemon='mew',style=25,a='172D32',b='352142',ink='91CABB'},
   {key='lateral_spiral',name='LATERAL SPIRAL',pokemon='mew',style=26,a='231B35',b='323B42',ink='C0AC83'},
  }}
+ -- Thirty independent animated paper choices; existing IDs stay in place.
+ for _,e in ipairs({
+{key="new_mew_0",name="MEW STARFALL",pokemon="mew",style=1,a="1E1620",b="251E33",ink="89D5D9",variant=1},
+{key="new_charmander_0",name="CHARMANDER STARFALL",pokemon="charmander",style=3,a="22150C",b="352C19",ink="DC617B",variant=1},
+{key="new_pikachu_0",name="PIKACHU STARFALL",pokemon="pikachu",style=4,a="221D0C",b="332413",ink="A879D9",variant=1},
+{key="new_squirtle_0",name="SQUIRTLE STARFALL",pokemon="squirtle",style=5,a="0E1C1F",b="1D312A",ink="889CEA",variant=1},
+{key="new_bulbasaur_0",name="BULBASAUR STARFALL",pokemon="bulbasaur",style=6,a="0F1C14",b="243018",ink="5DBBC0",variant=1},
+{key="new_gengar_0",name="GENGAR STARFALL",pokemon="gengar",style=7,a="17121D",b="301C2A",ink="758ADD",variant=1},
+{key="new_eevee_0",name="EEVEE STARFALL",pokemon="eevee",style=8,a="1D1811",b="353023",ink="BE8F96",variant=1},
+{key="new_jigglypuff_0",name="JIGGLYPUFF STARFALL",pokemon="jigglypuff",style=9,a="20161C",b="2B2534",ink="8ECAD9",variant=1},
+{key="new_dragonair_0",name="DRAGONAIR STARFALL",pokemon="dragonair",style=10,a="121820",b="2A2734",ink="89D4DE",variant=1},
+{key="new_umbreon_0",name="UMBREON STARFALL",pokemon="umbreon",style=11,a="1E1B0D",b="1D222D",ink="BA9CCD",variant=1},
+{key="new_snorlax_0",name="SNORLAX STARFALL",pokemon="snorlax",style=12,a="101919",b="2D3026",ink="91A8D5",variant=1},
+{key="new_mew_1",name="MEW DREAM CURRENT",pokemon="mew",style=1,a="2D2231",b="16121E",ink="89D5D9",variant=2},
+{key="new_charmander_1",name="CHARMANDER DREAM CURRENT",pokemon="charmander",style=3,a="332012",b="1F1A0E",ink="DC617B",variant=2},
+{key="new_pikachu_1",name="PIKACHU DREAM CURRENT",pokemon="pikachu",style=4,a="332C12",b="1E150B",ink="A879D9",variant=2},
+{key="new_squirtle_1",name="SQUIRTLE DREAM CURRENT",pokemon="squirtle",style=5,a="152A2F",b="111D18",ink="889CEA",variant=2},
+{key="new_bulbasaur_1",name="BULBASAUR DREAM CURRENT",pokemon="bulbasaur",style=6,a="172A1E",b="151C0E",ink="5DBBC0",variant=2},
+{key="new_gengar_1",name="GENGAR DREAM CURRENT",pokemon="gengar",style=7,a="221B2C",b="1C1018",ink="758ADD",variant=2},
+{key="new_eevee_1",name="EEVEE DREAM CURRENT",pokemon="eevee",style=8,a="2C241A",b="1F1C15",ink="BE8F96",variant=2},
+{key="new_jigglypuff_1",name="JIGGLYPUFF DREAM CURRENT",pokemon="jigglypuff",style=9,a="30212A",b="19161E",ink="8ECAD9",variant=2},
+{key="new_dragonair_1",name="DRAGONAIR DREAM CURRENT",pokemon="dragonair",style=10,a="1C2430",b="18171E",ink="89D4DE",variant=2},
+{key="new_umbreon_1",name="UMBREON DREAM CURRENT",pokemon="umbreon",style=11,a="2D2914",b="11141B",ink="BA9CCD",variant=2},
+{key="new_snorlax_1",name="SNORLAX DREAM CURRENT",pokemon="snorlax",style=12,a="192626",b="1A1C17",ink="91A8D5",variant=2},
+{key="new_mew_2",name="MEW MOON GARDEN",pokemon="mew",style=1,a="151017",b="2C243C",ink="89D5D9",variant=3},
+{key="new_charmander_2",name="CHARMANDER MOON GARDEN",pokemon="charmander",style=3,a="180F08",b="3F351D",ink="DC617B",variant=3},
+{key="new_pikachu_2",name="PIKACHU MOON GARDEN",pokemon="pikachu",style=4,a="181509",b="3D2B16",ink="A879D9",variant=3},
+{key="new_squirtle_2",name="SQUIRTLE MOON GARDEN",pokemon="squirtle",style=5,a="0A1416",b="233A31",ink="889CEA",variant=3},
+{key="new_bulbasaur_2",name="BULBASAUR MOON GARDEN",pokemon="bulbasaur",style=6,a="0B140E",b="2B391D",ink="5DBBC0",variant=3},
+{key="new_gengar_2",name="GENGAR MOON GARDEN",pokemon="gengar",style=7,a="100D15",b="382131",ink="758ADD",variant=3},
+{key="new_eevee_2",name="EEVEE MOON GARDEN",pokemon="eevee",style=8,a="15110C",b="3F392A",ink="BE8F96",variant=3},
+{key="new_jigglypuff_2",name="JIGGLYPUFF MOON GARDEN",pokemon="jigglypuff",style=9,a="171014",b="322C3D",ink="8ECAD9",variant=3}
+ })do M.entries[#M.entries+1]=e end
+ for _,e in ipairs({
+{key="fresh_raichu",name="RAICHU STARFALL",pokemon="raichu",style=1,a="201508",b="3A3323",ink="D98C38",variant=1,design="STARFALL",pokemonName="RAICHU"},
+{key="fresh_sandshrew",name="SANDSHREW DREAM CURRENT",pokemon="sandshrew",style=2,a="1F190C",b="38311E",ink="D3AC50",variant=2,design="DREAM CURRENT",pokemonName="SANDSHREW"},
+{key="fresh_nidoran_f",name="NIDORAN F MOON GARDEN",pokemon="nidoran_f",style=6,a="121B1E",b="2C3336",ink="78B6CC",variant=3,design="MOON GARDEN",pokemonName="NIDORAN F"},
+{key="fresh_nidoran_m",name="NIDORAN M ENERGY RINGS",pokemon="nidoran_m",style=11,a="19121C",b="332C36",ink="A978BE",variant=1,design="ENERGY RINGS",pokemonName="NIDORAN M"},
+{key="fresh_clefairy",name="CLEFAIRY SOFT WAVES",pokemon="clefairy",style=5,a="22181B",b="3A3333",ink="E7A3B8",variant=2,design="SOFT WAVES",pokemonName="CLEFAIRY"},
+{key="fresh_vulpix",name="VULPIX FLOATING SPARKS",pokemon="vulpix",style=4,a="1B0D08",b="342615",ink="B45C37",variant=3,design="FLOATING SPARKS",pokemonName="VULPIX"},
+{key="fresh_ninetales",name="NINETALES STARFALL",pokemon="ninetales",style=1,a="221F15",b="3A372B",ink="E9D58C",variant=1,design="STARFALL",pokemonName="NINETALES"},
+{key="fresh_zubat",name="ZUBAT DREAM CURRENT",pokemon="zubat",style=2,a="0F161E",b="28202E",ink="6698CD",variant=2,design="DREAM CURRENT",pokemonName="ZUBAT"},
+{key="fresh_oddish",name="ODDISH MOON GARDEN",pokemon="oddish",style=6,a="091019",b="172B1B",ink="426DAB",variant=3,design="MOON GARDEN",pokemonName="ODDISH"},
+{key="fresh_paras",name="PARAS ENERGY RINGS",pokemon="paras",style=11,a="21140B",b="2C1518",ink="DF884B",variant=1,design="ENERGY RINGS",pokemonName="PARAS"},
+{key="fresh_venonat",name="VENONAT SOFT WAVES",pokemon="venonat",style=5,a="160F1B",b="341E28",ink="9567B7",variant=2,design="SOFT WAVES",pokemonName="VENONAT"},
+{key="fresh_diglett",name="DIGLETT FLOATING SPARKS",pokemon="diglett",style=4,a="19110C",b="35261D",ink="A87451",variant=3,design="FLOATING SPARKS",pokemonName="DIGLETT"},
+{key="fresh_psyduck",name="PSYDUCK STARFALL",pokemon="psyduck",style=1,a="221E0E",b="3A3725",ink="E7CC62",variant=1,design="STARFALL",pokemonName="PSYDUCK"},
+{key="fresh_growlithe",name="GROWLITHE DREAM CURRENT",pokemon="growlithe",style=2,a="21150A",b="383124",ink="DC9146",variant=2,design="DREAM CURRENT",pokemonName="GROWLITHE"},
+{key="fresh_poliwag",name="POLIWAG MOON GARDEN",pokemon="poliwag",style=6,a="0F171F",b="2B3534",ink="659DCF",variant=3,design="MOON GARDEN",pokemonName="POLIWAG"},
+{key="fresh_abra",name="ABRA ENERGY RINGS",pokemon="abra",style=11,a="1E190A",b="37311C",ink="C9AA43",variant=1,design="ENERGY RINGS",pokemonName="ABRA"},
+{key="fresh_machop",name="MACHOP SOFT WAVES",pokemon="machop",style=5,a="151A1B",b="303232",ink="8CB2B8",variant=2,design="SOFT WAVES",pokemonName="MACHOP"},
+{key="fresh_geodude",name="GEODUDE FLOATING SPARKS",pokemon="geodude",style=4,a="161616",b="31302B",ink="989996",variant=3,design="FLOATING SPARKS",pokemonName="GEODUDE"},
+{key="fresh_ponyta",name="PONYTA STARFALL",pokemon="ponyta",style=1,a="222018",b="351B11",ink="E9D7A0",variant=1,design="STARFALL",pokemonName="PONYTA"},
+{key="fresh_slowpoke",name="SLOWPOKE DREAM CURRENT",pokemon="slowpoke",style=2,a="201719",b="37302F",ink="D99CAC",variant=2,design="DREAM CURRENT",pokemonName="SLOWPOKE"},
+{key="fresh_magnemite",name="MAGNEMITE MOON GARDEN",pokemon="magnemite",style=6,a="171A1B",b="263231",ink="9CAEB7",variant=3,design="MOON GARDEN",pokemonName="MAGNEMITE"},
+{key="fresh_farfetchd",name="FARFETCHD ENERGY RINGS",pokemon="farfetchd",style=11,a="18140F",b="202B1D",ink="A38B66",variant=1,design="ENERGY RINGS",pokemonName="FARFETCHD"},
+{key="fresh_doduo",name="DODUO SOFT WAVES",pokemon="doduo",style=5,a="1B1710",b="342D22",ink="B99E71",variant=2,design="SOFT WAVES",pokemonName="DODUO"},
+{key="fresh_seel",name="SEEL FLOATING SPARKS",pokemon="seel",style=4,a="1D2022",b="383733",ink="C5DAE7",variant=3,design="FLOATING SPARKS",pokemonName="SEEL"},
+{key="fresh_grimer",name="GRIMER STARFALL",pokemon="grimer",style=1,a="17121B",b="2F2530",ink="9B7AB8",variant=1,design="STARFALL",pokemonName="GRIMER"},
+{key="fresh_shellder",name="SHELLDER DREAM CURRENT",pokemon="shellder",style=2,a="16141D",b="2F2A35",ink="9986C6",variant=2,design="DREAM CURRENT",pokemonName="SHELLDER"},
+{key="fresh_krabby",name="KRABBY MOON GARDEN",pokemon="krabby",style=6,a="20150D",b="372C1F",ink="D88D59",variant=3,design="MOON GARDEN",pokemonName="KRABBY"},
+{key="fresh_voltorb",name="VOLTORB ENERGY RINGS",pokemon="voltorb",style=11,a="1F0F11",b="353535",ink="D26774",variant=1,design="ENERGY RINGS",pokemonName="VOLTORB"},
+{key="fresh_cubone",name="CUBONE SOFT WAVES",pokemon="cubone",style=5,a="1B150F",b="34322B",ink="B58F68",variant=2,design="SOFT WAVES",pokemonName="CUBONE"},
+{key="fresh_lapras",name="LAPRAS FLOATING SPARKS",pokemon="lapras",style=4,a="10191D",b="2C3129",ink="6FA8C2",variant=3,design="FLOATING SPARKS",pokemonName="LAPRAS"}
+ })do M.entries[#M.entries+1]=e end
  local function rgb(hex)return{tonumber(hex:sub(1,2),16)/255,tonumber(hex:sub(3,4),16)/255,tonumber(hex:sub(5,6),16)/255}end
  M.byKey={}
- for _,e in ipairs(M.entries)do e.baseA=rgb(e.a);e.baseB=rgb(e.b);e.accent=rgb(e.ink);M.byKey[e.key]=e end
+ for _,e in ipairs(M.entries)do e.baseA=rgb(e.a);e.baseB=rgb(e.b);e.accent=rgb(e.ink);M.byKey[e.key]=e
+  if e.variant and not e.pokemonName then e.pokemonName=e.pokemon:upper() end
+ end
  local sheets,images
  local function sprite(key)
   if not sheets then sheets=assert(load(assert(mod:read('assets/pokemon-paper/sheets.lua'))))();images={}end
@@ -43,7 +110,7 @@ return function(mod)
   local e=assert(M.byKey[key]);return{e.baseA[1],e.baseA[2],e.baseA[3],1,animation='POKEMON',pokemon=key}
  end
  function M.send(shader,key,time,fallback)
-  local e=M.byKey[key];shader:send('pokeStyle',e and e.style or 0)
+  local e=M.byKey[key];shader:send('pokeStyle',e and e.style or 0);shader:send('pokeVariant',e and e.variant or 0)
   if not e then if fallback then shader:send('pokeStamp',fallback)end;return end
   local s,image=sprite(e.pokemon);local frame=math.floor((time or 0)*4)%s.frames
   local box=s.ink;local w,h=box[3]-box[1],box[4]-box[2]
@@ -53,7 +120,7 @@ return function(mod)
   shader:send('pokeSpriteSize',{28*w/h,28})
  end
  M.glsl=[[
-  extern int pokeStyle;extern float pokePhase;extern vec3 pokeBaseA;extern vec3 pokeBaseB;extern vec3 pokeAccent;
+  extern int pokeStyle;extern float pokeVariant;extern float pokePhase;extern vec3 pokeBaseA;extern vec3 pokeBaseB;extern vec3 pokeAccent;
   extern Image pokeStamp;extern vec4 pokeSpriteRect;extern vec2 pokeSpriteSize;
   float paperHash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
   float paperDot(vec2 p,vec2 c,float r){return 1.0-step(r,length(p-c));}
@@ -98,9 +165,10 @@ return function(mod)
     return mix(rgb,pokeAccent,v*.24);
    }
    // Staggered rows, uniform sprite aspect, and transparent padding excluded.
-   vec2 drift=p+vec2(t*.75,0.0);float row=floor(drift.y/56.0);
-   drift.x+=mod(row,2.0)*36.0;vec2 cell=floor(drift/vec2(72.0,56.0));float seed=paperHash(cell);
-   vec2 d=mod(drift,vec2(72.0,56.0))-vec2(36.0,28.0);
+   float spacing=56.0+pokeVariant*8.0;
+   vec2 drift=p+vec2(t*(.75+pokeVariant*.45),sin(t*.22+pokeVariant)*pokeVariant*2.0);float row=floor(drift.y/spacing);
+   drift.x+=mod(row,2.0)*36.0;vec2 cell=floor(drift/vec2(72.0+pokeVariant*4.0,spacing));float seed=paperHash(cell);
+   vec2 d=mod(drift,vec2(72.0+pokeVariant*4.0,spacing))-vec2(36.0+pokeVariant*2.0,spacing*.5);
    d-=vec2(sin(t*.42+seed*6.28)*2.0,cos(t*.55+seed*6.28)*2.0);
    vec2 q=d/pokeSpriteSize+.5;
    if(q.x>=0.0 && q.x<1.0 && q.y>=0.0 && q.y<1.0){

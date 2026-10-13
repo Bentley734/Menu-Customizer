@@ -52,6 +52,20 @@ mod.generation=1
 assert(load(mod:read('lib/gb_menus.lua')))()(mod,catalog)
 mod.generation=2
 local C=assert(load(mod:read('lib/gb_menus.lua')))()(mod,catalog)
+-- Independent global setting persists and covers native secondary arrows.
+local arrowRow
+for _,row in ipairs(C.rows)do if row.id=='wide_arrowSelector' then arrowRow=row end end
+check(arrowRow~=nil and C.setting('arrowSelector')==1,'global arrow row defaults to native')
+local arrowGame={options={},writeOptions=function()end}
+C.persist(arrowGame,'arrowSelector',2)
+check(arrowGame.options.modOptions.gen3transparency.arrowSelector==2,'global selector persists independently')
+values.arrowSelector=2
+check(C.arrows.id()==1,'global Pokeball uses its own setting')
+for i=2,10 do
+ values.arrowSelector=i;calls={};Font.drawCode(0xED,20,30)
+ check(#calls>0 and calls[1].kind=='fill','secondary arrows use replacement artwork')
+end
+values.arrowSelector=1
 local items={{label='POKEMON'},{label='POKEGEAR'},{label='LONG PLAYER NAME'},{label='MODS'}}
 local list=Chrome.List.new({items=items,x=12,y=2,rows=4,spacing=2,index=1,palette=Chrome.DEFAULT_BOX_PALETTE})
 local screen={screenId='Gen2StartMenu',items=items,list=list}
@@ -454,13 +468,13 @@ for theme=1,2 do for _,options in ipairs({false,true})do
  values.menuTheme=theme
  for _,resize in ipairs({1,2,4})do
   C2.resizeX,C2.resizeY=resize,resize
-  for selector=1,4 do
+  for selector=1,#C2.selectors.names do
    local baseline
    for _,platform in ipairs({'Linux','Windows','iOS'})do
     love.system={getOS=function()return platform end}
     calls={};C2.drawSelector({options=options,selection={x=40,y=30,width=50,selector=selector}})
     check(#calls>0,'selector draws on '..platform)
-    local dy=platform=='iOS' and 2 or platform=='Windows' and theme==2 and not options and -2 or 0
+    local dy=not options and (platform=='Windows' or platform=='iOS') and theme==2 and -2 or 0
     if baseline then
      check(#calls==#baseline,'selector retains geometry')
      for i,call in ipairs(calls)do

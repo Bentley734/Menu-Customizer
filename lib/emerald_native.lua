@@ -77,6 +77,13 @@ return WideBattle
       else nativeFrames(mode)end
     end
     M.font,M.chrome,M.profile=font,chrome,profile
+    if mod.exports.battleFontSizing then mod.exports.battleFontSizing.decorate(font,'draw','measure','drawGlyph',false)end
+    local nativeGlyph=font.drawGlyph
+    font.drawGlyph=function(id,x,y,opts)
+      local arrows=mod.exports and mod.exports.arrowSelectors
+      if id==font.CHAR_SELECTOR_ARROW and arrows and arrows.draw(x,y,16,opts)then return 8 end
+      return nativeGlyph(id,x,y,opts)
+    end
     M.overrides=overrides
     overrides['src.ui.game3.battle_chrome']=chrome
     overrides['src.core.game3.dataset']={cache=function()return dataset end,mountExtractRoots=function()end}
@@ -248,22 +255,24 @@ return WideBattle
           w=textRect.w-2*inset,h=textRect.h-2*inset}
         if menu then textRect=clipRect end
       end
+      local fontFactor=custom.fontSizing and custom.fontSizing.factor()or 1
+      local blockHeight=48*fontFactor
       local width=legacyFrames and menu and 120 or 240
       local dx,dy=viewport and viewport.dpiX or 1,viewport and viewport.dpiY or 1
       if dx<=0 then dx=1 end;if dy<=0 then dy=1 end
-      local pixels=math.min(textRect.w*dx/width,textRect.h*dy/48)
+      local pixels=math.min(textRect.w*dx/width,textRect.h*dy/blockHeight)
       if legacyFrames and pixels>=1 then pixels=math.floor(pixels) end
       local sx,sy=pixels/dx,pixels/dy
       G.origin();G.setShader();G.setScissor()
       if clipRect then G.setScissor(clipRect.x,clipRect.y,clipRect.w,clipRect.h)end
       local tx=textRect.x+(textRect.w-width*sx)/2
-      local ty=legacyFrames and textRect.y+(textRect.h-48*sy)/2 or textRect.y+textRect.h-48*sy
+      local ty=legacyFrames and textRect.y+(textRect.h-blockHeight*sy)/2 or textRect.y+textRect.h-blockHeight*sy
       if legacyFrames then tx=math.floor(tx*dx+.5)/dx;ty=math.floor(ty*dy+.5)/dy end
       G.translate(tx,ty)
       G.scale(sx,sy);G.translate(0,-112)
       if not legacyFrames then custom.faded(function()
-        if ready and custom.setting('style',1)==2 then C.drawPanel(menu and 'menu' or 'none');C.drawMenuFrames(menu and 'menu' or 'none')
-        else custom.panel(0,112,menu and 120 or 240,48,false);if menu then custom.panel(120,112,120,48,false)end end
+        if ready and fontFactor==1 and custom.setting('style',1)==2 then C.drawPanel(menu and 'menu' or 'none');C.drawMenuFrames(menu and 'menu' or 'none')
+        else custom.panel(0,112,menu and 120 or 240,blockHeight,false);if menu then custom.panel(120,112,120,blockHeight,false)end end
       end)end
       G.setColor(1,1,1,1)
       if menu then
@@ -283,7 +292,7 @@ return WideBattle
         F.drawGlyph(F.CHAR_SELECTOR_ARROW,left+56*(c%2),121+16*math.floor(c/2),{colors=ready and M.colors() or C.textboxColors()})
       else
         local lines=generation==2 and battle:messageLines() or battle.shown or {}
-        for i,line in ipairs(lines)do if i<=2 then F.draw(M.decode(line),16,121+(i-1)*16+(battle.scrollPx or 0),{colors=M.presentationColors(),maxWidth=208})end end
+        for i,line in ipairs(lines)do if i<=2 then F.draw(M.decode(line),16,121+(i-1)*16*fontFactor+(battle.scrollPx or 0),{colors=M.presentationColors(),maxWidth=208})end end
         local arrow=generation==2 and battle:messageArrowVisible() or battle.msgWaiting or battle.msgPrompt
         if arrow then F.drawGlyph(0x7A,224,137,{colors=M.presentationColors()})end
       end

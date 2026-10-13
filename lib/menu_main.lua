@@ -59,6 +59,8 @@ return function(mod)
   local choices = {'DEFAULT', 'LEFT', 'RIGHT', 'TOP LEFT', 'TOP RIGHT', 'BOTTOM LEFT', 'BOTTOM RIGHT', 'CENTER', 'TOP CENTER', 'BOTTOM CENTER'}
   local justifyChoices = {'LEFT', 'CENTER', 'RIGHT'}
   local Selectors=assert(load(assert(mod:read('lib/menu_selectors.lua'))))()
+  local LevelText=assert(load(assert(mod:read('lib/level_text.lua'))))()
+  local SceneEffects=assert(load(assert(mod:read('lib/scene_effects.lua'))))()
   local selectorChoices = Selectors.names
   local borderChoices = catalog.choices
   local opacityChoices = {}
@@ -67,16 +69,22 @@ return function(mod)
     'startOpacity', 'optionOpacity', 'otherOpacity', 'hideStartMods'}
   local menuPalette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
   local Transitions=assert(load(assert(mod:read('lib/menu_transitions.lua'))))()
-  local extra = {menuTextColor={0,0,#menuPalette.names-1,1},menuTextShadowColor={0,0,#menuPalette.shadowNames-1,1},menuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},startMenuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1}, menuBorder={1,1,#borderChoices,1}, backgroundDim={0,0,70,10}, controlsLegend={2,1,3,1},
+  local extra = {selectionHighlight={25,0,100,5},arrowSelector={1,1,10,1},menuTextColor={0,0,#menuPalette.names-1,1},menuTextShadowColor={0,0,#menuPalette.shadowNames-1,1},menuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},startMenuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1}, menuBorder={1,1,#borderChoices,1}, backgroundDim={0,0,70,10}, controlsLegend={2,1,3,1},
     menuTransition={3,1,#Transitions.names,1}, positionPreview={1,0,1,1}}
+
+  for _,scope in ipairs({'start','battle','option','save','other','dialogue'})do extra[scope..'BorderChoice']={0,0,#borderChoices,1}end
+ extra.dialogueTheme={2,1,2,1};extra.dialogueBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1};extra.dialogueTextColor={0,0,#menuPalette.names-1,1};extra.dialogueTextShadowColor={0,0,#menuPalette.shadowNames-1,1}
+
   for _, group in ipairs({'start','option','save','other'}) do
     extra[group..'Scale']={100,50,150,10}
     extra[group..'OffsetX']={0,-128,128,1}
     extra[group..'OffsetY']={0,-128,128,1}
   end
+  for _,key in ipairs({'building_in','building_out','battle_in','battle_out'})do extra['scene_'..key]={1,1,#SceneEffects.names,1}end
   for k,v in pairs(menuPalette.effects.specs('menu'))do extra[k]=v end
   for key in pairs(extra) do keys[#keys+1]=key end
   local FX
+  local ArrowSelectors
   local values
   local function isOpacity(key) return key:find('Opacity') ~= nil end
   local function isToggle(key) return key == 'hideStartMods' end
@@ -115,13 +123,22 @@ return function(mod)
     end
     return values
   end
+  mod.exports.resetMenuSettings=function()values=nil;if FX then FX.touch('settingsScope')end end
   local function setting(key)
     return settings()[key]
   end
+  local function installArrows()
+    ArrowSelectors=assert(load(assert(mod:read('lib/arrow_selectors.lua'))))()(mod,Selectors,setting,active)
+    mod.exports.arrowSelectors=ArrowSelectors
+    assert(load(assert(mod:read('lib/tm_case_labels.lua'))))()(mod,active)
+  end
+  installArrows()
   local function persist(key, value, ctx)
     -- Update the menu immediately, then write the same values into the
     -- engine's global options table and the loader's live lookup table.
     settings()[key] = value
+    if key=='dialogueBorderChoice'and value>0 then settings().dialogueBorder=1;mod.save:set('dialogueBorder',1)end
+
     if FX then FX.touch(key) end
     local runtime = Runtime
     local game = ctx.game or (runtime and runtime._game)
@@ -135,6 +152,7 @@ return function(mod)
         bucket[k] = isOpacity(k) and opacityChoices[settings()[k]] or settings()[k]
       end
       bucket.opacityFormat = 2
+      if key=='battleBorderChoice'and value>0 then bucket.battle_style=3;mod.save:set('battle_style',3)end
       bucket.borderCatalogFormat = 2
     end
     update(options)
@@ -144,17 +162,33 @@ return function(mod)
       loader.modOptions = loader.modOptions or {}
       loader.modOptions[MOD_ID] = options.modOptions[MOD_ID]
     end
+    if mod.exports.settingsProfiles then mod.exports.settingsProfiles.commit(ctx)end
     if game and game.writeOptions then game:writeOptions() end
   end
   FX=assert(load(assert(mod:read('lib/menu_fx.lua')), '@'..mod.path..'/lib/menu_fx.lua'))()({
     setting=setting, Battle=Battle, Stack=Stack, mod=mod,
     Font=require('src.ui.game3.frlg_font')})
   mod.exports.menuBackground=function()
-    if FX.active then return menuPalette.menuBackground(mod.exports.menuPaperScope or (FX.topId=='start' and 'start' or 'other'))end
+    if FX.active or mod.exports.dialogueFontScope then return menuPalette.menuBackground(mod.exports.menuPaperScope or (FX.topId=='start' and 'start' or 'other'))end
   end
   local Borders=assert(load(assert(mod:read('lib/menu_borders.lua')), '@'..mod.path..'/lib/menu_borders.lua'))()(mod, setting, catalog, active)
   mod.exports.borders=Borders
   mod.exports.borderCatalog=catalog
+  local Message=require('src.ui.game3.message')
+  Message._menuCustomizerDialogueMod=mod
+  if not Message._menuCustomizerFontScope then
+   for _,name in ipairs({'draw','drawText'})do
+    local original=Message[name]
+    Message[name]=function(...)
+     local exports=Message._menuCustomizerDialogueMod.exports
+     local prior=exports.dialogueFontScope;exports.dialogueFontScope=Message._frame~='battle'
+     local result={pcall(original,...)};exports.dialogueFontScope=prior
+     if not result[1]then error(result[2],0)end
+     return (unpack or table.unpack)(result,2)
+    end
+   end
+   Message._menuCustomizerFontScope=true
+  end
   local Hud=require('src.ui.game3.hud')
   local oldHudUpdate=Hud.update
   Hud.update=function(game,dt,inputTop,...)
@@ -236,8 +270,28 @@ return function(mod)
   Rows.build = function(ctx)
     local entries = oldBuild(ctx)
     if not active() then return entries end
+    for _,spec in ipairs({{'building_in','BUILDING ENTER'},{'building_out','BUILDING EXIT'},{'battle_in','BATTLE ENTER'},{'battle_out','BATTLE EXIT'}})do
+      entries[#entries+1]=row('scene_'..spec[1],spec[2],SceneEffects.names)
+    end
     entries[#entries+1] = row('menuBorder', 'MENU BORDER', borderChoices)
-    entries[#entries+1] = row('dialogueBorder','DIALOGUE BORDER',{[0]='OFF',[1]='ON'})
+    local dialogue=row('dialogueBorder','CUSTOM BORDER',{[0]='OFF',[1]='ON'})
+    dialogue.step=function(ctx)persist('dialogueBorder',1-setting('dialogueBorder'),ctx);return false end
+    entries[#entries+1]=dialogue
+    for _,scope in ipairs({'start','battle','option','save','other','dialogue'})do
+      local key=scope..'BorderChoice'
+      local r={id='wide_'..key,label=scope:upper()..' BORDER',value=function()return setting(key)==0 and 'USE MENU' or borderChoices[setting(key)]end,
+        step=function(ctx,d)persist(key,(setting(key)+(d<0 and -1 or 1))%(#borderChoices+1),ctx);return false end}
+      entries[#entries+1]=r
+    end
+    entries[#entries+1]=row('dialogueTheme','DIALOGUE FONT',{'NATIVE','EMERALD'})
+    local dialogBg={};for i,name in ipairs(menuPalette.menuBackgroundNames)do dialogBg[i-1]=name end
+    local bg=row('dialogueBackgroundColor','DIALOGUE BACKGROUND',dialogBg)
+    bg.step=function(ctx,d)persist('dialogueBackgroundColor',menuPalette.step('menuBackground',setting('dialogueBackgroundColor'),d),ctx);return false end
+    entries[#entries+1]=bg
+    for _,spec in ipairs({{'dialogueTextColor','FONT COLOR','text',menuPalette.names},{'dialogueTextShadowColor','FONT SHADOW','shadow',menuPalette.shadowNames}})do
+      local key,label,kind,names=spec[1],spec[2],spec[3],spec[4]
+      entries[#entries+1]={id='wide_'..key,label=label,value=function()return names[setting(key)+1]end,step=function(ctx,d)persist(key,menuPalette.step(kind,setting(key),d),ctx);return false end}
+    end
     entries[#entries+1] = row('startPosition', 'START POSITION')
     entries[#entries+1] = row('startJustify', 'START TEXT', justifyChoices)
     entries[#entries+1] = row('menuTheme','MENU FONT',{'NATIVE','EMERALD'})
@@ -249,6 +303,9 @@ return function(mod)
     entries[#entries+1]={id='wide_menuTextShadowColor',label='MENU TEXT SHADOW',value=function()return shadowNames[setting('menuTextShadowColor')]end,
       step=function(ctx,dir)persist('menuTextShadowColor',menuPalette.step('shadow',setting('menuTextShadowColor'),dir),ctx);return false end}
     entries[#entries+1] = row('startSelector', 'START SELECTOR', selectorChoices)
+    entries[#entries+1] = row('arrowSelector','ARROW SELECTOR',ArrowSelectors.names)
+    entries[#entries+1]={id='wide_selectionHighlight',label='HIGHLIGHT INTENSITY',value=function()return setting('selectionHighlight')..'%'end,
+      step=function(ctx,d)persist('selectionHighlight',math.max(0,math.min(100,setting('selectionHighlight')+(d<0 and -5 or 5))),ctx);return false end}
     entries[#entries+1] = row('optionPosition', 'OPTION POSITION')
     entries[#entries+1] = row('savePosition', 'SAVE POSITION')
     entries[#entries+1] = row('otherPosition', 'OTHER POSITION')
@@ -285,24 +342,16 @@ return function(mod)
       if title~='MENUS' then return openPage(title,members) end
       for _,r in ipairs(members)do
         local key=r.id:match('^wide_(.*)')
-        local kind=key=='menuTextColor' and 'text' or key=='menuTextShadowColor' and 'shadow' or (key=='menuBackgroundColor' or key=='startMenuBackgroundColor') and 'menuBackground'
+        local kind=(key=='menuTextColor'or key=='dialogueTextColor') and 'text' or (key=='menuTextShadowColor'or key=='dialogueTextShadowColor') and 'shadow' or (key=='menuBackgroundColor' or key=='startMenuBackgroundColor' or key=='dialogueBackgroundColor') and 'menuBackground'
         if kind then menuPalette.picker(r,kind,function()return setting(key)end,function(ctx,n)persist(key,n,ctx);return false end,openPage,key=='startMenuBackgroundColor' and 'USE MENU' or nil)end
+        if key=='menuBorder'or key:match('BorderChoice$')then menuPalette.designPicker(r,catalog.groups,function()return setting(key)end,function(ctx,n)persist(key,n,ctx);return false end,openPage)end
       end
-      local parent={}
-      for _, group in ipairs({'start','option','save','other'}) do
-        local children={}
-        for _, r in ipairs(members) do
-          if r.id:match('^wide_'..group) or group=='start' and r.id=='wide_hideStartMods' then children[#children+1]=r end
-        end
-        parent[#parent+1]={id='wide_page_'..group,label=group:upper(),group=true,value=function()return #children..' OPTIONS' end,
-          activate=function()openPage(group:upper()..' MENU',children)end}
-      end
-      for _, r in ipairs(members) do
-        if r.id=='wide_dialogueBorder' or r.id=='wide_menuTheme' or r.id=='wide_menuTextColor' or r.id=='wide_menuBackgroundColor' or r.id=='wide_menuTextShadowColor' or r.id=='wide_menuBorder' or r.id=='wide_backgroundDim' or r.id=='wide_controlsLegend' or r.id=='wide_menuTransition' or r.id=='wide_positionPreview' then parent[#parent+1]=r end
-      end
+      local parent={};for _,r in ipairs(members)do parent[#parent+1]=r end
+      parent[#parent+1]=mod.exports.settingsProfiles.row()
       parent[#parent+1]={id='wide_text_fx',label='MENU TEXT EFFECTS',value=function()return 'OPEN'end,activate=function()openPage('MENU TEXT EFFECTS',menuPalette.effects.rows('menu',function(ctx,key,n)persist(key,n,ctx);return false end,openPage))end}
       local battleUi=mod.exports.battleUi
-      if battleUi then parent[#parent+1]={id='wide_battle_ui',label='BATTLE UI',value=function()return 'OPEN' end,activate=function()openPage('BATTLE UI',battleUi.rows({},openPage))end} end
+      if battleUi then parent[#parent+1]={id='wide_battle_ui',label='BATTLE SETTINGS',value=function()return 'OPEN'end,activate=function()openPage('BATTLE',battleUi.rows({},openPage))end}end
+      parent=assert(load(assert(mod:read('lib/menu_organization.lua'))))()(parent,openPage)
       openPage(title,parent)
     end)
   end
@@ -500,27 +549,31 @@ return function(mod)
   -- Suppress the canvas menu pass, then render the same menus in screen space.
   local Window = require('src.ui.game3.window')
   local FrlgFont = require('src.ui.game3.frlg_font')
-  local Theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return active() and (FX.active or mod.exports.battleFontScope) and setting('menuTheme')==2 end)
-  Theme.menuOptions=function(opts)if active() and FX.active and not mod.exports.battleFontScope then return menuPalette.menuOptions(opts)end;return opts end
+  local Theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return active() and (FX.active or mod.exports.battleFontScope or mod.exports.dialogueFontScope) and setting(mod.exports.dialogueFontScope and 'dialogueTheme'or'menuTheme')==2 end)
+  Theme.menuOptions=function(opts)if active() and (FX.active or mod.exports.dialogueFontScope) and not mod.exports.battleFontScope then return menuPalette.menuOptions(opts)end;return opts end
   Theme.palette=menuPalette
   FrlgFont._menuCustomizerEmerald=Theme
   if not FrlgFont._menuCustomizerEmeraldWrapped then
     local draw,measure,glyph=FrlgFont.draw,FrlgFont.measure,FrlgFont.drawGlyph
     local function nativeFace(opts)return opts and (opts._vanilla or tostring(opts.font):match('^native_'))end
     FrlgFont.draw=function(text,x,y,opts)
+      text=LevelText.normalize(text)
       local theme=FrlgFont._menuCustomizerEmerald
+      if text=='▶' and mod.exports.arrowSelectors.draw(x,y,16,opts) then return 1,x+8,y end
       if theme.menuOptions then opts=theme.menuOptions(opts)end
-      if theme.enabled() and not nativeFace(opts)then local result=theme.draw(text,x,y,opts);if result~=nil then return result end end
+      if theme.enabled() and not nativeFace(opts)then local width=theme.draw(text,x,y,opts);if width~=nil then return width,x+width,y end end
       if theme.palette then return theme.palette.nativeText(draw,measure,text,x,y,opts)end
       return draw(text,x,y,opts)
     end
     FrlgFont.measure=function(text,opts)
+      text=LevelText.normalize(text)
       local theme=FrlgFont._menuCustomizerEmerald
       if theme.enabled() and not nativeFace(opts)then local result=theme.measure(text,opts);if result~=nil then return result end end
       return measure(text,opts)
     end
     FrlgFont.drawGlyph=function(id,x,y,opts)
       local theme=FrlgFont._menuCustomizerEmerald
+      if id==FrlgFont.CHAR_SELECTOR_ARROW and mod.exports.arrowSelectors.draw(x,y,16,opts) then return 8 end
       if theme.menuOptions then opts=theme.menuOptions(opts)end
       if theme.enabled() and not nativeFace(opts)and theme.glyph(id,x,y,opts) then return end
       if theme.palette then return theme.palette.nativeText(glyph,nil,id,x,y,opts)end
@@ -536,7 +589,7 @@ return function(mod)
     local n=math.min(math.max(1,#Start.ENTRIES),(Start._data and Start._data.maxVisible) or Start.MAX_VISIBLE or 8)
     return Window.template(emeraldLayout.window.left,emeraldLayout.window.top,emeraldLayout.window.width,n*2+2)
   end
-  local function nativeStartDraw(...)
+  local function nativeStartUnscoped(...)
     local previous=Start._data
     if not Theme.enabled() and not (active() and previous and previous.drawCursor) then return originalNativeStartDraw(...) end
     local adapted={}
@@ -552,6 +605,14 @@ return function(mod)
     Start._data=previous
     if not ok then error(result,0) end
     return result
+  end
+  local function nativeStartDraw(...)
+    local prior=mod.exports.startSelectorScope
+    mod.exports.startSelectorScope=not Start._confirmExit
+    local result={pcall(nativeStartUnscoped,...)}
+    mod.exports.startSelectorScope=prior
+    if not result[1] then error(result[2],0) end
+    return unpack(result,2)
   end
   local ballPixels = {'..1111..', '.122221.', '12222221', '11144111',
     '13344331', '13333331', '.133331.', '..1111..'}
@@ -578,7 +639,6 @@ return function(mod)
     if not active() then return nativeStartDraw(...) end
     local alignment = setting('startJustify')
     local selector = setting('startSelector')
-    if alignment == 1 and selector == 3 and not (love.system and love.system.getOS and love.system.getOS()=='iOS') then return nativeStartDraw(...) end
     local tpl
     if Theme.enabled() then
       local n=math.min(#Start.ENTRIES,(Start._data and Start._data.maxVisible) or Start.MAX_VISIBLE or 8)
@@ -612,12 +672,16 @@ return function(mod)
           local entry = Start.ENTRIES[Start.cursor]
           if entry then
             local textX = labelPosition(entry.label)
-            drawBallCursor(textX - #ballPixels[1] - 1, y+(love.system and love.system.getOS and love.system.getOS()=='iOS' and 2 or 0))
+            drawBallCursor(textX - #ballPixels[1] - 1, y)
           end
         end
         return
       end
-      local dy=love.system and love.system.getOS and love.system.getOS()=='iOS' and 2 or 0
+      local dy=Start._confirmExit and love.system and love.system.getOS and love.system.getOS()=='iOS' and 2 or 0
+      if selector==3 and not Start._confirmExit then
+        local copy={};for k,v in pairs(opts or {})do copy[k]=v end;copy._startArrow=true
+        return FrlgFont.drawGlyph(FrlgFont.CHAR_SELECTOR_ARROW,x,y+dy,copy)
+      end
       return originalCursor(x, y+dy, opts)
     end
     Window.printPx = function(text, x, y, opts)
@@ -630,13 +694,12 @@ return function(mod)
         local selected = not Start._confirmExit and index == Start.cursor
         local result = originalPrint(text, x, y, opts)
         if selected and selector>=5 then
-          Selectors.draw(selector,x-10,y+3+(love.system and love.system.getOS and love.system.getOS()=='iOS' and 2 or 0))
+          Selectors.draw(selector,x-10,y+3)
         end
         if selected and (selector == 2 or selector == 4) then
           local color = (opts and opts.colors or FrlgFont.COLOR.NORMAL).fg
           local r, g, b, a = love.graphics.getColor()
           love.graphics.setColor(color[1], color[2], color[3], color[4] or 1)
-          if love.system and love.system.getOS and love.system.getOS()=='iOS' then y=y+2 end
           if selector == 2 then
             love.graphics.rectangle('fill', x, y + 13, width, 1)
           else
@@ -662,9 +725,12 @@ return function(mod)
     if presenting then return end
     return originalStart(...)
   end
+  local Selection=assert(load(assert(mod:read('lib/option_selection.lua'))))()(mod,FrlgFont,setting,active,gameVersion)
+  originalOption=Selection.wrap(Option,originalOption)
+  local DialogueText=assert(load(assert(mod:read('lib/dialogue_text.lua'))))()(mod,Message,FrlgFont,active)
   local nativeOptions={[Option]=originalOption}
   local function installOption(menu)
-    if not nativeOptions[menu] then nativeOptions[menu]=menu.draw end
+    if not nativeOptions[menu] then nativeOptions[menu]=Selection.wrap(menu,menu.draw) end
     local native=nativeOptions[menu]
     if not menu._menuCustomizerDrawWrapped then
       menu.draw=function(...) if presenting then return end;return native(...) end
@@ -797,6 +863,7 @@ return function(mod)
   end
   Display.present = function(game, w, h)
     if not active() then return originalPresent(game,w,h) end
+    DialogueText.beginFrame()
     FX.beginFrame(Stack.top())
     presenting = true
     local ok, result = pcall(originalPresent, game, w, h)
@@ -827,23 +894,28 @@ return function(mod)
   Renderer._menuCustomizerGen3=function(newMod,newVersion,newCatalog)
     mod,gameVersion,catalog=newMod,newVersion,newCatalog
     values=nil;lastStartRows=nil;lastAmbientTick=nil
+    mod.exports.resetMenuSettings=function()values=nil;if FX then FX.touch('settingsScope')end end
+    installArrows()
+    assert(load(assert(mod:read('lib/scene_transitions.lua'))))()(mod,active)
     if fieldSnapshot and fieldSnapshot.release then fieldSnapshot:release() end
     fieldSnapshot=nil
+    Selection.setMod(mod,gameVersion);DialogueText.setMod(mod)
     Option=optionForVersion(gameVersion)
     installOption(Option);originalOption=nativeOptions[Option]
     FX.setMod(mod)
     menuPalette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
     Theme.palette=menuPalette
-    Theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return active() and (FX.active or mod.exports.battleFontScope) and setting('menuTheme')==2 end)
-    Theme.menuOptions=function(opts)if active() and FX.active and not mod.exports.battleFontScope then return menuPalette.menuOptions(opts)end;return opts end
+    Theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return active() and (FX.active or mod.exports.battleFontScope or mod.exports.dialogueFontScope) and setting(mod.exports.dialogueFontScope and 'dialogueTheme'or'menuTheme')==2 end)
+    Theme.menuOptions=function(opts)if active() and (FX.active or mod.exports.dialogueFontScope) and not mod.exports.battleFontScope then return menuPalette.menuOptions(opts)end;return opts end
     Theme.palette=menuPalette
   FrlgFont._menuCustomizerEmerald=Theme
     mod.hooks:wrap('ui.start_menu.items',startItemsHook)
     Borders=assert(load(assert(mod:read('lib/menu_borders.lua')), '@'..mod.path..'/lib/menu_borders.lua'))()(mod,setting,catalog,active)
     mod.exports.borders=Borders;mod.exports.borderCatalog=catalog
-    mod.exports.effects=FX;mod.exports.version='3.2.36'
+    mod.exports.effects=FX;mod.exports.version='3.2.53'
   end
   mod.exports.effects=FX
-  mod.exports.version = '3.2.36'
+  mod.exports.version = '3.2.53'
+  assert(load(assert(mod:read('lib/scene_transitions.lua'))))()(mod,active)
   mod.log:info('Menu Customizer: '..gameVersion..' START, OPTION and SAVE placement installed')
 end

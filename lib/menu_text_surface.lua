@@ -10,7 +10,8 @@ return function(mod,Font)
   end
   return out
  end
- function M.capture(fn)
+ local metricsCanvas
+ function M.capture(fn,metrics)
   local queue={};local draw,glyph=Font.draw,Font.drawGlyph
   local function record(printer,text,x,y,opts)
    local ax,ay=G.transformPoint(x,y)
@@ -21,7 +22,15 @@ return function(mod,Font)
     clip={G.getScissor()},color={G.getColor()}}
   end
   Font.draw=function(text,x,y,opts)
-   record(draw,text,x,y,opts);return Font.measure(text,opts)
+   record(draw,text,x,y,opts)
+   if metrics then
+    metricsCanvas=metricsCanvas or G.newCanvas(1,1,{dpiscale=1})
+    G.push('all');G.setCanvas(metricsCanvas);G.setScissor(0,0,0,0)
+    local result={pcall(draw,text,x,y,opts)};G.pop()
+    if not result[1]then error(result[2],0)end
+    return unpack(result,2)
+   end
+   return Font.measure(text,opts)
   end
   Font.drawGlyph=function(id,x,y,opts)
    record(glyph,id,x,y,opts);return Font.advance(id,opts)

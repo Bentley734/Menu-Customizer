@@ -1,3 +1,85 @@
+# Menu Customizer 3.2.53
+
+Built from the actual 3.2.52 release package, retaining its backgrounds, borders, organization and saved settings. The repository source now includes the complete release contents.
+
+- Draw a visible settings-menu selector for all ten Arrow Selector choices, including the default arrow. Keep Start Selector independent.
+- Add MENUS > MENU SELECTOR > HIGHLIGHT INTENSITY, adjustable from 0% to 100% in 5% steps (default 25%).
+- Raise field dialogue letters by three logical pixels. Defer them until the UI reaches its final screen size, preserving complete glyph masks with uniform square integer pixels at fractional zoom.
+- Snap Large and Extra Large battle text to integer framebuffer pixels.
+- Fix the inherited 3.2.52 Gen 1/2 startup failure caused by loading a Gen 3 font module.
+
+Validation: real LOVE GPU raster tests for all selectors, highlight opacity and Normal/Large/Extra Large typography; LuaJIT and Lua 5.3 selector, level-label, battle-font and menu-scaling regressions; sandbox boot with KIM for all eleven games; actual settings-row persistence and 0–100% bounds.
+
+Restart the game after installing. Live gameplay was not restarted during installation.
+
+v3.2.52
+OTHER > GENERAL > SETTINGS STORAGE switches between SHARED (default) and PER GAME. Each game starts from the shared configuration; subsequent menu, border, dialogue, font, battle and transition changes stay in that game’s profile. Switching modes retains both shared and per-game configurations. Profiles are stored with mod options, independent of progress saves.
+
+v3.2.51
+Organized the main menu as START, BATTLE, OPTION, SAVE, OTHER, DIALOGUE, BORDERS, TRANSITIONS, MENU SELECTOR. Shared appearance and general controls live under OTHER. Added independent start, battle, option, save, other and dialogue borders, with USE MENU inheritance. Fixed dialogue OFF/ON cycling and native frame interception. Added independent dialogue font, font color, shadow and background controls. Choosing a battle border enables the custom border battle UI. Saved settings retain their IDs.
+
+v3.2.50
+MENU TEXT EFFECTS now groups ALTERNATE, COLOR COUNT, and COLOR 1–5 in an ALTERNATE submenu. Existing saved settings are preserved.
+
+v3.2.49
+Suppress native palette fades and embedded battle wipe layers when custom transitions are selected. Correct warp fade direction and leave Gen 3 world canvases intact. Native timing and callbacks remain unchanged; transitions still precede ShaderFX.
+
+v3.2.48
+Custom building and battle transitions now composite before recomp ShaderFX, preserving full-window coverage and DPI scaling.
+
+Menu Customizer 3.2.47
+
+MENU TEXT EFFECTS, BATTLE TEXT EFFECTS and NAME TEXT EFFECTS now each have HIGHLIGHT, HIGHLIGHT COLOR, OUTLINE and OUTLINE COLOR. Both effects default OFF. Highlight draws a colored backing behind letters; outline draws a one-pixel border in all eight directions. Both use the complete font-color picker, including animated gradients and rotating colors, controlled by COLOR SPEED. Text opacity and aspect scaling apply to the added effects. New effects were not tested in-game.
+
+Menu Customizer 3.2.46
+
+OPTION > MENUS > SCENE TRANSITIONS: separate BUILDING ENTER, BUILDING EXIT, BATTLE ENTER and BATTLE EXIT pickers. Each has VANILLA, 24 custom visual effects and RANDOM. Buildings use EXIT to cover the departing area and ENTER to reveal the destination. Covers apply to the whole game surface, including widescreen.
+
+Fades, directional wipes, double doors, curtains, iris shapes, Pokeball closure, tile/checker wipes, blinds, Surf waves, lightning, psychic spirals, stardust, pixel rain, leaf scatter, CRT shutters, ripples and battle claws. Native map/battle callbacks and input locks remain engine-owned. Gen 1 can add the reveal phase that vanilla normally skips when BUILDING ENTER is customized. New transitions have not been tested in-game.
+
+Menu Customizer 3.2.45
+
+BATTLE UI > BATTLE FONT SIZE: NORMAL, LARGE (150%), EXTRA LARGE (200%). Battle text renderers share uniform physical-pixel scaling, including native and Emerald fonts, commands, dialogue, moves and HUD text. Explicit field width limits fit long labels uniformly. Text outside battle and battle sprites are unaffected. Bottom text panels grow upward in large modes to provide room for larger lines. Commands and PP/type fields use left-aligned anchors.
+
+Menu Customizer 3.2.44
+
+Restore the themed font printer end-position return values. TM Case entries display explicit TM/HM numbers and move names (HM01 CUT, etc.), using the current engine item-to-move lookup. Only label rendering changes; TM/HM compatibility and teaching remain untouched.
+
+Menu Customizer 3.2.43
+
+Pokemon backgrounds: POKEMON > BACKGROUND DESIGN > Pokemon. Repeated STARFALL, DREAM CURRENT and MOON GARDEN designs share submenus, with original paper grouped under CLASSIC PAPER.
+Menu borders: choose a design family, then the Pokemon. Existing numeric selections and artwork retain their IDs.
+
+30 additional Pokemon-inspired animated pixel-emblem backgrounds and 30 additional animated borders, using 30 previously unused Pokemon: Raichu, Sandshrew, both Nidoran, Clefairy, Vulpix, Ninetales, Zubat, Oddish, Paras, Venonat, Diglett, Psyduck, Growlithe, Poliwag, Abra, Machop, Geodude, Ponyta, Slowpoke, Magnemite, Farfetchd, Doduo, Seel, Grimer, Shellder, Krabby, Voltorb, Cubone and Lapras. Font presets remain separate.
+
+New menu grouping and artwork were not tested, retaining the requested testing limit. Restart after updating.
+
+Menu Customizer 3.2.42
+
+Native options category cards use left-aligned titles and centered subtitles (OPEN, option counts, and values). Card titles no longer inherit START text justification.
+
+Menu Customizer 3.2.41
+
+Full 8x8 selector artwork, with no fractional or sampled shrinking. Native category cards reserve a gap and use their own small-font baseline. START placement is unchanged. Pokemon level tags render as Lv plus the complete level instead of printing LV_2.
+
+30 new animated Pokemon backgrounds in the POKEMON background group.
+30 new independently selectable animated Pokemon borders in MENU BORDER.
+20 separate alternating font color presets in MENU TEXT EFFECTS / battle text effects > COLOR PRESET. Choose CUSTOM for manual colors; presets alternate by letter, or by word when ALTERNATE is set to BY WORD. Existing saved choices retain their IDs.
+
+Only selector geometry and level rendering/measurement were tested, as requested. New artwork/presets were not tested. Restart after updating.
+
+Menu Customizer 3.2.40
+
+Restore 3.2.38 selector artwork, dimensions and horizontal placement. Only move non-START selectors upward: full-size OPTIONS markers retain their original 8x8 pixels, and compact markers retain their original 6x6 pixels. The confirmed START alignment is unchanged. Restart after updating.
+
+Menu Customizer 3.2.38
+
+OPTION > MENUS > ARROW SELECTOR replaces non-START selection arrows with a Pokeball or any of the eight icon selectors. ARROW preserves the original appearance. START SELECTOR remains independent. Compact replacements fit the native cursor column with a one-pixel gap, including narrow lists, confirmations and battle selections. Restart the game after updating.
+
+Menu Customizer 3.2.37
+
+Fix iOS START selector vertical alignment for Gen 1-3, including all new icon selectors. Gen 1/2 Emerald-themed START markers now use the raised text anchor; Gen 3 START no longer adds the erroneous two-pixel iOS offset. Restart the game after updating.
+
 Menu Customizer 3.2.36
 
 Six original psychedelic backgrounds inspired by visionary art and TOOL: VISION FIELD, SACRED LATTICE, ENERGY ANATOMY, THIRD EYE, INTERBEING and LATERAL SPIRAL.
