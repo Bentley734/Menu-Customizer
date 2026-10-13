@@ -127,7 +127,7 @@ return function(mod,catalog)
  C.theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return (C.drawScope or C.dialogueScope or mod.exports.choiceFontScope or mod.exports.battleFontScope) and C.setting((C.dialogueScope or mod.exports.choiceFontScope) and 'dialogueTheme'or'menuTheme')==2 end)
  -- START rows are sixteen pixels apart, just like Emerald's native menu.
  -- Use the original glyph size there instead of the dense GB screen size.
- C.theme.gbScale=function()if mod.exports.battleFontScope then return mod.exports.battleFontScale or .5 end;if C.dialogueScope or mod.exports.choiceFontScope then return .75 end;return not C.compactText and (C.dialogueScope or C.drawingStart or C.drawingCheats or C.drawingOptions and C.drawingOptions.fullFont) and 1 or .5 end
+ C.theme.gbScale=function()if mod.exports.battleFontScope then return mod.exports.battleFontScale or .5 end;if C.dialogueScope or mod.exports.choiceFontScope then return .75 end;return not C.compactText and (C.dialogueScope or C.drawingTitle or C.drawingStart or C.drawingCheats or C.drawingOptions and C.drawingOptions.fullFont) and 1 or .5 end
  C.theme.gbBaseline=function()return (C.dialogueScope or mod.exports.choiceFontScope) and 2 or 0 end
  C.theme.gbColors=function()
   if mod.exports.battleNameScope then return menuPalette.colors('name')end
@@ -333,7 +333,7 @@ return function(mod,catalog)
    local rx,ry=current and current.drawScope and not current.inBox and current.resizeX or 1,current and current.drawScope and not current.inBox and current.resizeY or 1
    G.push('all');G.translate(x,y);G.scale(1/rx,1/ry)
    local result
-   local replacement=current and (glyph==0xED or glyph==0xEC) and current.arrows.draw(0,(current.theme.enabled() and current.theme.gbScale()==1) and -2 or 0,8)
+   local replacement=current and (glyph==0xED or glyph==0xEC) and current.arrows.draw(current.drawingTitle and -1 or 0,(current.theme.enabled() and current.theme.gbScale()==1) and -2 or 0,8)
    local vanillaHud=current and current.mod.exports.battleHudScope and not current.mod.exports.battleNameScope
    if replacement then
    elseif vanillaHud then result=code(glyph,0,0,...)
@@ -942,7 +942,25 @@ return function(mod,catalog)
  mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;
  assert(load(assert(mod:read('lib/preview_windows.lua'))))()(mod,menuPalette,function()return C.live()end)
  assert(load(assert(mod:read('lib/gb_pokedex_text.lua'))))()(Font,function()return Font._menuCustomizerGB end)
- mod.exports.version='3.2.63'
+ -- The boot menu has no overworld, so it cannot use the HUD menu mirror.
+ local Menu=require('src.ui.Menu')
+ if not Menu._menuCustomizerTitle then
+  Menu._menuCustomizerTitle=true;local draw=Menu.draw
+  Menu.draw=function(self,...)
+   local c=Font._menuCustomizerGB
+   if not(self.titleUiBox and c and c.live())then return draw(self,...)end
+   local scope,paper,title,rx,ry=c.drawScope,c.paperGroup,c.drawingTitle,c.resizeX,c.resizeY
+   c.drawScope=true;c.paperGroup='other';c.drawingTitle=true;c.resizeX=1;c.resizeY=1
+   local result={pcall(draw,self,...)}
+   c.drawScope,c.paperGroup,c.drawingTitle,c.resizeX,c.resizeY=scope,paper,title,rx,ry
+   if not result[1]then error(result[2],0)end
+   if c.mod.generation==1 then
+    require('src.render.PaletteFX').markTrueColor(self.tx*8,self.ty*8,self.tw*8,self.th*8)
+   end
+   return (unpack or table.unpack)(result,2)
+  end
+ end
+ mod.exports.version='3.2.64'
  assert(load(assert(mod:read('lib/scene_transitions.lua'))))()(mod,function()return C.live()end)
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C
