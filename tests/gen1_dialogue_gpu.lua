@@ -25,7 +25,7 @@ function love.load()
   local C={mod=mod,palette=P,resizeX=1,resizeY=1,setting=function(k)return values[k]or 0 end}
   mod.exports.gbMenus=C;F._menuCustomizerGB=C
   mod.exports.menuBackground=function()return P.menuBackground('dialogue')end
-  C.theme=module('emerald_theme.lua')(mod,function()return C.dialogueScope and values.dialogueTheme==2 end)
+  C.theme=module('emerald_theme.lua')(mod,function()return (C.dialogueScope or mod.exports.choiceFontScope) and values.dialogueTheme==2 end)
   C.theme.gbScale=function()return .75 end;C.theme.gbBaseline=function()return 2 end
   C.theme.gbColors=function()return P.colors('menu')end
   local raw=F.drawCode
@@ -76,6 +76,20 @@ function love.load()
    end
    if theme==2 then check(#units>0,'Emerald letters are present');for _,u in ipairs(units)do check(u==3,'full glyph mask at three pixels per atlas pixel')end end
   end end
+  -- YES/NO shares the field dialogue's final-resolution font geometry.
+  values.dialogueTheme=2;D.beginFrame();units={}
+  C.dialogueScope=true;G.setCanvas(ui);G.origin();G.clear(0,0,0,0);F.draw('YES',16,112)
+  C.dialogueScope=false;C.drawScope=true;mod.exports.choiceFontScope=true
+  C.resizeX,C.resizeY=1.25,.8;G.push('all');G.scale(1.25,.8)
+  F.draw('YES',128,40);F.draw('NO',128,56)
+  G.pop();C.resizeX,C.resizeY=nil,nil
+  C.drawScope=false;mod.exports.choiceFontScope=nil;G.setCanvas()
+  local choiceCount=0;for _,item in ipairs(D.queues[ui])do if item.choice then choiceCount=choiceCount+1 end end
+  check(choiceCount==5,'all YES/NO letters defer even inside a menu draw scope')
+  G.setCanvas(target);G.origin();G.clear(0,0,0,0);G.setColor(1,1,1,1);G.draw(ui,10,10,0,4,4);G.setCanvas()
+  check(#units==8,'dialogue and YES/NO letters both replay')
+  for _,unit in ipairs(units)do check(unit==3,'YES/NO uses the exact dialogue integer font size')end
+  check(not C.dialogueScope and not mod.exports.choiceFontScope,'font scopes restore after mixed replay')
   write('gen1-dialogue.png',target:newImageData():encode('png'):getString())
   -- Execute the actual settings-page draw: it must leave the cursor to the
   -- shared deferred selector, rather than adding a second marker at x=12.

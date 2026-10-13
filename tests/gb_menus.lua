@@ -351,6 +351,12 @@ game.stack.states={world,largeCheats};C2.draw(game,{width=960,height=600,scale=4
 check(cheatWidth==C2.theme.measure('SEEN ALL'),'cheat rows use the same full Emerald font size as START')
 check(headerWidth==C2.theme.measure('CODEBREAKER')/2,'cheat heading stays compact and clears the first row')
 check(not C2.drawingCheats and not C2.compactText,'cheat font sizing is restored after rendering')
+-- Choice text selects the dialogue face and scale, without dialogue colors.
+values.menuTheme=1;values.dialogueTheme=2;C2.dialogueScope=true
+local dialogueScale=C2.theme.gbScale();C2.dialogueScope=false;mod.exports.choiceFontScope=true
+check(C2.theme.enabled() and C2.theme.gbScale()==dialogueScale,'YES/NO uses dialogue font and scale')
+check(C2.theme.gbBaseline()==2,'YES/NO matches dialogue ink baseline')
+mod.exports.choiceFontScope=nil;values.menuTheme=2
 -- Dialogue borders are opt-in and do not enable menu font replacement.
 local TextBox=require('src.render.TextBox')
 local originalDialogue=TextBox._menuCustomizerDialogueDraw

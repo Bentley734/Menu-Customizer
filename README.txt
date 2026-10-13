@@ -1,3 +1,15 @@
+# Menu Customizer 3.2.58
+
+Make Gen 1/2 YES/NO text match the dialogue font and size instead of the compact menu font.
+
+- YES/NO selects the dialogue font face, scale and ink baseline while retaining its configured menu text/background colors.
+- Gen 1 choice letters use the same final-resolution rendering as dialogue, preserving complete glyph masks and square integer pixels. Mixed dialogue/choice rendering keeps their colors independent.
+- Preserve dialogue text size when menu width/height resizing is enabled. Restore all font and palette scopes after drawing.
+
+Validation: 153 real GPU checks, including exact YES/NO/dialogue pixel-size equality with nonuniform menu resizing, and native/Emerald font, RGB and selector regressions. LuaJIT and Lua 5.3 regression checks; startup/category navigation across all eleven games with current KIM1025 source. GPU checks use isolated render fixtures; the running game was left open.
+
+Restart the game after installation to load the fix.
+
 # Menu Customizer 3.2.57
 
 Organize customization by type and add dialogue alignment, selector colors, and effect transparency.

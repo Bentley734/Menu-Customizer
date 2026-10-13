@@ -124,11 +124,11 @@ return function(mod,catalog)
  -- around it so colored GBA frames retain their original colors on GBC.
  local Borders=assert(load(assert(mod:read('lib/menu_borders.lua')),'@'..mod.path..'/lib/menu_borders.lua'))()(mod,C.setting,catalog,function()return C.live() and (C.drawScope or C.dialogueScope) end)
  C.borders=Borders
- C.theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return (C.drawScope or C.dialogueScope or mod.exports.battleFontScope) and C.setting(C.dialogueScope and 'dialogueTheme'or'menuTheme')==2 end)
+ C.theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return (C.drawScope or C.dialogueScope or mod.exports.choiceFontScope or mod.exports.battleFontScope) and C.setting((C.dialogueScope or mod.exports.choiceFontScope) and 'dialogueTheme'or'menuTheme')==2 end)
  -- START rows are sixteen pixels apart, just like Emerald's native menu.
  -- Use the original glyph size there instead of the dense GB screen size.
- C.theme.gbScale=function()if mod.exports.battleFontScope then return mod.exports.battleFontScale or .5 end;if C.dialogueScope then return .75 end;return not C.compactText and (C.dialogueScope or C.drawingStart or C.drawingCheats or C.drawingOptions and C.drawingOptions.fullFont) and 1 or .5 end
- C.theme.gbBaseline=function()return C.dialogueScope and 2 or 0 end
+ C.theme.gbScale=function()if mod.exports.battleFontScope then return mod.exports.battleFontScale or .5 end;if C.dialogueScope or mod.exports.choiceFontScope then return .75 end;return not C.compactText and (C.dialogueScope or C.drawingStart or C.drawingCheats or C.drawingOptions and C.drawingOptions.fullFont) and 1 or .5 end
+ C.theme.gbBaseline=function()return (C.dialogueScope or mod.exports.choiceFontScope) and 2 or 0 end
  C.theme.gbColors=function()
   if mod.exports.battleNameScope then return menuPalette.colors('name')end
   if mod.exports.battleFontScope then
@@ -339,7 +339,7 @@ return function(mod,catalog)
    elseif vanillaHud then result=code(glyph,0,0,...)
    elseif not (current and current.theme and current.theme.enabled() and current.theme.gbGlyph(glyph,0,0)) then
     if current and current.mod.exports.battleNameScope then result=(current.palette or menuPalette).nativeNameGlyph(code,glyph,0,0,...)
-    elseif current and (current.drawScope or current.dialogueScope) then result=(current.palette or menuPalette).nativeMenuGlyph(code,glyph,0,0,...)
+    elseif current and (current.drawScope or current.dialogueScope or current.mod.exports.choiceFontScope) then result=(current.palette or menuPalette).nativeMenuGlyph(code,glyph,0,0,...)
     else result=code(glyph,0,0,...)end
    end
    G.pop();return result
@@ -939,7 +939,7 @@ return function(mod,catalog)
  mod.events:on('game.ready',function(event)attach(event.game)end)
  mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;
  assert(load(assert(mod:read('lib/preview_windows.lua'))))()(mod,menuPalette,function()return C.live()end)
- mod.exports.version='3.2.57'
+ mod.exports.version='3.2.58'
  assert(load(assert(mod:read('lib/scene_transitions.lua'))))()(mod,function()return C.live()end)
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C

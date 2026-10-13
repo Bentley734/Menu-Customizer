@@ -8,11 +8,13 @@ return function(Font)
  Font.drawCode=function(id,x,y,...)
   local C=Font._menuCustomizerGB
   local source=G.getCanvas and G.getCanvas()
-  if not source or not C or C.mod.generation~=1 or not C.dialogueScope or C.drawScope or C.inBox then return code(id,x,y,...)end
+  local choice=C and C.mod.exports.choiceFontScope
+  if not source or not C or C.mod.generation~=1 or not(C.dialogueScope or choice) or C.drawScope and not choice or C.inBox then return code(id,x,y,...)end
   local ax,ay=G.transformPoint(x,y);local bx,by=G.transformPoint(x+1,y);local cx,cy=G.transformPoint(x,y+1)
+  local rx,ry=choice and C.drawScope and (C.resizeX or 1)or 1,choice and C.drawScope and (C.resizeY or 1)or 1
   local nominal=C.theme.enabled()and C.theme.gbAdvance(id)and C.theme.gbScale()or 1
   local queue=M.queues[source]or {};M.queues[source]=queue
-  queue[#queue+1]={id=id,x=ax,y=ay,hx=bx-ax,hy=by-ay,vx=cx-ax,vy=cy-ay,nominal=nominal,
+  queue[#queue+1]={choice=choice,id=id,x=ax,y=ay,hx=(bx-ax)/rx,hy=(by-ay)/rx,vx=(cx-ax)/ry,vy=(cy-ay)/ry,nominal=nominal,
    color={G.getColor()},args={n=select('#',...),...}}
  end
  local draw=G.draw;local replaying=false
@@ -24,10 +26,11 @@ return function(Font)
    local x,y,rotation,sx,sy,ox,oy=...
    if final and type(x)=='number'and (rotation or 0)==0 then
     sx=sx or 1;sy=sy or sx;local dpi=target and target:getDPIScale()or G.getDPIScale()
-    local C=Font._menuCustomizerGB;local prior=C.dialogueScope;C.dialogueScope=true;replaying=true
+    local C=Font._menuCustomizerGB;local prior,priorChoice=C.dialogueScope,C.mod.exports.choiceFontScope;replaying=true
     G.push('all');G.setBlendMode('alpha','alphamultiply')
     local ok,err=pcall(C.palette.withText,'menu',function()
      for _,item in ipairs(queue)do
+      C.dialogueScope=not item.choice;C.mod.exports.choiceFontScope=item.choice
       local px,py=x+(item.x-(ox or 0))*sx,y+(item.y-(oy or 0))*sy
       local hx=math.sqrt((item.hx*sx)^2+(item.hy*sy)^2)
       local vy=math.sqrt((item.vx*sx)^2+(item.vy*sy)^2)
@@ -38,7 +41,7 @@ return function(Font)
       code(item.id,0,0,unpack(item.args,1,item.args.n))
      end
     end)
-    G.pop();replaying=false;C.dialogueScope=prior
+    G.pop();replaying=false;C.dialogueScope,C.mod.exports.choiceFontScope=prior,priorChoice
     if not ok then error(err,0)end
    end
   end
