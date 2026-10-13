@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.67
+
+Remove the Hoenn Forest, Sootopolis, Volcano and Sky Pillar theme presets. The eleven Pokemon character theme presets remain available. Existing applied settings and individual backgrounds are preserved.
+
+Restart the game to load the updated theme list.
+
 # Menu Customizer 3.2.66
 
 Make customization visible inside the options window, add text case controls and coordinated Pokemon theme presets.

@@ -81,11 +81,7 @@ return function(mod)
    {'JIGGLYPUFF','JIGGLYPUFF LULLABY','PASTEL STRIPE','CREAM','PURPLE'},
    {'DRAGONAIR','DRAGONAIR DREAM','BLUE','PALE BLUE','BLUE'},
    {'UMBREON','UMBREON MOONLIGHT','BLACK & GOLD','NAVY','WHITE'},
-   {'SNORLAX','SNORLAX SNOOZE','FOREST GREEN','PALE GREEN','CHARCOAL'},
-   {'HOENN FOREST','PETALBURG FIREFLIES','FOREST GREEN','PALE GREEN','WHITE'},
-   {'SOOTOPOLIS','SOOTOPOLIS LAGOON','BLUE','PALE BLUE','WHITE'},
-   {'VOLCANO','MT CHIMNEY EMBERS','RED','PLUM','WHITE'},
-   {'SKY PILLAR','SKY PILLAR CLOUDS','SILVER','NAVY','WHITE'}}
+   {'SNORLAX','SNORLAX SNOOZE','FOREST GREEN','PALE GREEN','CHARCOAL'}}
   local function locate(names,name,zero)for i,n in ipairs(names)do if n==name then return i-(zero and 1 or 0)end end;return zero and 0 or 1 end
   local function values(t)
    local P=mod.exports.selectorPalette;local B=mod.exports.borderCatalog
