@@ -112,7 +112,8 @@ return function(mod,palette)
    local ax,ay=G.transformPoint(0,0);local bx,by=G.transformPoint(1,1)
    local target=G.getCanvas();local dpi=target and target:getDPIScale() or G.getDPIScale()
    M.pokemonShader:send('pokeOrigin',{ax*dpi,ay*dpi});M.pokemonShader:send('pokeScale',{math.max(.0001,(bx-ax)*dpi),math.max(.0001,(by-ay)*dpi)})
-   palette.pokemonBackgrounds.send(M.pokemonShader,color.pokemon,color.phase);G.setShader(M.pokemonShader)
+   local mode,x,y,w,h=...;local area=type(x)=='number'and type(h)=='number'and {x,y,w,h}or nil
+   palette.pokemonBackgrounds.send(M.pokemonShader,color.pokemon,color.phase,nil,area);G.setShader(M.pokemonShader)
   elseif color.animation=='GRADIENT' and G.newShader then
    if not shader then shader=G.newShader(palette.gradients.glsl..[[extern float phase;extern bool darkInk;
     vec4 effect(vec4 c,Image tex,vec2 uv,vec2 pixel){

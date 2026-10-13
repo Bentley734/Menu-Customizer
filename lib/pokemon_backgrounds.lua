@@ -95,6 +95,7 @@ return function(mod)
 {key="fresh_cubone",name="CUBONE SOFT WAVES",pokemon="cubone",style=5,a="1B150F",b="34322B",ink="B58F68",variant=2,design="SOFT WAVES",pokemonName="CUBONE"},
 {key="fresh_lapras",name="LAPRAS FLOATING SPARKS",pokemon="lapras",style=4,a="10191D",b="2C3129",ink="6FA8C2",variant=3,design="FLOATING SPARKS",pokemonName="LAPRAS"}
  })do M.entries[#M.entries+1]=e end
+ M.entries[#M.entries+1]={key='rainy_route',name='RAINY ROUTE',style=27,clip=true,a='FFFFFF',b='FFFFFF',ink='FFFFFF'}
  local function rgb(hex)return{tonumber(hex:sub(1,2),16)/255,tonumber(hex:sub(3,4),16)/255,tonumber(hex:sub(5,6),16)/255}end
  M.byKey={}
  for _,e in ipairs(M.entries)do e.baseA=rgb(e.a);e.baseB=rgb(e.b);e.accent=rgb(e.ink);M.byKey[e.key]=e
@@ -109,9 +110,21 @@ return function(mod)
  function M.color(key)
   local e=assert(M.byKey[key]);return{e.baseA[1],e.baseA[2],e.baseA[3],1,animation='POKEMON',pokemon=key}
  end
- function M.send(shader,key,time,fallback)
+ function M.send(shader,key,time,fallback,area)
   local e=M.byKey[key];shader:send('pokeStyle',e and e.style or 0);shader:send('pokeVariant',e and e.variant or 0)
   if not e then if fallback then shader:send('pokeStamp',fallback)end;return end
+  shader:send('pokeArea',area or {0,0,240,160})
+  if e.clip then
+   M.clipImages=M.clipImages or {}
+   local frame=math.floor((time or 0)*20)%159;local page=math.floor(frame/24)+1;local cell=frame%24
+   if not M.clipImages[page]then
+    local img=assert(mod.assets:image(string.format('assets/animated-paper/rainy-route-%02d.png',page)))
+    img:setFilter('nearest','nearest');M.clipImages[page]=img
+   end
+   shader:send('pokeStamp',M.clipImages[page])
+   shader:send('pokeSpriteRect',{(cell%4*498+.5)/1992,(math.floor(cell/4)*332+.5)/1992,497/1992,331/1992})
+   shader:send('pokeSpriteSize',{498,332});return
+  end
   local s,image=sprite(e.pokemon);local frame=math.floor((time or 0)*4)%s.frames
   local box=s.ink;local w,h=box[3]-box[1],box[4]-box[2]
   shader:send('pokeStamp',image);shader:send('pokePhase',time or 0)
@@ -121,10 +134,16 @@ return function(mod)
  end
  M.glsl=[[
   extern int pokeStyle;extern float pokeVariant;extern float pokePhase;extern vec3 pokeBaseA;extern vec3 pokeBaseB;extern vec3 pokeAccent;
-  extern Image pokeStamp;extern vec4 pokeSpriteRect;extern vec2 pokeSpriteSize;
+  extern vec4 pokeArea;extern Image pokeStamp;extern vec4 pokeSpriteRect;extern vec2 pokeSpriteSize;
   float paperHash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
   float paperDot(vec2 p,vec2 c,float r){return 1.0-step(r,length(p-c));}
   vec3 pokemonPaper(vec2 p){
+   if(pokeStyle==27){
+    vec2 size=max(pokeArea.zw,vec2(1.0));vec2 uv=(p-pokeArea.xy)/size;
+    float cover=max(size.x/pokeSpriteSize.x,size.y/pokeSpriteSize.y);
+    uv=(uv-.5)*size/(pokeSpriteSize*cover)+.5;
+    return Texel(pokeStamp,pokeSpriteRect.xy+clamp(uv,0.0,1.0)*pokeSpriteRect.zw).rgb;
+   }
    p=floor(p)+vec2(.5);float t=pokePhase;
    float flow=.5+.5*sin(p.x*.027+p.y*.021+t*.16);
    vec3 rgb=mix(pokeBaseA,pokeBaseB,flow);

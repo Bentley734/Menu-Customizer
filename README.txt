@@ -1,3 +1,13 @@
+# Menu Customizer 3.2.61
+
+Add RAINY ROUTE to the ANIMATED background choices, using the user-provided rainy Pokemon scene.
+
+- Preserve all 159 frames and the original 20 fps loop.
+- Fit each background with a centered cover crop, preserving its aspect ratio and nearest-neighbor pixel rendering.
+- Bundle the animation locally and load its atlas pages on demand. Existing background selections keep their saved IDs.
+
+Tests skipped at the user's request. Restart the game, then choose BACKGROUNDS, the desired background setting, ANIMATED, RAINY ROUTE.
+
 # Menu Customizer 3.2.60
 
 Improve Gen 1 Pokedex entry presentation, including 1025Dex statistics and information pages.

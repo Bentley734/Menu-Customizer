@@ -176,7 +176,7 @@ return function(mod,setting,catalog,active)
   local function byte(c)return math.floor(c*255)/255 end
   panelShader:send('paperTexture',paper or image);panelShader:send('paperColor',{byte(resolved[1]),byte(resolved[2]),byte(resolved[3]),byte(resolved[4] or 1)})
   panelShader:send('paperGradient',resolved.animation=='GRADIENT');panelShader:send('paperPhase',resolved.phase or 0)
-  palette.pokemonBackgrounds.send(panelShader,resolved.pokemon,resolved.phase,image)
+  palette.pokemonBackgrounds.send(panelShader,resolved.pokemon,resolved.phase,image,{0,0,w,h})
   palette.gradients.send(panelShader,atlas.gradient)
   -- The two palette uniforms are independent: frame motion never tints paper.
   local paperStops=palette.gradients.byKey[resolved.gradient]
