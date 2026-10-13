@@ -76,14 +76,19 @@ return function(mod,Message,Font,active)
  G.draw=function(source,...)
   local result={originalDraw(source,...)}
   local queue=not replaying and M.queues[source]
-  if queue and not G.getCanvas()then
+  local target=G.getCanvas()
+  -- Renderer can assemble the window in presentCanvas/uiLayerCanvas before
+  -- applying screen effects. These are already final-resolution surfaces.
+  local final=not target or target:getWidth()>=G.getWidth() and target:getHeight()>=G.getHeight()
+  if queue and final then
    local x,y,rotation,sx,sy,ox,oy=...
    if type(x)=='number' and (rotation or 0)==0 then
     sx=sx or 1;sy=sy or sx
     local prior,fixed=mod.exports.dialogueFontScope,mod.exports.dialogueFixedSize
     mod.exports.dialogueFontScope,mod.exports.dialogueFixedSize=true,true
     replaying=true
-    local ok,err=pcall(text.draw,queue,x-(ox or 0)*sx,y-(oy or 0)*sy,sx,sy,G.getDPIScale())
+    local dpi=target and target:getDPIScale()or G.getDPIScale()
+    local ok,err=pcall(text.draw,queue,x-(ox or 0)*sx,y-(oy or 0)*sy,sx,sy,dpi)
     replaying=false;mod.exports.dialogueFontScope,mod.exports.dialogueFixedSize=prior,fixed
     if not ok then error(err,0)end
    end

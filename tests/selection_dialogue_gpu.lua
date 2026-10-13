@@ -44,6 +44,15 @@ function love.load()
    G.clear(1,1,1,1);G.draw(source,11,13,0,3.47,4.91)
    check(unit==({3,4,6})[size+1],'font size snapped after final fractional resize')
   end
+  -- The engine's effects path blits UI into a window-sized canvas first.
+  -- Deferred dialogue must already be present when that canvas is processed.
+  D.beginFrame();G.setCanvas(source);G.origin();G.clear(0,0,0,0);Message.drawText();G.setCanvas()
+  local ww,hh=G.getDimensions();local intermediate=G.newCanvas(ww,hh,{dpiscale=1})
+  G.setCanvas(intermediate);G.origin();G.clear(0,0,0,0);G.setColor(1,1,1,1)
+  G.draw(source,11,13,0,3.47,3.47);G.setCanvas()
+  local pixels=intermediate:newImageData();local ink=0
+  for y=0,hh-1 do for x=0,ww-1 do local _,_,_,a=pixels:getPixel(x,y);if a>0 then ink=ink+1 end end end
+  check(ink>0,'dialogue survives the intermediate effects canvas')
   mod.exports.battleFontScope=nil;choices.battle_font_size=0
   local menu={_pages={{index=3,scroll=1,rows={{},{},{}}}}}
   local selection=loadMod('option_selection.lua')(mod,F,function(k)return choices[k]end,function()return true end,'firered')

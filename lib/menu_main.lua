@@ -912,10 +912,10 @@ return function(mod)
     mod.hooks:wrap('ui.start_menu.items',startItemsHook)
     Borders=assert(load(assert(mod:read('lib/menu_borders.lua')), '@'..mod.path..'/lib/menu_borders.lua'))()(mod,setting,catalog,active)
     mod.exports.borders=Borders;mod.exports.borderCatalog=catalog
-    mod.exports.effects=FX;mod.exports.version='3.2.54'
+    mod.exports.effects=FX;mod.exports.version='3.2.55'
   end
   mod.exports.effects=FX
-  mod.exports.version = '3.2.54'
+  mod.exports.version = '3.2.55'
   assert(load(assert(mod:read('lib/scene_transitions.lua'))))()(mod,active)
   mod.log:info('Menu Customizer: '..gameVersion..' START, OPTION and SAVE placement installed')
 end
