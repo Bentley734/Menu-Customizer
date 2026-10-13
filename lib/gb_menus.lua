@@ -364,7 +364,7 @@ return function(mod,catalog)
    end
    if sel.selector==0 then G.pop();return end
    if sel.selector==13 then
-    G.setColor(.25,.65,1,current.setting('selectionHighlight')/100);G.rectangle('fill',((start.left or 0)+8-sel.x)*rx,y-2,math.max(1,(start.width or 160)-16)*rx,start.pitch or 16)
+    G.setColor(.25,.65,1,current.setting('selectionHighlight')/100);G.rectangle('fill',((start.left or 0)+8-sel.x)*rx,-((current.theme.enabled() and current.theme.gbScale()==1) and 7 or 1),math.max(1,(start.width or 160)-16)*rx,(start.pitch or 16)*ry)
    elseif sel.selector>=5 then C.selectors.draw(sel.selector,x-10,y)
    elseif sel.selector==3 then code(0xED,x-10,y)
    elseif sel.selector==2 then G.setColor(unpack(current.palette.effects.resolve(current.palette.color('text',current.setting('selectorColor')),'menu')));G.rectangle('fill',x,y+8,width,1)
@@ -579,7 +579,9 @@ return function(mod,catalog)
     local y=24+(slot-1)*(self.detail and 32 or 16)
     if i==self.index then
      G.push('all');G.setShader();G.setColor(.25,.65,1,C.setting('selectionHighlight')/100)
-     G.rectangle('fill',8,y,144,self.detail and 30 or 16);G.pop()
+     local ry=C.resizeY or 1
+     local raised=C.theme.enabled() and C.theme.gbScale()==1 and 6 or 0
+     G.rectangle('fill',8,y-(raised+1)/ry,144,self.detail and 32 or 16);G.pop()
     end
     Font.draw(row and row.label or 'BACK',24,y)
     if row and row.selected and row.selected() then
@@ -940,7 +942,7 @@ return function(mod,catalog)
  mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;
  assert(load(assert(mod:read('lib/preview_windows.lua'))))()(mod,menuPalette,function()return C.live()end)
  assert(load(assert(mod:read('lib/gb_pokedex_text.lua'))))()(Font,function()return Font._menuCustomizerGB end)
- mod.exports.version='3.2.62'
+ mod.exports.version='3.2.63'
  assert(load(assert(mod:read('lib/scene_transitions.lua'))))()(mod,function()return C.live()end)
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C

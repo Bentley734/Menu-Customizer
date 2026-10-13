@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.63
+
+Align selected-row highlights with the raised Emerald menu font. The highlight now starts above the full label instead of halfway through it, compensates for menu height scaling, and covers both lines in detail rows. Apply the same alignment to the START highlight selector.
+
+Restart the game to load the update.
+
 # Menu Customizer 3.2.62
 
 Move Gen 1 Pokedex entry behavior to KIM1025 1.7.38.
