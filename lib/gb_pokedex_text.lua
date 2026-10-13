@@ -31,6 +31,65 @@ return function(Font,current)
  if Entry._menuCustomizerDexText then return M end
  Entry._menuCustomizerDexText=true
  local reading
+ function M.measurements(e)
+  local inches=math.floor((e.heightM and e.heightM/0.0254 or (e.heightFt or 0)*12+(e.heightIn or 0))+.5)
+  local pounds=e.weightKg and e.weightKg*2.2046226218 or (e.weight or 0)/10
+  return string.format("%d'%02d\"",math.floor(inches/12),inches%12),string.format('%.1f lb',pounds)
+ end
+ -- Scope the presentation around the native and 1025Dex renderers together.
+ -- Every temporary hook is restored, including when an underlying mod fails.
+ local presenting=false
+ local function present(game,def,sprite,owned,page,fn,...)
+  local C=Entry._menuCustomizerDexCurrent();local G=love and love.graphics
+  if presenting or not(C and C.live()and G and C.borders)then return fn(...)end
+  presenting=true
+  local fontDraw,rect,imageDraw=Font.draw,G.rectangle,G.draw
+  local oldScope=C.drawScope;C.drawScope=true
+  local fx=game.data.field and game.data.field.overworldFx
+  local frame=fx and fx.pokedexFrame;if fx then fx.pokedexFrame=nil end
+  local e=def.dexEntry or {};local height,weight=M.measurements(e)
+  local visible=owned or game.save and game.save.pokedex and game.save.pokedex.owned[def.id]
+  local painted=false
+  G.rectangle=function(mode,x,y,w,h,...)
+   if not painted and mode=='fill'and x==0 and y==0 and w==160 and h==144 then
+    painted=true
+    if page==1 then C.borders.drawPixels(0,0,160,80,nil,'pokedex');C.borders.drawPixels(0,72,160,72,nil,'pokedex')
+    else C.borders.drawPixels(0,0,160,144,nil,'pokedex')end
+    return
+   end
+   return rect(mode,x,y,w,h,...)
+  end
+  Font.draw=function(text,x,y,...)
+   if page==1 then
+    -- Replace both cartridge unit layouts with readable English labels.
+    if y==48 or y==64 and x>=72 then
+     if x==72 then
+      local label,value=y==48 and 'Height'or 'Weight',y==48 and height or weight
+      fontDraw(label,72,y-8,...);return fontDraw(visible and value or '?',72,y,...)
+     end
+     return
+    end
+    if x==8 and y>=88 then x=12 end
+   else
+    x=math.max(12,math.min(x,148-Font.width(text)))
+    if y>=72 then y=72+math.floor((y-72)*.875)else y=math.max(12,y)end
+   end
+   return fontDraw(text,x,y,...)
+  end
+  G.draw=function(image,x,y,...)
+   if page==2 and sprite and image==sprite and type(x)=='number'then
+    -- The native entry mirrors its front image; stats must use the same pose.
+    return imageDraw(image,x+sprite:getWidth(),y,0,-1,1)
+   end
+   return imageDraw(image,x,y,...)
+  end
+  local result={pcall(fn,...)}
+  Font.draw,G.rectangle,G.draw=fontDraw,rect,imageDraw
+  if fx then fx.pokedexFrame=frame end
+  C.drawScope=oldScope;presenting=false
+  if not result[1]then error(result[2],0)end
+  return (unpack or table.unpack)(result,2)
+ end
  local function layout(game,def,forceOwned)
   local C=Entry._menuCustomizerDexCurrent();local e=def and def.dexEntry
   local source=e and game and game.data and game.data.text and game.data.text[e.text]
@@ -54,7 +113,7 @@ return function(Font,current)
   local e=def.dexEntry;local source=game.data.text[e.text]
   game.data.text[e.text]=table.concat(chunks,'\f')
   local index=reading and reading._dexDescriptionPage or page
-  local result={pcall(render,game,def,sprite,owned,trueColor,index,state)}
+  local result={pcall(present,game,def,sprite,owned,1,render,game,def,sprite,owned,trueColor,index,state)}
   game.data.text[e.text]=source
   if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
  end
@@ -62,7 +121,7 @@ return function(Font,current)
   local prior=reading;reading=self
   local pages=layout(self.game,self.def,self.forceOwned)
   if pages then self._dexDescriptionCount=#pages;self._dexDescriptionPage=math.max(1,math.min(self._dexDescriptionPage or 1,#pages));self.pageCount=1 end
-  local result={pcall(draw,self,...)};reading=prior
+  local result={pcall(present,self.game,self.def,self.sprite,self.forceOwned,self.page,draw,self,...)};reading=prior
   if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
  end
  Entry.update=function(self,...)

@@ -1,3 +1,14 @@
+# Menu Customizer 3.2.60
+
+Improve Gen 1 Pokedex entry presentation, including 1025Dex statistics and information pages.
+
+- Add POKEDEX BORDER under BORDERS; USE MENU follows the default border. Apply the selected frame to both entry panels and to the stats/information pages.
+- Inset descriptions four more logical pixels while preserving measured wrapping and pagination.
+- Replace GR./GEW. with Height/Weight and display feet/inches and pounds, rounded to the nearest inch and tenth of a pound. Keep labels and values inside the upper panel.
+- Match the stats sprite direction to the main entry and inset stats/information text to clear the new frame.
+
+Validation: focused LuaJIT/Lua 5.3 regressions and 26 GPU checks covering native entry rendering, wrapping, unit conversion, stats sprite direction and padding. The running game was left open; restart to load the update.
+
 # Menu Customizer 3.2.59
 
 Use the menu font on Gen 1 Pokedex list and entry screens, and fit entry descriptions inside their box.

@@ -16,7 +16,7 @@ return function(mod,catalog)
  local specs={selectionHighlight={25,0,100,5},menuTextColor={0,0,#menuPalette.names-1,1},menuTextShadowColor={0,0,#menuPalette.shadowNames-1,1},menuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},startMenuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1},menuBorder={1,1,#catalog.choices,1},startJustify={1,1,3,1},startSelector={3,1,#C.selectors.names,1},arrowSelector={1,1,13,1},selectorColor={0,0,#menuPalette.names-1,1},dialogueJustify={1,1,3,1},hideStartMods={0,0,1,1},
   backgroundDim={0,0,70,10},controlsLegend={2,1,3,1},menuTransition={3,1,#Transitions.names,1},positionPreview={1,0,1,1}}
 
- for _,scope in ipairs({'start','battle','option','save','other','dialogue'})do specs[scope..'BorderChoice']={0,0,#catalog.choices,1}end
+ for _,scope in ipairs({'start','battle','option','save','other','dialogue','pokedex'})do specs[scope..'BorderChoice']={0,0,#catalog.choices,1}end
  specs.dialogueTheme={2,1,2,1};specs.dialogueBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1};specs.dialogueTextColor={0,0,#menuPalette.names-1,1};specs.dialogueTextShadowColor={0,0,#menuPalette.shadowNames-1,1}
 
  for k,v in pairs(menuPalette.effects.specs('menu'))do specs[k]=v end
@@ -659,7 +659,7 @@ return function(mod,catalog)
  parent[#parent+1]=row('menuTextShadowColor','MENU TEXT SHADOW',shadowNames)
  parent[#parent+1]=row('menuBackgroundColor','MENU BACKGROUND',bgNames)
  parent[#parent+1]=row('menuBorder','DEFAULT BORDER',catalog.choices)
- for _,scope in ipairs({'start','battle','option','save','other','dialogue'})do
+ for _,scope in ipairs({'start','battle','option','save','other','dialogue','pokedex'})do
   local choices={[0]='USE MENU'};for i,name in ipairs(catalog.choices)do choices[i]=name end
   parent[#parent+1]=row(scope..'BorderChoice',scope:upper()..' BORDER',choices)
  end
@@ -940,7 +940,7 @@ return function(mod,catalog)
  mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;
  assert(load(assert(mod:read('lib/preview_windows.lua'))))()(mod,menuPalette,function()return C.live()end)
  assert(load(assert(mod:read('lib/gb_pokedex_text.lua'))))()(Font,function()return Font._menuCustomizerGB end)
- mod.exports.version='3.2.59'
+ mod.exports.version='3.2.60'
  assert(load(assert(mod:read('lib/scene_transitions.lua'))))()(mod,function()return C.live()end)
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C

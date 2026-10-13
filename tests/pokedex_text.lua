@@ -47,4 +47,6 @@ local combined='';for _,page in ipairs(long)do for _,line in ipairs(page)do chec
 check(#combined==100,'long word loses no letters')
 game.save.pokedex.owned.CHARMANDER=false;local unseen=Entry.new(game);check(unseen._dexDescriptionCount==nil,'unowned description remains hidden')
 check(Entry.screenId=='DexEntryMenu' and package.loaded['src.ui.PokedexMenu'].screenId=='PokedexMenu','list and standalone entry use menu font context')
+local h,w=M.measurements({heightM=.6,weightKg=8.5});check(h=="2'00\"" and w=='18.7 lb','metric conversion')
+h,w=M.measurements({heightFt=5,heightIn=11,weight=1234});check(h=="5'11\"" and w=='123.4 lb','native customary values preserved')
 print('PASS '..checks..' Pokedex font context, wrapping, description navigation and stats checks')
