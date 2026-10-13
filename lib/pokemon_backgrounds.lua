@@ -96,6 +96,38 @@ return function(mod)
 {key="fresh_lapras",name="LAPRAS FLOATING SPARKS",pokemon="lapras",style=4,a="10191D",b="2C3129",ink="6FA8C2",variant=3,design="FLOATING SPARKS",pokemonName="LAPRAS"}
  })do M.entries[#M.entries+1]=e end
  M.entries[#M.entries+1]={key='rainy_route',name='RAINY ROUTE',style=27,clip=true,a='FFFFFF',b='FFFFFF',ink='FFFFFF'}
+ for _,e in ipairs({
+ {key='scene_1_still',name='PETALBURG FIREFLIES',pokemon='bulbasaur',style=28,scene=true,still=true,a='102B28',b='234C38',ink='A6D77B'},
+ {key='scene_1_animated',name='PETALBURG FIREFLIES',pokemon='bulbasaur',style=28,scene=true,still=false,a='102B28',b='234C38',ink='A6D77B'},
+ {key='scene_2_still',name='SLATEPORT SUNSET',pokemon='squirtle',style=29,scene=true,still=true,a='33233F',b='A85D4A',ink='F3BD84'},
+ {key='scene_2_animated',name='SLATEPORT SUNSET',pokemon='squirtle',style=29,scene=true,still=false,a='33233F',b='A85D4A',ink='F3BD84'},
+ {key='scene_3_still',name='MT CHIMNEY EMBERS',pokemon='charmander',style=30,scene=true,still=true,a='271E32',b='703A31',ink='ED945B'},
+ {key='scene_3_animated',name='MT CHIMNEY EMBERS',pokemon='charmander',style=30,scene=true,still=false,a='271E32',b='703A31',ink='ED945B'},
+ {key='scene_4_still',name='METEOR FALLS',pokemon='dragonair',style=31,scene=true,still=true,a='17243D',b='344F75',ink='B4DCE5'},
+ {key='scene_4_animated',name='METEOR FALLS',pokemon='dragonair',style=31,scene=true,still=false,a='17243D',b='344F75',ink='B4DCE5'},
+ {key='scene_5_still',name='FORTREE CANOPY',pokemon='eevee',style=32,scene=true,still=true,a='142D32',b='397354',ink='D4DB8D'},
+ {key='scene_5_animated',name='FORTREE CANOPY',pokemon='eevee',style=32,scene=true,still=false,a='142D32',b='397354',ink='D4DB8D'},
+ {key='scene_6_still',name='SOOTOPOLIS LAGOON',pokemon='lapras',style=33,scene=true,still=true,a='173047',b='287C88',ink='A7E8CE'},
+ {key='scene_6_animated',name='SOOTOPOLIS LAGOON',pokemon='lapras',style=33,scene=true,still=false,a='173047',b='287C88',ink='A7E8CE'},
+ {key='scene_7_still',name='SHOAL CAVE SNOW',pokemon='seel',style=34,scene=true,still=true,a='273A55',b='55758D',ink='D5F0E9'},
+ {key='scene_7_animated',name='SHOAL CAVE SNOW',pokemon='seel',style=34,scene=true,still=false,a='273A55',b='55758D',ink='D5F0E9'},
+ {key='scene_8_still',name='SKY PILLAR CLOUDS',pokemon='mew',style=35,scene=true,still=true,a='25334F',b='7F7AA0',ink='F0D7BB'},
+ {key='scene_8_animated',name='SKY PILLAR CLOUDS',pokemon='mew',style=35,scene=true,still=false,a='25334F',b='7F7AA0',ink='F0D7BB'},
+ {key='scene_9_still',name='SAFARI BERRY GROVE',pokemon='pikachu',style=36,scene=true,still=true,a='263C27',b='658341',ink='EBC276'},
+ {key='scene_9_animated',name='SAFARI BERRY GROVE',pokemon='pikachu',style=36,scene=true,still=false,a='263C27',b='658341',ink='EBC276'},
+ {key='scene_10_still',name='LITTLEROOT PICNIC',pokemon='snorlax',style=37,scene=true,still=true,a='303A2B',b='708957',ink='E4D0A0'},
+ {key='scene_10_animated',name='LITTLEROOT PICNIC',pokemon='snorlax',style=37,scene=true,still=false,a='303A2B',b='708957',ink='E4D0A0'},
+ {key='scene_11_still',name='LAVENDER LANTERNS',pokemon='gengar',style=38,scene=true,still=true,a='211B37',b='514065',ink='CEADD5'},
+ {key='scene_11_animated',name='LAVENDER LANTERNS',pokemon='gengar',style=38,scene=true,still=false,a='211B37',b='514065',ink='CEADD5'},
+ {key='scene_12_still',name='MOONLIT ROOFTOPS',pokemon='umbreon',style=39,scene=true,still=true,a='151F36',b='394563',ink='ECD78F'},
+ {key='scene_12_animated',name='MOONLIT ROOFTOPS',pokemon='umbreon',style=39,scene=true,still=false,a='151F36',b='394563',ink='ECD78F'},
+ {key='scene_13_still',name='CERULEAN BUBBLES',pokemon='poliwag',style=40,scene=true,still=true,a='15354B',b='307887',ink='A9DFDB'},
+ {key='scene_13_animated',name='CERULEAN BUBBLES',pokemon='poliwag',style=40,scene=true,still=false,a='15354B',b='307887',ink='A9DFDB'},
+ {key='scene_14_still',name='CONTEST RIBBONS',pokemon='jigglypuff',style=41,scene=true,still=true,a='392A4C',b='835C7B',ink='EAB9D5'},
+ {key='scene_14_animated',name='CONTEST RIBBONS',pokemon='jigglypuff',style=41,scene=true,still=false,a='392A4C',b='835C7B',ink='EAB9D5'},
+ {key='scene_15_still',name='POKEMON POSTCARDS',pokemon='pikachu',style=42,scene=true,still=true,a='283448',b='56687A',ink='D1BD91'},
+ {key='scene_15_animated',name='POKEMON POSTCARDS',pokemon='pikachu',style=42,scene=true,still=false,a='283448',b='56687A',ink='D1BD91'},
+ })do M.entries[#M.entries+1]=e end
  local function rgb(hex)return{tonumber(hex:sub(1,2),16)/255,tonumber(hex:sub(3,4),16)/255,tonumber(hex:sub(5,6),16)/255}end
  M.byKey={}
  for _,e in ipairs(M.entries)do e.baseA=rgb(e.a);e.baseB=rgb(e.b);e.accent=rgb(e.ink);M.byKey[e.key]=e
@@ -125,6 +157,7 @@ return function(mod)
    shader:send('pokeSpriteRect',{(cell%4*498+.5)/1992,(math.floor(cell/4)*332+.5)/1992,497/1992,331/1992})
    shader:send('pokeSpriteSize',{498,332});return
   end
+  if e.still then time=0 end
   local s,image=sprite(e.pokemon);local frame=math.floor((time or 0)*4)%s.frames
   local box=s.ink;local w,h=box[3]-box[1],box[4]-box[2]
   shader:send('pokeStamp',image);shader:send('pokePhase',time or 0)
@@ -138,6 +171,7 @@ return function(mod)
   float paperHash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
   float paperDot(vec2 p,vec2 c,float r){return 1.0-step(r,length(p-c));}
   vec3 pokemonPaper(vec2 p){
+   if(pokeStyle>=28)return pokemonScene(p);
    if(pokeStyle==27){
     vec2 size=max(pokeArea.zw,vec2(1.0));vec2 uv=(p-pokeArea.xy)/size;
     float cover=max(size.x/pokeSpriteSize.x,size.y/pokeSpriteSize.y);
@@ -232,5 +266,7 @@ return function(mod)
    return mix(rgb,pokeAccent,clamp(motif,0.0,1.0)*.17);
   }
  ]]
+ local sceneShader=assert(load(assert(mod:read('lib/pokemon_scenes.lua'))))()
+ M.glsl=M.glsl:gsub('  float paperDot',function()return sceneShader..'\n  float paperDot'end,1)
  return M
 end

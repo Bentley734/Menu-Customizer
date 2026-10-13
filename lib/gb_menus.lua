@@ -960,7 +960,7 @@ return function(mod,catalog)
    return (unpack or table.unpack)(result,2)
   end
  end
- mod.exports.version='3.2.64'
+ mod.exports.version='3.2.65'
  assert(load(assert(mod:read('lib/scene_transitions.lua'))))()(mod,function()return C.live()end)
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C
