@@ -210,6 +210,7 @@ return function(mod)
     if openPage then
       for _,entry in ipairs(out)do
         local key=entry.id and entry.id:match('^'..ID..':(.*)')
+        if key then entry.preview=function()return mod.exports.customization.values('battle_'..key,setting(key,0))end end
         local kind=(key=='text_color' or key=='name_color') and 'text' or (key=='shadow_color' or key=='name_shadow_color') and 'shadow' or key=='background_color' and 'background'
         if kind then textPalette.picker(entry,kind,function()return setting(key,0)end,function(ctx,n)return persist(ctx,key,n)end,openPage)end
       end

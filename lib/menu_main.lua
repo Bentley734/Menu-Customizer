@@ -125,6 +125,8 @@ return function(mod)
   end
   mod.exports.resetMenuSettings=function()values=nil;if FX then FX.touch('settingsScope')end end
   local function setting(key)
+    local preview=mod.exports.customization and mod.exports.customization.preview
+    if preview and preview[key]~=nil then return preview[key]end
     return settings()[key]
   end
   local function installArrows()
@@ -347,12 +349,14 @@ return function(mod)
       if title~='MENUS' then return openPage(title,members) end
       for _,r in ipairs(members)do
         local key=r.id:match('^wide_(.*)')
+        r.preview=function()return mod.exports.customization.values(key,setting(key))end
         local kind=(key=='menuTextColor'or key=='dialogueTextColor'or key=='selectorColor') and 'text' or (key=='menuTextShadowColor'or key=='dialogueTextShadowColor') and 'shadow' or (key=='menuBackgroundColor' or key=='startMenuBackgroundColor' or key=='dialogueBackgroundColor') and 'menuBackground'
         if kind then menuPalette.picker(r,kind,function()return setting(key)end,function(ctx,n)persist(key,n,ctx);return false end,openPage,key=='startMenuBackgroundColor' and 'USE MENU' or nil)end
-        if key=='menuBorder'or key:match('BorderChoice$')then menuPalette.designPicker(r,catalog.groups,function()return setting(key)end,function(ctx,n)persist(key,n,ctx);return false end,openPage)end
+        if key=='menuBorder'or key:match('BorderChoice$')then r.customization=mod.exports.customization;menuPalette.designPicker(r,catalog.groups,function()return setting(key)end,function(ctx,n)persist(key,n,ctx);return false end,openPage)end
       end
       local parent={};for _,r in ipairs(members)do parent[#parent+1]=r end
       parent[#parent+1]=mod.exports.settingsProfiles.row()
+      for _,r in ipairs(mod.exports.customization.rows(function(title,rows,ctx)return openPage(title,rows,ctx)end))do parent[#parent+1]=r end
       parent[#parent+1]={id='wide_text_fx',label='MENU TEXT EFFECTS',children=menuPalette.effects.rows('menu',function(ctx,key,n)persist(key,n,ctx);return false end,openPage),value=function()return 'OPEN'end,activate=function()openPage('MENU TEXT EFFECTS',menuPalette.effects.rows('menu',function(ctx,key,n)persist(key,n,ctx);return false end,openPage))end}
       local battleUi=mod.exports.battleUi
       if battleUi then parent[#parent+1]={id='wide_battle_ui',label='BATTLE SETTINGS',children=battleUi.rows({},openPage),value=function()return 'OPEN'end,activate=function()openPage('BATTLE',battleUi.rows({},openPage))end}end
@@ -923,11 +927,11 @@ return function(mod)
     Borders=assert(load(assert(mod:read('lib/menu_borders.lua')), '@'..mod.path..'/lib/menu_borders.lua'))()(mod,setting,catalog,active)
     mod.exports.borders=Borders;mod.exports.borderCatalog=catalog
     assert(load(assert(mod:read('lib/preview_windows.lua'))))()(mod,menuPalette,active)
-    mod.exports.effects=FX;mod.exports.version='3.2.65'
+    mod.exports.effects=FX;mod.exports.version='3.2.66'
   end
   mod.exports.effects=FX
   assert(load(assert(mod:read('lib/preview_windows.lua'))))()(mod,menuPalette,active)
-  mod.exports.version = '3.2.65'
+  mod.exports.version = '3.2.66'
   assert(load(assert(mod:read('lib/scene_transitions.lua'))))()(mod,active)
   mod.log:info('Menu Customizer: '..gameVersion..' START, OPTION and SAVE placement installed')
 end

@@ -28,6 +28,7 @@ return function(mod,enabled)
  for c in chars('éÉàèùâêîôûäëïöüçÀÈÙÂÊÎÔÛÄËÏÖÜÇ♀♂¥')do supported[c]=true end
  local function glyphs(text)
   text=tostring(text)
+  if mod.exports.customization then text=mod.exports.customization.text(text)end
   if text:find('[<>{}]') then return nil end
   local out={};for c in chars(text)do if c=='\n' then out[#out+1]=-1 elseif not supported[c]then return nil else out[#out+1]=glyphId(c)end end;return out
  end

@@ -26,7 +26,7 @@ return function(mod,palette)
   local p=prefixes[kind];local rows={}
   local function row(key,label,labels,default)
    local k=p..key;local spec=M.specs(kind)[k]
-   local entry={id='fx_'..k,label=label,value=function()
+   local entry={id='fx_'..k,label=label,preview=function()return mod.exports.customization.values(k,M.get(kind,key,default or spec[1]))end,value=function()
     local n=M.get(kind,key,default or spec[1]);return labels and labels[n+1] or tostring(n)..((key=='speed'or key:find('transparency')) and '%' or '')
    end,step=function(ctx,dir)
     local n=M.get(kind,key,default or spec[1]);dir=dir and dir<0 and -1 or 1

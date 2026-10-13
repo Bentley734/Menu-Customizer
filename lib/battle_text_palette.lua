@@ -196,6 +196,7 @@ return function(mod)
   M.designPicker=assert(load(assert(mod:read('lib/design_picker.lua'))))()
   function M.picker(row,kind,get,persist,openPage,defaultLabel)
     if not openPage then return row end
+    row.customization=mod.exports.customization
     row.group=true
     row.activate=function(ctx)
       local groups,names=M.groups(kind,defaultLabel);local rows={}
@@ -220,7 +221,10 @@ return function(mod)
             local shades={}
             for _,id in ipairs(g.ids)do
               local n=id
-              shades[#shades+1]={id=row.id..':color:'..n,label=n==0 and defaultLabel or names[n+1],colorChoice=true,
+              shades[#shades+1]={id=row.id..':color:'..n,label=n==0 and defaultLabel or names[n+1],colorChoice=true,preview=function()
+                local key=row.id:gsub('^wide_',''):gsub('^fx_','')
+                return mod.exports.customization.values(key,n)
+               end,
                 value=function()return get()==n and 'SELECTED' or 'USE'end,
                 selected=function()return get()==n end,
                 activate=function(selectCtx)return persist(selectCtx or nextCtx or ctx,n)end}

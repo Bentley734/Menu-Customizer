@@ -13,7 +13,11 @@ return function(row,groups,get,persist,openPage)
     local items={}
     for _,choice in ipairs(g.choices)do
      local c=choice
-     items[#items+1]={id=row.id..':choice:'..c.id,label=c.label,colorChoice=true,
+     items[#items+1]={id=row.id..':choice:'..c.id,label=c.label,colorChoice=true,preview=function()
+       local key=row.id:gsub('^wide_',''):gsub('^fx_','')
+       local custom=row.customization
+       return custom and custom.values(key,c.id)or {[key]=c.id}
+      end,
       value=function()return get()==c.id and 'SELECTED'or'USE'end,
       selected=function()return get()==c.id end,
       activate=function(selectCtx)return persist(selectCtx or nextCtx or ctx,c.id)end}

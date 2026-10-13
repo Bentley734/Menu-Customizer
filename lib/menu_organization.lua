@@ -1,8 +1,11 @@
 -- Existing saved IDs remain stable; navigation follows customization type.
 return function(entries,openPage)
  local order={'TEXT','BORDERS','BACKGROUNDS','TRANSITIONS','SELECTORS','POSITION','TRANSPARENCY'}
+ local storage,themes
  local pages={};for _,name in ipairs(order)do pages[name]={}end
  local function add(r)
+  if r.id=='wide_settingsScope'then storage=r;return end
+  if r.id=='wide_themeSets'then themes=r;return end
   if r.children then local children=type(r.children)=='function'and r.children()or r.children;for _,child in ipairs(children)do add(child)end;return end
   local key=r.id or '';local dest
   if key:find('menuTransition',1,true)then r.label='MISC TRANSITIONS'end
@@ -19,5 +22,7 @@ return function(entries,openPage)
  local out={};for _,name in ipairs(order)do local children=pages[name]
   out[#out+1]={id='wide_page_'..name,label=name,group=true,children=children,value=function()return #children..' OPTIONS'end,activate=function(ctx)return openPage(name,children,ctx)end}
  end
+ if themes then out[#out+1]=themes end
+ if storage then out[#out+1]=storage end
  return out
 end

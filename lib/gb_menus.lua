@@ -300,7 +300,7 @@ return function(mod,catalog)
    if not start or x~=start.labelX then return render(text,x,y,...) end
    local n=(y-start.rowY)/start.pitch+1+start.scroll
    local entry=start.items[n]
-   if n~=math.floor(n) or not entry or (not start.options and text~=entry.label) then return render(text,x,y,...) end
+   if n~=math.floor(n) or not entry or (not start.options and text~=current.mod.exports.customization.text(entry.label)) then return render(text,x,y,...) end
    local selector=start.options and current.arrows.id() or current.setting('startSelector')
    local left=start.left+8
    local right=start.left+start.width-8
@@ -361,6 +361,12 @@ return function(mod,catalog)
     -- START markers follow Emerald's raised ink before inverse UI scaling.
     -- The old iOS +2 correction moved every marker below its selected label.
     y=y-2
+   end
+   if start.options then
+    local raised=current.theme.enabled()and current.theme.gbScale()==1 and 6 or 0
+    G.setColor(.25,.65,1,current.setting('selectionHighlight')/100)
+    G.rectangle('fill',((start.left or 0)+8-sel.x)*rx,-raised-1,math.max(1,(start.width or 160)-16)*rx,(start.pitch or 16)*ry)
+    G.setColor(0,0,0,1)
    end
    if sel.selector==0 then G.pop();return end
    if sel.selector==13 then
@@ -548,7 +554,7 @@ return function(mod,catalog)
    entries={}
    for _,original in ipairs(rows)do
     if original.step and not original.activate then
-     entries[#entries+1]={label=original.label,activate=function(g)pushPage(g,original.label,{original},true)end}
+     entries[#entries+1]={id=original.id,label=original.label,preview=original.preview,activate=function(g)pushPage(g,original.label,{original},true)end}
     else entries[#entries+1]=original end
    end
   end
@@ -571,13 +577,16 @@ return function(mod,catalog)
   if self.index>self.scroll+(self.detail and 4 or 6) then self.scroll=self.index-(self.detail and 4 or 6) end
  end
  function Page:draw()
+  return mod.exports.customization.with(self.rows[self.index],self.drawPreview,self)
+ end
+ function Page:drawPreview()
   Font.drawBox(0,0,20,18)
   G.setColor(0,0,0,1);C.compactText=true;Font.draw(self.title,8,10);C.compactText=nil
   for slot=1,(self.detail and 4 or 6) do
    local i=self.scroll+slot;local row=self.rows[i]
    if i<=#self.rows+1 then
     local y=24+(slot-1)*(self.detail and 32 or 16)
-    if i==self.index then
+    if false then
      G.push('all');G.setShader();G.setColor(.25,.65,1,C.setting('selectionHighlight')/100)
      local ry=C.resizeY or 1
      local raised=C.theme.enabled() and C.theme.gbScale()==1 and 6 or 0
@@ -610,7 +619,7 @@ return function(mod,catalog)
  end
  local function row(key,label,choices)
   local spec=specs[key]
-  local entry={id='wide_'..key,label=label,value=function()
+  local entry={id='wide_'..key,label=label,preview=function()return mod.exports.customization.values(key,C.setting(key))end,value=function()
    local n=C.setting(key)
    return choices and choices[n] or tostring(n)..((key:find('Opacity') or key:find('Scale') or key:find('Width') or key:find('Height') or key=='backgroundDim' or key=='selectionHighlight') and '%' or '')
   end,step=function(game,dir)
@@ -625,6 +634,7 @@ return function(mod,catalog)
   if kind then menuPalette.picker(entry,kind,function()return C.setting(key)end,function(ctx,n)C.persist(ctx.game or ctx,key,n);return false end,
    function(title,rows,ctx)return pushPage(ctx.game or ctx,title,rows)end,key=='startMenuBackgroundColor' and 'USE MENU' or nil)end
   if key=='menuBorder'or key:match('BorderChoice$')then
+   entry.customization=mod.exports.customization
    menuPalette.designPicker(entry,catalog.groups,function()return C.setting(key)end,
     function(ctx,n)C.persist(ctx.game or ctx,key,n);return false end,
     function(title,rows,ctx)return pushPage(ctx.game or ctx,title,rows)end)
@@ -639,6 +649,7 @@ return function(mod,catalog)
  for i,name in ipairs(menuPalette.menuBackgroundNames)do bgNames[i-1]=name;startBgNames[i-1]=name end
  bgNames[0]='DEFAULT';startBgNames[0]='USE MENU'
  local parent={mod.exports.settingsProfiles.row()}
+ for _,r in ipairs(mod.exports.customization.rows(function(title,rows,ctx)return pushPage(ctx.game or ctx,title,rows)end))do parent[#parent+1]=r end
  for _,group in ipairs({'start','option','save','other'})do
   for _,suffix in ipairs({'Position','Scale','Width','Height','OffsetX','OffsetY'})do
    parent[#parent+1]=row(group..suffix,group:upper()..' '..(({OffsetX='X OFFSET',OffsetY='Y OFFSET'})[suffix]or suffix:upper()),suffix=='Position'and positions or nil)
@@ -960,7 +971,7 @@ return function(mod,catalog)
    return (unpack or table.unpack)(result,2)
   end
  end
- mod.exports.version='3.2.65'
+ mod.exports.version='3.2.66'
  assert(load(assert(mod:read('lib/scene_transitions.lua'))))()(mod,function()return C.live()end)
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C

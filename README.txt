@@ -1,3 +1,18 @@
+# Menu Customizer 3.2.66
+
+Make customization visible inside the options window, add text case controls and coordinated Pokemon theme presets.
+
+- Hover/focus color, background, border and theme choices to preview them in the open window. Draw-only option overrides restore after rendering, including errors; A applies a picker choice and B leaves the saved selection intact.
+- Preview scoped text colors, shadows and effects through the menu sample; setting adjustments update the current window without leaving the menu.
+- Paint the GB options selection highlight after opaque glyph paper, with raised-font baseline alignment, full row pitch and menu-scale compensation.
+- Add TEXT DECAPITALIZATION: ORIGINAL, SENTENCE CASE or LOWERCASE. Apply at font drawing/measurement boundaries while preserving encoded control tags and game text data.
+- Place SETTINGS STORAGE at the bottom of the main Menu Customizer menu; add POKEMON THEMES above it.
+- Add fifteen matching theme presets: Pikachu, Bulbasaur, Charmander, Squirtle, Mew, Gengar, Eevee, Jigglypuff, Dragonair, Umbreon, Snorlax, Hoenn Forest, Sootopolis, Volcano and Sky Pillar. Themes set shared fonts, palettes, borders, backgrounds, selectors, effects, opacity and transitions together; applying a theme updates the active settings profile.
+
+Validation: focused preview restoration/control-tag/text-case checks under LuaJIT and Lua 5.3; source compilation and existing selector/font regressions; native startup/menu navigation across eleven games. No live gameplay session was restarted.
+
+Restart the game to load the update.
+
 # Menu Customizer 3.2.65
 
 Add 30 Pokemon background choices: 15 still and 15 animated, inspired by the workspace background references, anime atmosphere and Generation 3 locations. Use existing bundled Pokemon artwork and new pixel-scene shaders to keep the download and creation cost small.
