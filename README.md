@@ -1,3 +1,16 @@
+# Menu Customizer 3.2.59
+
+Use the menu font on Gen 1 Pokedex list and entry screens, and fit entry descriptions inside their box.
+
+- Recognize standalone Pokedex entries as menu screens, including starter/capture entries opened without the list underneath.
+- Wrap description text using the selected font's measured width, with three lines per page and padding inside the lower box. Split long words safely and add as many description pages as needed.
+- Keep description pagination independent of 1025Dex stats, forms and additional information pages. A/DOWN advances overflowing descriptions; UP returns to previous description pages. DOWN after the final description reaches the existing stats page; B closes normally.
+- Preserve ownership checks and original description data. Avoid duplicating the native printer's final period.
+
+Validation: 48 pagination/navigation/font-context checks under LuaJIT and Lua 5.3; 21 GPU checks using the actual native entry renderer with native/Emerald fonts; existing menu regressions and startup checks across eleven games. The running game was left open.
+
+Restart the game after installation to load the fix.
+
 # Menu Customizer 3.2.58
 
 Make Gen 1/2 YES/NO text match the dialogue font and size instead of the compact menu font.

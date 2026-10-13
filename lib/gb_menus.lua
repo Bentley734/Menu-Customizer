@@ -88,7 +88,7 @@ return function(mod,catalog)
   return 'other'
  end
  local known={StartMenu=true,Gen2StartMenu=true,OptionsMenu=true,Gen2OptionsMenu=true,
-  BagMenu=true,Gen2PackMenu=true,PartyMenu=true,Gen2PartyMenu=true,PokedexMenu=true,Gen2PokedexMenu=true,
+  BagMenu=true,Gen2PackMenu=true,PartyMenu=true,Gen2PartyMenu=true,PokedexMenu=true,DexEntryMenu=true,Gen2PokedexMenu=true,
   TrainerCard=true,Gen2TrainerCard=true,Gen2Pokegear=true,Gen2SaveMenu=true,MenuCustomizerOptions=true}
  function C.context(game)
   if not C.live() or not game or not game.stack then return nil end
@@ -939,7 +939,8 @@ return function(mod,catalog)
  mod.events:on('game.ready',function(event)attach(event.game)end)
  mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;
  assert(load(assert(mod:read('lib/preview_windows.lua'))))()(mod,menuPalette,function()return C.live()end)
- mod.exports.version='3.2.58'
+ assert(load(assert(mod:read('lib/gb_pokedex_text.lua'))))()(Font,function()return Font._menuCustomizerGB end)
+ mod.exports.version='3.2.59'
  assert(load(assert(mod:read('lib/scene_transitions.lua'))))()(mod,function()return C.live()end)
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C
