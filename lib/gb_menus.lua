@@ -156,16 +156,15 @@ return function(mod,catalog)
     if current.drawScope then local rx,ry=current.resizeX or 1,current.resizeY or 1;x,y,w,h=x*rx,y*ry,w*rx,h*ry end
     if not b then current.bounds={x=x,y=y,w=w,h=h}
     else local r,d=math.max(b.x+b.w,x+w),math.max(b.y+b.h,y+h);b.x,b.y=math.min(b.x,x),math.min(b.y,y);b.w,b.h=r-b.x,d-b.y end
+    if current.dialogueScope and current.mod.generation==1 then
+     current.dialogueRects=current.dialogueRects or {}
+     current.dialogueRects[#current.dialogueRects+1]={colors=false,x=tx*8,y=ty*8,w=tw*8,h=th*8}
+    end
     current.inBox=true
     local args={n=select('#',...),...}
     local ok,result=pcall(function()
      if (not current.dialogueScope or current.setting('dialogueBorder')==1) and current.borders.draw(tx,ty,tw,th) then
-      if current.dialogueScope and current.mod.generation==1 then
-       current.dialogueRects=current.dialogueRects or {}
-       local function mark(x,y,w,h)current.dialogueRects[#current.dialogueRects+1]={colors=false,x=x,y=y,w=w,h=h}end
-       mark(tx*8,ty*8,tw*8,8);mark(tx*8,(ty+th-1)*8,tw*8,8)
-       mark(tx*8,(ty+1)*8,8,(th-2)*8);mark((tx+tw-1)*8,(ty+1)*8,8,(th-2)*8)
-      end
+
       return
      end
      local result=box(tx,ty,tw,th,unpack(args,1,args.n))
@@ -399,7 +398,7 @@ return function(mod,catalog)
  if not Renderer._menuCustomizerDialogueColor then
   local begin=Renderer.beginFrame;local blit=Renderer.blitCanvas
   Renderer.beginFrame=function(self,...)
-   local current=Font._menuCustomizerGB;if current then current.dialogueRects={} end
+   local current=Font._menuCustomizerGB;if current then current.dialogueRects={};if current.dialogueText then current.dialogueText.beginFrame()end end
    return begin(self,...)
   end
   Renderer.blitCanvas=function(self,canvas,sx,sy,zones,...)
@@ -413,6 +412,7 @@ return function(mod,catalog)
   end
   Renderer._menuCustomizerDialogueColor=true
  end
+ C.dialogueText=assert(load(assert(mod:read('lib/gb_dialogue_text.lua'))))()(Font)
  local TextBox=require('src.render.TextBox')
  if not TextBox._menuCustomizerDialogueNew then
   TextBox._menuCustomizerDialogueNew=TextBox.new
@@ -541,7 +541,6 @@ return function(mod,catalog)
     if i==self.index then
      G.push('all');G.setShader();G.setColor(.25,.65,1,C.setting('selectionHighlight')/100)
      G.rectangle('fill',8,y,144,self.detail and 30 or 16);G.pop()
-     C.arrows.draw(12,y,8)
     end
     Font.draw(row and row.label or 'BACK',24,y)
     if row and row.selected and row.selected() then
@@ -892,7 +891,7 @@ return function(mod,catalog)
   end
  end
  mod.events:on('game.ready',function(event)attach(event.game)end)
- mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.55'
+ mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;mod.exports.version='3.2.56'
  assert(load(assert(mod:read('lib/scene_transitions.lua'))))()(mod,function()return C.live()end)
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C

@@ -1,3 +1,16 @@
+# Menu Customizer 3.2.56
+
+Fix Gen 1 field dialogue backgrounds and fonts, and duplicate menu selectors.
+
+- Preserve the complete dialogue window's RGB colors through Gen 1's indexed palette compositor, including its animated paper and glyphs. Previously only border strips bypassed palette conversion.
+- Defer Gen 1 field dialogue glyphs until final screen/effects resolution. Keep complete Emerald glyph masks on square integer pixels instead of reducing them into the native canvas first.
+- Use the correct alpha blend mode for direct glyph rendering, including native font masks.
+- Remove the settings page's extra inline selector. The shared label-aligned selector draws it once.
+
+Validation: 126 real GPU checks through the actual frame/palette compositor, covering native and Emerald faces, border on/off, animated background RGB preservation, glyph transparency and integer geometry, and selector ownership; 54 existing selector/font GPU checks; LuaJIT/Lua 5.3 regressions and startup checks for all eleven games with current KIM source.
+
+Restart the game after installation. Gameplay was left running.
+
 # Menu Customizer 3.2.55
 
 Restore missing field dialogue when the renderer uses its intermediate present/effects canvas. Deferred letters now draw into window-sized canvases before processing, as well as directly to the screen. Keep the fixed chosen font size, two-line pagination, integer glyph pixels, continuous animated borders and highlight controls from 3.2.54.

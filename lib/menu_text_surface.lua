@@ -43,6 +43,7 @@ return function(mod,Font)
   dpi=dpi or 1
   local prior=mod.exports.fontAspect;mod.exports.fontAspect=nil
   G.push('all')
+  G.setBlendMode('alpha','alphamultiply')
   local result={pcall(function()
    for _,item in ipairs(queue)do
     local ax,ay=unpack(item.anchor)
