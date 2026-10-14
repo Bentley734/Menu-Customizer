@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.90
+
+Remove the extra four-pixel row-centering offset from cartridge choice markers so they align with Text Speed and Button Mode text. Ordinary row selectors remain unchanged.
+
+Validation: all choice styles and selected-color checks, preview regressions and full compilation under LuaJIT and Lua 5.3. Restart after installing.
+
 # Menu Customizer 3.2.89
 
 Right-align ordinary settings values, including selector names, OPEN labels and percentages, using the active font width and matching the window inset. Preserve multi-choice cartridge control layout and choice markers. Apply to Gen 3 options and GB native options value rows.
