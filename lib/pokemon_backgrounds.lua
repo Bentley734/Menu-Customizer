@@ -128,6 +128,15 @@ return function(mod)
  {key='scene_15_still',name='POKEMON POSTCARDS',pokemon='pikachu',style=42,scene=true,still=true,a='283448',b='56687A',ink='D1BD91'},
  {key='scene_15_animated',name='POKEMON POSTCARDS',pokemon='pikachu',style=42,scene=true,still=false,a='283448',b='56687A',ink='D1BD91'},
  })do M.entries[#M.entries+1]=e end
+ for _,e in ipairs(M.entries)do if e.key=='rainy_route'or e.key=='sacred_lattice'or e.key=='vision_field'or e.key=='third_eye'then e.hidden=true;e.retired=true end end
+ M.entries[#M.entries+1]={key='psy_0',name='SOLAR FRACTAL',style=43,a='180D12',b='A82D13',ink='ECD345'}
+ M.entries[#M.entries+1]={key='psy_1',name='EMERALD MANDALA',style=44,a='0D1E18',b='28724E',ink='AEEA54'}
+ M.entries[#M.entries+1]={key='psy_2',name='AMETHYST PRISM',style=45,a='1B102F',b='7134BA',ink='DD99FC'}
+ M.entries[#M.entries+1]={key='psy_3',name='CHROMATIC LOTUS',style=46,a='26102C',b='9A3682',ink='F4B4D3'}
+ M.entries[#M.entries+1]={key='psy_4',name='INFINITE STAR GATES',style=47,a='10132A',b='4E448F',ink='90DCD3'}
+ M.entries[#M.entries+1]={key='psy_5',name='MOLTEN HONEYCOMB',style=48,a='26190E',b='984B21',ink='F5CB72'}
+ M.entries[#M.entries+1]={key='psy_6',name='NEON CHRYSALIS',style=49,a='102825',b='176E80',ink='99F0BD'}
+ M.entries[#M.entries+1]={key='psy_7',name='COSMIC ROSETTE',style=50,a='1E1536',b='513A9A',ink='EBB6F3'}
  local function rgb(hex)return{tonumber(hex:sub(1,2),16)/255,tonumber(hex:sub(3,4),16)/255,tonumber(hex:sub(5,6),16)/255}end
  M.byKey={}
  for _,e in ipairs(M.entries)do e.baseA=rgb(e.a);e.baseB=rgb(e.b);e.accent=rgb(e.ink);M.byKey[e.key]=e
@@ -144,6 +153,7 @@ return function(mod)
  end
  function M.send(shader,key,time,fallback,area)
   local e=M.byKey[key];shader:send('pokeStyle',e and e.style or 0);shader:send('pokeVariant',e and e.variant or 0)
+  if e and e.retired then shader:send('pokeStyle',0);if fallback then shader:send('pokeStamp',fallback)end;return end
   if not e then if fallback then shader:send('pokeStamp',fallback)end;return end
   shader:send('pokeArea',area or {0,0,240,160})
   if e.clip then
@@ -158,6 +168,10 @@ return function(mod)
    shader:send('pokeSpriteSize',{498,332});return
   end
   if e.still then time=0 end
+  if e.style>=43 then
+   shader:send('pokePhase',time or 0);shader:send('pokeBaseA',e.baseA);shader:send('pokeBaseB',e.baseB);shader:send('pokeAccent',e.accent)
+   local _,image=sprite('mew');shader:send('pokeStamp',image);return
+  end
   local s,image=sprite(e.pokemon);local frame=math.floor((time or 0)*4)%s.frames
   local box=s.ink;local w,h=box[3]-box[1],box[4]-box[2]
   shader:send('pokeStamp',image);shader:send('pokePhase',time or 0)
@@ -171,6 +185,25 @@ return function(mod)
   float paperHash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
   float paperDot(vec2 p,vec2 c,float r){return 1.0-step(r,length(p-c));}
   vec3 pokemonPaper(vec2 p){
+   if(pokeStyle>=43){
+    vec2 size=max(pokeArea.zw,vec2(1.0));vec2 z=(p-pokeArea.xy-size*.5)/min(size.x,size.y)*3.0;
+    float r=max(length(z),.012),a=atan(z.y,z.x),t=pokePhase*.35;float k=float(pokeStyle-43);
+    float fold=abs(cos(a*(3.0+mod(k,5.0))+t*.4));
+    float tunnel=log(r)*(-6.0-mod(k,3.0)*2.0)+t;
+    float wave=sin(tunnel+fold*(5.0+mod(k,4.0)));
+    if(pokeStyle==44)wave=sin(r*12.0-fold*8.0-t);
+    if(pokeStyle==45)wave=sin((abs(z.x)+abs(z.y))*9.0+fold*6.0-t);
+    if(pokeStyle==46)wave=cos(r*9.0+sin(a*7.0-t)*3.0-t);
+    if(pokeStyle==47)wave=sin(tunnel+cos(a*5.0+t)*7.0);
+    if(pokeStyle==48)wave=sin(z.x*8.0+sin(z.y*7.0+t)*2.0)+cos(z.y*9.0-t);
+    if(pokeStyle==49)wave=sin(log(r)*12.0-t+sin(a*8.0)*4.0);
+    if(pokeStyle==50)wave=cos(r*11.0+fold*12.0+sin(r*4.0-t)*3.0);
+    float edge=exp(-abs(wave)*5.0);float field=.5+.5*sin(wave*2.0+t+r*2.0);
+    vec3 rgb=mix(pokeBaseA,pokeBaseB,field);
+    rgb=mix(rgb,pokeAccent,edge*.8);
+    float weave=.94+.06*cos(floor(p.x)*2.1)*cos(floor(p.y)*2.1);
+    return rgb*weave;
+   }
    if(pokeStyle>=28)return pokemonScene(p);
    if(pokeStyle==27){
     vec2 size=max(pokeArea.zw,vec2(1.0));vec2 uv=(p-pokeArea.xy)/size;

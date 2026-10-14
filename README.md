@@ -1,3 +1,16 @@
+# Menu Customizer 3.2.69
+
+Simplify Pokemon border choices and add eight matching psychedelic animated wallpapers and borders.
+
+- Keep only Lapras Pokeball Orbits, Gengar Psychic Eyes, Mewtwo Leaf Dance, Charizard Ember Flow, Blastoise Tidal Waves and Lucario Volt Trails in their respective families.
+- Remove Rainy Route, Sacred Lattice, Vision Field and Third Eye from the background pickers.
+- Add Solar Fractal, Emerald Mandala, Amethyst Prism, Chromatic Lotus, Infinite Star Gates, Molten Honeycomb, Neon Chrysalis and Cosmic Rosette. Find wallpapers under TRIPPY and borders under OTHER ANIMATED DESIGNS. Each uses continuous animated procedural patterns, inspired by the available kaleidoscope reference, with frame motion following the closed perimeter through corners.
+- Keep retired numeric slots for save compatibility; old removed Pokemon frame selections render their family's retained frame. Existing selection IDs do not shift.
+
+Validation: Lua source compilation and a GPU render of all eight new wallpapers. Four referenced image attachment paths were unavailable; the visible orange/green fractal image was used as inspiration.
+
+Restart the game to load the update.
+
 # Menu Customizer 3.2.68
 
 Customize the Gen 1 CONTINUE save-summary panel with SAVE SUMMARY FONT, SAVE SUMMARY BACKGROUND and SAVE SUMMARY BORDER. Find these in TEXT, BACKGROUNDS and BORDERS respectively. Font offers USE MENU, NATIVE and EMERALD; background and border can inherit the shared menu choices.

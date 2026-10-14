@@ -148,6 +148,23 @@ C.entries[#C.entries+1]={label="CUBONE SOFT WAVES",path="assets/borders/pokemon_
 C.entries[#C.entries+1]={label="LAPRAS FLOATING SPARKS",path="assets/borders/pokemon_gradient.png",animation="pokemon",gradient="fresh_frame_lapras",pokemonMotif=60,pokemonName="LAPRAS"}
 local originalPokemonNames={'PIKACHU','CHARIZARD','BLASTOISE','VENUSAUR','GENGAR','EEVEE','UMBREON','ESPEON','VAPOREON','JOLTEON','FLAREON','LEAFEON','GLACEON','SYLVEON','MEW','MEWTWO','LUGIA','HO-OH','RAYQUAZA','KYOGRE','GROUDON','DIALGA','PALKIA','GIRATINA','LUCARIO','GARDEVOIR','DRAGONITE','SNORLAX','JIGGLYPUFF','CELEBI'}
 for _,e in ipairs(C.entries)do if e.pokemonMotif and e.pokemonMotif<=30 then e.pokemonName=originalPokemonNames[e.pokemonMotif]end end
+-- Retain retired slots for save compatibility; omit them from the picker.
+local keep={'LUCARIO','CHARIZARD','BLASTOISE','MEWTWO','GENGAR','LAPRAS'}
+local winners={}
+for i,e in ipairs(C.entries)do if e.pokemonMotif then local f=(e.pokemonMotif-1)%6+1;if e.pokemonName==keep[f]then winners[f]=i end end end
+for _,e in ipairs(C.entries)do if e.pokemonMotif then local f=(e.pokemonMotif-1)%6+1
+ if e.pokemonName~=keep[f]then e.hidden=true;local replacement=C.entries[winners[f]]
+  if replacement then e.path,e.animation,e.gradient,e.pokemonMotif=replacement.path,replacement.animation,replacement.gradient,replacement.pokemonMotif end
+ end
+end end
+C.entries[#C.entries+1]={label='SOLAR FRACTAL',path='assets/borders/pokemon_gradient.png',animation='psy0',gradient='ember'}
+C.entries[#C.entries+1]={label='EMERALD MANDALA',path='assets/borders/pokemon_gradient.png',animation='psy1',gradient='forest'}
+C.entries[#C.entries+1]={label='AMETHYST PRISM',path='assets/borders/pokemon_gradient.png',animation='psy2',gradient='violet'}
+C.entries[#C.entries+1]={label='CHROMATIC LOTUS',path='assets/borders/pokemon_gradient.png',animation='psy3',gradient='candy'}
+C.entries[#C.entries+1]={label='INFINITE STAR GATES',path='assets/borders/pokemon_gradient.png',animation='psy4',gradient='cosmos'}
+C.entries[#C.entries+1]={label='MOLTEN HONEYCOMB',path='assets/borders/pokemon_gradient.png',animation='psy5',gradient='sunset'}
+C.entries[#C.entries+1]={label='NEON CHRYSALIS',path='assets/borders/pokemon_gradient.png',animation='psy6',gradient='lagoon'}
+C.entries[#C.entries+1]={label='COSMIC ROSETTE',path='assets/borders/pokemon_gradient.png',animation='psy7',gradient='aurora'}
 C.choices={}
 for i,entry in ipairs(C.entries) do C.choices[i]=entry.label end
 function C.selection(raw,format)
@@ -158,11 +175,11 @@ end
 function C.groups()
  local groups,lookup={},{}
  local families={'VOLT TRAILS','EMBER FLOW','TIDAL WAVES','LEAF DANCE','PSYCHIC EYES','POKEBALL ORBITS'}
- for i,e in ipairs(C.entries)do
+ for i,e in ipairs(C.entries)do if not e.hidden then
   local label=e.pokemonMotif and families[(e.pokemonMotif-1)%6+1] or e.animation and 'OTHER ANIMATED DESIGNS' or e.path and e.path:find('pokemon_',1,true) and 'CLASSIC POKEMON FRAMES' or 'GAME BORDERS'
   if not lookup[label]then lookup[label]={label=label,choices={}};groups[#groups+1]=lookup[label]end
   lookup[label].choices[#lookup[label].choices+1]={id=i,label=e.pokemonName or e.label}
- end
+ end end
  return groups
 end
 return C

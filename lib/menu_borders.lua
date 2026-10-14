@@ -152,6 +152,19 @@ return function(mod,setting,catalog,active)
       else if(borderEffect==11){float line=abs(depth-(4.0+2.0*borderWave(path,1.0/8.0,t*.3)));v=exp(-line*2.0);v=max(v,exp(-abs(mod(borderRepeat(path,24.0)-phase*96.0,24.0)-12.0)*1.4)*.8);}
       else if(borderEffect==12){v=.5+.5*borderWave(path,.5,-phase*48.0+abs(depth-4.0)*2.0);}
       else if(borderEffect==13){v=mod(floor((borderRepeat(path,8.0)+sin(depth+t)*3.0-t*3.0)/4.0)+floor(depth/2.0),2.0);}
+      else if(borderEffect>=16){
+       float kind=float(borderEffect-16);float a=borderWave(path,.22,t*.25);
+       float radial=log(.18+abs(depth-4.0))*(5.0+mod(kind,3.0));
+       float fold=abs(cos(borderRepeat(path,24.0)*.26+t*.3));
+       v=.5+.5*sin(radial+fold*(4.0+kind)-t);
+       if(borderEffect==17)v=.5+.5*cos(depth*1.6+fold*7.0+t);
+       if(borderEffect==18)v=exp(-abs(sin(depth*1.4+a*4.0-t))*4.0);
+       if(borderEffect==19)v=.5+.5*sin(depth*1.2+sin(a*3.0+t)*4.0-t);
+       if(borderEffect==20)v=exp(-abs(sin(radial+cos(a*4.0)*5.0-t))*3.5);
+       if(borderEffect==21)v=.5+.5*sin(depth*1.8+fold*11.0+t);
+       if(borderEffect==22)v=exp(-abs(sin(radial+a*8.0+t))*4.0);
+       if(borderEffect==23)v=.5+.5*cos(depth*2.0+fold*13.0-t);
+      }
       else if(borderEffect==15){
        float family=mod(pokemonMotif-1.0,6.0);float pitch=12.0+mod(pokemonMotif,5.0)*2.0;
        vec2 q=vec2(mod(borderRepeat(path,pitch)-t*(1.0+mod(pokemonMotif,3.0))+pitch*.5,pitch)-pitch*.5,depth-4.0);
@@ -184,7 +197,7 @@ return function(mod,setting,catalog,active)
   for i,label in ipairs({'paperStopA','paperStopB','paperStopC','paperStopD'})do panelShader:send(label,paperStops and paperStops.stops[i] or {0,0,0})end
   panelShader:send('pokemonMotif',atlas.pokemonMotif or 0)
   panelShader:send('rainbow',atlas.animation=='gradient')
-  panelShader:send('borderEffect',({balls=1,lightning=2,water=3,ghost=4,stars=5,vines=6,acid=7,plasma=8,kaleido=9,molten=10,circuit=11,tunnel=12,checker=13,braid=14,pokemon=15})[atlas.animation] or 0)
+  panelShader:send('borderEffect',({balls=1,lightning=2,water=3,ghost=4,stars=5,vines=6,acid=7,plasma=8,kaleido=9,molten=10,circuit=11,tunnel=12,checker=13,braid=14,pokemon=15,psy0=16,psy1=17,psy2=18,psy3=19,psy4=20,psy5=21,psy6=22,psy7=23})[atlas.animation] or 0)
   local phase=0
   if atlas.animation then phase=(love.timer and love.timer.getTime and love.timer.getTime() or 0)*.08*palette.effects.get('menu','speed',100)/100 end
   panelShader:send('phase',phase)

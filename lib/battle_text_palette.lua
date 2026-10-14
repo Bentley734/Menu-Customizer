@@ -172,7 +172,7 @@ return function(mod)
           else family='PINKS'end
         end
       end
-      local ids=buckets[family].ids;ids[#ids+1]=i
+      if not(c and c.pokemon and M.pokemonBackgrounds.byKey[c.pokemon].hidden)then local ids=buckets[family].ids;ids[#ids+1]=i end
     end
     local result={}
     for _,family in ipairs(families)do
