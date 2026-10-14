@@ -368,7 +368,15 @@ return function(mod,catalog)
    if start.options then
     local raised=current.theme.enabled()and current.theme.gbScale()==1 and 6 or 0
     G.setColor(.25,.65,1,current.setting('selectionHighlight')/100)
-    G.rectangle('fill',((start.left or 0)+8-sel.x)*rx,-raised-1,math.max(1,(start.width or 160)-16)*rx,(start.pitch or 16)*ry)
+    if start.cards then
+     local back=start.index==#start.items
+     -- Card frames consume eight pixels on each edge; BACK has no card.
+     local height=back and 8 or 16
+     local top=back and -1 or 0
+     G.rectangle('fill',((start.left or 0)+8-sel.x)*rx,top*ry,math.max(1,(start.width or 160)-16)*rx,height*ry)
+    else
+     G.rectangle('fill',((start.left or 0)+8-sel.x)*rx,-raised-1,math.max(1,(start.width or 160)-16)*rx,(start.pitch or 16)*ry)
+    end
     G.setColor(0,0,0,1)
    end
    if sel.selector==0 then G.pop();return end
@@ -995,7 +1003,7 @@ return function(mod,catalog)
  assert(load(assert(mod:read('lib/intro_background.lua'))))()(mod,menuPalette,function()return C.live()end)
  assert(load(assert(mod:read('lib/intro_font.lua'))))()(mod,Font,function()return C.live()end)
  assert(load(assert(mod:read('lib/title_logo.lua'))))()(mod,function()return C.live()end)
- mod.exports.version='3.2.78'
+ mod.exports.version='3.2.79'
  assert(load(assert(mod:read('lib/scene_transitions.lua'))))()(mod,function()return C.live()end)
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C
