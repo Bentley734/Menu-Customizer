@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.91
+
+Center cartridge choice markers beside option text using a two-pixel downward offset, between the previous too-high and too-low positions. Leave ordinary row selectors unchanged.
+
+Validation: selector dispatch, selected-color and preview checks; full compilation under LuaJIT and Lua 5.3. Restart after installing.
+
 # Menu Customizer 3.2.90
 
 Remove the extra four-pixel row-centering offset from cartridge choice markers so they align with Text Speed and Button Mode text. Ordinary row selectors remain unchanged.

@@ -33,7 +33,7 @@ return function(mod,Font,setting,active,version)
      local result={printer(text,x,y,opts,...)}
      if selected and style~=14 then
       local width=Font.measure(text,opts)
-      mod.exports.arrowSelectors.draw(x-9,y,8,{_selectorStyle=style,_selectorInset=9,_selectorWidth=width})
+      mod.exports.arrowSelectors.draw(x-9,y+2,8,{_selectorStyle=style,_selectorInset=9,_selectorWidth=width})
      end
      return (unpack or table.unpack)(result)
     end
