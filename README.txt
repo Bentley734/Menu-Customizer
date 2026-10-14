@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.78
+
+Use the selected menu text foreground color for the GAME FREAK splash lettering and emblem, matching the falling stars while custom intro backgrounds are active. Keep white paper transparent and preserve the full-color Pokemon title logo.
+
+Restart to load the update.
+
 # Menu Customizer 3.2.77
 
 Remove white paper from the native GAME FREAK emblem above the splash lettering and tint the falling/shooting star artwork with the selected menu font foreground color while custom intro backgrounds are active. Pokemon and trainer white-detail preservation remains active.

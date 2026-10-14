@@ -995,7 +995,7 @@ return function(mod,catalog)
  assert(load(assert(mod:read('lib/intro_background.lua'))))()(mod,menuPalette,function()return C.live()end)
  assert(load(assert(mod:read('lib/intro_font.lua'))))()(mod,Font,function()return C.live()end)
  assert(load(assert(mod:read('lib/title_logo.lua'))))()(mod,function()return C.live()end)
- mod.exports.version='3.2.77'
+ mod.exports.version='3.2.78'
  assert(load(assert(mod:read('lib/scene_transitions.lua'))))()(mod,function()return C.live()end)
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C

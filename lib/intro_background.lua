@@ -11,7 +11,7 @@ return function(mod,palette,active)
     if not active()or n<=0 then return draw(self,...)end
     local SR=require('src.render.SpriteRenderer');local obp=SR.obpImage
     local protected={};local swapped={};local stars={}
-    for _,field in ipairs({'smallStar','smallStarBlink','bigStar'})do if self[field]then stars[self[field]]=true end end
+    for _,field in ipairs({'smallStar','smallStarBlink','bigStar','studioLogo','logo','gfText'})do if self[field]and (field~='logo'or path=='src.ui.IntroMovie')then stars[self[field]]=true end end
     local function protect(image)if image then protected[image]=true end end
     for _,field in ipairs({'player','pic','yellowPikachu','yellowBubble','walkSheet'})do protect(self[field])end
     if self.currentSprite then local image=self:currentSprite();protect(image)end
@@ -24,7 +24,7 @@ return function(mod,palette,active)
     end
     SR.obpImage=function(path,colors,group)
      -- GAME FREAK lettering is decorative tile text, not a portrait.
-     if path==self.gfTextPath or path==self.logoPath then return obp(path,colors,group)end
+     if path==self.gfTextPath or path==self.logoPath then local image=obp(path,colors,group);stars[image]=true;return image end
      if path==self.bigStarPath then local image=obp(path,colors,group);stars[image]=true;return image end
      local ok,image=pcall(portrait,path,colors,group)
      if not ok then image=obp(path,colors,group)end;protect(image);return image
