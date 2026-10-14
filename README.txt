@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.93
+
+Show single-choice border families as directly selectable entries instead of one-item submenus. Rename surviving Pokemon borders: Lucario Aura Trails, Charizard Ember Flow, Blastoise Tidal Waves, Mewtwo Psychic Dance, Gengar Shadow Eyes and Lapras Pokeball Orbits. Preserve numeric IDs and saved selections, previews and multi-choice border groups.
+
+Validation: LuaJIT/Lua 5.3 compilation and preview regression checks. Restart after installing.
+
 # Menu Customizer 3.2.92
 
 Left-align ordinary options values in the native shared value column so short and long values start uniformly. Preserve cartridge choice layout, selector positions and Continue summary spacing.

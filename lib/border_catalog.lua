@@ -165,6 +165,8 @@ C.entries[#C.entries+1]={label='INFINITE STAR GATES',path='assets/borders/pokemo
 C.entries[#C.entries+1]={label='MOLTEN HONEYCOMB',path='assets/borders/pokemon_gradient.png',animation='psy5',gradient='sunset'}
 C.entries[#C.entries+1]={label='NEON CHRYSALIS',path='assets/borders/pokemon_gradient.png',animation='psy6',gradient='lagoon'}
 C.entries[#C.entries+1]={label='COSMIC ROSETTE',path='assets/borders/pokemon_gradient.png',animation='psy7',gradient='aurora'}
+local singleNames={'LUCARIO AURA TRAILS','CHARIZARD EMBER FLOW','BLASTOISE TIDAL WAVES','MEWTWO PSYCHIC DANCE','GENGAR SHADOW EYES','LAPRAS POKEBALL ORBITS'}
+for _,entry in ipairs(C.entries)do if entry.pokemonMotif and not entry.hidden then entry.label=singleNames[(entry.pokemonMotif-1)%6+1]end end
 C.choices={}
 for i,entry in ipairs(C.entries) do C.choices[i]=entry.label end
 function C.selection(raw,format)
@@ -178,7 +180,7 @@ function C.groups()
  for i,e in ipairs(C.entries)do if not e.hidden then
   local label=e.pokemonMotif and families[(e.pokemonMotif-1)%6+1] or e.animation and 'OTHER ANIMATED DESIGNS' or e.path and e.path:find('pokemon_',1,true) and 'CLASSIC POKEMON FRAMES' or 'GAME BORDERS'
   if not lookup[label]then lookup[label]={label=label,choices={}};groups[#groups+1]=lookup[label]end
-  lookup[label].choices[#lookup[label].choices+1]={id=i,label=e.pokemonName or e.label}
+  lookup[label].choices[#lookup[label].choices+1]={id=i,label=e.pokemonMotif and e.label or e.pokemonName or e.label}
  end end
  return groups
 end

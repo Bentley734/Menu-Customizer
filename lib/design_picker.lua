@@ -24,10 +24,19 @@ return function(row,groups,get,persist,openPage)
     end
     return openPage(g.label,items,nextCtx or ctx)
    end
+   if #g.choices==1 and row.id and row.id:find('Border',1,true)then
+    local c=g.choices[1]
+    rows[#rows+1]={id=row.id..':choice:'..c.id,label=c.label,colorChoice=true,
+     preview=function()local key=row.id:gsub('^wide_',''):gsub('^fx_','');local custom=row.customization;return custom and custom.values(key,c.id)or {[key]=c.id}end,
+     value=function()return get()==c.id and 'SELECTED'or'USE'end,
+     selected=function()return get()==c.id end,
+     activate=function(selectCtx)return persist(selectCtx or ctx,c.id)end}
+   else
    rows[#rows+1]={id=row.id..':design:'..g.label,label=g.label,group=true,
     value=function()return #g.choices..' OPTIONS'end,
     selected=function()for _,c in ipairs(g.choices)do if get()==c.id then return true end end;return false end,
     activate=choices}
+   end
   end
   return openPage(row.label,rows,ctx)
  end
