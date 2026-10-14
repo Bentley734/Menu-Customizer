@@ -1,3 +1,7 @@
+# Menu Customizer 3.2.106
+
+Extend customized intro and start-screen backgrounds to the entire window, including ultrawide side areas. Continue patterns at the original game scale and origin rather than stretching the background. Keep foreground art, text, and menu placement unchanged. Default white remains white when no background is selected. Restart the game to load the update. Tests skipped as requested.
+
 # Menu Customizer 3.2.105
 
 Move the Red/Blue title Pokemon and trainer portraits up five logical game pixels, including Ash and the native trainer. Move matching palette regions and final-resolution sprite redraws with the artwork. Restart the game to load the update. Tests skipped as requested.

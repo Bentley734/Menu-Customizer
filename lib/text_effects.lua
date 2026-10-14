@@ -113,15 +113,22 @@ return function(mod,palette)
    local ax,ay=G.transformPoint(0,0);local bx,by=G.transformPoint(1,1)
    local target=G.getCanvas();local dpi=target and target:getDPIScale() or G.getDPIScale()
    M.pokemonShader:send('pokeOrigin',{ax*dpi,ay*dpi});M.pokemonShader:send('pokeScale',{math.max(.0001,(bx-ax)*dpi),math.max(.0001,(by-ay)*dpi)})
-   local mode,x,y,w,h=...;local area=type(x)=='number'and type(h)=='number'and {x,y,w,h}or nil
+   local mode,x,y,w,h=...;local area=M.paperArea or (type(x)=='number'and type(h)=='number'and {x,y,w,h}or nil)
    palette.pokemonBackgrounds.send(M.pokemonShader,color.pokemon,color.phase,nil,area);G.setShader(M.pokemonShader)
   elseif color.animation=='GRADIENT' and G.newShader then
-   if not shader then shader=G.newShader(palette.gradients.glsl..[[extern float phase;extern bool darkInk;
+   if not shader then shader=G.newShader(palette.gradients.glsl..[[extern float phase;extern bool darkInk;extern vec2 gradientOrigin;extern vec2 gradientScale;
     vec4 effect(vec4 c,Image tex,vec2 uv,vec2 pixel){
-     float h=fract(phase+pixel.x/320.0+pixel.y/640.0);
+     vec2 logical=(pixel-gradientOrigin)/gradientScale;float h=fract(phase+logical.x/320.0+logical.y/640.0);
      vec3 rgb=gradientColor(h);
      vec4 s=Texel(tex,uv);if(darkInk)s=vec4(1.0,1.0,1.0,s.a*(1.0-min(s.r,min(s.g,s.b))));return vec4(rgb,c.a)*s;
     }]])end
+   local origin,scale={0,0},{1,1}
+   if M.paperArea then
+    local ax,ay=G.transformPoint(0,0);local bx,by=G.transformPoint(1,1)
+    local target=G.getCanvas();local dpi=target and target:getDPIScale()or G.getDPIScale()
+    origin={ax*dpi,ay*dpi};scale={math.max(.0001,(bx-ax)*dpi),math.max(.0001,(by-ay)*dpi)}
+   end
+   shader:send('gradientOrigin',origin);shader:send('gradientScale',scale)
    palette.gradients.send(shader,color.gradient);shader:send('phase',color.phase);shader:send('darkInk',M.darkInk or false);G.setShader(shader)
   end
   local result={pcall(fn,...)};G.pop()
