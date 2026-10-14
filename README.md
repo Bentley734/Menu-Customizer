@@ -1,3 +1,7 @@
+# Menu Customizer 3.2.108
+
+Remove the top and bottom black mask bars during the Game Freak logo/emblem splash, allowing the full-window wallpaper to remain visible behind the artwork. Keep the fight cinematic masks and other screens unchanged. Restart the game to load the fix. Tests skipped as requested.
+
 # Menu Customizer 3.2.107
 
 Render one background across the entire intro/title window. Remove the second background from the central game canvas, retain transparent foreground art, and use the full window aspect ratio for patterns, including 32:9. Restart the game to load the fix. Tests skipped as requested.

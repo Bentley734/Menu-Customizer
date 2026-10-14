@@ -67,6 +67,9 @@ return function(mod,palette,active)
     G.pop()
     G.rectangle=function(mode,x,y,w,h,...)
      local r,g,b=G.getColor()
+     -- Game Freak splash bars are decorative masks, not foreground artwork.
+     if path=='src.ui.IntroMovie' and self.phase==2 and mode=='fill'
+       and x==0 and w==160 and h==32 and (y==0 or y==112) then return end
      if mode=='fill'and r>.985 and g>.985 and b>.985 then return paper(x,y,w,h)end
      return rectangle(mode,x,y,w,h,...)
     end
