@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.85
+
+Underline the active Emerald cartridge-option choice with a contrasting marker, so custom text palettes cannot hide which Text Speed or Button Mode value is selected. Apply to all visible cartridge choice rows.
+
+Validation: marker follows all three values; preview regressions and full compilation under LuaJIT and Lua 5.3. Live gameplay was not exercised. Restart after installing.
+
 # Menu Customizer 3.2.84
 
 Keep settings labels and selected-choice indicators on saved values while live previews temporarily restyle the current options window. Prevent background previews from making other background options appear changed. Applies to GB and Gen 3 menus. Restore all wrapped callbacks and preview state after drawing errors.

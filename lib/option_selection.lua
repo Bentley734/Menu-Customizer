@@ -12,7 +12,28 @@ return function(mod,Font,setting,active,version)
    end end
    local pages=menu._pages or (menu._st and menu._st.pages);local page=pages and pages[#pages]
    local row=page and page.rows and page.rows[page.index or 1]
-   local result={pcall(function(...)return mod.exports.customization.withRows(row,page and page.rows,draw,...)end,...)};G.setColor=setColor
+   local printer=Font.draw
+   if active()and version=='emerald'and menu._st and page then
+    local Options=require('src.core.game3.options');local Rom=require('src.core.game3.rom_text')
+    local values=Options.block(menu._st.ctx.options);local chosen={}
+    for slot=1,menu.VISIBLE or 7 do
+     local entry=page.rows[(page.scroll or 0)+slot];local cart=entry and entry.cart
+     if cart and cart.choices then
+      local key=cart.choices[(tonumber(values[cart.key])or 0)+1]
+      if key then chosen[41+(slot-1)*16]=tostring(Rom.plain(key)):gsub('{COLOR[^}]*}',''):gsub('{SHADOW[^}]*}',''):gsub('{HIGHLIGHT[^}]*}',''):gsub('\252[\1\2\3].',''):gsub('\252\4...','')end
+     end
+    end
+    Font.draw=function(text,x,y,opts,...)
+     local result={printer(text,x,y,opts,...)}
+     if x>=120 and chosen[y]==text then
+      local width=Font.measure(text,opts)
+      G.push('all');G.setShader();G.setColor(0,0,0,1);G.rectangle('fill',x-1,y+12,width+2,3)
+      G.setColor(1,1,1,1);G.rectangle('fill',x,y+13,width,1);G.pop()
+     end
+     return (unpack or table.unpack)(result)
+    end
+   end
+   local result={pcall(function(...)return mod.exports.customization.withRows(row,page and page.rows,draw,...)end,...)};G.setColor=setColor;Font.draw=printer
    if not result[1]then error(result[2],0)end
    if not active()then return (unpack or table.unpack)(result,2)end
    local pages=menu._pages or (menu._st and menu._st.pages);local page=pages and pages[#pages]
