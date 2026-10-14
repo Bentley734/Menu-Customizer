@@ -22,6 +22,8 @@ return function(mod,palette,active)
      end end
     end
     SR.obpImage=function(path,colors,group)
+     -- GAME FREAK lettering is decorative tile text, not a portrait.
+     if path==self.gfTextPath then return obp(path,colors,group)end
      local ok,image=pcall(portrait,path,colors,group)
      if not ok then image=obp(path,colors,group)end;protect(image);return image
     end

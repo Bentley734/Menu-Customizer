@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.76
+
+Remove the white paper between GAME FREAK splash-screen letters. Exclude the native lettering asset from the portrait exterior-mask override so it uses the original transparent text palette. Pokemon and trainer white-detail preservation remains active.
+
+Restart to load the fix.
+
 # Menu Customizer 3.2.75
 
 Render intro/title Emerald glyphs at whole source-pixel scales instead of fractional 0.5/0.75 scales on the native canvas. Snap text anchors to whole pixels, preserve uniform glyph proportions and baseline alignment, and cap long captions at the largest whole scale fitting the screen width.
