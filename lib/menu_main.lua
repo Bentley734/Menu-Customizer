@@ -29,6 +29,7 @@ return function(mod)
       and 'src.ui.game3.rse.option_menu' or 'src.ui.game3.option_menu')
   end
   local Option = optionForVersion(gameVersion)
+  assert(load(assert(mod:read('lib/continue_text_paper.lua'))))()(active)
   local Save = require('src.ui.game3.save_menu')
   local Stack = require('src.ui.game3.stack')
   local Fade = require('src.ui.game3.fade')

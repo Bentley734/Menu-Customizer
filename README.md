@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.83
+
+Remove font paper from RSE Continue/main-menu captions, preserving foreground and shadows and restoring the printer on errors.
+
+Validated transparent caption options and restoration under both Lua runtimes, full compilation, and installed-engine options integration checks. Live gameplay was not exercised. Install alongside 1025Dex 1.2.53 and restart.
+
 # Menu Customizer 3.2.82
 
 Fix Emerald OPTIONS integration: forward native cartridge-row metadata so Text Speed and Button Mode retain their native controls; read Emerald's actual page state to draw custom selectors and highlights on all settings pages, including BACK.
