@@ -78,6 +78,7 @@ return function(mod,palette,active)
     end
     local color=n>0 and palette.color('background',n-1)or nil
     local rectangle,imageDraw,clear=G.rectangle,G.draw,G.clear
+    local bootCanvas=G.getCanvas()
     local function paper(x,y,w,h)
      -- The full-window pass owns customized paper; this canvas is foreground only.
      if color then return end
@@ -96,11 +97,12 @@ return function(mod,palette,active)
      -- Game Freak splash bars are decorative masks, not foreground artwork.
      if path=='src.ui.IntroMovie' and self.phase==2 and mode=='fill'
        and x==0 and w==160 and h==32 and (y==0 or y==112) then return end
-     if mode=='fill'and r>.985 and g>.985 and b>.985 then return paper(x,y,w,h)end
+     if mode=='fill'and r>.985 and g>.985 and b>.985 and G.getCanvas()==bootCanvas
+       and x==0 and w==160 and ((y==0 and h==144)or(h==32 and(y==0 or y==112)))then return paper(x,y,w,h)end
      return rectangle(mode,x,y,w,h,...)
     end
     G.clear=function(r,g,b,a,...)
-     if type(r)=='number'and r>.985 and g>.985 and b>.985 then clear(0,0,0,0);return paper(0,0,160,144)end
+     if G.getCanvas()==bootCanvas and type(r)=='number'and r>.985 and g>.985 and b>.985 then clear(0,0,0,0);return paper(0,0,160,144)end
      return clear(r,g,b,a,...)
     end
     G.draw=function(image,...)

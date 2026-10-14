@@ -1,3 +1,7 @@
+# Menu Customizer 3.2.112
+
+Restore intro and title-screen text by restricting background suppression to full-screen paper rectangles on the boot canvas. Preserve small glyph/effect rectangles and offscreen text canvas clears. Keep the single full-window wallpaper and intro battle bars. Restart to load the fix. Tests skipped as requested.
+
 # Menu Customizer 3.2.111
 
 Apply the intro battle cinematic masks after final-resolution sprite replay, preventing Gengar and Nidorino from overlapping either full-width bar on ultrawide windows. Preserve the native fade colors and Game Freak splash behavior. Restart to load the update. Tests skipped as requested.
