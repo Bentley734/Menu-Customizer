@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.71
+
+Preserve white Pokemon and trainer sprite details with custom intro backgrounds. Remove the global white-key image shader; replace only explicit white screen fills and clears, leaving sprite images intact.
+
+Restart the game to load the fix.
+
 # Menu Customizer 3.2.70
 
 Add INTRO / START SCREEN BACKGROUND under BACKGROUNDS for native Gen 1/Gen 2 boot screens. DEFAULT keeps original rendering; any existing static or animated background replaces white screen paper during the intro movie, title/start screen and professor introduction.
