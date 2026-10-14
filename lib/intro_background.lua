@@ -1,6 +1,6 @@
 -- Replace white boot-screen paper while preserving native state/input flow.
 return function(mod,palette,active)
- local G=love.graphics;local keyShader;local starShader;local pending=false;local pendingBars;local finalBars;local wideArea={0,0,160,144}
+ local G=love.graphics;local keyShader;local starShader;local pending=false;local pendingBars;local finalBars;local frameRects;local wideArea={0,0,160,144}
  local function backgroundColor()
   local n=tonumber(mod.options:get('introBackgroundColor')or mod.save:get('introBackgroundColor'))or 0
   return n>0 and palette.color('background',n-1)or nil
@@ -12,6 +12,7 @@ return function(mod,palette,active)
  end
  mod.hooks:wrap('render.letterbox',function(next,ctx)
   local result=next(ctx);local boot,bars=pending,pendingBars;pending=false;pendingBars=nil
+  local portrait=mod.exports.titleScrollPortrait;mod.exports.titleScrollPortrait=nil
   if not(boot and active())then return result end
   local sx=ctx.scale/(ctx.dpiX or 1);local sy=ctx.scale/(ctx.dpiY or 1)
   if sx<=0 or sy<=0 then return result end
@@ -28,12 +29,30 @@ return function(mod,palette,active)
    G.rectangle('fill',x,y,w,math.max(0,32-y))
    G.rectangle('fill',x,112,w,math.max(0,y+h-112))
   end
-  G.pop();return result
+  G.pop()
+  if portrait then
+   local R=frameRects
+   local ux,uy=R and R.Ux or sx,R and R.Uy or sy
+   local ox,oy=R and R.uox or ctx.ox,R and R.uoy or ctx.oy
+   local home=40+math.floor((56-portrait.width)/2)
+   local right=(ctx.ww-ox)/ux+1;local left=-ox/ux-portrait.width-1
+   local state=portrait.state;local offset=state.monOffset or 0;local px
+   if state.scrollPhase=='in' then
+    local t=math.max(0,math.min(1,offset/110));px=home+(right-home)*t
+   else
+    local t=math.max(0,math.min(1,-offset/93));px=home+(left-home)*t
+   end
+   G.push('all');G.origin();G.setShader();G.setScissor();G.setColor(1,1,1,1)
+   G.setBlendMode('alpha','alphamultiply');G.translate(ox,oy);G.scale(ux,uy)
+   G.draw(portrait.image,px,portrait.y);G.pop()
+  end
+  return result
  end)
  -- Sprite replay happens after the letterbox pass. Apply cinematic masks last
  -- so the canvas and final-resolution replay obey the same visible band.
  local Renderer=require('src.render.Renderer');local endFrame=Renderer.endFrame
  Renderer.endFrame=function(self,...)
+  frameRects=self:frameRects()
   finalBars=nil
   local result={pcall(endFrame,self,...)}
   local bars=finalBars;finalBars=nil

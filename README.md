@@ -1,3 +1,7 @@
+# Menu Customizer 3.2.115
+
+Extend the Red/Blue title Pokemon entrance and exit to the actual window edges. Render moving portraits in screen space behind the title foreground so the central game canvas no longer clips them, and derive endpoints from current window/UI scale for ultrawide and resized windows. Retain the normal resting position and five-pixel vertical adjustment. Restart to load the update. Tests skipped as requested.
+
 # Menu Customizer 3.2.114
 
 Group TEXT into Font and Layout, Colors, Shadows, Menu Effects, Battle Effects, and Name Effects submenus. Add ALL BORDERS and ALL BACKGROUNDS at the top of their pages to apply selections across menu, dialogue, save, battle, and intro background settings. Existing per-screen controls and saved IDs are retained. Restart to load the update. Tests skipped as requested.

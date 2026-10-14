@@ -20,6 +20,10 @@ return function(mod,active)
    local plain=type(a)=='number';local x,y=plain and a or b,plain and b or c
    if image==mon and mon then
     local w,h=mon:getDimensions();bounds={x,y,w,h}
+    if self.scrollPhase=='in' or self.scrollPhase=='out' then
+     mod.exports.titleScrollPortrait={image=mon,state=self,width=w,height=h,y=y-5}
+     return
+    end
     if plain then return imageDraw(image,a,b-5,c,...)else return imageDraw(image,a,b,c-5,...)end
    elseif trainer(image,x,y)then
     if plain then return imageDraw(image,a,b-5,c,...)else return imageDraw(image,a,b,c-5,...)end
@@ -27,6 +31,7 @@ return function(mod,active)
    return imageDraw(image,a,b,c,...)
   end
   if replay then P.markUiSpriteRedraw=function(image,quad,x,y,opts)
+   if image==mon and (self.scrollPhase=='in' or self.scrollPhase=='out')then return end
    if image==mon or trainer(image,x,y)then y=y-5 end
    return replay(image,quad,x,y,opts)
   end end
