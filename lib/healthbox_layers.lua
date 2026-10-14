@@ -20,7 +20,10 @@ return function(G,mod,faded)
   wrap(font,'draw',true);wrap(font,'drawGlyph',true)
   local summary=chrome._menuCustomizerSummary
   if summary then wrap(summary,'drawStatusIcon',true)end
-  for _,key in ipairs({'drawHpBar','drawExpBar','drawRsStatusIcon','drawPartyBall'})do wrap(chrome,key,true)end
+  for _,key in ipairs({'drawHpBar','drawRsStatusIcon','drawPartyBall'})do wrap(chrome,key,true)end
+  -- EXP tiles include an opaque pale track below the HP numbers. Fade the
+  -- entire strip with the panel so its empty portion cannot leave a white line.
+  wrap(chrome,'drawExpBar',false)
   for _,key in ipairs({'drawPlayerBox','drawEnemyBox','drawDoublesBox','drawSafariBox'})do wrap(chrome,key,false)end
   G.rectangle=function(...)if pass=='background' or ink>0 then return rectangle(...)end end
   G.draw=function(...)if pass=='background' or ink>0 then return image(...)end end
