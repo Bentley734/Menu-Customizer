@@ -19,6 +19,7 @@ return function(mod,catalog)
  for _,scope in ipairs({'start','battle','option','save','other','dialogue','pokedex'})do specs[scope..'BorderChoice']={0,0,#catalog.choices,1}end
  specs.introTextColor={0,0,#menuPalette.names-1,1};specs.introTextShadowColor={0,0,#menuPalette.shadowNames-1,1};specs.introTextCase={0,0,2,1};specs.introLogo={1,0,1,1};specs.introTrainer={0,0,1,1}
  specs.introTheme={2,1,2,1};specs.introFontSize={0,0,2,1}
+ specs.allTextColor={0,0,#menuPalette.names-1,1};specs.allTextShadowColor={0,0,#menuPalette.shadowNames-1,1}
  specs.allBorderChoice={1,1,#catalog.choices,1};specs.allBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1}
  specs.introBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1}
  specs.saveSummaryTheme={0,0,2,1};specs.saveSummaryBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1}
@@ -56,6 +57,13 @@ return function(mod,catalog)
   return math.max(spec[2],math.min(spec[3],math.floor(n or spec[1])))
  end
  function C.persist(game,key,value)
+  if key=='allTextColor' or key=='allTextShadowColor' then
+   local values={[key]=value}
+   local keys=key=='allTextColor' and {'menuTextColor','dialogueTextColor','introTextColor','selectorColor','battle_text_color','battle_name_color'}
+    or {'menuTextShadowColor','dialogueTextShadowColor','introTextShadowColor','battle_shadow_color','battle_name_shadow_color'}
+   for _,setting in ipairs(keys)do values[setting]=value end
+   return mod.exports.customization.write(game,values)
+  end
   if key=='allBorderChoice' or key=='allBackgroundColor' then
    local values={[key]=value}
    if key=='allBorderChoice' then
@@ -651,12 +659,12 @@ return function(mod,catalog)
   end,step=function(game,dir)
    local n=C.setting(key)+dir*spec[4]
    if choices then n=(n-spec[2])%(spec[3]-spec[2]+1)+spec[2] else n=math.max(spec[2],math.min(spec[3],n)) end
-   if key=='menuTextColor'or key=='introTextColor'or key=='dialogueTextColor'or key=='selectorColor' then n=menuPalette.step('text',C.setting(key),dir)
-   elseif key=='menuTextShadowColor'or key=='introTextShadowColor'or key=='dialogueTextShadowColor' then n=menuPalette.step('shadow',C.setting(key),dir)
+   if key=='allTextColor'or key=='menuTextColor'or key=='introTextColor'or key=='dialogueTextColor'or key=='selectorColor' then n=menuPalette.step('text',C.setting(key),dir)
+   elseif key=='allTextShadowColor'or key=='menuTextShadowColor'or key=='introTextShadowColor'or key=='dialogueTextShadowColor' then n=menuPalette.step('shadow',C.setting(key),dir)
    elseif key=='allBackgroundColor' or key=='menuBackgroundColor' or key=='startMenuBackgroundColor' or key=='dialogueBackgroundColor' then n=menuPalette.step('menuBackground',C.setting(key),dir)end
    C.persist(game,key,n)
   end}
-  local kind=(key=='menuTextColor'or key=='introTextColor'or key=='dialogueTextColor'or key=='selectorColor') and 'text' or (key=='menuTextShadowColor'or key=='introTextShadowColor'or key=='dialogueTextShadowColor') and 'shadow' or (key=='allBackgroundColor' or key=='menuBackgroundColor' or key=='startMenuBackgroundColor' or key=='dialogueBackgroundColor'or key=='saveSummaryBackgroundColor'or key=='introBackgroundColor') and 'menuBackground'
+  local kind=(key=='allTextColor'or key=='menuTextColor'or key=='introTextColor'or key=='dialogueTextColor'or key=='selectorColor') and 'text' or (key=='allTextShadowColor'or key=='menuTextShadowColor'or key=='introTextShadowColor'or key=='dialogueTextShadowColor') and 'shadow' or (key=='allBackgroundColor' or key=='menuBackgroundColor' or key=='startMenuBackgroundColor' or key=='dialogueBackgroundColor'or key=='saveSummaryBackgroundColor'or key=='introBackgroundColor') and 'menuBackground'
   if kind then menuPalette.picker(entry,kind,function()return C.setting(key)end,function(ctx,n)C.persist(ctx.game or ctx,key,n);return false end,
    function(title,rows,ctx)return pushPage(ctx.game or ctx,title,rows)end,key=='startMenuBackgroundColor' and 'USE MENU' or nil)end
   if key=='menuBorder'or key:match('BorderChoice$')then
@@ -674,7 +682,7 @@ return function(mod,catalog)
  local bgNames,startBgNames={},{}
  for i,name in ipairs(menuPalette.menuBackgroundNames)do bgNames[i-1]=name;startBgNames[i-1]=name end
  bgNames[0]='DEFAULT';startBgNames[0]='USE MENU'
- local parent={mod.exports.settingsProfiles.row(),row('allBorderChoice','ALL BORDERS',catalog.choices),row('allBackgroundColor','ALL BACKGROUNDS',bgNames)}
+ local parent={mod.exports.settingsProfiles.row(),row('allTextColor','ALL COLORS',colorNames),row('allTextShadowColor','ALL SHADOWS',shadowNames),row('allBorderChoice','ALL BORDERS',catalog.choices),row('allBackgroundColor','ALL BACKGROUNDS',bgNames)}
  for _,r in ipairs(mod.exports.customization.rows(function(title,rows,ctx)return pushPage(ctx.game or ctx,title,rows)end))do parent[#parent+1]=r end
  for _,group in ipairs({'start','option','save','other'})do
   for _,suffix in ipairs({'Position','Scale','Width','Height','OffsetX','OffsetY'})do

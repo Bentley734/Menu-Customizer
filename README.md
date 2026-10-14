@@ -1,3 +1,7 @@
+# Menu Customizer 3.2.117
+
+Add ALL COLORS under TEXT / COLORS and ALL SHADOWS under TEXT / SHADOWS. Apply each selection to menu, dialogue, intro, battle text, and Pokemon name settings together; ALL COLORS also updates selector ink. Individual controls remain available. Restart to load the update. Tests skipped as requested.
+
 # Menu Customizer 3.2.116
 
 Add twenty red-dominant psychedelic animated backgrounds and twenty matching animated borders, with distinct vortex, mandala, ripple, grid, plasma, tunnel, and fractal patterns. Find backgrounds under TRIPPY and borders under RED PSYCHEDELIC. Append choices without changing existing saved selections. Restart to load the update. Tests skipped as requested.
