@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.86
+
+Inset RSE main-menu option labels and left-column Continue details by four logical pixels from the interior border. Preserve right-aligned details and child-menu layout.
+
+Validation: both Lua runtimes compile and existing preview regressions pass. Restart after installing.
+
 # Menu Customizer 3.2.85
 
 Underline the active Emerald cartridge-option choice with a contrasting marker, so custom text palettes cannot hide which Text Speed or Button Mode value is selected. Apply to all visible cartridge choice rows.

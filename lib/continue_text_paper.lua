@@ -10,6 +10,12 @@ return function(active)
    local copy={};for k,v in pairs(opts or {})do copy[k]=v end
    copy.colors={};for k,v in pairs(opts and opts.colors or {})do copy.colors[k]=v end
    copy.colors.bg={0,0,0,0}
+   if self.state~='options' and self.state~='mystery_gift' and M.windowFor then
+    for i in ipairs(self.items or {})do
+     local window=M.windowFor(self.menuType,i)
+     if window and x==window.left*8 then x=x+4;break end
+    end
+   end
    return original(text,x,y,copy,...)
   end
   local result={pcall(draw,self,...)};F.draw=original
