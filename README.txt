@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.89
+
+Right-align ordinary settings values, including selector names, OPEN labels and percentages, using the active font width and matching the window inset. Preserve multi-choice cartridge control layout and choice markers. Apply to Gen 3 options and GB native options value rows.
+
+Validation: full compilation under LuaJIT and Lua 5.3 and existing preview regression checks. Live gameplay was not exercised. Restart after installing.
+
 # Menu Customizer 3.2.88
 
 Match Continue details right inset to the four-pixel left inset. Position the player name beside PLAYER with a six-pixel gap, and place TIME and BADGES six pixels before their right-aligned values. Measure active fonts and values when positioning; preserve child-menu layout.

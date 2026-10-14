@@ -38,6 +38,21 @@ return function(mod,Font,setting,active,version)
      return (unpack or table.unpack)(result)
     end
    end
+   if active()and page then
+    local aligned=Font.draw;local columns={};local valueX,edge,y0,pitch=146,216,58,13
+    if version=='emerald'then valueX,edge,y0,pitch=120,216,41,16
+    elseif menu._data and menu._data.rows then
+     local first=menu._data.rows[1];valueX=first.choices[1].x;edge=216;y0=first.y;pitch=16
+    end
+    for slot=1,menu.VISIBLE or 7 do
+     local entry=page.rows[(page.scroll or 0)+slot]
+     if entry and entry.value and not entry.cart then columns[y0+(slot-1)*pitch]=true end
+    end
+    Font.draw=function(text,x,y,opts,...)
+     if x==valueX and columns[y]then x=edge-Font.measure(text,opts)end
+     return aligned(text,x,y,opts,...)
+    end
+   end
    local result={pcall(function(...)return mod.exports.customization.withRows(row,page and page.rows,draw,...)end,...)};G.setColor=setColor;Font.draw=printer
    if not result[1]then error(result[2],0)end
    if not active()then return (unpack or table.unpack)(result,2)end
