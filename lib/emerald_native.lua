@@ -92,10 +92,18 @@ return WideBattle
     overrides['src.core.game3.pokemon']={gender=function()end}
     overrides['src.core.game3.rom_text']={has=function()return false end}
     overrides['src.ui.game3.summary_chrome']=clone('src.ui.game3.summary_chrome',overrides)
+    chrome._menuCustomizerSummary=overrides['src.ui.game3.summary_chrome']
     M.healthbox=clone('src.core.game3.battle.healthbox',overrides)
     if M.healthbox then
       local original=M.healthbox.draw
       M.healthbox.draw=function(...)
+        local ui=mod.exports and mod.exports.battleUi
+        if ui and ui.healthboxLayers then
+          return ui.healthboxLayers(M.font,M.chrome,function(...)
+            if M.textPalette then return M.textPalette.nameScope(M.font,original,...)end
+            return original(...)
+          end,...)
+        end
         if M.textPalette then return M.textPalette.nameScope(M.font,original,...)end
         return original(...)
       end

@@ -61,8 +61,10 @@ return function(mod)
   end
   local compose=assert(load(assert(mod:read('lib/battle_compositor.lua')),'@battle-ui/compositor.lua'))()(G,function() return setting('opacity',100) end)
   local function faded(fn,...)
+    if mod.exports.healthboxBackground then return fn(...)end
     return compose(fn,512,192,0,0,...)
   end
+  local healthboxLayers=assert(load(assert(mod:read('lib/healthbox_layers.lua'))))()(G,mod,function(fn,...)return compose(fn,512,192,0,0,...)end)
   local function placement(x,w,total)
     if setting('menu_stretch',0)==1 then return 0,total/w end
     return (total-w)*setting('menu_align',2)/2,1
@@ -229,7 +231,12 @@ return function(mod)
       local Battle=require('src.core.game3.battle')
       local side=select(1,...)
       if Battle._st and Battle._st.safari and (side=='player' or type(side)=='number' and side%2==0) then return originalHealthbox(...)end
-      return textPalette.nameScope(require('src.ui.game3.frlg_font'),originalHealthbox,...)
+      local font=require('src.ui.game3.frlg_font')
+      local chrome=require('src.ui.game3.battle_chrome')
+      chrome._menuCustomizerSummary=require('src.ui.game3.summary_chrome')
+      return healthboxLayers(font,chrome,function(...)
+        return textPalette.nameScope(font,originalHealthbox,...)
+      end,...)
     end
     local Message=require('src.ui.game3.message')
     local originalText=Message.drawText
@@ -846,6 +853,7 @@ return function(mod)
   api.ownsGen3Panels=enabled
   api.drawGen3Panels=mod.exports.drawGen3Panels
   api.palette=textPalette
+  api.healthboxLayers=healthboxLayers
   api.backgroundColor=function()return setting('background_color',0)~=0 and textPalette.background() or nil end
   api.fillBackground=fillBackground
   nativeEmerald.textPalette=textPalette
