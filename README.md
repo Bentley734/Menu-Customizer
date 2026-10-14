@@ -1,3 +1,7 @@
+# Menu Customizer 3.2.109
+
+Raise the Pokemon title logo seven logical game pixels when LARGE or EXTRA LARGE intro text is enabled. Normal text retains its original logo position. Restart the game to load the update. Tests skipped as requested.
+
 # Menu Customizer 3.2.108
 
 Remove the top and bottom black mask bars during the Game Freak logo/emblem splash, allowing the full-window wallpaper to remain visible behind the artwork. Keep the fight cinematic masks and other screens unchanged. Restart the game to load the fix. Tests skipped as requested.

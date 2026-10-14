@@ -5,18 +5,26 @@ return function(mod,active)
   if ok and type(Class.draw)=='function'and not Class._customHdLogo then
    Class._customHdLogo=true;local draw=Class.draw
    Class.draw=function(self,...)
-    if not(active()and self.logo and mod.options:get('introLogo')~=0)then return draw(self,...)end
+    if not(active()and self.logo)then return draw(self,...)end
     if not logo then logo=assert(mod.assets:image('assets/pokemon-logo.png'));logo:setFilter('linear','linear')end
     local imageDraw=G.draw;local w,h=logo:getDimensions();local scale=128/w
+    local raised=(tonumber(mod.options:get('introFontSize')or mod.save:get('introFontSize'))or 0)>0 and 7 or 0
+    local P=require('src.render.PaletteFX');local replay=P.markUiSpriteRedraw
+    if replay then P.markUiSpriteRedraw=function(image,quad,x,y,opts)
+     if image==self.logo then y=y-raised end
+     return replay(image,quad,x,y,opts)
+    end end
     G.draw=function(image,x,y,...)
      if image~=self.logo then return imageDraw(image,x,y,...)end
+     y=y-raised
+     if mod.options:get('introLogo')==0 then return imageDraw(image,x,y,...)end
      G.push('all');G.setShader();G.setColor(1,1,1,1)
      imageDraw(logo,16,y,0,scale,scale);G.pop()
      local P=require('src.render.PaletteFX')
      if P.markTrueColor then P.markTrueColor(16,y,128,h*scale)end
      if P.markUiSpriteRedraw then P.markUiSpriteRedraw(logo,nil,16,y,{sx=scale,sy=scale})end
     end
-    local result={pcall(draw,self,...)};G.draw=imageDraw
+    local result={pcall(draw,self,...)};G.draw=imageDraw;P.markUiSpriteRedraw=replay
     if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
    end
   end
