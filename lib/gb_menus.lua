@@ -17,6 +17,7 @@ return function(mod,catalog)
   backgroundDim={0,0,70,10},controlsLegend={2,1,3,1},menuTransition={3,1,#Transitions.names,1},positionPreview={1,0,1,1}}
 
  for _,scope in ipairs({'start','battle','option','save','other','dialogue','pokedex'})do specs[scope..'BorderChoice']={0,0,#catalog.choices,1}end
+ specs.introBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1}
  specs.saveSummaryTheme={0,0,2,1};specs.saveSummaryBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1}
  specs.dialogueTheme={2,1,2,1};specs.dialogueBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1};specs.dialogueTextColor={0,0,#menuPalette.names-1,1};specs.dialogueTextShadowColor={0,0,#menuPalette.shadowNames-1,1}
 
@@ -631,7 +632,7 @@ return function(mod,catalog)
    elseif key=='menuBackgroundColor' or key=='startMenuBackgroundColor' or key=='dialogueBackgroundColor' then n=menuPalette.step('menuBackground',C.setting(key),dir)end
    C.persist(game,key,n)
   end}
-  local kind=(key=='menuTextColor'or key=='dialogueTextColor'or key=='selectorColor') and 'text' or (key=='menuTextShadowColor'or key=='dialogueTextShadowColor') and 'shadow' or (key=='menuBackgroundColor' or key=='startMenuBackgroundColor' or key=='dialogueBackgroundColor'or key=='saveSummaryBackgroundColor') and 'menuBackground'
+  local kind=(key=='menuTextColor'or key=='dialogueTextColor'or key=='selectorColor') and 'text' or (key=='menuTextShadowColor'or key=='dialogueTextShadowColor') and 'shadow' or (key=='menuBackgroundColor' or key=='startMenuBackgroundColor' or key=='dialogueBackgroundColor'or key=='saveSummaryBackgroundColor'or key=='introBackgroundColor') and 'menuBackground'
   if kind then menuPalette.picker(entry,kind,function()return C.setting(key)end,function(ctx,n)C.persist(ctx.game or ctx,key,n);return false end,
    function(title,rows,ctx)return pushPage(ctx.game or ctx,title,rows)end,key=='startMenuBackgroundColor' and 'USE MENU' or nil)end
   if key=='menuBorder'or key:match('BorderChoice$')then
@@ -677,6 +678,7 @@ return function(mod,catalog)
   local choices={[0]='USE MENU'};for i,name in ipairs(catalog.choices)do choices[i]=name end
   parent[#parent+1]=row(scope..'BorderChoice',scope=='save'and 'SAVE SUMMARY BORDER'or scope:upper()..' BORDER',choices)
  end
+ parent[#parent+1]=row('introBackgroundColor','INTRO / START SCREEN BACKGROUND',bgNames)
  parent[#parent+1]=row('saveSummaryTheme','SAVE SUMMARY FONT',{[0]='USE MENU',[1]='NATIVE',[2]='EMERALD'})
  parent[#parent+1]=row('saveSummaryBackgroundColor','SAVE SUMMARY BACKGROUND',bgNames)
  parent[#parent+1]=toggle('dialogueBorder','DIALOGUE BORDER ON/OFF')
@@ -987,7 +989,8 @@ return function(mod,catalog)
    return (unpack or table.unpack)(result,2)
   end
  end
- mod.exports.version='3.2.69'
+ assert(load(assert(mod:read('lib/intro_background.lua'))))()(mod,menuPalette,function()return C.live()end)
+ mod.exports.version='3.2.70'
  assert(load(assert(mod:read('lib/scene_transitions.lua'))))()(mod,function()return C.live()end)
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C

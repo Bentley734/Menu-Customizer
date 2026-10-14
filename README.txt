@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.70
+
+Add INTRO / START SCREEN BACKGROUND under BACKGROUNDS for native Gen 1/Gen 2 boot screens. DEFAULT keeps original rendering; any existing static or animated background replaces white screen paper during the intro movie, title/start screen and professor introduction.
+
+White native image paper is keyed transparent so the selected background shows behind the artwork. Native screen state, input and music remain controlled by the game. Restart to load the update.
+
 # Menu Customizer 3.2.69
 
 Simplify Pokemon border choices and add eight matching psychedelic animated wallpapers and borders.
