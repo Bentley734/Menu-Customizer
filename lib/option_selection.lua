@@ -10,12 +10,12 @@ return function(mod,Font,setting,active,version)
     if r==0 and g==0 and b==0 and (a==2/16 or a==4/16)then a=0 end
     return setColor(r,g,b,a)
    end end
-   local pages=menu._pages;local page=pages and pages[#pages]
+   local pages=menu._pages or (menu._st and menu._st.pages);local page=pages and pages[#pages]
    local row=page and page.rows and page.rows[page.index or 1]
    local result={pcall(function(...)return mod.exports.customization.with(row,draw,...)end,...)};G.setColor=setColor
    if not result[1]then error(result[2],0)end
    if not active()then return (unpack or table.unpack)(result,2)end
-   local pages=menu._pages;local page=pages and pages[#pages]
+   local pages=menu._pages or (menu._st and menu._st.pages);local page=pages and pages[#pages]
    if not page then return (unpack or table.unpack)(result,2)end
    local x,y,w,h=16,58,208,13
    if menu._data and menu._data.rows then
@@ -27,7 +27,7 @@ return function(mod,Font,setting,active,version)
    G.rectangle('fill',x,y,w,h)
    G.setColor(1,1,1,1)
    local row=page.rows and page.rows[page.index or 1]
-   local label=row and row.label or 'BACK'
+   local label=row and (row.label or row.cart and row.cart.label) or 'BACK'
    Font.drawGlyph(Font.CHAR_SELECTOR_ARROW,x,y,{colors=Font.COLOR and Font.COLOR.NORMAL,
     _selectionHighlight=true,_selectorWidth=Font.measure and math.min(w-8,Font.measure(label))or 8,_selectorInset=8})
    G.pop()

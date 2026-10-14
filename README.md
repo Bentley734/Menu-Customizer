@@ -1,3 +1,11 @@
+# Menu Customizer 3.2.82
+
+Fix Emerald OPTIONS integration: forward native cartridge-row metadata so Text Speed and Button Mode retain their native controls; read Emerald's actual page state to draw custom selectors and highlights on all settings pages, including BACK.
+
+Suppress the original options canvas only during gameplay's screen-space replay. Keep the title/main-menu OPTIONS canvas visible instead of producing a black screen.
+
+Validation: actual Emerald input-handler checks for Text Speed and Button Mode, selector and BACK placement, render-guard checks, preview restoration regressions, and full compilation under LuaJIT and Lua 5.3. Live gameplay was not exercised. Restart after installing.
+
 # Menu Customizer 3.2.81
 
 Draw the title-screen Ash illustration once through the final-resolution sprite pass. Remove its low-resolution underlay, which can leave dark speckles and stair-stepped edges showing through the artwork's alpha. Retain linear image filtering and use straight-alpha blending for the fallback renderer.

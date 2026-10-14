@@ -11,6 +11,7 @@ return function(mod)
   if Renderer._menuCustomizerGen3 then return Renderer._menuCustomizerGen3(mod,gameVersion,catalog) end
   local EngineRuntime=require('src.mods.Runtime')
   local startItemsHook
+  local presenting = false
   local function active()
     local chain=EngineRuntime.hooks and EngineRuntime.hooks.chains and EngineRuntime.hooks.chains['ui.start_menu.items']
     for _,entry in ipairs(chain or {}) do
@@ -269,8 +270,8 @@ return function(mod)
   Rows.GROUPS[#Rows.GROUPS+1] = {id='group.gen3transparency_menus', label='MENUS', members=members}
   Rows.ORDER[#Rows.ORDER+1] = 'group.gen3transparency_menus'
   local oldBuild = Rows.build
-  Rows.build = function(ctx)
-    local entries = oldBuild(ctx)
+  Rows.build = function(ctx, ...)
+    local entries = oldBuild(ctx, ...)
     if not active() then return entries end
     for _,spec in ipairs({{'building_in','BUILDING ENTER'},{'building_out','BUILDING EXIT'},{'battle_in','BATTLE ENTER'},{'battle_out','BATTLE EXIT'}})do
       entries[#entries+1]=row('scene_'..spec[1],spec[2],SceneEffects.names)
@@ -496,7 +497,7 @@ return function(mod)
     -- OPTION remains marked open underneath the built-in MODS manager.
     -- Only suppress the UI canvas while OPTION itself is the top layer;
     -- otherwise the manager's entire canvas disappears behind the field.
-    if source == self.canvas and top and top.mod == Option and Option.isOpen() then
+    if presenting and source == self.canvas and top and top.mod == Option and Option.isOpen() then
       return
     end
     -- DexNav closes START before pushing its own Game3 layer. Its full-screen
@@ -733,7 +734,6 @@ return function(mod)
   end
   local originalStart, originalOption, originalSave, originalPresent =
     drawStartJustified, Option.draw, Save.draw, Display.present
-  local presenting = false
   Start.draw = function(...)
     if presenting then return end
     return originalStart(...)
