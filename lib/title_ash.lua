@@ -15,8 +15,13 @@ return function(mod,active)
    if player(image,x,y)then
     if not shown then
      shown=true;local ax,ay=82,80
-     G.push('all');G.setShader();G.setColor(1,1,1,1);imageDraw(ash,ax,ay,0,scale,scale);G.pop()
-     P.markTrueColor(ax,ay,w*scale,56);if redraw then redraw(ash,nil,ax,ay,{sx=scale,sy=scale})end
+     -- Render once at final resolution. A low-resolution underlay leaves
+     -- dark pixels showing through semi-transparent illustration edges.
+     if redraw then redraw(ash,nil,ax,ay,{sx=scale,sy=scale})
+     else
+      G.push('all');G.setShader();G.setBlendMode('alpha','alphamultiply');G.setColor(1,1,1,1)
+      imageDraw(ash,ax,ay,0,scale,scale);G.pop()
+     end
     end
     return
    end

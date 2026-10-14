@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.81
+
+Draw the title-screen Ash illustration once through the final-resolution sprite pass. Remove its low-resolution underlay, which can leave dark speckles and stair-stepped edges showing through the artwork's alpha. Retain linear image filtering and use straight-alpha blending for the fallback renderer.
+
+Restart to load the update.
+
 # Menu Customizer 3.2.80
 
 Give native GB intro/title customization a dedicated INTRO / START SCREEN submenu and independent presentation settings.
