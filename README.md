@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.98
+
+Fade the complete EXP strip beneath the player HP numbers with the healthbox. Its baked pale track previously remained fully opaque and appeared as a white line at reduced battle opacity.
+
+Validated every pixel of the EXP strip for both genders at 0% and 50% opacity, with pixel-identical native healthbox rendering at 100%. HP-paper and placeholder-cleanup regressions still pass. Restart after installing.
+
 # Menu Customizer 3.2.97
 
 Fix player HP paper and baked level-placeholder cleanup escaping battle transparency. Composite the healthbox and its cleanup fills before fading; draw names, gender, levels, HP numbers and gauges separately. This removes the stray cleanup mark beside the player gender glyph at reduced opacity.
