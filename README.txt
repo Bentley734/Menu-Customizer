@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.92
+
+Left-align ordinary options values in the native shared value column so short and long values start uniformly. Preserve cartridge choice layout, selector positions and Continue summary spacing.
+
+Validation: LuaJIT/Lua 5.3 compilation and preview regressions. Restart after installing.
+
 # Menu Customizer 3.2.91
 
 Center cartridge choice markers beside option text using a two-pixel downward offset, between the previous too-high and too-low positions. Leave ordinary row selectors unchanged.

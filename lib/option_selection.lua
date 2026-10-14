@@ -49,7 +49,7 @@ return function(mod,Font,setting,active,version)
      if entry and entry.value and not entry.cart then columns[y0+(slot-1)*pitch]=true end
     end
     Font.draw=function(text,x,y,opts,...)
-     if x==valueX and columns[y]then x=edge-Font.measure(text,opts)end
+     if x==valueX and columns[y]then x=valueX end
      return aligned(text,x,y,opts,...)
     end
    end

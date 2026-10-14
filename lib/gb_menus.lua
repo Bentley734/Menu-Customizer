@@ -903,7 +903,7 @@ return function(mod,catalog)
         elseif row.text then value=row.text(s.options)
         elseif row.values then local v=s.options[row.key];value=row.display and Strings(row.display[v]) or tostring(v)
         elseif type(row.value)=='function' then local ok,v=pcall(row.value,s.game);value=ok and tostring(v) or '?' end
-        if value then Font.draw(value,144-Font.width(value),y+16) end
+        if value then Font.draw(value,88,y+16) end
        end
       end
       if s.scroll+3<#rows then Font.drawCode(Chrome.DOWN_ARROW,8,120) end
