@@ -1,3 +1,7 @@
+# Menu Customizer 3.2.114
+
+Group TEXT into Font and Layout, Colors, Shadows, Menu Effects, Battle Effects, and Name Effects submenus. Add ALL BORDERS and ALL BACKGROUNDS at the top of their pages to apply selections across menu, dialogue, save, battle, and intro background settings. Existing per-screen controls and saved IDs are retained. Restart to load the update. Tests skipped as requested.
+
 # Menu Customizer 3.2.113
 
 Exclude Font.draw and Font.drawCode glyph rendering from the intro white-paper transparency shader. White font atlas masks were being erased, hiding intro credits and title captions. Preserve full-window wallpaper and cinematic masks. Installed 3.2.112 source was confirmed to match the workspace before this fix. Restart to load the update. Tests skipped as requested.
