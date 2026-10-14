@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.96
+
+Fix the theme-preview crash by using the name effect group accepted by the text-effects API instead of battle_name.
+
+Validation: all eight theme presets with strict effect group validation, real text-effects API checks, preview regressions and full compilation under LuaJIT and Lua 5.3. Restart after installing.
+
 # Menu Customizer 3.2.95
 
 Remove all POKEMON ANIMATED scene backgrounds and their submenu. Retain numeric slots solely for saved-setting compatibility; retired selections render calm navy paper instead of animated scenes.

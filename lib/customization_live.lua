@@ -121,7 +121,7 @@ return function(mod)
    for _,scope in ipairs({'start','option','save','other','battle','dialogue'})do
     v[scope..'Position']=1;v[scope..'Scale']=100;v[scope..'Width']=100;v[scope..'Height']=100;v[scope..'OffsetX']=0;v[scope..'OffsetY']=0
    end
-   for _,prefix in ipairs({'menu','intro','battle','battle_name'})do
+   for _,prefix in ipairs({'menu','intro','battle','name'})do
     for key,spec in pairs(P.effects.specs(prefix))do v[key]=spec[1]end
    end
    return v
