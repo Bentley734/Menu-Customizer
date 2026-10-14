@@ -1,3 +1,7 @@
+# Menu Customizer 3.2.119
+
+Add ten red fire-themed animated backgrounds and ten matching borders: Crimson Inferno, Scarlet Embers, Ruby Lava, Red Flame Curtain, Carmine Firestorm, Molten Red Rivers, Phoenix Fire, Scarlet Heat Haze, Volcanic Heart, and Crimson Fire Whirl. Find both sets under RED FIRE. Preserve existing saved selection IDs. Restart to load the update. Tests skipped as requested.
+
 # Menu Customizer 3.2.118
 
 Add game-wide ALL COLORS and ALL SHADOWS selectors under TEXT / COLORS and TEXT / SHADOWS. Apply selected colors to menu, dialogue, intro, battle text, Pokemon names, and selector ink, and shadows to every text scope. Individual settings remain available. Include named selector values. Restart to load the update. Tests skipped as requested.

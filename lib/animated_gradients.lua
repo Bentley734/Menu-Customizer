@@ -46,6 +46,18 @@ M.register({
  {key='red_psy_18',hex={'8F1534','DF3054','FF738A','670C2A'}},
  {key='red_psy_19',hex={'A3190E','F14325','FFA17A','731510'}},
 })
+M.register({
+ {key='red_fire_0',hex={'8C0815','D71722','FF7836','A80D1B'}},
+ {key='red_fire_1',hex={'9F1510','E22B19','FFAA45','BA2012'}},
+ {key='red_fire_2',hex={'861026','D22434','FF6841','A4142C'}},
+ {key='red_fire_3',hex={'8C0815','D71722','FF7836','A80D1B'}},
+ {key='red_fire_4',hex={'9F1510','E22B19','FFAA45','BA2012'}},
+ {key='red_fire_5',hex={'861026','D22434','FF6841','A4142C'}},
+ {key='red_fire_6',hex={'8C0815','D71722','FF7836','A80D1B'}},
+ {key='red_fire_7',hex={'9F1510','E22B19','FFAA45','BA2012'}},
+ {key='red_fire_8',hex={'861026','D22434','FF6841','A4142C'}},
+ {key='red_fire_9',hex={'8C0815','D71722','FF7836','A80D1B'}},
+})
 function M.sample(key,t)
  local entry=M.byKey[key];if not entry then return nil end
  local pos=(t%1)*4;local i=math.floor(pos);local f=pos-i;f=f*f*(3-2*f)

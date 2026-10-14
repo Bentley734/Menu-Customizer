@@ -184,6 +184,16 @@ return function(mod,setting,catalog,active)
        if(borderEffect==41)v=.5+.5*cos(depth*2.97+sin(a*9.29+t)*4.0-t);
        if(borderEffect==42)v=.5+.5*sin(borderRepeat(path,24.0)*3.08+cos(depth*9.66-t)*3.0);
        if(borderEffect==43)v=.5+.5*cos(radial*3.19+a*10.03+sin(depth-t)*3.0);
+       if(borderEffect==44)v=.5+.5*sin(depth*1.3+sin(borderRepeat(path,24)*0.3+sin(depth+t)*2.0)*2.0-t*1.2);
+       if(borderEffect==45)v=.5+.5*sin(depth*1.43+sin(borderRepeat(path,26)*0.34+sin(depth+t)*2.0)*2.29-t*1.37);
+       if(borderEffect==46)v=.5+.5*sin(depth*1.56+sin(borderRepeat(path,28)*0.38+sin(depth+t)*2.0)*2.58-t*1.54);
+       if(borderEffect==47)v=.5+.5*sin(depth*1.69+sin(borderRepeat(path,30)*0.42+sin(depth+t)*2.0)*2.87-t*1.71);
+       if(borderEffect==48)v=.5+.5*sin(depth*1.82+sin(borderRepeat(path,32)*0.46+sin(depth+t)*2.0)*3.16-t*1.88);
+       if(borderEffect==49)v=.5+.5*sin(depth*1.95+sin(borderRepeat(path,34)*0.5+sin(depth+t)*2.0)*3.45-t*2.05);
+       if(borderEffect==50)v=.5+.5*sin(depth*2.08+sin(borderRepeat(path,36)*0.54+sin(depth+t)*2.0)*3.74-t*2.22);
+       if(borderEffect==51)v=.5+.5*sin(depth*2.21+sin(borderRepeat(path,38)*0.58+sin(depth+t)*2.0)*4.03-t*2.39);
+       if(borderEffect==52)v=.5+.5*sin(depth*2.34+sin(borderRepeat(path,40)*0.62+sin(depth+t)*2.0)*4.32-t*2.56);
+       if(borderEffect==53)v=.5+.5*sin(depth*2.47+sin(borderRepeat(path,42)*0.66+sin(depth+t)*2.0)*4.61-t*2.73);
       }
       else if(borderEffect==15){
        float family=mod(pokemonMotif-1.0,6.0);float pitch=12.0+mod(pokemonMotif,5.0)*2.0;
@@ -217,7 +227,7 @@ return function(mod,setting,catalog,active)
   for i,label in ipairs({'paperStopA','paperStopB','paperStopC','paperStopD'})do panelShader:send(label,paperStops and paperStops.stops[i] or {0,0,0})end
   panelShader:send('pokemonMotif',atlas.pokemonMotif or 0)
   panelShader:send('rainbow',atlas.animation=='gradient')
-  panelShader:send('borderEffect',({balls=1,lightning=2,water=3,ghost=4,stars=5,vines=6,acid=7,plasma=8,kaleido=9,molten=10,circuit=11,tunnel=12,checker=13,braid=14,pokemon=15,psy0=16,psy1=17,psy2=18,psy3=19,psy4=20,psy5=21,psy6=22,psy7=23})[atlas.animation] or (atlas.animation and atlas.animation:match('^redpsy(%d+)$')and 24+tonumber(atlas.animation:match('^redpsy(%d+)$'))) or 0)
+  panelShader:send('borderEffect',({balls=1,lightning=2,water=3,ghost=4,stars=5,vines=6,acid=7,plasma=8,kaleido=9,molten=10,circuit=11,tunnel=12,checker=13,braid=14,pokemon=15,psy0=16,psy1=17,psy2=18,psy3=19,psy4=20,psy5=21,psy6=22,psy7=23})[atlas.animation] or (atlas.animation and atlas.animation:match('^redpsy(%d+)$')and 24+tonumber(atlas.animation:match('^redpsy(%d+)$'))) or (atlas.animation and atlas.animation:match('^redfire(%d+)$')and 44+tonumber(atlas.animation:match('^redfire(%d+)$'))) or 0)
   local phase=0
   if atlas.animation then phase=(love.timer and love.timer.getTime and love.timer.getTime() or 0)*.08*palette.effects.get('menu','speed',100)/100 end
   panelShader:send('phase',phase)

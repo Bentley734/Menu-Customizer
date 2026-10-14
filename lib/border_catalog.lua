@@ -187,6 +187,16 @@ C.entries[#C.entries+1]={label='RED THIRD EYE',path='assets/borders/pokemon_grad
 C.entries[#C.entries+1]={label='VERMILION FRACTAL',path='assets/borders/pokemon_gradient.png',animation='redpsy17',gradient='red_psy_17',redPsy=true}
 C.entries[#C.entries+1]={label='SCARLET INFINITY',path='assets/borders/pokemon_gradient.png',animation='redpsy18',gradient='red_psy_18',redPsy=true}
 C.entries[#C.entries+1]={label='RUBY PLASMA',path='assets/borders/pokemon_gradient.png',animation='redpsy19',gradient='red_psy_19',redPsy=true}
+C.entries[#C.entries+1]={label='CRIMSON INFERNO',path='assets/borders/pokemon_gradient.png',animation='redfire0',gradient='red_fire_0',redFire=true}
+C.entries[#C.entries+1]={label='SCARLET EMBERS',path='assets/borders/pokemon_gradient.png',animation='redfire1',gradient='red_fire_1',redFire=true}
+C.entries[#C.entries+1]={label='RUBY LAVA',path='assets/borders/pokemon_gradient.png',animation='redfire2',gradient='red_fire_2',redFire=true}
+C.entries[#C.entries+1]={label='RED FLAME CURTAIN',path='assets/borders/pokemon_gradient.png',animation='redfire3',gradient='red_fire_3',redFire=true}
+C.entries[#C.entries+1]={label='CARMINE FIRESTORM',path='assets/borders/pokemon_gradient.png',animation='redfire4',gradient='red_fire_4',redFire=true}
+C.entries[#C.entries+1]={label='MOLTEN RED RIVERS',path='assets/borders/pokemon_gradient.png',animation='redfire5',gradient='red_fire_5',redFire=true}
+C.entries[#C.entries+1]={label='PHOENIX FIRE',path='assets/borders/pokemon_gradient.png',animation='redfire6',gradient='red_fire_6',redFire=true}
+C.entries[#C.entries+1]={label='SCARLET HEAT HAZE',path='assets/borders/pokemon_gradient.png',animation='redfire7',gradient='red_fire_7',redFire=true}
+C.entries[#C.entries+1]={label='VOLCANIC HEART',path='assets/borders/pokemon_gradient.png',animation='redfire8',gradient='red_fire_8',redFire=true}
+C.entries[#C.entries+1]={label='CRIMSON FIRE WHIRL',path='assets/borders/pokemon_gradient.png',animation='redfire9',gradient='red_fire_9',redFire=true}
 C.choices={}
 for i,entry in ipairs(C.entries) do C.choices[i]=entry.label end
 function C.selection(raw,format)
@@ -198,7 +208,7 @@ function C.groups()
  local groups,lookup={},{}
  local families={'VOLT TRAILS','EMBER FLOW','TIDAL WAVES','LEAF DANCE','PSYCHIC EYES','POKEBALL ORBITS'}
  for i,e in ipairs(C.entries)do if not e.hidden then
-  local label=e.redPsy and 'RED PSYCHEDELIC' or e.pokemonMotif and families[(e.pokemonMotif-1)%6+1] or e.animation and 'OTHER ANIMATED DESIGNS' or e.path and e.path:find('pokemon_',1,true) and 'CLASSIC POKEMON FRAMES' or 'GAME BORDERS'
+  local label=e.redFire and 'RED FIRE' or e.redPsy and 'RED PSYCHEDELIC' or e.pokemonMotif and families[(e.pokemonMotif-1)%6+1] or e.animation and 'OTHER ANIMATED DESIGNS' or e.path and e.path:find('pokemon_',1,true) and 'CLASSIC POKEMON FRAMES' or 'GAME BORDERS'
   if not lookup[label]then lookup[label]={label=label,choices={}};groups[#groups+1]=lookup[label]end
   lookup[label].choices[#lookup[label].choices+1]={id=i,label=e.pokemonMotif and e.label or e.pokemonName or e.label}
  end end

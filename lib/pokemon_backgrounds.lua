@@ -157,6 +157,16 @@ return function(mod)
  M.entries[#M.entries+1]={key='red_psy_17',name='VERMILION FRACTAL',style=68,a='30060C',b='DB2033',ink='FF906A'}
  M.entries[#M.entries+1]={key='red_psy_18',name='SCARLET INFINITY',style=69,a='22050B',b='AB153D',ink='FF526D'}
  M.entries[#M.entries+1]={key='red_psy_19',name='RUBY PLASMA',style=70,a='380609',b='D32B19',ink='FCA078'}
+ M.entries[#M.entries+1]={key='red_fire_0',name='CRIMSON INFERNO',style=71,fire=true,a='200305',b='B30E19',ink='FF742F'}
+ M.entries[#M.entries+1]={key='red_fire_1',name='SCARLET EMBERS',style=72,fire=true,a='290505',b='D02316',ink='FFAA45'}
+ M.entries[#M.entries+1]={key='red_fire_2',name='RUBY LAVA',style=73,fire=true,a='220409',b='AE1731',ink='FF5C3F'}
+ M.entries[#M.entries+1]={key='red_fire_3',name='RED FLAME CURTAIN',style=74,fire=true,a='200305',b='B30E19',ink='FF742F'}
+ M.entries[#M.entries+1]={key='red_fire_4',name='CARMINE FIRESTORM',style=75,fire=true,a='290505',b='D02316',ink='FFAA45'}
+ M.entries[#M.entries+1]={key='red_fire_5',name='MOLTEN RED RIVERS',style=76,fire=true,a='220409',b='AE1731',ink='FF5C3F'}
+ M.entries[#M.entries+1]={key='red_fire_6',name='PHOENIX FIRE',style=77,fire=true,a='200305',b='B30E19',ink='FF742F'}
+ M.entries[#M.entries+1]={key='red_fire_7',name='SCARLET HEAT HAZE',style=78,fire=true,a='290505',b='D02316',ink='FFAA45'}
+ M.entries[#M.entries+1]={key='red_fire_8',name='VOLCANIC HEART',style=79,fire=true,a='220409',b='AE1731',ink='FF5C3F'}
+ M.entries[#M.entries+1]={key='red_fire_9',name='CRIMSON FIRE WHIRL',style=80,fire=true,a='200305',b='B30E19',ink='FF742F'}
  local function rgb(hex)return{tonumber(hex:sub(1,2),16)/255,tonumber(hex:sub(3,4),16)/255,tonumber(hex:sub(5,6),16)/255}end
  for _,e in ipairs(M.entries)do if e.scene and not e.still then e.hidden=true;e.retired=true;e.removedAnimation=true end end
  M.byKey={}
@@ -206,6 +216,26 @@ return function(mod)
   float paperHash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
   float paperDot(vec2 p,vec2 c,float r){return 1.0-step(r,length(p-c));}
   vec3 pokemonPaper(vec2 p){
+   if(pokeStyle>=71){
+    vec2 size=max(pokeArea.zw,vec2(1.0));vec2 q=(p-pokeArea.xy)/min(size.x,size.y);
+    float t=pokePhase*.65,k=float(pokeStyle-71);
+    float rise=q.y*8.0+t;
+    float curl=sin(q.x*9.0+sin(rise*1.7)*1.3)+.5*sin(q.x*21.0-rise*2.1);
+    float flame=.5+.5*sin(q.y*11.0+curl*2.2+t*2.0);
+    if(pokeStyle==72)flame=pow(max(0.0,sin(q.x*33.0+sin(rise)*3.0)*sin(rise*6.0)),5.0);
+    if(pokeStyle==73)flame=.5+.5*sin(q.x*8.0+sin(q.y*7.0+t)*2.8);
+    if(pokeStyle==74)flame=exp(-abs(sin(q.x*15.0+sin(rise)*2.0))*5.0)*(.6+.4*sin(rise*3.0));
+    if(pokeStyle==75)flame=.5+.5*sin(curl*3.0+sin(q.y*17.0+t*3.0)*2.0);
+    if(pokeStyle==76)flame=exp(-abs(sin(q.x*11.0+q.y*5.0+sin(q.y*9.0+t)*2.0))*4.0);
+    if(pokeStyle==77)flame=.5+.5*sin(abs(q.x-size.x/min(size.x,size.y)*.5)*17.0+curl+rise*2.0);
+    if(pokeStyle==78)flame=.5+.5*sin(q.y*8.0+sin(q.x*6.0+t)*3.0+sin(q.x*16.0-t));
+    vec2 z=(p-pokeArea.xy-size*.5)/min(size.x,size.y);float rad=length(z),angle=atan(z.y,z.x);
+    if(pokeStyle==79)flame=.5+.5*cos(rad*25.0+curl*1.5-t*2.0);
+    if(pokeStyle==80)flame=.5+.5*sin(angle*5.0+log(max(rad,.015))*8.0+t*2.0);
+    flame=clamp(flame,0.0,1.0);
+    vec3 rgb=mix(pokeBaseA,pokeBaseB,.3+.7*flame);
+    return mix(rgb,pokeAccent,pow(flame,9.0)*.7);
+   }
    if(pokeStyle>=43){
     vec2 size=max(pokeArea.zw,vec2(1.0));vec2 z=(p-pokeArea.xy-size*.5)/min(size.x,size.y)*3.0;
     float r=max(length(z),.012),a=atan(z.y,z.x),t=pokePhase*.35;float k=float(pokeStyle-43);
