@@ -169,13 +169,13 @@ return function(mod,catalog)
     current.inBox=true
     local args={n=select('#',...),...}
     local ok,result=pcall(function()
-     if (not current.dialogueScope or current.setting('dialogueBorder')==1 and current.setting('dialogueBorderChoice')>0) and current.borders.draw(tx,ty,tw,th) then
+     if (not current.dialogueScope or current.paperGroup=='save' or current.setting('dialogueBorder')==1 and current.setting('dialogueBorderChoice')>0) and current.borders.draw(tx,ty,tw,th) then
 
       return
      end
      local result=box(tx,ty,tw,th,unpack(args,1,args.n))
      if current.dialogueScope then
-      local bg=current.palette.menuBackground('dialogue')
+      local bg=current.palette.menuBackground(current.paperGroup=='save' and 'save' or 'dialogue')
       if bg then current.palette.paint(bg,G.rectangle,'fill',(tx+1)*8,(ty+1)*8,math.max(0,(tw-2)*8),math.max(0,(th-2)*8))end
      end
      return result

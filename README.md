@@ -1,3 +1,7 @@
+# Menu Customizer 3.2.103
+
+Center the start-screen copyright after large-font scaling. Save confirmation dialogue now uses the save menu border and background settings. Replace Ash title artwork with a transparent Pokemon Showdown trainer sprite, cropped at draw time to its opaque bounds and rendered with nearest filtering. Restart the game to load the update. Tests skipped as requested.
+
 # Menu Customizer 3.2.102
 
 Use the same standard-window border and background renderer for the Return to Main Menu prompt as its YES/NO popup. Preserve the wide prompt layout, confirmation controls and overlap fix. Restart after installing.

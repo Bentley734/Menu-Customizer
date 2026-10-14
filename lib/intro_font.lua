@@ -13,7 +13,7 @@ return function(mod,Font,active)
      local prior=C.introFitScale;local chosen=C.setting('introFontSize')+1
      C.introFitScale=1;local width=Font.width(text)
      C.introFitScale=math.max(1,math.min(chosen,math.floor(152/math.max(1,width))))
-     local actual=Font.width(text);x=math.floor(math.max(4,math.min(x,156-actual))+.5);y=math.floor(y+.5)
+     local actual=Font.width(text);if C.introCenter then x=(160-actual)/2 end;x=math.floor(math.max(4,math.min(x,156-actual))+.5);y=math.floor(y+.5)
      local result={pcall(printer,text,x,y,...)};C.introFitScale=prior
      if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
     end
@@ -26,7 +26,11 @@ return function(mod,Font,active)
      local C=Font._menuCustomizerGB
      if not(C and C.introScope and C.theme.enabled())then return original(self,y,...)end
      local G=love.graphics;G.setColor(0,0,0,1)
-     local function caption(text,row)Font.draw(text,math.max(4,math.floor((160-Font.width(text))/2)),row)end
+     local function caption(text,row)
+      local old=C.introCenter;C.introCenter=true
+      Font.draw(text,math.max(4,math.floor((160-Font.width(text))/2)),row)
+      C.introCenter=old
+     end
      if path=='src.ui.IntroMovie'then
       caption('Nintendo',56);caption('Creatures inc.',72);caption('GAME FREAK inc.',88)
      else caption(self.title and self.title.copyrightText or 'GAME FREAK inc.',y or 136)end

@@ -1,11 +1,22 @@
 return function(mod,active)
  local ok,Title=pcall(require,'src.ui.TitleState');if not ok or Title._customAshArtwork then return end
- Title._customAshArtwork=true;local draw=Title.draw;local ash
+ Title._customAshArtwork=true;local draw=Title.draw;local ash,ashQuad,ashWidth,ashHeight
  Title.draw=function(self,...)
   if not(active()and tonumber(mod.options:get('introTrainer'))==1 and self.player)then return draw(self,...)end
   local G=love.graphics;local P=require('src.render.PaletteFX');local imageDraw=G.draw;local redraw=P.markUiSpriteRedraw
-  if not ash then ash=assert(mod.assets:image('assets/title-ash.png'));ash:setFilter('linear','linear')end
-  local pw,ph=self.player:getDimensions();local w,h=ash:getDimensions();local scale=56/h;local shown=false
+  if not ash then
+   ash=assert(mod.assets:image('assets/title-ash.png'));ash:setFilter('nearest','nearest')
+   local data=love.image.newImageData(love.filesystem.newFileData(mod:read('assets/title-ash.png'),'ash.png'))
+   local w,h=data:getDimensions();local left,top,right,bottom=w,h,-1,-1
+   for y=0,h-1 do for x=0,w-1 do
+    local _,_,_,a=data:getPixel(x,y)
+    if a>0 then left=math.min(left,x);top=math.min(top,y);right=math.max(right,x);bottom=math.max(bottom,y)end
+   end end
+   ashWidth,ashHeight=right-left+1,bottom-top+1
+   ashQuad=G.newQuad(left,top,ashWidth,ashHeight,w,h)
+   if data.release then data:release()end
+  end
+  local pw,ph=self.player:getDimensions();local scale=56/ashHeight;local shown=false
   local function player(image,x,y)
    if not image or not image.getDimensions then return false end
    local iw,ih=image:getDimensions();return iw==pw and ih==ph and x and x>=82 and x<=114 and y and y>=64 and y<=136
@@ -17,10 +28,10 @@ return function(mod,active)
      shown=true;local ax,ay=82,80
      -- Render once at final resolution. A low-resolution underlay leaves
      -- dark pixels showing through semi-transparent illustration edges.
-     if redraw then redraw(ash,nil,ax,ay,{sx=scale,sy=scale})
+     if redraw then redraw(ash,ashQuad,ax,ay,{sx=scale,sy=scale})
      else
       G.push('all');G.setShader();G.setBlendMode('alpha','alphamultiply');G.setColor(1,1,1,1)
-      imageDraw(ash,ax,ay,0,scale,scale);G.pop()
+      imageDraw(ash,ashQuad,ax,ay,0,scale,scale);G.pop()
      end
     end
     return
