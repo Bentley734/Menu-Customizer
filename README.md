@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.87
+
+Add SELECTORS > CHOICE SELECTOR with an independent choice style and selected text color. Emerald cartridge choices, including Text Speed and Button Mode, support all 13 existing selector styles plus TEXT COLOR (the default). Replace the fixed underline with the configured style. Ordinary menu arrows retain their own setting.
+
+Validation: all selector styles dispatch independently and selected text color follows all values, preview regressions and full LuaJIT/Lua 5.3 compilation. Live gameplay was not exercised. Restart after installing.
+
 # Menu Customizer 3.2.86
 
 Inset RSE main-menu option labels and left-column Continue details by four logical pixels from the interior border. Preserve right-aligned details and child-menu layout.

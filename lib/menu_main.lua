@@ -84,6 +84,7 @@ return function(mod)
   end
   for _,key in ipairs({'building_in','building_out','battle_in','battle_out'})do extra['scene_'..key]={1,1,#SceneEffects.names,1}end
   for k,v in pairs(menuPalette.effects.specs('menu'))do extra[k]=v end
+  extra.choiceSelector={14,1,14,1};extra.choiceSelectorColor={0,0,#menuPalette.names-1,1}
   for key in pairs(extra) do keys[#keys+1]=key end
   local FX
   local ArrowSelectors
@@ -313,6 +314,17 @@ return function(mod)
       step=function(ctx,dir)persist('menuTextShadowColor',menuPalette.step('shadow',setting('menuTextShadowColor'),dir),ctx);return false end}
     entries[#entries+1] = row('startSelector', 'START SELECTOR', selectorChoices)
     entries[#entries+1] = row('arrowSelector','ARROW SELECTOR',ArrowSelectors.names)
+    local choiceNames={};for i,n in ipairs(ArrowSelectors.names)do choiceNames[i]=n end;choiceNames[14]='TEXT COLOR'
+    local choiceStyle=row('choiceSelector','CHOICE SELECTOR STYLE',choiceNames)
+    local choiceColor={id='wide_choiceSelectorColor',label='SELECTED CHOICE COLOR',value=function()return menuPalette.names[setting('choiceSelectorColor')+1]end,
+      step=function(ctx,d)persist('choiceSelectorColor',menuPalette.step('text',setting('choiceSelectorColor'),d),ctx);return false end}
+    entries[#entries+1]={id='wide_choiceSelector',label='CHOICE SELECTOR',group=true,value=function()return 'OPEN'end,
+      activate=function(ctx)
+        menuPalette.picker(choiceColor,'text',function()return setting('choiceSelectorColor')end,function(c,n)persist('choiceSelectorColor',n,c);return false end,function(title,rows)local pages=Option._st and Option._st.pages or Option._pages;pages[#pages+1]={title=title,rows=rows,index=1,scroll=0}end)
+        local pages=Option._st and Option._st.pages or Option._pages
+        pages[#pages+1]={title='CHOICE SELECTOR',rows={choiceStyle,choiceColor},index=1,scroll=0}
+      end}
+
     entries[#entries+1]={id='wide_selectionHighlight',label='HIGHLIGHT INTENSITY',value=function()return setting('selectionHighlight')..'%'end,
       step=function(ctx,d)persist('selectionHighlight',math.max(0,math.min(100,setting('selectionHighlight')+(d<0 and -5 or 5))),ctx);return false end}
     entries[#entries+1] = row('optionPosition', 'OPTION POSITION')

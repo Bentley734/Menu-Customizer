@@ -313,7 +313,7 @@ return function(mod)
   function M.menuScope(fn,...)return scope(fn,'menu',true,...)end
   function M.menuOptions(opts)
     local copy={};for k,v in pairs(opts or {})do copy[k]=v end
-    copy.colors=M.colors('menu');copy.color=nil;copy.shadow=nil
+    copy.colors=M.colors('menu');if opts and opts._choiceColor then copy.colors.fg=M.color('text',opts._choiceColor)end;copy.color=nil;copy.shadow=nil
     return copy
   end
   -- Healthbox renderers print the name first, then gender, level and HP.

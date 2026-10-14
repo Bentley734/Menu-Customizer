@@ -24,11 +24,16 @@ return function(mod,Font,setting,active,version)
      end
     end
     Font.draw=function(text,x,y,opts,...)
+     local selected=x>=120 and chosen[y]==text
+     local style=setting('choiceSelector')or 14
+     if selected and style==14 then
+      local copy={};for k,v in pairs(opts or {})do copy[k]=v end
+      copy._choiceColor=setting('choiceSelectorColor')or 0;opts=copy
+     end
      local result={printer(text,x,y,opts,...)}
-     if x>=120 and chosen[y]==text then
+     if selected and style~=14 then
       local width=Font.measure(text,opts)
-      G.push('all');G.setShader();G.setColor(0,0,0,1);G.rectangle('fill',x-1,y+12,width+2,3)
-      G.setColor(1,1,1,1);G.rectangle('fill',x,y+13,width,1);G.pop()
+      mod.exports.arrowSelectors.draw(x-9,y,16,{_selectorStyle=style,_selectorInset=9,_selectorWidth=width})
      end
      return (unpack or table.unpack)(result)
     end

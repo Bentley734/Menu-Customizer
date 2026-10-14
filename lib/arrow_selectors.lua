@@ -8,7 +8,7 @@ return function(mod,icons,setting,active)
  function M.id()return M.ids[setting('arrowSelector')] or 3 end
  function M.draw(x,y,height,opts)
   local startArrow=opts and opts._startArrow
-  local id=startArrow and 3 or M.id()
+  local id=opts and opts._selectorStyle and M.ids[opts._selectorStyle]or startArrow and 3 or M.id()
   if not active() or mod.exports.startSelectorScope and not startArrow then return false end
   if opts and opts.colors and opts.colors.fg and opts.colors.fg[4]==0 then return false end
   if id==0 then
