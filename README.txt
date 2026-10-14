@@ -1,3 +1,7 @@
+# Menu Customizer 3.2.100
+
+Add one measured small-font space between Lv and the level value. Keep the level number anchored and retain the one-pixel vertical alignment and healthbox transparency fixes. Restart after installing.
+
 # Menu Customizer 3.2.99
 
 Raise current/max HP values one game pixel and raise the Lv label one pixel to align it with level digits. Retain the healthbox and EXP-track transparency fixes. Restart after installing.
