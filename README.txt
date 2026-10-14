@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.97
+
+Fix player HP paper and baked level-placeholder cleanup escaping battle transparency. Composite the healthbox and its cleanup fills before fading; draw names, gender, levels, HP numbers and gauges separately. This removes the stray cleanup mark beside the player gender glyph at reduced opacity.
+
+Based on the latest GitHub main and release 3.2.96. Validated with real Emerald assets at 0%, 50% and 100%, both genders, zero-opacity placeholder checks, and pixel-identical native rendering at 100%. All Lua sources compile under Lua 5.3. Restart after installing.
+
 # Menu Customizer 3.2.96
 
 Fix the theme-preview crash by using the name effect group accepted by the text-effects API instead of battle_name.
