@@ -1,3 +1,7 @@
+# Menu Customizer 3.2.120
+
+Add ALL SHADOW OPACITY under TRANSPARENCY. Adjust every menu, dialogue, intro, battle-text, and Pokemon-name shadow together from 0 percent (hidden) to 100 percent (fully opaque), in 5 percent steps. Individual shadow transparency controls remain available. Restart to load the update. Tests skipped as requested.
+
 # Menu Customizer 3.2.119
 
 Add ten red fire-themed animated backgrounds and ten matching borders: Crimson Inferno, Scarlet Embers, Ruby Lava, Red Flame Curtain, Carmine Firestorm, Molten Red Rivers, Phoenix Fire, Scarlet Heat Haze, Volcanic Heart, and Crimson Fire Whirl. Find both sets under RED FIRE. Preserve existing saved selection IDs. Restart to load the update. Tests skipped as requested.

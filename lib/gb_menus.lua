@@ -19,6 +19,7 @@ return function(mod,catalog)
  for _,scope in ipairs({'start','battle','option','save','other','dialogue','pokedex'})do specs[scope..'BorderChoice']={0,0,#catalog.choices,1}end
  specs.introTextColor={0,0,#menuPalette.names-1,1};specs.introTextShadowColor={0,0,#menuPalette.shadowNames-1,1};specs.introTextCase={0,0,2,1};specs.introLogo={1,0,1,1};specs.introTrainer={0,0,1,1}
  specs.introTheme={2,1,2,1};specs.introFontSize={0,0,2,1}
+ specs.allShadowOpacity={100,0,100,5}
  specs.allTextColor={0,0,#menuPalette.names-1,1};specs.allTextShadowColor={0,0,#menuPalette.shadowNames-1,1}
  specs.allBorderChoice={1,1,#catalog.choices,1};specs.allBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1}
  specs.introBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1}
@@ -57,6 +58,11 @@ return function(mod,catalog)
   return math.max(spec[2],math.min(spec[3],math.floor(n or spec[1])))
  end
  function C.persist(game,key,value)
+  if key=='allShadowOpacity' then
+   local values={allShadowOpacity=value}
+   for _,prefix in ipairs({'menu_fx_','intro_fx_','battle_fx_','battle_name_fx_'})do values[prefix..'shadow_transparency']=100-value end
+   return mod.exports.customization.write(game,values)
+  end
   if key=='allTextColor' or key=='allTextShadowColor' then
    local values={[key]=value}
    local keys=key=='allTextColor' and {'menuTextColor','dialogueTextColor','introTextColor','selectorColor','battle_text_color','battle_name_color'}
@@ -684,7 +690,7 @@ return function(mod,catalog)
  bgNames[0]='DEFAULT';startBgNames[0]='USE MENU'
  local colorNames={};for i,name in ipairs(menuPalette.names)do colorNames[i-1]=name end
  local shadowNames={};for i,name in ipairs(menuPalette.shadowNames)do shadowNames[i-1]=name end
- local parent={mod.exports.settingsProfiles.row(),row('allTextColor','ALL COLORS',colorNames),row('allTextShadowColor','ALL SHADOWS',shadowNames),row('allBorderChoice','ALL BORDERS',catalog.choices),row('allBackgroundColor','ALL BACKGROUNDS',bgNames)}
+ local parent={mod.exports.settingsProfiles.row(),row('allShadowOpacity','ALL SHADOW OPACITY'),row('allTextColor','ALL COLORS',colorNames),row('allTextShadowColor','ALL SHADOWS',shadowNames),row('allBorderChoice','ALL BORDERS',catalog.choices),row('allBackgroundColor','ALL BACKGROUNDS',bgNames)}
  for _,r in ipairs(mod.exports.customization.rows(function(title,rows,ctx)return pushPage(ctx.game or ctx,title,rows)end))do parent[#parent+1]=r end
  for _,group in ipairs({'start','option','save','other'})do
   for _,suffix in ipairs({'Position','Scale','Width','Height','OffsetX','OffsetY'})do
