@@ -29,7 +29,10 @@ return function(G,mod,faded)
    return text(value,x,y,opts,...)
   end
   font.drawGlyph=function(id,x,y,opts,...)
-   if id==0x105 and opts and opts.small then y=y-1 end
+   if id==0x105 and opts and opts.small then
+    y=y-1
+    x=x-font.measure(' ',opts)
+   end
    return glyph(id,x,y,opts,...)
   end
   local summary=chrome._menuCustomizerSummary
