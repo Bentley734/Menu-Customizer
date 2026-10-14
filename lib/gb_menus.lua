@@ -999,7 +999,28 @@ return function(mod,catalog)
    if not(self.titleUiBox and c and c.live())then return draw(self,...)end
    local scope,paper,title,intro,rx,ry=c.drawScope,c.paperGroup,c.drawingTitle,c.introScope,c.resizeX,c.resizeY
    c.drawScope=true;c.paperGroup='other';c.drawingTitle=true;c.introScope=true;c.resizeX=1;c.resizeY=1
+   local oldFit,oldMenu=c.introFitScale,c.introMenuScale
+   local tx,ty,tw,th,rowStep,itemY,maxVisible=self.tx,self.ty,self.tw,self.th,self.rowStep,self.itemY,self.maxVisible
+   if c.setting('introFontSize')>0 and c.theme.enabled() then
+    local scale=c.setting('introFontSize')+1
+    local visible=math.min(#self.items,4)
+    local function dimensions()
+     c.introFitScale=scale
+     local widest=0;for _,item in ipairs(self.items)do widest=math.max(widest,Font.width(item.label))end
+     local pitch=math.ceil((14*scale+4)/8)
+     local first=math.ceil(14*scale/8)
+     return math.ceil((widest+24)/8),first+(visible-1)*pitch+2,pitch,first
+    end
+    local width,height,pitch,first=dimensions()
+    while scale>1 and (width>20 or height>18)do scale=scale-1;width,height,pitch,first=dimensions()end
+    c.introMenuScale=scale;c.introFitScale=scale
+    self.tx=0;self.ty=0;self.tw=math.min(20,math.max(tw,width));self.th=math.min(18,math.max(th,height))
+    self.rowStep=pitch;self.itemY=first;self.maxVisible=visible
+   end
    local result={pcall(draw,self,...)}
+   if c.mod.generation==1 then require('src.render.PaletteFX').markTrueColor(self.tx*8,self.ty*8,self.tw*8,self.th*8)end
+   self.tx,self.ty,self.tw,self.th,self.rowStep,self.itemY,self.maxVisible=tx,ty,tw,th,rowStep,itemY,maxVisible
+   c.introFitScale,c.introMenuScale=oldFit,oldMenu
    c.drawScope,c.paperGroup,c.drawingTitle,c.introScope,c.resizeX,c.resizeY=scope,paper,title,intro,rx,ry
    if not result[1]then error(result[2],0)end
    if c.mod.generation==1 then

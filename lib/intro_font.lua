@@ -12,7 +12,7 @@ return function(mod,Font,active)
     Font.draw=function(text,x,y,...)
      local prior=C.introFitScale;local chosen=C.setting('introFontSize')+1
      C.introFitScale=1;local width=Font.width(text)
-     C.introFitScale=math.max(1,math.min(chosen,math.floor(152/math.max(1,width))))
+     C.introFitScale=C.introMenuScale or math.max(1,math.min(chosen,math.floor(152/math.max(1,width))))
      local actual=Font.width(text);if C.introCenter then x=(160-actual)/2 end;x=math.floor(math.max(4,math.min(x,156-actual))+.5);y=math.floor(y+.5)
      local result={pcall(printer,text,x,y,...)};C.introFitScale=prior
      if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
