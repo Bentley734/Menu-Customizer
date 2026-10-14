@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.74
+
+Replace the native title-screen Pokemon logo with the user-provided high-resolution color PNG. Crop transparent margins, preserve its aspect ratio and alpha, and fit it to the existing logo area. Replay it through the final-resolution UI sprite pass for sharper rendering instead of relying on the low-resolution game canvas.
+
+Restart the game to load the update.
+
 # Menu Customizer 3.2.73
 
 Add INTRO / START SCREEN FONT (USE MENU, NATIVE, EMERALD) and INTRO / START TEXT SIZE (NORMAL, LARGE, EXTRA LARGE) under TEXT for native Gen 1/Gen 2 boot screens.
