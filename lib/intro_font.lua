@@ -8,7 +8,16 @@ return function(mod,Font,active)
     local C=Font._menuCustomizerGB;if not(active()and C)then return draw(self,...)end
     local scope,intro,rx,ry=C.drawScope,C.introScope,C.resizeX,C.resizeY
     C.drawScope=true;C.introScope=true;C.resizeX=1;C.resizeY=1
-    local result={pcall(draw,self,...)}
+    local printer=Font.draw
+    Font.draw=function(text,x,y,...)
+     local prior=C.introFitScale;local chosen=C.setting('introFontSize')+1
+     C.introFitScale=1;local width=Font.width(text)
+     C.introFitScale=math.max(1,math.min(chosen,math.floor(152/math.max(1,width))))
+     local actual=Font.width(text);x=math.floor(math.max(4,math.min(x,156-actual))+.5);y=math.floor(y+.5)
+     local result={pcall(printer,text,x,y,...)};C.introFitScale=prior
+     if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
+    end
+    local result={pcall(draw,self,...)};Font.draw=printer
     C.drawScope,C.introScope,C.resizeX,C.resizeY=scope,intro,rx,ry
     if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
    end

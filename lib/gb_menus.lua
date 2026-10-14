@@ -130,8 +130,8 @@ return function(mod,catalog)
  C.theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return (C.drawScope or C.dialogueScope or mod.exports.choiceFontScope or mod.exports.battleFontScope) and (C.introScope and C.setting('introTheme')>0 and C.setting('introTheme')or C.summaryScope and C.setting('saveSummaryTheme')>0 and C.setting('saveSummaryTheme')or C.setting((C.dialogueScope or mod.exports.choiceFontScope) and 'dialogueTheme'or'menuTheme'))==2 end)
  -- START rows are sixteen pixels apart, just like Emerald's native menu.
  -- Use the original glyph size there instead of the dense GB screen size.
- C.theme.gbScale=function()if C.introScope then return ({.5,.75,1})[C.setting('introFontSize')+1]end;if mod.exports.battleFontScope then return mod.exports.battleFontScale or .5 end;if C.dialogueScope or mod.exports.choiceFontScope then return .75 end;return not C.compactText and (C.dialogueScope or C.drawingTitle or C.drawingStart or C.drawingCheats or C.drawingOptions and C.drawingOptions.fullFont) and 1 or .5 end
- C.theme.gbBaseline=function()if C.introScope then local scale=C.theme.gbScale();return scale==1 and 0 or math.max(0,scale*14-8)end;return (C.dialogueScope or mod.exports.choiceFontScope) and 2 or 0 end
+ C.theme.gbScale=function()if C.introScope then return C.introFitScale or (C.setting('introFontSize')+1)end;if mod.exports.battleFontScope then return mod.exports.battleFontScale or .5 end;if C.dialogueScope or mod.exports.choiceFontScope then return .75 end;return not C.compactText and (C.dialogueScope or C.drawingTitle or C.drawingStart or C.drawingCheats or C.drawingOptions and C.drawingOptions.fullFont) and 1 or .5 end
+ C.theme.gbBaseline=function()if C.introScope then local scale=C.theme.gbScale();return math.max(0,scale*14-8)-(scale==1 and 6 or 0)end;return (C.dialogueScope or mod.exports.choiceFontScope) and 2 or 0 end
  C.theme.gbColors=function()
   if mod.exports.battleNameScope then return menuPalette.colors('name')end
   if mod.exports.battleFontScope then
@@ -995,7 +995,7 @@ return function(mod,catalog)
  assert(load(assert(mod:read('lib/intro_background.lua'))))()(mod,menuPalette,function()return C.live()end)
  assert(load(assert(mod:read('lib/intro_font.lua'))))()(mod,Font,function()return C.live()end)
  assert(load(assert(mod:read('lib/title_logo.lua'))))()(mod,function()return C.live()end)
- mod.exports.version='3.2.74'
+ mod.exports.version='3.2.75'
  assert(load(assert(mod:read('lib/scene_transitions.lua'))))()(mod,function()return C.live()end)
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C

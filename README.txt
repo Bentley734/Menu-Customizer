@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.75
+
+Render intro/title Emerald glyphs at whole source-pixel scales instead of fractional 0.5/0.75 scales on the native canvas. Snap text anchors to whole pixels, preserve uniform glyph proportions and baseline alignment, and cap long captions at the largest whole scale fitting the screen width.
+
+The high-resolution logo is preserved. Restart to load the text fix.
+
 # Menu Customizer 3.2.74
 
 Replace the native title-screen Pokemon logo with the user-provided high-resolution color PNG. Crop transparent margins, preserve its aspect ratio and alpha, and fit it to the existing logo area. Replay it through the final-resolution UI sprite pass for sharper rendering instead of relying on the low-resolution game canvas.
