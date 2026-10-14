@@ -92,17 +92,14 @@ return function(mod)
   local out={{id='wide_textCase',label='TEXT DECAPITALIZATION',value=function()return modes[(tonumber(mod.options:get('textCase'))or 0)+1]end,
    step=function(ctx,dir)M.write(ctx,{textCase=((tonumber(mod.options:get('textCase'))or 0)+(dir or 1))%3})end}}
   local themes={
-   {'PIKACHU','PIKACHU SPARKS','BLACK & GOLD','CREAM','CHARCOAL'},
-   {'BULBASAUR','BULBASAUR GARDEN','FOREST GREEN','PALE GREEN','FOREST'},
-   {'CHARMANDER','CHARMANDER EMBERS','RED','CREAM','RED'},
-   {'SQUIRTLE','SQUIRTLE LAGOON','BLUE','PALE BLUE','BLUE'},
-   {'MEW','MEW STARDUST','LILAC TILE','PLUM','WHITE'},
-   {'GENGAR','GENGAR HAUNT','LILAC TILE','PLUM','WHITE'},
-   {'EEVEE','EEVEE COZY','GOLD RIBBON','CREAM','CHARCOAL'},
-   {'JIGGLYPUFF','JIGGLYPUFF LULLABY','PASTEL STRIPE','CREAM','PURPLE'},
-   {'DRAGONAIR','DRAGONAIR DREAM','BLUE','PALE BLUE','BLUE'},
-   {'UMBREON','UMBREON MOONLIGHT','BLACK & GOLD','NAVY','WHITE'},
-   {'SNORLAX','SNORLAX SNOOZE','FOREST GREEN','PALE GREEN','CHARCOAL'}}
+   {'MIDNIGHT AURORA','NAVY','INFINITE STAR GATES','NAVY','WHITE','CYAN'},
+   {'OCEAN GLASS','NAVY','NEON CHRYSALIS','NAVY','WHITE','MINT'},
+   {'LAVENDER DUSK','PLUM','AMETHYST PRISM','PLUM','WHITE','LIGHT BLUE'},
+   {'FOREST CALM','PALE GREEN','FOREST GREEN','PALE GREEN','FOREST','RED'},
+   {'WARM PAPER','CREAM','GOLD RIBBON','CREAM','CHARCOAL','RED'},
+   {'SILVER NOIR','CHARCOAL','SILVER','CHARCOAL','WHITE','CYAN'},
+   {'ROSE QUARTZ','CREAM','PASTEL STRIPE','CREAM','PURPLE','RED'},
+   {'AMBER LOUNGE','CHARCOAL','BLACK & GOLD','CHARCOAL','CREAM','YELLOW'}}
   local function locate(names,name,zero)for i,n in ipairs(names)do if n==name then return i-(zero and 1 or 0)end end;return zero and 0 or 1 end
   local function values(t)
    local P=mod.exports.selectorPalette;local B=mod.exports.borderCatalog
@@ -116,12 +113,23 @@ return function(mod)
    for _,prefix in ipairs({'menu_fx_','battle_fx_','battle_name_fx_'})do
     v[prefix..'preset']=0;v[prefix..'alternate']=0;v[prefix..'highlight']=0;v[prefix..'outline']=0;v[prefix..'shadow_transparency']=35
    end
+   local defaults=mod.exports.visualDefaults or {};for key,n in pairs(defaults)do if v[key]==nil then v[key]=n end end
+   local accent=locate(P.names,t[6],true)
+   v.choiceSelector=14;v.choiceSelectorColor=accent;v.selectorColor=accent;v.arrowSelector=3;v.startSelector=3
+   v.introTheme=2;v.introTextColor=color;v.introTextShadowColor=1;v.introTextCase=1;v.introBackgroundColor=bg;v.introFontSize=0
+   v.saveSummaryTheme=2;v.saveSummaryBackgroundColor=bg;v.textCase=1;v.menuTransition=2;v.backgroundDim=20
+   for _,scope in ipairs({'start','option','save','other','battle','dialogue'})do
+    v[scope..'Position']=1;v[scope..'Scale']=100;v[scope..'Width']=100;v[scope..'Height']=100;v[scope..'OffsetX']=0;v[scope..'OffsetY']=0
+   end
+   for _,prefix in ipairs({'menu','intro','battle','battle_name'})do
+    for key,spec in pairs(P.effects.specs(prefix))do v[key]=spec[1]end
+   end
    return v
   end
   local choices={};for _,t in ipairs(themes)do local theme=t
    choices[#choices+1]={id='theme_'..theme[1],label=theme[1],preview=function()return values(theme)end,value=function()return 'APPLY'end,activate=function(ctx)M.write(ctx,values(theme))end}
   end
-  out[#out+1]={id='wide_themeSets',label='POKEMON THEMES',group=true,activate=function(ctx)return openPage('POKEMON THEMES',choices,ctx)end}
+  out[#out+1]={id='wide_themeSets',label='THEMES',group=true,activate=function(ctx)return openPage('THEMES',choices,ctx)end}
   return out
  end
  return M

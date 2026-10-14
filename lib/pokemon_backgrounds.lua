@@ -138,6 +138,7 @@ return function(mod)
  M.entries[#M.entries+1]={key='psy_6',name='NEON CHRYSALIS',style=49,a='102825',b='176E80',ink='99F0BD'}
  M.entries[#M.entries+1]={key='psy_7',name='COSMIC ROSETTE',style=50,a='1E1536',b='513A9A',ink='EBB6F3'}
  local function rgb(hex)return{tonumber(hex:sub(1,2),16)/255,tonumber(hex:sub(3,4),16)/255,tonumber(hex:sub(5,6),16)/255}end
+ for _,e in ipairs(M.entries)do if e.scene and not e.still then e.hidden=true;e.retired=true;e.removedAnimation=true end end
  M.byKey={}
  for _,e in ipairs(M.entries)do e.baseA=rgb(e.a);e.baseB=rgb(e.b);e.accent=rgb(e.ink);M.byKey[e.key]=e
   if e.variant and not e.pokemonName then e.pokemonName=e.pokemon:upper() end
@@ -149,7 +150,7 @@ return function(mod)
   return s,images[key]
  end
  function M.color(key)
-  local e=assert(M.byKey[key]);return{e.baseA[1],e.baseA[2],e.baseA[3],1,animation='POKEMON',pokemon=key}
+  local e=assert(M.byKey[key]);if e.removedAnimation then return {.04,.08,.18,1}end;return{e.baseA[1],e.baseA[2],e.baseA[3],1,animation='POKEMON',pokemon=key}
  end
  function M.send(shader,key,time,fallback,area)
   local e=M.byKey[key];shader:send('pokeStyle',e and e.style or 0);shader:send('pokeVariant',e and e.variant or 0)

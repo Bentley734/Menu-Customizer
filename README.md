@@ -1,3 +1,11 @@
+# Menu Customizer 3.2.95
+
+Remove all POKEMON ANIMATED scene backgrounds and their submenu. Retain numeric slots solely for saved-setting compatibility; retired selections render calm navy paper instead of animated scenes.
+
+Replace the theme list with eight coordinated full-interface presets: Midnight Aurora, Ocean Glass, Lavender Dusk, Forest Calm, Warm Paper, Silver Noir, Rose Quartz and Amber Lounge. Use solid readable backgrounds, contrasting text/accent colors, coordinated borders and fade transitions. Set menu/dialogue/battle/intro/save/Pokedex styling and selector colors together; reset prior conflicting visual defaults, effects and geometry.
+
+Validation: all eight theme presets, background preview isolation, full LuaJIT/Lua 5.3 compilation. Live gameplay was not exercised. Restart after installing.
+
 # Menu Customizer 3.2.94
 
 Replace the dialogue border on/off row with the independent DIALOGUE BORDER design picker. NONE disables the custom dialogue border; choosing a design enables it. Dialogue no longer inherits MENU BORDER. Applies to GB and Gen 3; existing explicit design IDs remain intact.

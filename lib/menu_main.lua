@@ -85,6 +85,7 @@ return function(mod)
   for _,key in ipairs({'building_in','building_out','battle_in','battle_out'})do extra['scene_'..key]={1,1,#SceneEffects.names,1}end
   for k,v in pairs(menuPalette.effects.specs('menu'))do extra[k]=v end
   extra.choiceSelector={14,1,14,1};extra.choiceSelectorColor={0,0,#menuPalette.names-1,1}
+  mod.exports.visualDefaults={};for key,spec in pairs(extra)do mod.exports.visualDefaults[key]=spec[1]end
   for key in pairs(extra) do keys[#keys+1]=key end
   local FX
   local ArrowSelectors

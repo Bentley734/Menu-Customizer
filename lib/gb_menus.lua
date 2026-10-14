@@ -42,6 +42,7 @@ return function(mod,catalog)
   for _,entry in ipairs(chain or {}) do if entry.owner==mod.id and entry.callback==marker then return true end end
   return false
  end
+ mod.exports.visualDefaults={};for key,spec in pairs(specs)do mod.exports.visualDefaults[key]=spec[1]end
  function C.setting(key)
   local spec=assert(specs[key],key)
   local raw=mod.options:get(key)
