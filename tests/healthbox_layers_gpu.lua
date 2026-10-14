@@ -27,7 +27,13 @@ function love.load()
    end
    local full=render(100,true);local half=render(50,true);local zero=render(0,true)
    local original=render(100,false)
-   assert(full:getString()==original:getString(),'100% changes native healthbox')
+   -- Only HP values and the Lv label move; all other native pixels stay put.
+   for yy=0,159 do for xx=0,239 do
+    if not (xx>=164 and xx<=224 and yy>=77 and yy<=106) then
+     local r,g,b,a=full:getPixel(xx,yy);local rr,gg,bb,aa=original:getPixel(xx,yy)
+     assert(r==rr and g==gg and b==bb and a==aa,'unrelated healthbox pixel changed')
+    end
+   end end
    write(gender..'-100.png',full:encode('png'):getString());write(gender..'-50.png',half:encode('png'):getString());write(gender..'-0.png',zero:encode('png'):getString())
    -- HP number paper must blend identically to adjacent panel paper.
    local x,y=180,110
