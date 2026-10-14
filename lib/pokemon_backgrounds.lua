@@ -137,6 +137,26 @@ return function(mod)
  M.entries[#M.entries+1]={key='psy_5',name='MOLTEN HONEYCOMB',style=48,a='26190E',b='984B21',ink='F5CB72'}
  M.entries[#M.entries+1]={key='psy_6',name='NEON CHRYSALIS',style=49,a='102825',b='176E80',ink='99F0BD'}
  M.entries[#M.entries+1]={key='psy_7',name='COSMIC ROSETTE',style=50,a='1E1536',b='513A9A',ink='EBB6F3'}
+ M.entries[#M.entries+1]={key='red_psy_0',name='CRIMSON VORTEX',style=51,a='260407',b='BA1028',ink='FF6673'}
+ M.entries[#M.entries+1]={key='red_psy_1',name='SCARLET MANDALA',style=52,a='30060C',b='DB2033',ink='FF906A'}
+ M.entries[#M.entries+1]={key='red_psy_2',name='RUBY RIPPLE',style=53,a='22050B',b='AB153D',ink='FF526D'}
+ M.entries[#M.entries+1]={key='red_psy_3',name='BLOOD MOON',style=54,a='380609',b='D32B19',ink='FCA078'}
+ M.entries[#M.entries+1]={key='red_psy_4',name='VERMILION WAVES',style=55,a='260407',b='BA1028',ink='FF6673'}
+ M.entries[#M.entries+1]={key='red_psy_5',name='CARMINE TUNNEL',style=56,a='30060C',b='DB2033',ink='FF906A'}
+ M.entries[#M.entries+1]={key='red_psy_6',name='RED LOTUS',style=57,a='22050B',b='AB153D',ink='FF526D'}
+ M.entries[#M.entries+1]={key='red_psy_7',name='SCARLET GRID',style=58,a='380609',b='D32B19',ink='FCA078'}
+ M.entries[#M.entries+1]={key='red_psy_8',name='RUBY CHRYSALIS',style=59,a='260407',b='BA1028',ink='FF6673'}
+ M.entries[#M.entries+1]={key='red_psy_9',name='CRIMSON ECHO',style=60,a='30060C',b='DB2033',ink='FF906A'}
+ M.entries[#M.entries+1]={key='red_psy_10',name='MOLTEN ROSETTE',style=61,a='22050B',b='AB153D',ink='FF526D'}
+ M.entries[#M.entries+1]={key='red_psy_11',name='RED NEBULA',style=62,a='380609',b='D32B19',ink='FCA078'}
+ M.entries[#M.entries+1]={key='red_psy_12',name='CARMINE BRAID',style=63,a='260407',b='BA1028',ink='FF6673'}
+ M.entries[#M.entries+1]={key='red_psy_13',name='SCARLET STAR GATE',style=64,a='30060C',b='DB2033',ink='FF906A'}
+ M.entries[#M.entries+1]={key='red_psy_14',name='RUBY MIRAGE',style=65,a='22050B',b='AB153D',ink='FF526D'}
+ M.entries[#M.entries+1]={key='red_psy_15',name='CRIMSON HONEYCOMB',style=66,a='380609',b='D32B19',ink='FCA078'}
+ M.entries[#M.entries+1]={key='red_psy_16',name='RED THIRD EYE',style=67,a='260407',b='BA1028',ink='FF6673'}
+ M.entries[#M.entries+1]={key='red_psy_17',name='VERMILION FRACTAL',style=68,a='30060C',b='DB2033',ink='FF906A'}
+ M.entries[#M.entries+1]={key='red_psy_18',name='SCARLET INFINITY',style=69,a='22050B',b='AB153D',ink='FF526D'}
+ M.entries[#M.entries+1]={key='red_psy_19',name='RUBY PLASMA',style=70,a='380609',b='D32B19',ink='FCA078'}
  local function rgb(hex)return{tonumber(hex:sub(1,2),16)/255,tonumber(hex:sub(3,4),16)/255,tonumber(hex:sub(5,6),16)/255}end
  for _,e in ipairs(M.entries)do if e.scene and not e.still then e.hidden=true;e.retired=true;e.removedAnimation=true end end
  M.byKey={}
@@ -199,6 +219,26 @@ return function(mod)
     if(pokeStyle==48)wave=sin(z.x*8.0+sin(z.y*7.0+t)*2.0)+cos(z.y*9.0-t);
     if(pokeStyle==49)wave=sin(log(r)*12.0-t+sin(a*8.0)*4.0);
     if(pokeStyle==50)wave=cos(r*11.0+fold*12.0+sin(r*4.0-t)*3.0);
+    if(pokeStyle==51)wave=sin(log(r)*13.0+a*5.0-t);
+    if(pokeStyle==52)wave=cos(r*11.0+cos(a*8.0+t*.2)*6.0-t);
+    if(pokeStyle==53)wave=sin(r*18.0+sin(a*3.0-t)*2.0-t);
+    if(pokeStyle==54)wave=cos(r*9.0-a*2.0+sin(t)*2.0);
+    if(pokeStyle==55)wave=sin(z.x*7.0+sin(z.y*5.0+t)*3.0-t);
+    if(pokeStyle==56)wave=sin(log(r)*17.0+cos(a*6.0)*4.0+t);
+    if(pokeStyle==57)wave=cos(r*8.0+abs(sin(a*7.0+t*.3))*9.0-t);
+    if(pokeStyle==58)wave=sin(z.x*8.0+t)*cos(z.y*8.0-t);
+    if(pokeStyle==59)wave=sin(log(r)*11.0+a*9.0+sin(r*5.0-t));
+    if(pokeStyle==60)wave=cos(r*16.0+sin(r*3.0-t)*4.0);
+    if(pokeStyle==61)wave=sin(r*13.0+cos(a*12.0-t*.2)*5.0);
+    if(pokeStyle==62)wave=sin(z.x*4.0+sin(z.y*6.0-t)*3.0)+cos(r*8.0+t);
+    if(pokeStyle==63)wave=sin(z.x*10.0+z.y*6.0+sin(z.y*5.0-t)*4.0);
+    if(pokeStyle==64)wave=cos(log(r)*14.0+abs(cos(a*9.0))*8.0-t);
+    if(pokeStyle==65)wave=sin(r*10.0-a*6.0+cos(r*4.0+t)*3.0);
+    if(pokeStyle==66)wave=sin(z.x*9.0+cos(z.y*5.2)*2.0+t)*cos(z.y*9.0-t);
+    if(pokeStyle==67)wave=cos(r*12.0+cos(a*2.0)*8.0+sin(t));
+    if(pokeStyle==68)wave=sin(log(r)*18.0+cos(a*11.0+sin(r*4.0-t))*6.0);
+    if(pokeStyle==69)wave=sin(z.x*6.0+z.y*6.0+t)*cos(z.x*6.0-z.y*6.0-t);
+    if(pokeStyle==70)wave=sin(z.x*5.0+t)+cos(z.y*7.0-t)+sin(r*9.0-t);
     float edge=exp(-abs(wave)*5.0);float field=.5+.5*sin(wave*2.0+t+r*2.0);
     vec3 rgb=mix(pokeBaseA,pokeBaseB,field);
     rgb=mix(rgb,pokeAccent,edge*.8);

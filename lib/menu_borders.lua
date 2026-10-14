@@ -164,6 +164,26 @@ return function(mod,setting,catalog,active)
        if(borderEffect==21)v=.5+.5*sin(depth*1.8+fold*11.0+t);
        if(borderEffect==22)v=exp(-abs(sin(radial+a*8.0+t))*4.0);
        if(borderEffect==23)v=.5+.5*cos(depth*2.0+fold*13.0-t);
+       if(borderEffect==24)v=.5+.5*sin(radial*1.1+fold*3.0-t);
+       if(borderEffect==25)v=.5+.5*cos(depth*1.21+sin(a*3.37+t)*4.0-t);
+       if(borderEffect==26)v=.5+.5*sin(borderRepeat(path,24.0)*1.32+cos(depth*3.74-t)*3.0);
+       if(borderEffect==27)v=.5+.5*cos(radial*1.43+a*4.11+sin(depth-t)*3.0);
+       if(borderEffect==28)v=.5+.5*sin(radial*1.54+fold*4.48-t);
+       if(borderEffect==29)v=.5+.5*cos(depth*1.65+sin(a*4.85+t)*4.0-t);
+       if(borderEffect==30)v=.5+.5*sin(borderRepeat(path,24.0)*1.76+cos(depth*5.22-t)*3.0);
+       if(borderEffect==31)v=.5+.5*cos(radial*1.87+a*5.59+sin(depth-t)*3.0);
+       if(borderEffect==32)v=.5+.5*sin(radial*1.98+fold*5.96-t);
+       if(borderEffect==33)v=.5+.5*cos(depth*2.09+sin(a*6.33+t)*4.0-t);
+       if(borderEffect==34)v=.5+.5*sin(borderRepeat(path,24.0)*2.2+cos(depth*6.7-t)*3.0);
+       if(borderEffect==35)v=.5+.5*cos(radial*2.31+a*7.07+sin(depth-t)*3.0);
+       if(borderEffect==36)v=.5+.5*sin(radial*2.42+fold*7.44-t);
+       if(borderEffect==37)v=.5+.5*cos(depth*2.53+sin(a*7.81+t)*4.0-t);
+       if(borderEffect==38)v=.5+.5*sin(borderRepeat(path,24.0)*2.64+cos(depth*8.18-t)*3.0);
+       if(borderEffect==39)v=.5+.5*cos(radial*2.75+a*8.55+sin(depth-t)*3.0);
+       if(borderEffect==40)v=.5+.5*sin(radial*2.86+fold*8.92-t);
+       if(borderEffect==41)v=.5+.5*cos(depth*2.97+sin(a*9.29+t)*4.0-t);
+       if(borderEffect==42)v=.5+.5*sin(borderRepeat(path,24.0)*3.08+cos(depth*9.66-t)*3.0);
+       if(borderEffect==43)v=.5+.5*cos(radial*3.19+a*10.03+sin(depth-t)*3.0);
       }
       else if(borderEffect==15){
        float family=mod(pokemonMotif-1.0,6.0);float pitch=12.0+mod(pokemonMotif,5.0)*2.0;
@@ -197,7 +217,7 @@ return function(mod,setting,catalog,active)
   for i,label in ipairs({'paperStopA','paperStopB','paperStopC','paperStopD'})do panelShader:send(label,paperStops and paperStops.stops[i] or {0,0,0})end
   panelShader:send('pokemonMotif',atlas.pokemonMotif or 0)
   panelShader:send('rainbow',atlas.animation=='gradient')
-  panelShader:send('borderEffect',({balls=1,lightning=2,water=3,ghost=4,stars=5,vines=6,acid=7,plasma=8,kaleido=9,molten=10,circuit=11,tunnel=12,checker=13,braid=14,pokemon=15,psy0=16,psy1=17,psy2=18,psy3=19,psy4=20,psy5=21,psy6=22,psy7=23})[atlas.animation] or 0)
+  panelShader:send('borderEffect',({balls=1,lightning=2,water=3,ghost=4,stars=5,vines=6,acid=7,plasma=8,kaleido=9,molten=10,circuit=11,tunnel=12,checker=13,braid=14,pokemon=15,psy0=16,psy1=17,psy2=18,psy3=19,psy4=20,psy5=21,psy6=22,psy7=23})[atlas.animation] or (atlas.animation and atlas.animation:match('^redpsy(%d+)$')and 24+tonumber(atlas.animation:match('^redpsy(%d+)$'))) or 0)
   local phase=0
   if atlas.animation then phase=(love.timer and love.timer.getTime and love.timer.getTime() or 0)*.08*palette.effects.get('menu','speed',100)/100 end
   panelShader:send('phase',phase)

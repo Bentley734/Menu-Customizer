@@ -167,6 +167,26 @@ C.entries[#C.entries+1]={label='NEON CHRYSALIS',path='assets/borders/pokemon_gra
 C.entries[#C.entries+1]={label='COSMIC ROSETTE',path='assets/borders/pokemon_gradient.png',animation='psy7',gradient='aurora'}
 local singleNames={'LUCARIO AURA TRAILS','CHARIZARD EMBER FLOW','BLASTOISE TIDAL WAVES','MEWTWO PSYCHIC DANCE','GENGAR SHADOW EYES','LAPRAS POKEBALL ORBITS'}
 for _,entry in ipairs(C.entries)do if entry.pokemonMotif and not entry.hidden then entry.label=singleNames[(entry.pokemonMotif-1)%6+1]end end
+C.entries[#C.entries+1]={label='CRIMSON VORTEX',path='assets/borders/pokemon_gradient.png',animation='redpsy0',gradient='red_psy_0',redPsy=true}
+C.entries[#C.entries+1]={label='SCARLET MANDALA',path='assets/borders/pokemon_gradient.png',animation='redpsy1',gradient='red_psy_1',redPsy=true}
+C.entries[#C.entries+1]={label='RUBY RIPPLE',path='assets/borders/pokemon_gradient.png',animation='redpsy2',gradient='red_psy_2',redPsy=true}
+C.entries[#C.entries+1]={label='BLOOD MOON',path='assets/borders/pokemon_gradient.png',animation='redpsy3',gradient='red_psy_3',redPsy=true}
+C.entries[#C.entries+1]={label='VERMILION WAVES',path='assets/borders/pokemon_gradient.png',animation='redpsy4',gradient='red_psy_4',redPsy=true}
+C.entries[#C.entries+1]={label='CARMINE TUNNEL',path='assets/borders/pokemon_gradient.png',animation='redpsy5',gradient='red_psy_5',redPsy=true}
+C.entries[#C.entries+1]={label='RED LOTUS',path='assets/borders/pokemon_gradient.png',animation='redpsy6',gradient='red_psy_6',redPsy=true}
+C.entries[#C.entries+1]={label='SCARLET GRID',path='assets/borders/pokemon_gradient.png',animation='redpsy7',gradient='red_psy_7',redPsy=true}
+C.entries[#C.entries+1]={label='RUBY CHRYSALIS',path='assets/borders/pokemon_gradient.png',animation='redpsy8',gradient='red_psy_8',redPsy=true}
+C.entries[#C.entries+1]={label='CRIMSON ECHO',path='assets/borders/pokemon_gradient.png',animation='redpsy9',gradient='red_psy_9',redPsy=true}
+C.entries[#C.entries+1]={label='MOLTEN ROSETTE',path='assets/borders/pokemon_gradient.png',animation='redpsy10',gradient='red_psy_10',redPsy=true}
+C.entries[#C.entries+1]={label='RED NEBULA',path='assets/borders/pokemon_gradient.png',animation='redpsy11',gradient='red_psy_11',redPsy=true}
+C.entries[#C.entries+1]={label='CARMINE BRAID',path='assets/borders/pokemon_gradient.png',animation='redpsy12',gradient='red_psy_12',redPsy=true}
+C.entries[#C.entries+1]={label='SCARLET STAR GATE',path='assets/borders/pokemon_gradient.png',animation='redpsy13',gradient='red_psy_13',redPsy=true}
+C.entries[#C.entries+1]={label='RUBY MIRAGE',path='assets/borders/pokemon_gradient.png',animation='redpsy14',gradient='red_psy_14',redPsy=true}
+C.entries[#C.entries+1]={label='CRIMSON HONEYCOMB',path='assets/borders/pokemon_gradient.png',animation='redpsy15',gradient='red_psy_15',redPsy=true}
+C.entries[#C.entries+1]={label='RED THIRD EYE',path='assets/borders/pokemon_gradient.png',animation='redpsy16',gradient='red_psy_16',redPsy=true}
+C.entries[#C.entries+1]={label='VERMILION FRACTAL',path='assets/borders/pokemon_gradient.png',animation='redpsy17',gradient='red_psy_17',redPsy=true}
+C.entries[#C.entries+1]={label='SCARLET INFINITY',path='assets/borders/pokemon_gradient.png',animation='redpsy18',gradient='red_psy_18',redPsy=true}
+C.entries[#C.entries+1]={label='RUBY PLASMA',path='assets/borders/pokemon_gradient.png',animation='redpsy19',gradient='red_psy_19',redPsy=true}
 C.choices={}
 for i,entry in ipairs(C.entries) do C.choices[i]=entry.label end
 function C.selection(raw,format)
@@ -178,7 +198,7 @@ function C.groups()
  local groups,lookup={},{}
  local families={'VOLT TRAILS','EMBER FLOW','TIDAL WAVES','LEAF DANCE','PSYCHIC EYES','POKEBALL ORBITS'}
  for i,e in ipairs(C.entries)do if not e.hidden then
-  local label=e.pokemonMotif and families[(e.pokemonMotif-1)%6+1] or e.animation and 'OTHER ANIMATED DESIGNS' or e.path and e.path:find('pokemon_',1,true) and 'CLASSIC POKEMON FRAMES' or 'GAME BORDERS'
+  local label=e.redPsy and 'RED PSYCHEDELIC' or e.pokemonMotif and families[(e.pokemonMotif-1)%6+1] or e.animation and 'OTHER ANIMATED DESIGNS' or e.path and e.path:find('pokemon_',1,true) and 'CLASSIC POKEMON FRAMES' or 'GAME BORDERS'
   if not lookup[label]then lookup[label]={label=label,choices={}};groups[#groups+1]=lookup[label]end
   lookup[label].choices[#lookup[label].choices+1]={id=i,label=e.pokemonMotif and e.label or e.pokemonName or e.label}
  end end

@@ -24,6 +24,28 @@ function M.register(entries)
   M.byKey[entry.key]=e
  end
 end
+M.register({
+ {key='red_psy_0',hex={'A90924','F02B3C','FF8276','6B0918'}},
+ {key='red_psy_1',hex={'B7101B','EB3525','FF9A6A','7D1410'}},
+ {key='red_psy_2',hex={'8F1534','DF3054','FF738A','670C2A'}},
+ {key='red_psy_3',hex={'A3190E','F14325','FFA17A','731510'}},
+ {key='red_psy_4',hex={'A90924','F02B3C','FF8276','6B0918'}},
+ {key='red_psy_5',hex={'B7101B','EB3525','FF9A6A','7D1410'}},
+ {key='red_psy_6',hex={'8F1534','DF3054','FF738A','670C2A'}},
+ {key='red_psy_7',hex={'A3190E','F14325','FFA17A','731510'}},
+ {key='red_psy_8',hex={'A90924','F02B3C','FF8276','6B0918'}},
+ {key='red_psy_9',hex={'B7101B','EB3525','FF9A6A','7D1410'}},
+ {key='red_psy_10',hex={'8F1534','DF3054','FF738A','670C2A'}},
+ {key='red_psy_11',hex={'A3190E','F14325','FFA17A','731510'}},
+ {key='red_psy_12',hex={'A90924','F02B3C','FF8276','6B0918'}},
+ {key='red_psy_13',hex={'B7101B','EB3525','FF9A6A','7D1410'}},
+ {key='red_psy_14',hex={'8F1534','DF3054','FF738A','670C2A'}},
+ {key='red_psy_15',hex={'A3190E','F14325','FFA17A','731510'}},
+ {key='red_psy_16',hex={'A90924','F02B3C','FF8276','6B0918'}},
+ {key='red_psy_17',hex={'B7101B','EB3525','FF9A6A','7D1410'}},
+ {key='red_psy_18',hex={'8F1534','DF3054','FF738A','670C2A'}},
+ {key='red_psy_19',hex={'A3190E','F14325','FFA17A','731510'}},
+})
 function M.sample(key,t)
  local entry=M.byKey[key];if not entry then return nil end
  local pos=(t%1)*4;local i=math.floor(pos);local f=pos-i;f=f*f*(3-2*f)

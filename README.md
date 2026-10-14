@@ -1,3 +1,7 @@
+# Menu Customizer 3.2.116
+
+Add twenty red-dominant psychedelic animated backgrounds and twenty matching animated borders, with distinct vortex, mandala, ripple, grid, plasma, tunnel, and fractal patterns. Find backgrounds under TRIPPY and borders under RED PSYCHEDELIC. Append choices without changing existing saved selections. Restart to load the update. Tests skipped as requested.
+
 # Menu Customizer 3.2.115
 
 Extend the Red/Blue title Pokemon entrance and exit to the actual window edges. Render moving portraits in screen space behind the title foreground so the central game canvas no longer clips them, and derive endpoints from current window/UI scale for ultrawide and resized windows. Retain the normal resting position and five-pixel vertical adjustment. Restart to load the update. Tests skipped as requested.
