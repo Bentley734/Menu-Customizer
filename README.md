@@ -1,3 +1,7 @@
+# Menu Customizer 3.2.113
+
+Exclude Font.draw and Font.drawCode glyph rendering from the intro white-paper transparency shader. White font atlas masks were being erased, hiding intro credits and title captions. Preserve full-window wallpaper and cinematic masks. Installed 3.2.112 source was confirmed to match the workspace before this fix. Restart to load the update. Tests skipped as requested.
+
 # Menu Customizer 3.2.112
 
 Restore intro and title-screen text by restricting background suppression to full-screen paper rectangles on the boot canvas. Preserve small glyph/effect rectangles and offscreen text canvas clears. Keep the single full-window wallpaper and intro battle bars. Restart to load the fix. Tests skipped as requested.

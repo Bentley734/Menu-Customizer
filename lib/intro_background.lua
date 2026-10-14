@@ -77,6 +77,16 @@ return function(mod,palette,active)
      if not ok then image=obp(path,colors,group)end;protect(image);return image
     end
     local color=n>0 and palette.color('background',n-1)or nil
+    -- Font atlas masks contain white ink. Never apply the paper key shader
+    -- while the font renderer is emitting glyphs.
+    local Font=require('src.render.Font');local textDepth=0
+    local fontDraw,fontCode=Font.draw,Font.drawCode
+    local function textCall(printer,...)
+     textDepth=textDepth+1;local result={pcall(printer,...)};textDepth=textDepth-1
+     if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
+    end
+    Font.draw=function(...)return textCall(fontDraw,...)end
+    Font.drawCode=function(...)return textCall(fontCode,...)end
     local rectangle,imageDraw,clear=G.rectangle,G.draw,G.clear
     local bootCanvas=G.getCanvas()
     local function paper(x,y,w,h)
@@ -113,13 +123,14 @@ return function(mod,palette,active)
       local result={pcall(imageDraw,image,...)};G.pop()
       if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
      end
-     if n<=0 or protected[image]or G.getShader()then return imageDraw(image,...)end
+     if textDepth>0 or n<=0 or protected[image]or G.getShader()then return imageDraw(image,...)end
      G.push('all');G.setShader(keyShader);local result={pcall(imageDraw,image,...)};G.pop()
      if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
     end
     local result={pcall(draw,self,...)};
     SR.obpImage=obp;for _,slot in ipairs(swapped)do slot[1][slot[2]]=slot[3]end
     G.rectangle,G.draw,G.clear=rectangle,imageDraw,clear
+    Font.draw,Font.drawCode=fontDraw,fontCode
     local P=require('src.render.PaletteFX');if P.markTrueColor then P.markTrueColor(0,0,160,144)end
     if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
    end
