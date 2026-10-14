@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.99
+
+Raise current/max HP values one game pixel and raise the Lv label one pixel to align it with level digits. Retain the healthbox and EXP-track transparency fixes. Restart after installing.
+
+Validated rendered healthboxes with both genders and 0/50/100% opacity; unrelated native pixels remain unchanged.
+
 # Menu Customizer 3.2.98
 
 Fade the complete EXP strip beneath the player HP numbers with the healthbox. Its baked pale track previously remained fully opaque and appeared as a white line at reduced battle opacity.
