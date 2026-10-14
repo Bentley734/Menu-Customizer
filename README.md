@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.121 — Native move-effect frames
+
+Remove the Emerald-style wide battle menu's animation-frame inspection, filtering and position offsets. Delegate the animation layer directly to BattleState:drawAnimLayer with native coordinates and palettes. Frames that do not use the engine's OAM step table are no longer silently dropped.
+
+Built from GitHub's latest 3.2.120 source and release. Validate native frame delegation, unchanged animation state, whole-source compilation and battle-menu rendering under LuaJIT and Lua 5.3. Install with KIM1025 1.7.40 and restart. No live battle reproduction was performed.
+
 # Menu Customizer 3.2.120
 
 Add ALL SHADOW OPACITY under TRANSPARENCY. Adjust every menu, dialogue, intro, battle-text, and Pokemon-name shadow together from 0 percent (hidden) to 100 percent (fully opaque), in 5 percent steps. Individual shadow transparency controls remain available. Restart to load the update. Tests skipped as requested.

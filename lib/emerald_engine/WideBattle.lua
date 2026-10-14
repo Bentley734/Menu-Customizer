@@ -310,40 +310,10 @@ local function drawTextArea(battle)
     WideBattle.WIDTH, WideBattle.HEIGHT - WideBattle.FIELD_BOTTOM, "bottom")
 end
 
--- Battle animations are authored in the original 160px coordinate space.
--- Shift each complete OAM frame as one rigid group between the new player
--- and enemy anchors: drawing the whole animation through both side regions
--- would duplicate any tiles overlapping the other side's source range (most
--- visibly the send-out POOF reappearing on the far right).
-function WideBattle.animationOffset(sprites)
-  if not sprites or #sprites == 0 then return 0, 0 end
-  local minX, maxX = math.huge, -math.huge
-  for _, sprite in ipairs(sprites) do
-    minX = math.min(minX, sprite.x - 8)
-    maxX = math.max(maxX, sprite.x)
-  end
-  local center = (minX + maxX) / 2
-  local t = math.max(0, math.min(1, (center - 40) / 80))
-  return math.floor(20 + 116 * t + 0.5),
-         math.floor(8 * (1 - t) + 0.5)
-end
-
-local function currentAnimationSprites(battle)
-  if battle.animPlaying and battle.animPlayer then
-    local step = battle.animPlayer.steps[battle.animPlayer.stepIndex]
-    return step and step.sprites
-  end
-  if battle.lockedBall and battle.animPlayer then
-    return battle.lockedBall
-  end
-end
-
+-- Move effects remain in the engine's native coordinate space. Do not inspect,
+-- filter, shift or duplicate its animation frames.
 local function drawAnimationLayer(battle)
-  local sprites = currentAnimationSprites(battle)
-  if not sprites or #sprites == 0 then return end
-  local dx, dy = WideBattle.animationOffset(sprites)
-  inRegion(0, 0, WideBattle.WIDTH, WideBattle.FIELD_BOTTOM, dx, dy,
-    function() battle:drawAnimLayer(false) end)
+  battle:drawAnimLayer(false)
 end
 
 -- The whole 304x144 composition for one frame.
