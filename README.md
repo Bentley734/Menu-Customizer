@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.94
+
+Replace the dialogue border on/off row with the independent DIALOGUE BORDER design picker. NONE disables the custom dialogue border; choosing a design enables it. Dialogue no longer inherits MENU BORDER. Applies to GB and Gen 3; existing explicit design IDs remain intact.
+
+Validation: full LuaJIT/Lua 5.3 compilation and preview regressions. Restart after installing.
+
 # Menu Customizer 3.2.93
 
 Show single-choice border families as directly selectable entries instead of one-item submenus. Rename surviving Pokemon borders: Lucario Aura Trails, Charizard Ember Flow, Blastoise Tidal Waves, Mewtwo Psychic Dance, Gengar Shadow Eyes and Lapras Pokeball Orbits. Preserve numeric IDs and saved selections, previews and multi-choice border groups.

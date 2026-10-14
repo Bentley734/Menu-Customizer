@@ -318,7 +318,7 @@ return function(mod,setting,catalog,active)
   G.pop();if not ok then error(result,0)end
   return result
  end
- function M.dialogueEnabled()return active() and setting('dialogueBorder')==1 end
+ function M.dialogueEnabled()return active() and setting('dialogueBorder')==1 and setting('dialogueBorderChoice')>0 end
  if mod.generation==3 then
   local Chrome=require('src.ui.game3.chrome')
   Chrome._menuCustomizerBorders=M

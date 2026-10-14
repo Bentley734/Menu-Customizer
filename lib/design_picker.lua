@@ -4,7 +4,7 @@ return function(row,groups,get,persist,openPage)
  row.activate=function(ctx)
   local rows={}
   if row.id and row.id:match('BorderChoice$')then
-   rows[#rows+1]={id=row.id..':inherit',label='USE MENU BORDER',value=function()return get()==0 and 'SELECTED'or'USE'end,
+   rows[#rows+1]={id=row.id..':inherit',label=row.id:find('dialogueBorderChoice',1,true)and 'NONE'or 'USE MENU BORDER',value=function()return get()==0 and 'SELECTED'or'USE'end,
     activate=function(selectCtx)return persist(selectCtx or ctx,0)end}
   end
   for _,group in ipairs(type(groups)=='function'and groups()or groups)do

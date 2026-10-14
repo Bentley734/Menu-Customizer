@@ -142,7 +142,7 @@ return function(mod)
     -- Update the menu immediately, then write the same values into the
     -- engine's global options table and the loader's live lookup table.
     settings()[key] = value
-    if key=='dialogueBorderChoice'and value>0 then settings().dialogueBorder=1;mod.save:set('dialogueBorder',1)end
+    if key=='dialogueBorderChoice'then settings().dialogueBorder=value>0 and 1 or 0;mod.save:set('dialogueBorder',settings().dialogueBorder)end
 
     if FX then FX.touch(key) end
     local runtime = Runtime
@@ -279,12 +279,9 @@ return function(mod)
       entries[#entries+1]=row('scene_'..spec[1],spec[2],SceneEffects.names)
     end
     entries[#entries+1] = row('menuBorder', 'MENU BORDER', borderChoices)
-    local dialogue=row('dialogueBorder','DIALOGUE BORDER ON/OFF',{[0]='OFF',[1]='ON'})
-    dialogue.step=function(ctx)persist('dialogueBorder',1-setting('dialogueBorder'),ctx);return false end
-    entries[#entries+1]=dialogue
     for _,scope in ipairs({'start','battle','option','save','other','dialogue'})do
       local key=scope..'BorderChoice'
-      local r={id='wide_'..key,label=scope:upper()..' BORDER',value=function()return setting(key)==0 and 'USE MENU' or borderChoices[setting(key)]end,
+      local r={id='wide_'..key,label=scope:upper()..' BORDER',value=function()return setting(key)==0 and (scope=='dialogue'and 'NONE'or 'USE MENU') or borderChoices[setting(key)]end,
         step=function(ctx,d)persist(key,(setting(key)+(d<0 and -1 or 1))%(#borderChoices+1),ctx);return false end}
       entries[#entries+1]=r
     end

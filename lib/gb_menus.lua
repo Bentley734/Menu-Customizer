@@ -62,7 +62,7 @@ return function(mod,catalog)
   options.modOptions[MOD_ID]=bucket
   -- Normalize all legacy opacity values together before changing the format.
   for k in pairs(specs) do bucket[k]=C.setting(k) end
-  if key=='dialogueBorderChoice'and value>0 then bucket.dialogueBorder=1 end
+  if key=='dialogueBorderChoice'then bucket.dialogueBorder=value>0 and 1 or 0 end
   if key=='battleBorderChoice'and value>0 then bucket.battle_style=3 end
   bucket[key]=value;bucket.opacityFormat=2;bucket.borderCatalogFormat=2
   if game.mods then game.mods.modOptions[MOD_ID]=bucket end
@@ -168,7 +168,7 @@ return function(mod,catalog)
     current.inBox=true
     local args={n=select('#',...),...}
     local ok,result=pcall(function()
-     if (not current.dialogueScope or current.setting('dialogueBorder')==1) and current.borders.draw(tx,ty,tw,th) then
+     if (not current.dialogueScope or current.setting('dialogueBorder')==1 and current.setting('dialogueBorderChoice')>0) and current.borders.draw(tx,ty,tw,th) then
 
       return
      end
@@ -686,7 +686,7 @@ return function(mod,catalog)
  parent[#parent+1]=row('menuBackgroundColor','MENU BACKGROUND',bgNames)
  parent[#parent+1]=row('menuBorder','DEFAULT BORDER',catalog.choices)
  for _,scope in ipairs({'start','battle','option','save','other','dialogue','pokedex'})do
-  local choices={[0]='USE MENU'};for i,name in ipairs(catalog.choices)do choices[i]=name end
+  local choices={[0]=scope=='dialogue'and 'NONE'or 'USE MENU'};for i,name in ipairs(catalog.choices)do choices[i]=name end
   parent[#parent+1]=row(scope..'BorderChoice',scope=='save'and 'SAVE SUMMARY BORDER'or scope:upper()..' BORDER',choices)
  end
  parent[#parent+1]=row('introTextColor','INTRO TEXT COLOR',selectorNames)
@@ -700,7 +700,6 @@ return function(mod,catalog)
  parent[#parent+1]=row('introBackgroundColor','INTRO / START SCREEN BACKGROUND',bgNames)
  parent[#parent+1]=row('saveSummaryTheme','SAVE SUMMARY FONT',{[0]='USE MENU',[1]='NATIVE',[2]='EMERALD'})
  parent[#parent+1]=row('saveSummaryBackgroundColor','SAVE SUMMARY BACKGROUND',bgNames)
- parent[#parent+1]=toggle('dialogueBorder','DIALOGUE BORDER ON/OFF')
  parent[#parent+1]=row('dialogueTheme','DIALOGUE FONT',{'NATIVE','EMERALD'})
  parent[#parent+1]=row('dialogueBackgroundColor','DIALOGUE BACKGROUND',bgNames)
  parent[#parent+1]=row('dialogueTextColor','DIALOGUE TEXT COLOR',colorNames)
