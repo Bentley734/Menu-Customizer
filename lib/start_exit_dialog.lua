@@ -9,7 +9,8 @@ return function(Window,Chrome,draw,...)
  end
  local dialogue=Chrome.dialogueFrame
  Chrome.dialogueFrame=function(...)
-  confirmation=true;return dialogue(...)
+  confirmation=true
+  return saved.stdFrame(Window.template(1,15,28,4))
  end
  local result={pcall(draw,...)}
  Chrome.dialogueFrame=dialogue

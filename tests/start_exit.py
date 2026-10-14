@@ -23,10 +23,11 @@ local confirm=assert(load(helper))()
 local oldFrame,oldPrint,oldCursor,oldDialogue=Window.stdFrame,Window.printPx,Window.cursorPx,Chrome.dialogueFrame
 confirm(Window,Chrome,StartMenu.draw)
 assert(#events==6,#events)
-assert(events[1][1]=='dialogue' and events[2][2]=='RETURN TO MAIN\\nMENU?' and events[3][1]=='frame' and events[3][2]==9 and events[4][1]=='cursor' and events[5][2]=='YES' and events[6][2]=='NO')
+assert(events[1][1]=='frame' and events[1][2]==15 and events[2][2]=='RETURN TO MAIN\\nMENU?' and events[3][1]=='frame' and events[3][2]==9 and events[4][1]=='cursor' and events[5][2]=='YES' and events[6][2]=='NO')
 assert(Window.stdFrame==oldFrame and Window.printPx==oldPrint and Window.cursorPx==oldCursor and Chrome.dialogueFrame==oldDialogue)
 assert(not pcall(confirm,Window,Chrome,function()error('intentional')end))
 assert(Window.stdFrame==oldFrame and Window.printPx==oldPrint and Window.cursorPx==oldCursor and Chrome.dialogueFrame==oldDialogue)
 print('PASS actual native Exit rendering: no parent labels; prompt, popup, YES/NO, selector and error restoration')
 ''')
+
 

@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.102
+
+Use the same standard-window border and background renderer for the Return to Main Menu prompt as its YES/NO popup. Preserve the wide prompt layout, confirmation controls and overlap fix. Restart after installing.
+
+Validation: native confirmation draw and hook restoration, LuaJIT/Lua 5.3 compilation.
+
 # Menu Customizer 3.2.101
 
 Fix overlapping Start-menu labels and frames in the Exit confirmation. Draw only the confirmation prompt, YES/NO popup and active selector while confirming; bypass Start-menu label justification for this dialog. Restore all temporary draw hooks on errors.
