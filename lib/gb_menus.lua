@@ -17,12 +17,14 @@ return function(mod,catalog)
   backgroundDim={0,0,70,10},controlsLegend={2,1,3,1},menuTransition={3,1,#Transitions.names,1},positionPreview={1,0,1,1}}
 
  for _,scope in ipairs({'start','battle','option','save','other','dialogue','pokedex'})do specs[scope..'BorderChoice']={0,0,#catalog.choices,1}end
- specs.introTheme={0,0,2,1};specs.introFontSize={0,0,2,1}
+ specs.introTextColor={0,0,#menuPalette.names-1,1};specs.introTextShadowColor={0,0,#menuPalette.shadowNames-1,1};specs.introTextCase={0,0,2,1};specs.introLogo={1,0,1,1};specs.introTrainer={0,0,1,1}
+ specs.introTheme={2,1,2,1};specs.introFontSize={0,0,2,1}
  specs.introBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1}
  specs.saveSummaryTheme={0,0,2,1};specs.saveSummaryBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1}
  specs.dialogueTheme={2,1,2,1};specs.dialogueBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1};specs.dialogueTextColor={0,0,#menuPalette.names-1,1};specs.dialogueTextShadowColor={0,0,#menuPalette.shadowNames-1,1}
 
  for k,v in pairs(menuPalette.effects.specs('menu'))do specs[k]=v end
+ for k,v in pairs(menuPalette.effects.specs('intro'))do specs[k]=v end
  for _,group in ipairs({'start','option','save','other'}) do
   specs[group..'Position']={1,1,10,1}
   specs[group..'Scale']={100,50,150,10}
@@ -636,12 +638,12 @@ return function(mod,catalog)
   end,step=function(game,dir)
    local n=C.setting(key)+dir*spec[4]
    if choices then n=(n-spec[2])%(spec[3]-spec[2]+1)+spec[2] else n=math.max(spec[2],math.min(spec[3],n)) end
-   if key=='menuTextColor'or key=='dialogueTextColor'or key=='selectorColor' then n=menuPalette.step('text',C.setting(key),dir)
-   elseif key=='menuTextShadowColor'or key=='dialogueTextShadowColor' then n=menuPalette.step('shadow',C.setting(key),dir)
+   if key=='menuTextColor'or key=='introTextColor'or key=='dialogueTextColor'or key=='selectorColor' then n=menuPalette.step('text',C.setting(key),dir)
+   elseif key=='menuTextShadowColor'or key=='introTextShadowColor'or key=='dialogueTextShadowColor' then n=menuPalette.step('shadow',C.setting(key),dir)
    elseif key=='menuBackgroundColor' or key=='startMenuBackgroundColor' or key=='dialogueBackgroundColor' then n=menuPalette.step('menuBackground',C.setting(key),dir)end
    C.persist(game,key,n)
   end}
-  local kind=(key=='menuTextColor'or key=='dialogueTextColor'or key=='selectorColor') and 'text' or (key=='menuTextShadowColor'or key=='dialogueTextShadowColor') and 'shadow' or (key=='menuBackgroundColor' or key=='startMenuBackgroundColor' or key=='dialogueBackgroundColor'or key=='saveSummaryBackgroundColor'or key=='introBackgroundColor') and 'menuBackground'
+  local kind=(key=='menuTextColor'or key=='introTextColor'or key=='dialogueTextColor'or key=='selectorColor') and 'text' or (key=='menuTextShadowColor'or key=='introTextShadowColor'or key=='dialogueTextShadowColor') and 'shadow' or (key=='menuBackgroundColor' or key=='startMenuBackgroundColor' or key=='dialogueBackgroundColor'or key=='saveSummaryBackgroundColor'or key=='introBackgroundColor') and 'menuBackground'
   if kind then menuPalette.picker(entry,kind,function()return C.setting(key)end,function(ctx,n)C.persist(ctx.game or ctx,key,n);return false end,
    function(title,rows,ctx)return pushPage(ctx.game or ctx,title,rows)end,key=='startMenuBackgroundColor' and 'USE MENU' or nil)end
   if key=='menuBorder'or key:match('BorderChoice$')then
@@ -687,7 +689,13 @@ return function(mod,catalog)
   local choices={[0]='USE MENU'};for i,name in ipairs(catalog.choices)do choices[i]=name end
   parent[#parent+1]=row(scope..'BorderChoice',scope=='save'and 'SAVE SUMMARY BORDER'or scope:upper()..' BORDER',choices)
  end
- parent[#parent+1]=row('introTheme','INTRO / START SCREEN FONT',{[0]='USE MENU',[1]='NATIVE',[2]='EMERALD'})
+ parent[#parent+1]=row('introTextColor','INTRO TEXT COLOR',selectorNames)
+ parent[#parent+1]=row('introTextShadowColor','INTRO SHADOW COLOR',shadowNames)
+ parent[#parent+1]=row('introTextCase','INTRO TEXT CASE',{[0]='ORIGINAL',[1]='SENTENCE CASE',[2]='LOWERCASE'})
+ parent[#parent+1]=row('introLogo','TITLE LOGO',{[0]='VANILLA',[1]='HIGH RESOLUTION'})
+ parent[#parent+1]=row('introTrainer','TITLE TRAINER',{[0]='VANILLA',[1]='ASH ARTWORK'})
+ for _,r in ipairs(menuPalette.effects.rows('intro',function(ctx,key,n)C.persist(ctx.game or ctx,key,n);return false end,function(title,rows,ctx)pushPage(ctx.game or ctx,title,rows)end))do parent[#parent+1]=r end
+ parent[#parent+1]=row('introTheme','INTRO / START SCREEN FONT',{[1]='NATIVE',[2]='EMERALD'})
  parent[#parent+1]=row('introFontSize','INTRO / START TEXT SIZE',{[0]='NORMAL',[1]='LARGE',[2]='EXTRA LARGE'})
  parent[#parent+1]=row('introBackgroundColor','INTRO / START SCREEN BACKGROUND',bgNames)
  parent[#parent+1]=row('saveSummaryTheme','SAVE SUMMARY FONT',{[0]='USE MENU',[1]='NATIVE',[2]='EMERALD'})
@@ -989,10 +997,10 @@ return function(mod,catalog)
   Menu.draw=function(self,...)
    local c=Font._menuCustomizerGB
    if not(self.titleUiBox and c and c.live())then return draw(self,...)end
-   local scope,paper,title,rx,ry=c.drawScope,c.paperGroup,c.drawingTitle,c.resizeX,c.resizeY
-   c.drawScope=true;c.paperGroup='other';c.drawingTitle=true;c.resizeX=1;c.resizeY=1
+   local scope,paper,title,intro,rx,ry=c.drawScope,c.paperGroup,c.drawingTitle,c.introScope,c.resizeX,c.resizeY
+   c.drawScope=true;c.paperGroup='other';c.drawingTitle=true;c.introScope=true;c.resizeX=1;c.resizeY=1
    local result={pcall(draw,self,...)}
-   c.drawScope,c.paperGroup,c.drawingTitle,c.resizeX,c.resizeY=scope,paper,title,rx,ry
+   c.drawScope,c.paperGroup,c.drawingTitle,c.introScope,c.resizeX,c.resizeY=scope,paper,title,intro,rx,ry
    if not result[1]then error(result[2],0)end
    if c.mod.generation==1 then
     require('src.render.PaletteFX').markTrueColor(self.tx*8,self.ty*8,self.tw*8,self.th*8)
@@ -1002,8 +1010,9 @@ return function(mod,catalog)
  end
  assert(load(assert(mod:read('lib/intro_background.lua'))))()(mod,menuPalette,function()return C.live()end)
  assert(load(assert(mod:read('lib/intro_font.lua'))))()(mod,Font,function()return C.live()end)
+ assert(load(assert(mod:read('lib/title_ash.lua'))))()(mod,function()return C.live()end)
  assert(load(assert(mod:read('lib/title_logo.lua'))))()(mod,function()return C.live()end)
- mod.exports.version='3.2.79'
+ mod.exports.version='3.2.80'
  assert(load(assert(mod:read('lib/scene_transitions.lua'))))()(mod,function()return C.live()end)
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C

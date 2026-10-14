@@ -7,8 +7,9 @@ return function(mod,palette)
   presetNames[#presetNames+1]=e.name;e.colors={}
   for _,h in ipairs(e.hex)do e.colors[#e.colors+1]={tonumber(h:sub(1,2),16)/255,tonumber(h:sub(3,4),16)/255,tonumber(h:sub(5,6),16)/255,1}end
  end
- local prefixes={menu='menu_fx_',battle='battle_fx_',name='battle_name_fx_'}
+ local prefixes={intro='intro_fx_',menu='menu_fx_',battle='battle_fx_',name='battle_name_fx_'}
  function M.get(kind,key,default)
+  if kind=='menu'and mod.exports.gbMenus and mod.exports.gbMenus.introScope then kind='intro'end
   local k=(prefixes[kind] or prefixes.battle)..key
   return tonumber(mod.options:get(k) or mod.save:get(k)) or default or 0
  end
@@ -58,7 +59,7 @@ return function(mod,palette)
   row('outline_transparency','OUTLINE TRANSPARENCY')
   row('shadow_transparency','SHADOW TRANSPARENCY')
   row('speed','COLOR SPEED')
-  local prefix=kind=='menu'and 'MENU 'or kind=='name'and 'NAME 'or 'BATTLE '
+  local prefix=kind=='intro'and 'INTRO 'or kind=='menu'and 'MENU 'or kind=='name'and 'NAME 'or 'BATTLE '
   for _,entry in ipairs(rows)do entry.label=prefix..entry.label end
   return rows
  end

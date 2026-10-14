@@ -5,7 +5,7 @@ return function(mod,active)
   if ok and type(Class.draw)=='function'and not Class._customHdLogo then
    Class._customHdLogo=true;local draw=Class.draw
    Class.draw=function(self,...)
-    if not(active()and self.logo)then return draw(self,...)end
+    if not(active()and self.logo and mod.options:get('introLogo')~=0)then return draw(self,...)end
     if not logo then logo=assert(mod.assets:image('assets/pokemon-logo.png'));logo:setFilter('linear','linear')end
     local imageDraw=G.draw;local w,h=logo:getDimensions();local scale=128/w
     G.draw=function(image,x,y,...)

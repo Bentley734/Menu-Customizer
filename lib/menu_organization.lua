@@ -1,9 +1,10 @@
 -- Existing saved IDs remain stable; navigation follows customization type.
 return function(entries,openPage)
  local order={'TEXT','BORDERS','BACKGROUNDS','TRANSITIONS','SELECTORS','POSITION','TRANSPARENCY'}
- local storage,themes
+ local storage,themes;local intro={}
  local pages={};for _,name in ipairs(order)do pages[name]={}end
  local function add(r)
+  if (r.id or ''):find('intro',1,true)then intro[#intro+1]=r;return end
   if r.id=='wide_settingsScope'then storage=r;return end
   if r.id=='wide_themeSets'then themes=r;return end
   if r.children then local children=type(r.children)=='function'and r.children()or r.children;for _,child in ipairs(children)do add(child)end;return end
@@ -22,6 +23,7 @@ return function(entries,openPage)
  local out={};for _,name in ipairs(order)do local children=pages[name]
   out[#out+1]={id='wide_page_'..name,label=name,group=true,children=children,value=function()return #children..' OPTIONS'end,activate=function(ctx)return openPage(name,children,ctx)end}
  end
+ if #intro>0 then out[#out+1]={id='wide_introSettings',label='INTRO / START SCREEN',group=true,children=intro,activate=function(ctx)return openPage('INTRO / START SCREEN',intro,ctx)end}end
  if themes then out[#out+1]=themes end
  if storage then out[#out+1]=storage end
  return out

@@ -258,14 +258,14 @@ return function(mod)
     return color
   end
   function M.colors(kind)
-    local key=kind=='menu' and 'menuTextColor' or kind=='name' and 'battle_name_color' or 'battle_text_color'
+    local key=(kind=='menu'or kind=='intro') and 'menuTextColor' or kind=='name' and 'battle_name_color' or 'battle_text_color'
     local gb=mod.exports.gbMenus
     local dialogue=kind=='menu'and(mod.exports.dialogueFontScope or gb and gb.dialogueScope)
-    if dialogue then key='dialogueTextColor'end
+    if dialogue then key='dialogueTextColor'elseif kind=='intro'or kind=='menu'and gb and gb.introScope then key='introTextColor'end
     local n=tonumber(mod.options:get(key) or mod.save:get(key)) or 0
     n=math.max(0,math.min(#foreground-1,math.floor(n)))
-    local shadowKey=kind=='menu' and 'menuTextShadowColor' or kind=='name' and 'battle_name_shadow_color' or 'battle_shadow_color'
-    if dialogue then shadowKey='dialogueTextShadowColor'end
+    local shadowKey=(kind=='menu'or kind=='intro') and 'menuTextShadowColor' or kind=='name' and 'battle_name_shadow_color' or 'battle_shadow_color'
+    if dialogue then shadowKey='dialogueTextShadowColor'elseif kind=='intro'or kind=='menu'and gb and gb.introScope then shadowKey='introTextShadowColor'end
     local sh=tonumber(mod.options:get(shadowKey) or mod.save:get(shadowKey)) or 0
     sh=math.max(0,math.min(#shadows-1,math.floor(sh)))
     return {fg=foreground[n+1],shadow=shadows[sh+1],bg={0,0,0,0},_kind=kind or 'battle',_effects=M.effects}

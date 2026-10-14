@@ -1,3 +1,14 @@
+# Menu Customizer 3.2.80
+
+Give native GB intro/title customization a dedicated INTRO / START SCREEN submenu and independent presentation settings.
+
+- Independent intro font, size, foreground color, shadow color, effects/presets/transparency/speed and capitalization. Intro and title text, Game Freak artwork and stars use the intro text settings instead of MENU settings. Background selection remains independent.
+- Add TITLE TRAINER: VANILLA or ASH ARTWORK, using the supplied transparent Ash illustration with preserved proportions and final-resolution UI replay.
+- Add TITLE LOGO: VANILLA or HIGH RESOLUTION, retaining the supplied Pokemon logo as the high-resolution choice.
+- Preserve native Pokemon/trainer sprite protection and avoid repainting the title trainer during sprite replay when Ash is selected.
+
+Validation: Lua source compilation and focused shared-settings checks under LuaJIT and Lua 5.3. Live gameplay was not restarted. Restart to load the update.
+
 # Menu Customizer 3.2.79
 
 Keep native Gen 1 options-card selection highlights within the card's 16-pixel interior rather than covering the entire 32-pixel row pitch. Use an 8-pixel highlight for the unframed BACK footer, preventing the highlight from extending below the screen and revealing the overworld.

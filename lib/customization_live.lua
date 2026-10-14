@@ -29,7 +29,8 @@ return function(mod)
  local modes={'ORIGINAL','SENTENCE CASE','LOWERCASE'}
  function M.text(text)
   if type(text)~='string'then return text end
-  local mode=tonumber(mod.options:get('textCase'))or 0
+  local C=mod.exports.gbMenus
+  local mode=tonumber(mod.options:get(C and C.introScope and 'introTextCase'or 'textCase'))or 0
   if mode==0 then return text end
   -- Leave encoded control tags untouched; never rewrite game data.
   local out={};local at=1;local first=true
