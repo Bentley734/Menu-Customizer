@@ -1,3 +1,7 @@
+# Menu Customizer 3.2.111
+
+Apply the intro battle cinematic masks after final-resolution sprite replay, preventing Gengar and Nidorino from overlapping either full-width bar on ultrawide windows. Preserve the native fade colors and Game Freak splash behavior. Restart to load the update. Tests skipped as requested.
+
 # Menu Customizer 3.2.110
 
 Extend the top and bottom Gengar/Nidorino intro battle bars across the entire window width, including 32:9 fullscreen. Match the native bar color during fades and fill vertical margins too. Keep the Game Freak splash bar-free. Restart to load the update. Tests skipped as requested.

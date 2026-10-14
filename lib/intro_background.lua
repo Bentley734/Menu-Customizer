@@ -1,6 +1,6 @@
 -- Replace white boot-screen paper while preserving native state/input flow.
 return function(mod,palette,active)
- local G=love.graphics;local keyShader;local starShader;local pending=false;local pendingBars;local wideArea={0,0,160,144}
+ local G=love.graphics;local keyShader;local starShader;local pending=false;local pendingBars;local finalBars;local wideArea={0,0,160,144}
  local function backgroundColor()
   local n=tonumber(mod.options:get('introBackgroundColor')or mod.save:get('introBackgroundColor'))or 0
   return n>0 and palette.color('background',n-1)or nil
@@ -23,12 +23,29 @@ return function(mod,palette,active)
   if color then extendedPaper(color,G.rectangle,'fill',x,y,w,h)
   else G.setColor(1,1,1,1);G.rectangle('fill',x,y,w,h)end
   if bars then
+   finalBars={color=bars,width=ctx.ww,height=ctx.wh,top=ctx.oy+32*sy,bottom=ctx.oy+112*sy}
    G.setShader();G.setColor((unpack or table.unpack)(bars))
    G.rectangle('fill',x,y,w,math.max(0,32-y))
    G.rectangle('fill',x,112,w,math.max(0,y+h-112))
   end
   G.pop();return result
  end)
+ -- Sprite replay happens after the letterbox pass. Apply cinematic masks last
+ -- so the canvas and final-resolution replay obey the same visible band.
+ local Renderer=require('src.render.Renderer');local endFrame=Renderer.endFrame
+ Renderer.endFrame=function(self,...)
+  finalBars=nil
+  local result={pcall(endFrame,self,...)}
+  local bars=finalBars;finalBars=nil
+  if result[1] and bars and active()then
+   G.push('all');G.origin();G.setShader();G.setScissor();G.setBlendMode('alpha','alphamultiply')
+   G.setColor((unpack or table.unpack)(bars.color))
+   G.rectangle('fill',0,0,bars.width,math.max(0,bars.top))
+   G.rectangle('fill',0,bars.bottom,bars.width,math.max(0,bars.height-bars.bottom))
+   G.pop()
+  end
+  if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
+ end
  local portrait=assert(load(assert(mod:read('lib/boot_sprite_paper.lua'))))()()
  for _,path in ipairs({'src.ui.IntroMovie','src.ui.YellowIntro','src.ui.TitleState','src.ui.OakSpeech','src.ui.gen2.TitleState','src.ui.gen2.OakSpeech','src.ui.gen2.GoldSilverIntro','src.ui.gen2.CrystalIntro'})do
   local ok,Class=pcall(require,path)
