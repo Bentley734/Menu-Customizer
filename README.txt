@@ -1,3 +1,14 @@
+# Menu Customizer 3.2.72
+
+Fix intro sprite white details while keeping logo and text paper transparent.
+
+- Restore white-key removal for decorative/logo/font images only; protect Pokemon and trainer drawing.
+- Override the native boot sprite palette loader within the active intro draw so it no longer discards every white sprite pixel.
+- Build and cache exterior-paper masks from native source assets: white regions connected to the image edge become transparent while enclosed white sprite details stay opaque. Apply this to Gengar/Nidorino intro frames and native trainer palette images, including replay layers.
+- Restore temporary image references and sprite-loader hooks after drawing.
+
+Validation: Lua source compilation. Restart the game to load the update.
+
 # Menu Customizer 3.2.71
 
 Preserve white Pokemon and trainer sprite details with custom intro backgrounds. Remove the global white-key image shader; replace only explicit white screen fills and clears, leaving sprite images intact.
