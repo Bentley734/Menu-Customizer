@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.101
+
+Fix overlapping Start-menu labels and frames in the Exit confirmation. Draw only the confirmation prompt, YES/NO popup and active selector while confirming; bypass Start-menu label justification for this dialog. Restore all temporary draw hooks on errors.
+
+Validated against the native engine StartMenu.draw: parent labels/frame suppressed, prompt/YES/NO/cursor retained and hooks restored after errors. Restart after installing.
+
 # Menu Customizer 3.2.100
 
 Add one measured small-font space between Lv and the level value. Keep the level number anchored and retain the one-pixel vertical alignment and healthbox transparency fixes. Restart after installing.

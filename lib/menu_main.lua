@@ -610,7 +610,11 @@ return function(mod)
     local n=math.min(math.max(1,#Start.ENTRIES),(Start._data and Start._data.maxVisible) or Start.MAX_VISIBLE or 8)
     return Window.template(emeraldLayout.window.left,emeraldLayout.window.top,emeraldLayout.window.width,n*2+2)
   end
+  local exitDialog=assert(load(assert(mod:read('lib/start_exit_dialog.lua'))))()
   local function nativeStartUnscoped(...)
+    if active() and Start._confirmExit then
+      return exitDialog(Window,require('src.ui.game3.chrome'),originalNativeStartDraw,...)
+    end
     local previous=Start._data
     if not Theme.enabled() and not (active() and previous and previous.drawCursor) then return originalNativeStartDraw(...) end
     local adapted={}
@@ -658,6 +662,7 @@ return function(mod)
   end
   local function drawStartJustified(...)
     if not active() then return nativeStartDraw(...) end
+    if Start._confirmExit then return nativeStartDraw(...)end
     local alignment = setting('startJustify')
     local selector = setting('startSelector')
     local tpl
