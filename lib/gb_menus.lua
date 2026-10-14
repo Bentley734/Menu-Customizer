@@ -682,6 +682,8 @@ return function(mod,catalog)
  local bgNames,startBgNames={},{}
  for i,name in ipairs(menuPalette.menuBackgroundNames)do bgNames[i-1]=name;startBgNames[i-1]=name end
  bgNames[0]='DEFAULT';startBgNames[0]='USE MENU'
+ local colorNames={};for i,name in ipairs(menuPalette.names)do colorNames[i-1]=name end
+ local shadowNames={};for i,name in ipairs(menuPalette.shadowNames)do shadowNames[i-1]=name end
  local parent={mod.exports.settingsProfiles.row(),row('allTextColor','ALL COLORS',colorNames),row('allTextShadowColor','ALL SHADOWS',shadowNames),row('allBorderChoice','ALL BORDERS',catalog.choices),row('allBackgroundColor','ALL BACKGROUNDS',bgNames)}
  for _,r in ipairs(mod.exports.customization.rows(function(title,rows,ctx)return pushPage(ctx.game or ctx,title,rows)end))do parent[#parent+1]=r end
  for _,group in ipairs({'start','option','save','other'})do
@@ -700,9 +702,9 @@ return function(mod,catalog)
  parent[#parent+1]=row('arrowSelector','ARROW SELECTOR',C.arrows.names)
  parent[#parent+1]=row('selectionHighlight','HIGHLIGHT INTENSITY')
  parent[#parent+1]=row('menuTheme','MENU FONT',{'NATIVE','EMERALD'})
- local colorNames={};for i,name in ipairs(menuPalette.names)do colorNames[i-1]=name end
+
  parent[#parent+1]=row('menuTextColor','MENU TEXT COLOR',colorNames)
- local shadowNames={};for i,name in ipairs(menuPalette.shadowNames)do shadowNames[i-1]=name end
+
  parent[#parent+1]=row('menuTextShadowColor','MENU TEXT SHADOW',shadowNames)
  parent[#parent+1]=row('menuBackgroundColor','MENU BACKGROUND',bgNames)
  parent[#parent+1]=row('menuBorder','DEFAULT BORDER',catalog.choices)

@@ -1,3 +1,7 @@
+# Menu Customizer 3.2.118
+
+Add game-wide ALL COLORS and ALL SHADOWS selectors under TEXT / COLORS and TEXT / SHADOWS. Apply selected colors to menu, dialogue, intro, battle text, Pokemon names, and selector ink, and shadows to every text scope. Individual settings remain available. Include named selector values. Restart to load the update. Tests skipped as requested.
+
 # Menu Customizer 3.2.117
 
 Add ALL COLORS under TEXT / COLORS and ALL SHADOWS under TEXT / SHADOWS. Apply each selection to menu, dialogue, intro, battle text, and Pokemon name settings together; ALL COLORS also updates selector ink. Individual controls remain available. Restart to load the update. Tests skipped as requested.
