@@ -1,3 +1,18 @@
+# Menu Customizer 3.3.0 — Mart, PC and dialogue profiles
+
+Built from GitHub's latest v3.2.123 source (5cbd4054eceef73c6d0388e9edec8dda3d9285e5).
+
+Open OPTIONS → MENUS → POKE MART, PC MENUS or DIALOGUE BOXES.
+
+- POKE MART and PC MENUS have independent font, border, background, text-color and text-shadow controls. Editing a control enables CUSTOM; STYLE → USE MENU restores inheritance without deleting the custom choices.
+- DIALOGUE BOXES brings the existing dialogue font, border, background, text/shadow colors and alignment together on one page. RESET DIALOGUE restores its defaults. Existing saved dialogue choices are retained.
+- Use the full existing border and background catalogs, including animated/Pokémon designs. Profiles follow the existing shared/per-game settings preference.
+- Native shop transactions, quantities, stock, PC actions, storage artwork, scrolling and confirmation flow remain intact. Gen 1/2 Mart and PC stacks now participate in the existing menu compositor. Gen 3 shop panels and native PC windows receive the selected visual profile.
+
+Validation: full Loader/Sandbox integration with KIM1025 1.7.43 in all 11 games; dedicated options navigation, independent persistence, shared/per-game restoration, nested callbacks, error/disabled-scope cleanup; native LOVE GPU Mart/PC rendering in Red, Gold, FireRed, Ruby and Emerald. Whole-source compilation and focused native-animation/layout/font/color regressions pass in LuaJIT and Lua 5.3. Four historical standalone fixtures (animated_gradients, rs_render, rs_start_selectors and gb_menus) still fail with the same stale expectations/missing fixture dependencies on untouched v3.2.123; they are not counted as passing. No live playthrough was performed.
+
+Restart after installing. Johnto and other mods are unchanged.
+
 # Menu Customizer 3.2.123 — Keep the custom battle UI during moves
 
 Remove 3.2.122's animation-dependent UI/palette/font bypasses. The selected battle menu, HUD style and typography remain active throughout attacks instead of revealing the vanilla battle screen. Retain 3.2.121's direct native animation-layer delegation; no replacement move player or artwork is installed.

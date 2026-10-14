@@ -129,8 +129,11 @@ return function(mod)
   end
   mod.exports.resetMenuSettings=function()values=nil;if FX then FX.touch('settingsScope')end end
   local function setting(key)
+    local surface=mod.exports.menuSurfaces and mod.exports.menuSurfaces.resolve(key)
+    if surface~=nil then return surface end
     local preview=mod.exports.customization and mod.exports.customization.preview
     if preview and preview[key]~=nil then return preview[key]end
+    if mod.exports.menuSurfaces then return mod.exports.menuSurfaces.base(function()return settings()[key]end)end
     return settings()[key]
   end
   local function installArrows()
@@ -372,6 +375,7 @@ return function(mod)
       parent[#parent+1]={id='wide_text_fx',label='MENU TEXT EFFECTS',children=menuPalette.effects.rows('menu',function(ctx,key,n)persist(key,n,ctx);return false end,openPage),value=function()return 'OPEN'end,activate=function()openPage('MENU TEXT EFFECTS',menuPalette.effects.rows('menu',function(ctx,key,n)persist(key,n,ctx);return false end,openPage))end}
       local battleUi=mod.exports.battleUi
       if battleUi then parent[#parent+1]={id='wide_battle_ui',label='BATTLE SETTINGS',children=battleUi.rows({},openPage),value=function()return 'OPEN'end,activate=function()openPage('BATTLE',battleUi.rows({},openPage))end}end
+      if mod.exports.menuSurfaces then for _,r in ipairs(mod.exports.menuSurfaces.rows(openPage))do parent[#parent+1]=r end end
       parent=assert(load(assert(mod:read('lib/menu_organization.lua'))))()(parent,openPage)
       openPage(title,parent)
     end)

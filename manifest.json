@@ -1,7 +1,7 @@
 {
   "id": "gen3transparency",
   "name": "Menu Customizer",
-  "version": "3.2.123",
+  "version": "3.3.0",
   "api": 2,
   "entry": "main.lua",
   "profile": "overhaul",
@@ -25,6 +25,6 @@
     "engine_internals"
   ],
   "dependencies": [],
-  "description": "Menu and battle UI customization across eleven games, with shared selectable borders, Emerald battle styling, opacity and positioning.",
+  "description": "Menu and battle UI customization across eleven games, with independent Poke Mart, PC and dialogue styles, shared selectable borders/backgrounds, Emerald fonts, opacity and positioning.",
   "github": "Bentley734/Menu-Customizer"
 }

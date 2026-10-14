@@ -743,6 +743,7 @@ return function(mod,catalog)
  end}
  for _,spec in ipairs({{'building_in','BUILDING ENTER'},{'building_out','BUILDING EXIT'},{'battle_in','BATTLE ENTER'},{'battle_out','BATTLE EXIT'}})do parent[#parent+1]=row('scene_'..spec[1],spec[2],SceneEffects.names)end
  local menuEntries=parent
+ if mod.exports.menuSurfaces then for _,r in ipairs(mod.exports.menuSurfaces.rows(function(title,rows,ctx)return pushPage(ctx.game or ctx,title,rows)end))do parent[#parent+1]=r end end
  parent=assert(load(assert(mod:read('lib/menu_organization.lua'))))()(parent,function(title,rows,ctx)return pushPage(ctx.game or ctx,title,rows)end)
  C.rows=parent
  mod.hooks:wrap('ui.options.rows',function(next,game,rows)
