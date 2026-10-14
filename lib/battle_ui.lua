@@ -51,9 +51,7 @@ return function(mod)
     if key == 'menu_align' then return n == 0 and 0 or n == 1 and 1 or 2 end
     return math.max(0, math.min(100, n or default))
   end
-  local nativeMoveRendering=assert((loadstring or load)(assert(mod:read('lib/native_move_rendering.lua'))))()
-  local function enabled(state)
-    if mod.generation==1 and nativeMoveRendering(state)then return false end
+  local function enabled()
     local Runtime = require('src.mods.Runtime')
     local chains = Runtime.hooks and Runtime.hooks.chains
     for _, e in ipairs(chains and chains['ui.options.rows'] or {}) do
@@ -434,7 +432,7 @@ return function(mod)
     if mod.generation==1 then
       local nativeHud=B.drawHUDs
       B.drawHUDs=function(self,slide,...)
-        if not enabled(self)or setting('style',1)~=2 or not nativeEmerald.ready()or self.safari or self.demo
+        if not enabled()or setting('style',1)~=2 or not nativeEmerald.ready()or self.safari or self.demo
           or not self:statusHUDVisible()then return nativeHud(self,slide,...)end
         if self.fieldCleared then return end
         if self.enemy and not self.showEnemyTrainer and not self.enemySendingOut and not self.enemyHudPending
@@ -449,7 +447,7 @@ return function(mod)
       for _,side in ipairs({'enemy','player'})do
         local key=side=='enemy'and 'drawEnemyHud'or 'drawPlayerHud';local original=B[key]
         B[key]=function(self,...)
-          if not enabled(self)or setting('style',1)~=2 or not nativeEmerald.ready()or not self:statusHUDVisible()then return original(self,...)end
+          if not enabled()or setting('style',1)~=2 or not nativeEmerald.ready()or not self:statusHUDVisible()then return original(self,...)end
           if self[side=='enemy'and 'showEnemyHud'or 'showPlayerHud']then return portedHud(self,2,side)end
           return original(self,...)
         end
@@ -718,7 +716,7 @@ return function(mod)
       if not ok then error(err,0) end
     end
     B[method]=function(self,...)
-      if not enabled(self) then return draw(self,...) end
+      if not enabled() then return draw(self,...) end
       if setting('style',1)==2 and not nativeEmerald.ready() and not battleFont.isEmerald()then return draw(self,...)end
       if (setting('style',1)==2 or battleFont.isEmerald()) and G.transformPoint then
         if self.bottomUIVisible and not self:bottomUIVisible()then return end
@@ -745,7 +743,7 @@ return function(mod)
       end
       local zonePass=B.drawZonePass
       B.drawZonePass=function(self,source,sx,sy,...)
-        local rects=enabled(self) and protected[source]
+        local rects=enabled() and protected[source]
         if not rects or #rects==0 then return zonePass(self,source,sx,sy,...) end
         local originalDraw,rectangle=G.draw,G.rectangle
         local function regions()
@@ -819,7 +817,7 @@ return function(mod)
       local Wide=require('src.battle.WideBattle')
       local native=Wide.draw
       Wide.draw=function(self,...)
-        if not enabled(self) then return native(self,...) end
+        if not enabled() then return native(self,...) end
         if setting('style',1)==2 and nativeEmerald.ready()then return nativeEmerald.wideDraw(self,...)end
         local priorMode,priorBattle,priorCustom=mode,battle,customMoves
         customMoves=false

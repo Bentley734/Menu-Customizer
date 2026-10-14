@@ -88,7 +88,6 @@ return function(mod,enabled)
   if states[key]then states[key].api=M;return end
   local state={api=M};states[key]=state;local original=target[key]
   target[key]=function(...)
-   if not enabled(select(1,...))then return original(...)end
    local api=state.api;api.scopeDepth=api.scopeDepth+1
    local result={pcall(original,...)};api.scopeDepth=api.scopeDepth-1
    if not result[1]then error(result[2],0)end;return unpack(result,2)

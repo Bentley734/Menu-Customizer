@@ -3,7 +3,7 @@ return function(mod)
   local unpack=unpack or table.unpack
   local api={}
   function api.scope(fn,...)
-    if api.active and not api.active(...)then return fn(...)end
+    if api.active and not api.active()then return fn(...)end
     local prior=mod.exports.battleFontScope
     mod.exports.battleFontScope=true
     local result={pcall(fn,...)}
@@ -15,7 +15,6 @@ return function(mod)
     local original=target and target[key]
     if type(original)~='function'then return end
     target[key]=function(...)
-      if api.active and not api.active(select(1,...))then return original(...)end
       local prior=mod.exports.battleFontScale
       mod.exports.battleFontScale=scale or prior
       local result={pcall(api.scope,original,...)}
@@ -29,7 +28,6 @@ return function(mod)
     local original=target and target[key]
     if type(original)~='function'then return end
     target[key]=function(...)
-      if api.active and not api.active(select(1,...))then return original(...)end
       local prior=mod.exports.battleHudScope
       local capture=mod.exports.battleHudCapture
       local names=mod.exports.battleHudNames

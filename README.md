@@ -1,3 +1,11 @@
+# Menu Customizer 3.2.123 — Keep the custom battle UI during moves
+
+Remove 3.2.122's animation-dependent UI/palette/font bypasses. The selected battle menu, HUD style and typography remain active throughout attacks instead of revealing the vanilla battle screen. Retain 3.2.121's direct native animation-layer delegation; no replacement move player or artwork is installed.
+
+Use with KIM1025 1.7.43, whose focused transparency fix removes opaque native palette-region paper while keeping the HD scene and native effects active. Fully exit/reopen the game after updating.
+
+Validation: source compilation, native effect delegation, Emerald move layout, battle-frame geometry and scaling under LuaJIT/Lua 5.3; eleven-game combined KIM startup under LuaJIT. The historical battle_move_screen cursor assertion still also fails on the untouched 3.2.120 baseline. Johnto remains untouched.
+
 # Menu Customizer 3.2.122 — Yield attack frames to the native renderer
 
 Bypass custom battle text canvases, protected palette-zone drawing, cloned wide-battle rendering, HUD substitution and font/scale scopes during Gen 1 move animation, native picture effects, fades, shakes, flashes and resting catch frames. Preserve native drawing and arguments, then resume menu customization when effects finish.
