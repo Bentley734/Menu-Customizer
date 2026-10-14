@@ -132,6 +132,9 @@ return function(mod)
     local gb=mod.exports.gbMenus
     if kind=='dialogue'or mod.exports.dialogueFontScope or gb and gb.dialogueScope then
       n=tonumber(mod.options:get('dialogueBackgroundColor')or mod.save:get('dialogueBackgroundColor'))or 0
+    elseif kind=='save' then
+      local summary=tonumber(mod.options:get('saveSummaryBackgroundColor')or mod.save:get('saveSummaryBackgroundColor'))or 0
+      if summary>0 then n=summary end
     elseif kind=='start' then
       local start=tonumber(mod.options:get('startMenuBackgroundColor') or mod.save:get('startMenuBackgroundColor')) or 0
       if start>0 then n=start end

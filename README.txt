@@ -1,3 +1,11 @@
+# Menu Customizer 3.2.68
+
+Customize the Gen 1 CONTINUE save-summary panel with SAVE SUMMARY FONT, SAVE SUMMARY BACKGROUND and SAVE SUMMARY BORDER. Find these in TEXT, BACKGROUNDS and BORDERS respectively. Font offers USE MENU, NATIVE and EMERALD; background and border can inherit the shared menu choices.
+
+Apply selected styling directly to the boot save-summary window and preserve its colors through the Gen 1 palette pass.
+
+Testing skipped at the user's request. Restart the game to load the update.
+
 # Menu Customizer 3.2.67
 
 Remove the Hoenn Forest, Sootopolis, Volcano and Sky Pillar theme presets. The eleven Pokemon character theme presets remain available. Existing applied settings and individual backgrounds are preserved.
