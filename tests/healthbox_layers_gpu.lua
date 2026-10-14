@@ -34,6 +34,12 @@ function love.load()
    local r,g,bb=half:getPixel(x,y);local rr,gg,bbb=full:getPixel(x,y)
    assert(math.abs(r-(rr+bg[1])/2)<.015 and math.abs(g-(gg+bg[2])/2)<.015 and math.abs(bb-(bbb+bg[3])/2)<.015,'HP paper opacity')
    local zr,zg,zb=zero:getPixel(x,y);assert(math.abs(zr-bg[1])<.01 and math.abs(zg-bg[2])<.01 and math.abs(zb-bg[3])<.01,'HP paper zero opacity')
+   for yy=106,113 do for xx=136,199 do
+    local r,g,b=half:getPixel(xx,yy);local fr,fg,fb=full:getPixel(xx,yy)
+    assert(math.abs(r-(fr+bg[1])/2)<.015 and math.abs(g-(fg+bg[2])/2)<.015 and math.abs(b-(fb+bg[3])/2)<.015,'EXP strip ignores opacity')
+    local r,g,b=zero:getPixel(xx,yy)
+    assert(math.abs(r-bg[1])<.01 and math.abs(g-bg[2])<.01 and math.abs(b-bg[3])<.01,'EXP strip remains at zero opacity')
+   end end
    -- Removed baked Lv ink must not leave a second symbol beside the name.
    for yy=84,88 do for xx=168,175 do
     local rr,gg,bb=zero:getPixel(xx,yy)
