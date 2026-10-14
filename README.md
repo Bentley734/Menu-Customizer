@@ -1,3 +1,7 @@
+# Menu Customizer 3.2.105
+
+Move the Red/Blue title Pokemon and trainer portraits up five logical game pixels, including Ash and the native trainer. Move matching palette regions and final-resolution sprite redraws with the artwork. Restart the game to load the update. Tests skipped as requested.
+
 # Menu Customizer 3.2.104
 
 Enlarge the title choice menu for LARGE and EXTRA LARGE text. Measure the longest label at one shared font scale, increase row spacing and top inset, and fit the box within the screen. Extra-large text uses the largest size that fits all visible choices, with scrolling for additional mod entries. Restart the game to load this fix. Tests skipped as requested.
