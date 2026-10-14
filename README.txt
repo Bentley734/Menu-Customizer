@@ -1,3 +1,11 @@
+# Menu Customizer 3.2.73
+
+Add INTRO / START SCREEN FONT (USE MENU, NATIVE, EMERALD) and INTRO / START TEXT SIZE (NORMAL, LARGE, EXTRA LARGE) under TEXT for native Gen 1/Gen 2 boot screens.
+
+Boot text now participates in the shared menu text colors, shadows, effects and decapitalization settings. Render Gen 1 version labels and copyright/studio captions through the selected font when Emerald is enabled. Preserve the Pokemon logo as artwork and retain the separate sprite-white preservation/background-removal paths.
+
+Restart the game to load the update.
+
 # Menu Customizer 3.2.72
 
 Fix intro sprite white details while keeping logo and text paper transparent.

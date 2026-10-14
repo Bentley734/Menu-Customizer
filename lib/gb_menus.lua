@@ -17,6 +17,7 @@ return function(mod,catalog)
   backgroundDim={0,0,70,10},controlsLegend={2,1,3,1},menuTransition={3,1,#Transitions.names,1},positionPreview={1,0,1,1}}
 
  for _,scope in ipairs({'start','battle','option','save','other','dialogue','pokedex'})do specs[scope..'BorderChoice']={0,0,#catalog.choices,1}end
+ specs.introTheme={0,0,2,1};specs.introFontSize={0,0,2,1}
  specs.introBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1}
  specs.saveSummaryTheme={0,0,2,1};specs.saveSummaryBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1}
  specs.dialogueTheme={2,1,2,1};specs.dialogueBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1};specs.dialogueTextColor={0,0,#menuPalette.names-1,1};specs.dialogueTextShadowColor={0,0,#menuPalette.shadowNames-1,1}
@@ -126,11 +127,11 @@ return function(mod,catalog)
  -- around it so colored GBA frames retain their original colors on GBC.
  local Borders=assert(load(assert(mod:read('lib/menu_borders.lua')),'@'..mod.path..'/lib/menu_borders.lua'))()(mod,C.setting,catalog,function()return C.live() and (C.drawScope or C.dialogueScope) end)
  C.borders=Borders
- C.theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return (C.drawScope or C.dialogueScope or mod.exports.choiceFontScope or mod.exports.battleFontScope) and (C.summaryScope and C.setting('saveSummaryTheme')>0 and C.setting('saveSummaryTheme')or C.setting((C.dialogueScope or mod.exports.choiceFontScope) and 'dialogueTheme'or'menuTheme'))==2 end)
+ C.theme=assert(load(assert(mod:read('lib/emerald_theme.lua'))))()(mod,function()return (C.drawScope or C.dialogueScope or mod.exports.choiceFontScope or mod.exports.battleFontScope) and (C.introScope and C.setting('introTheme')>0 and C.setting('introTheme')or C.summaryScope and C.setting('saveSummaryTheme')>0 and C.setting('saveSummaryTheme')or C.setting((C.dialogueScope or mod.exports.choiceFontScope) and 'dialogueTheme'or'menuTheme'))==2 end)
  -- START rows are sixteen pixels apart, just like Emerald's native menu.
  -- Use the original glyph size there instead of the dense GB screen size.
- C.theme.gbScale=function()if mod.exports.battleFontScope then return mod.exports.battleFontScale or .5 end;if C.dialogueScope or mod.exports.choiceFontScope then return .75 end;return not C.compactText and (C.dialogueScope or C.drawingTitle or C.drawingStart or C.drawingCheats or C.drawingOptions and C.drawingOptions.fullFont) and 1 or .5 end
- C.theme.gbBaseline=function()return (C.dialogueScope or mod.exports.choiceFontScope) and 2 or 0 end
+ C.theme.gbScale=function()if C.introScope then return ({.5,.75,1})[C.setting('introFontSize')+1]end;if mod.exports.battleFontScope then return mod.exports.battleFontScale or .5 end;if C.dialogueScope or mod.exports.choiceFontScope then return .75 end;return not C.compactText and (C.dialogueScope or C.drawingTitle or C.drawingStart or C.drawingCheats or C.drawingOptions and C.drawingOptions.fullFont) and 1 or .5 end
+ C.theme.gbBaseline=function()if C.introScope then local scale=C.theme.gbScale();return scale==1 and 0 or math.max(0,scale*14-8)end;return (C.dialogueScope or mod.exports.choiceFontScope) and 2 or 0 end
  C.theme.gbColors=function()
   if mod.exports.battleNameScope then return menuPalette.colors('name')end
   if mod.exports.battleFontScope then
@@ -678,6 +679,8 @@ return function(mod,catalog)
   local choices={[0]='USE MENU'};for i,name in ipairs(catalog.choices)do choices[i]=name end
   parent[#parent+1]=row(scope..'BorderChoice',scope=='save'and 'SAVE SUMMARY BORDER'or scope:upper()..' BORDER',choices)
  end
+ parent[#parent+1]=row('introTheme','INTRO / START SCREEN FONT',{[0]='USE MENU',[1]='NATIVE',[2]='EMERALD'})
+ parent[#parent+1]=row('introFontSize','INTRO / START TEXT SIZE',{[0]='NORMAL',[1]='LARGE',[2]='EXTRA LARGE'})
  parent[#parent+1]=row('introBackgroundColor','INTRO / START SCREEN BACKGROUND',bgNames)
  parent[#parent+1]=row('saveSummaryTheme','SAVE SUMMARY FONT',{[0]='USE MENU',[1]='NATIVE',[2]='EMERALD'})
  parent[#parent+1]=row('saveSummaryBackgroundColor','SAVE SUMMARY BACKGROUND',bgNames)
@@ -990,7 +993,8 @@ return function(mod,catalog)
   end
  end
  assert(load(assert(mod:read('lib/intro_background.lua'))))()(mod,menuPalette,function()return C.live()end)
- mod.exports.version='3.2.72'
+ assert(load(assert(mod:read('lib/intro_font.lua'))))()(mod,Font,function()return C.live()end)
+ mod.exports.version='3.2.73'
  assert(load(assert(mod:read('lib/scene_transitions.lua'))))()(mod,function()return C.live()end)
  mod.log:info('Menu Customizer: native Gen '..mod.generation..' menus and all borders installed')
  return C
