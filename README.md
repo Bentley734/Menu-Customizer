@@ -1,3 +1,9 @@
+# Menu Customizer 3.2.84
+
+Keep settings labels and selected-choice indicators on saved values while live previews temporarily restyle the current options window. Prevent background previews from making other background options appear changed. Applies to GB and Gen 3 menus. Restore all wrapped callbacks and preview state after drawing errors.
+
+Validation: independent saved background values/labels during previews, selection indicators, error restoration, existing preview/case regressions and full compilation under LuaJIT and Lua 5.3. Live gameplay was not exercised. Restart after installing.
+
 # Menu Customizer 3.2.83
 
 Remove font paper from RSE Continue/main-menu captions, preserving foreground and shadows and restoring the printer on errors.

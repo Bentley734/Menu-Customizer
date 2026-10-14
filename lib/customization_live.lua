@@ -26,6 +26,26 @@ return function(mod)
   local result={pcall(fn,...)};M.preview=old
   if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
  end
+ -- Preview artwork must never become the value displayed by another setting.
+ function M.withRows(row,rows,fn,...)
+  local originals={}
+  for _,entry in ipairs(rows or {})do
+   for _,key in ipairs({'value','selected','text'})do
+    local original=entry[key]
+    if type(original)=='function'then
+     originals[#originals+1]={entry,key,original}
+     entry[key]=function(...)
+      local preview=M.preview;M.preview=nil
+      local result={pcall(original,...)};M.preview=preview
+      if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
+     end
+    end
+   end
+  end
+  local result={pcall(M.with,row,fn,...)}
+  for _,saved in ipairs(originals)do saved[1][saved[2]]=saved[3]end
+  if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
+ end
  local modes={'ORIGINAL','SENTENCE CASE','LOWERCASE'}
  function M.text(text)
   if type(text)~='string'then return text end

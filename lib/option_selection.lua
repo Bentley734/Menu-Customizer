@@ -12,7 +12,7 @@ return function(mod,Font,setting,active,version)
    end end
    local pages=menu._pages or (menu._st and menu._st.pages);local page=pages and pages[#pages]
    local row=page and page.rows and page.rows[page.index or 1]
-   local result={pcall(function(...)return mod.exports.customization.with(row,draw,...)end,...)};G.setColor=setColor
+   local result={pcall(function(...)return mod.exports.customization.withRows(row,page and page.rows,draw,...)end,...)};G.setColor=setColor
    if not result[1]then error(result[2],0)end
    if not active()then return (unpack or table.unpack)(result,2)end
    local pages=menu._pages or (menu._st and menu._st.pages);local page=pages and pages[#pages]

@@ -590,7 +590,7 @@ return function(mod,catalog)
   if self.index>self.scroll+(self.detail and 4 or 6) then self.scroll=self.index-(self.detail and 4 or 6) end
  end
  function Page:draw()
-  return mod.exports.customization.with(self.rows[self.index],self.drawPreview,self)
+  return mod.exports.customization.withRows(self.rows[self.index],self.rows,self.drawPreview,self)
  end
  function Page:drawPreview()
   Font.drawBox(0,0,20,18)
