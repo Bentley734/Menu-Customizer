@@ -18,6 +18,20 @@ return function(G,mod,faded)
    end
   end
   wrap(font,'draw',true);wrap(font,'drawGlyph',true)
+  local text,glyph=font.draw,font.drawGlyph
+  local hpMaximum=false
+  font.draw=function(value,x,y,opts,...)
+   if opts and opts.small then
+    local hpCurrent=type(value)=='string' and value:match('^%s*%d+/$')
+    if hpCurrent or hpMaximum then y=y-1 end
+    hpMaximum=hpCurrent and true or false
+   end
+   return text(value,x,y,opts,...)
+  end
+  font.drawGlyph=function(id,x,y,opts,...)
+   if id==0x105 and opts and opts.small then y=y-1 end
+   return glyph(id,x,y,opts,...)
+  end
   local summary=chrome._menuCustomizerSummary
   if summary then wrap(summary,'drawStatusIcon',true)end
   for _,key in ipairs({'drawHpBar','drawRsStatusIcon','drawPartyBall'})do wrap(chrome,key,true)end
