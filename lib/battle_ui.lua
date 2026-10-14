@@ -902,6 +902,7 @@ return function(mod)
   sizing.decorate(battleFont.selected,'draw','measure','drawGlyph',false)
   local gb=require('src.render.Font')._menuCustomizerGB
   if gb and gb.mod==mod then sizing.decorate(gb.theme,'draw','measure','glyph',false)end
+  assert(load(assert(mod:read('lib/level_up_panels.lua')),'@menu-customizer/level_up_panels.lua'))()(mod,api,battleFont,panel,compose,enabled)
   sizing.scope(api.moveScreen,'draw');sizing.scope(api,'drawBottom')
   local drawMovesSized,drawBottomSized=api.moveScreen.draw,api.drawBottom
   api.moveScreen.draw=function(battle,rect,viewport)return sizing.viewport(viewport,drawMovesSized,battle,rect,viewport)end

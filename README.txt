@@ -1,3 +1,9 @@
+# Menu Customizer 3.3.1 — Level-up stat panels
+
+Level-up stat windows now inherit battle UI border style, background, text/shadow colors, text effects, opacity and font choices across all eleven games. Panels expand and fit their rows at larger battle font sizes. Gen 3 retains its increase and total pages and the native confirmation callback. Rare Candy stat windows use the same styling. No extra settings are needed.
+
+Validated with native LOVE GPU rendering in Red, Gold, FireRed, Ruby and Emerald at all three font sizes, plus Gen 3 page advancement/callback checks, eleven-game combined KIM startup, full LuaJIT/Lua 5.3 compilation and focused battle rendering regressions. No live playthrough was performed. Restart after installing. Johnto and other mods are unchanged.
+
 # Menu Customizer 3.3.0 — Mart, PC and dialogue profiles
 
 Built from GitHub's latest v3.2.123 source (5cbd4054eceef73c6d0388e9edec8dda3d9285e5).
