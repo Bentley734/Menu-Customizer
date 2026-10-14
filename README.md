@@ -1,3 +1,11 @@
+# Menu Customizer 3.2.122 — Yield attack frames to the native renderer
+
+Bypass custom battle text canvases, protected palette-zone drawing, cloned wide-battle rendering, HUD substitution and font/scale scopes during Gen 1 move animation, native picture effects, fades, shakes, flashes and resting catch frames. Preserve native drawing and arguments, then resume menu customization when effects finish.
+
+Built from GitHub's latest 3.2.121. Install alongside KIM1025 1.7.42 and fully exit/reopen the game. Johnto remains untouched.
+
+Validation: native delegation and resumption across 16 animation/effect states, whole-source compilation, native effect delegation, Emerald move layout, frame geometry and menu scaling under LuaJIT and Lua 5.3; combined KIM startup across eleven games under LuaJIT. The old battle_move_screen cursor assertion also fails on untouched 3.2.120 and remains outside this change. Live gameplay was not restarted automatically.
+
 # Menu Customizer 3.2.121 — Native move-effect frames
 
 Remove the Emerald-style wide battle menu's animation-frame inspection, filtering and position offsets. Delegate the animation layer directly to BattleState:drawAnimLayer with native coordinates and palettes. Frames that do not use the engine's OAM step table are no longer silently dropped.
