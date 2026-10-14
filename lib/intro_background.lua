@@ -1,6 +1,6 @@
 -- Replace white boot-screen paper while preserving native state/input flow.
 return function(mod,palette,active)
- local G=love.graphics;local keyShader;local starShader;local pending=false;local wideArea={0,0,160,144}
+ local G=love.graphics;local keyShader;local starShader;local pending=false;local pendingBars;local wideArea={0,0,160,144}
  local function backgroundColor()
   local n=tonumber(mod.options:get('introBackgroundColor')or mod.save:get('introBackgroundColor'))or 0
   return n>0 and palette.color('background',n-1)or nil
@@ -11,7 +11,7 @@ return function(mod,palette,active)
   if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
  end
  mod.hooks:wrap('render.letterbox',function(next,ctx)
-  local result=next(ctx);local boot=pending;pending=false
+  local result=next(ctx);local boot,bars=pending,pendingBars;pending=false;pendingBars=nil
   if not(boot and active())then return result end
   local sx=ctx.scale/(ctx.dpiX or 1);local sy=ctx.scale/(ctx.dpiY or 1)
   if sx<=0 or sy<=0 then return result end
@@ -22,6 +22,11 @@ return function(mod,palette,active)
   local color=backgroundColor()
   if color then extendedPaper(color,G.rectangle,'fill',x,y,w,h)
   else G.setColor(1,1,1,1);G.rectangle('fill',x,y,w,h)end
+  if bars then
+   G.setShader();G.setColor((unpack or table.unpack)(bars))
+   G.rectangle('fill',x,y,w,math.max(0,32-y))
+   G.rectangle('fill',x,112,w,math.max(0,y+h-112))
+  end
   G.pop();return result
  end)
  local portrait=assert(load(assert(mod:read('lib/boot_sprite_paper.lua'))))()()
@@ -32,7 +37,7 @@ return function(mod,palette,active)
    Class.draw=function(self,...)
     local n=tonumber(mod.options:get('introBackgroundColor')or mod.save:get('introBackgroundColor'))or 0
     if not active()then return draw(self,...)end
-    pending=true
+    pending=true;pendingBars=nil
     local SR=require('src.render.SpriteRenderer');local obp=SR.obpImage
     local protected={};local swapped={};local stars={}
     for _,field in ipairs({'smallStar','smallStarBlink','bigStar','studioLogo','logo','gfText'})do if self[field]and (field~='logo'or path=='src.ui.IntroMovie')then stars[self[field]]=true end end
@@ -66,7 +71,11 @@ return function(mod,palette,active)
     if color then clear(0,0,0,0)else paper(0,0,160,144)end
     G.pop()
     G.rectangle=function(mode,x,y,w,h,...)
-     local r,g,b=G.getColor()
+     local r,g,b,a=G.getColor()
+     if path=='src.ui.IntroMovie' and self.phase==3 and mode=='fill'
+       and x==0 and w==160 and h==32 and (y==0 or y==112)then
+      pendingBars={r,g,b,a}
+     end
      -- Game Freak splash bars are decorative masks, not foreground artwork.
      if path=='src.ui.IntroMovie' and self.phase==2 and mode=='fill'
        and x==0 and w==160 and h==32 and (y==0 or y==112) then return end
