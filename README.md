@@ -1,3 +1,7 @@
+# Menu Customizer 3.2.107
+
+Render one background across the entire intro/title window. Remove the second background from the central game canvas, retain transparent foreground art, and use the full window aspect ratio for patterns, including 32:9. Restart the game to load the fix. Tests skipped as requested.
+
 # Menu Customizer 3.2.106
 
 Extend customized intro and start-screen backgrounds to the entire window, including ultrawide side areas. Continue patterns at the original game scale and origin rather than stretching the background. Keep foreground art, text, and menu placement unchanged. Default white remains white when no background is selected. Restart the game to load the update. Tests skipped as requested.

@@ -1,12 +1,12 @@
 -- Replace white boot-screen paper while preserving native state/input flow.
 return function(mod,palette,active)
- local G=love.graphics;local keyShader;local starShader;local pending=false
+ local G=love.graphics;local keyShader;local starShader;local pending=false;local wideArea={0,0,160,144}
  local function backgroundColor()
   local n=tonumber(mod.options:get('introBackgroundColor')or mod.save:get('introBackgroundColor'))or 0
   return n>0 and palette.color('background',n-1)or nil
  end
  local function extendedPaper(color,fn,...)
-  local prior=palette.effects.paperArea;palette.effects.paperArea={0,0,160,144}
+  local prior=palette.effects.paperArea;palette.effects.paperArea=wideArea
   local result={pcall(palette.paint,color,fn,...)};palette.effects.paperArea=prior
   if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
  end
@@ -17,6 +17,7 @@ return function(mod,palette,active)
   if sx<=0 or sy<=0 then return result end
   local x,y=-ctx.ox/sx,-ctx.oy/sy
   local w,h=ctx.ww/sx,ctx.wh/sy
+  wideArea={x,y,w,h}
   G.push('all');G.origin();G.setShader();G.setScissor();G.translate(ctx.ox,ctx.oy);G.scale(sx,sy)
   local color=backgroundColor()
   if color then extendedPaper(color,G.rectangle,'fill',x,y,w,h)
@@ -56,11 +57,14 @@ return function(mod,palette,active)
     local color=n>0 and palette.color('background',n-1)or nil
     local rectangle,imageDraw,clear=G.rectangle,G.draw,G.clear
     local function paper(x,y,w,h)
-     if color then return extendedPaper(color,rectangle,'fill',x,y,w,h)end
+     -- The full-window pass owns customized paper; this canvas is foreground only.
+     if color then return end
      return rectangle('fill',x,y,w,h)
     end
     if not keyShader then keyShader=G.newShader([[vec4 effect(vec4 c,Image tex,vec2 uv,vec2 p){vec4 v=Texel(tex,uv);if(min(v.r,min(v.g,v.b))>.985)v.a=0.0;return v*c;}]])end
-    G.push('all');G.setShader();G.setColor(1,1,1,1);paper(0,0,160,144);G.pop()
+    G.push('all');G.setShader();G.setColor(1,1,1,1)
+    if color then clear(0,0,0,0)else paper(0,0,160,144)end
+    G.pop()
     G.rectangle=function(mode,x,y,w,h,...)
      local r,g,b=G.getColor()
      if mode=='fill'and r>.985 and g>.985 and b>.985 then return paper(x,y,w,h)end
