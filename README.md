@@ -1,3 +1,7 @@
+Menu Customizer 3.23.8 - Standalone Pokedex formatting
+
+Without KIM1025, wrap descriptions to the actual font width and frame interior with small insets and three rows per page. Show Height in feet/inches and Weight in pounds, replacing metric/abbreviated labels. KIM presentation remains cooperative.
+
 Menu Customizer 3.23.7 - Player and rival name casing
 
 Read names from the actual save.player.name / save.player.rival fields and Continue summary saves. Sentence Case and Title Case show only the first name letter capitalized. Vanilla and lowercase modes remain unchanged.
