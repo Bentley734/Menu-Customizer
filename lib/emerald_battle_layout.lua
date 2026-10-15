@@ -116,10 +116,21 @@ return function(G,mod)
   for row,n in ipairs(rowLines)do tops[row]=top;heights[row]=pane.h*n/totalLines;top=top+heights[row]end
   local priorFactor=factor;factor=math.min(factor,1)
   local sx,sy,dx,dy=scale({w=cell.w,h=pane.h/totalLines},width+12,16,viewport);factor=priorFactor
+  if list then
+   local pixels=math.max(1,math.floor(math.min(sx*dx*2,cell.w*dx/(width+12),pane.h*dy/(10*totalLines))))
+   sx,sy=pixels/dx,pixels/dy
+  end
   for i,s in ipairs(names)do
    local row=math.floor((i-1)/columns)+1
    local c={x=pane.x+(i-1)%columns*cell.w,y=tops[row],w=cell.w,h=heights[row]}
-   label(F,s,c,sx,sy,dx,dy,'narrow',colors(),i==(battle.moveIndex or 1)or i==battle.moveSwapIndex,true)
+   if list then
+    local x=mod.exports.allFonts.align(c.x+12*sx,c.w-12*sx,measure(s)*sx,'battle',2)
+    local y=c.y+(c.h-10*sy)/2-3*sy
+    at(c,sx,sy,dx,dy,x,y,function()
+     F.draw(s,0,0,{font='narrow',colors=colors()})
+     if i==(battle.moveIndex or 1)or i==battle.moveSwapIndex then F.drawGlyph(F.CHAR_SELECTOR_ARROW,-10,0,{colors=colors()})end
+    end)
+   else label(F,s,c,sx,sy,dx,dy,'narrow',colors(),i==(battle.moveIndex or 1)or i==battle.moveSwapIndex,true)end
   end
   local move=battle.player and battle.player.curMoves and battle.player.curMoves[battle.moveIndex or 1]
   local def=move and battle.data.moves[move.id]
@@ -133,11 +144,12 @@ return function(G,mod)
    local lines={'PP',pp:gsub('%s+',''),'TYPE',kind}
    local widest=0;for _,text in ipairs(lines)do widest=math.max(widest,F.measure(text,{font='narrow'})or 0)end
    local rsx,rsy,rdx,rdy=scale(right,widest+4,64,viewport)
+   if list then local pixels=math.max(1,math.floor(math.min(rsx*rdx*2,right.w*rdx/(widest+4),right.h*rdy/40)));rsx,rsy=pixels/rdx,pixels/rdy end
    for row,text in ipairs(lines)do
     local w=F.measure(text,{font='narrow'})or 0
     local x=right.x+(right.w-w*rsx)/2
     local fonts=mod and mod.exports.allFonts;if fonts then x=fonts.align(right.x,right.w,w*rsx,'battle',2)end
-    local y=right.y+(row-1)*right.h/4+(right.h/4-16*rsy)/2
+    local y=right.y+(row-1)*right.h/4+(right.h/4-(list and 10 or 16)*rsy)/2-(list and 3*rsy or 0)
     at(right,rsx,rsy,rdx,rdy,x,y,function()
      F.draw(text,0,0,{font='narrow',colors=row==2 and colors(move.pp or 0,maximum)or colors()})
     end)

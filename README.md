@@ -1,3 +1,7 @@
+# Menu Customizer 3.30.1 — Larger move-list text
+
+Increase list-view move names and PP/type text toward twice the previous integer pixel scale, fitting by actual glyph ink height instead of unused font-cell padding. Keep the frame unchanged and retain independent rows, selector space and right-side details. Constrain exceptionally long labels to their available width using whole pixels. Final-window integer glyph and HUD regression checks passed. Restart after updating.
+
 # Menu Customizer 3.30.0 — HP gauge colors and move-learning dialogue
 
 Add BATTLE HP BAR OUTLINE and BATTLE HP BAR FILL color controls with native defaults and the existing color/animation picker. Gauge outlines and fill pixels are masked separately; native HP thresholds remain the default. The small gauge cap follows the outline override when selected and otherwise stays black.
