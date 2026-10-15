@@ -4,6 +4,7 @@ return function(mod)
  local M={}
  function M.defer(battle,rect)
   local source=G.getCanvas();if not source or replay then return false end
+  if not mod.exports.battleUi.nativeEmerald.canPresent(battle)then return false end
   pending[source]={battle=battle,rect=rect};return true
  end
  local clear=G.clear
@@ -11,7 +12,7 @@ return function(mod)
  local draw=G.draw
  G.draw=function(source,...)
   local item=not replay and pending[source];local args={...}
-  if item then local stack=item.battle.game and item.battle.game.stack;if stack and stack.top and stack:top()and stack:top()~=item.battle then item=nil end end
+  if item and not mod.exports.battleUi.nativeEmerald.canPresent(item.battle)then item=nil end
   local out={draw(source,...)}
   if item and type(args[1])=='number'and(args[3]or 0)==0 then
    local x,y,sx,sy=args[1],args[2]or 0,args[4]or 1,args[5]or args[4]or 1

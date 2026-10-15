@@ -95,6 +95,14 @@ function love.load()
   end end
   battle.game=game;game.stack.states={battle,{screenId='MoveLearnMenu'}}
   assert(not api.battleUi.drawBottom(battle,{x=0,y=0,w=800,h=200},{}),'Old level-up dialogue overpainted move-learning screen')
+  battle.phase='messages';battle.shown={require('src.render.Font').encode('SQUIRTLE grew'),require('src.render.Font').encode('to level 6!')}
+  game.stack.states={battle,setmetatable({},B.StatBox)}
+  assert(api.battleUi.nativeEmerald.canPresent(battle),'Stat box hid level-up dialogue')
+  local native=G.newCanvas(160,144);G.setCanvas(native);G.origin();G.clear(0,0,0,0);B.drawTextArea(battle)
+  local intermediate=G.newCanvas(1280,832);G.setCanvas(intermediate);G.origin();G.clear(0,0,0,0);G.setColor(1,1,1,1);G.draw(native,17.3,4.7,0,5.13,4.81)
+  assert(count==0,'Level-up text was rasterized in an intermediate canvas')
+  G.setCanvas();G.origin();G.clear(.1,.1,.1,1);G.draw(intermediate,3.4,2.6,0,.91,.87)
+  assert(count>0,'Level-up dialogue missing beneath stat box')
   game.stack.states={}
   assert(properM,'Title-case Pokemon m was not exercised')
   assert(not M.current and not api.previewScope,'surface scope leaked')

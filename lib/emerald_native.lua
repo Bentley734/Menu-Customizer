@@ -238,9 +238,15 @@ return WideBattle
     function C.textOrigin(id)return (unpack or table.unpack)(assert(origins[id]))end
     return F,C
   end
-  function M.bottom(battle,generation,rect,custom,viewport)
+  function M.canPresent(battle)
     local stack=battle.game and battle.game.stack
-    if stack and stack.top and stack:top()and stack:top()~=battle then return false end
+    local top=stack and stack.top and stack:top()
+    if not top or top==battle then return true end
+    -- StatBox overlays the ongoing level-up message; other child screens own it.
+    return mod.generation==1 and getmetatable(top)==require('src.battle.BattleState').StatBox
+  end
+  function M.bottom(battle,generation,rect,custom,viewport)
+    if not M.canPresent(battle) then return false end
     if battle.safari or battle.contest then return false end
     local ready=M.ready()
     local theme=bundledTheme()

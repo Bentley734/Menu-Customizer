@@ -737,7 +737,7 @@ return function(mod)
         local y=wide and 104 or 96;local h=wide and 40 or 48
         local x1,y1=G.transformPoint(0,y);local x2,y2=G.transformPoint(width,y+h)
         local deferred=mod.exports.battlePanelSurface
-        if self.phase=='menu'and deferred and deferred.defer(self,{x=x1,y=y1,w=x2-x1,h=y2-y1})then return end
+        if api.canDrawBottom(self)and deferred and deferred.defer(self,{x=x1,y=y1,w=x2-x1,h=y2-y1})then return end
         if nativeEmerald.bottom(self,mod.generation,{x=x1,y=y1,w=x2-x1,h=y2-y1,nativeWidth=width,nativeHeight=h,wide=wide},api) then
           protect(0,y,width,h);return
         end

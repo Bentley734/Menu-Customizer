@@ -1,3 +1,9 @@
+# Menu Customizer 3.32.1 — Sharp level-up dialogue
+
+Keep the battle dialogue renderer active beneath the level-up stat window and draw dialogue at the final window resolution with integer, square pixel scaling. Continue yielding to move-learning and other child dialogue screens.
+
+Keep stat values inside the selected border, including Gen4 frames. Final-window level-up, command/move rendering, stat-panel, and Gen 1–3 startup/profile checks passed. Restart after updating.
+
 # Menu Customizer 3.32.0 — Independent command options
 
 Default Fight, Pokémon, Bag and Run to the enlarged command-prompt pixel scale where their cells permit. Offer 1X to retain the previous fitted size and 2X for the enlarged default, with integer square pixels and unchanged panel bounds.

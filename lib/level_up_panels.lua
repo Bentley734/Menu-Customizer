@@ -33,9 +33,11 @@ return function(mod,ui,font,panel,compose,enabled)
     end,sw,sh,0,0)
     -- Text bypasses the tiny native canvas. Fit and snap the whole font once
     -- in the destination framebuffer, including the label/value column gap.
-    local ax,ay=G.transformPoint(x+pad,y+pad)
-    local bx,by=G.transformPoint(x+w-pad,y+h-pad)
-    local ex,ey=G.transformPoint(x+pad+1,y+pad)
+    local left,right=pad,pad
+    if ui.setting('style',1)==3 then left,right=mod.exports.borders.insets('battle',w,h)end
+    local ax,ay=G.transformPoint(x+left,y+pad)
+    local bx,by=G.transformPoint(x+w-right,y+h-pad)
+    local ex,ey=G.transformPoint(x+left+1,y+pad)
     local unit=math.sqrt((ex-ax)^2+(ey-ay)^2)
     local target=G.getCanvas and G.getCanvas()
     local physical=target and target:getDPIScale()or(G.getDPIScale and G.getDPIScale()or 1)
