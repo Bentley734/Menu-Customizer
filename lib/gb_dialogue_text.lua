@@ -9,7 +9,7 @@ return function(Font)
   if not source then return render()end
   local ax,ay=G.transformPoint(x,y);local bx,by=G.transformPoint(x+1,y);local cx,cy=G.transformPoint(x,y+1)
   local queue=M.queues[source]or{};M.queues[source]=queue
-  queue[#queue+1]={learning=Font._menuCustomizerGB.mod.exports.moveLearningProfile and Font._menuCustomizerGB.mod.exports.moveLearningProfile.active,choice=true,x=ax,y=ay,hx=bx-ax,hy=by-ay,vx=cx-ax,vy=cy-ay,nominal=nominal,render=render,color={G.getColor()}}
+  queue[#queue+1]={waveOpacity=Font._menuCustomizerGB.mod.exports.jumpWave.opacity,learning=Font._menuCustomizerGB.mod.exports.moveLearningProfile and Font._menuCustomizerGB.mod.exports.moveLearningProfile.active,choice=true,x=ax,y=ay,hx=bx-ax,hy=by-ay,vx=cx-ax,vy=cy-ay,nominal=nominal,render=render,color={G.getColor()}}
  end
  local code=Font.drawCode
  Font.drawCode=function(id,x,y,...)
@@ -21,7 +21,7 @@ return function(Font)
   local rx,ry=choice and C.drawScope and (C.resizeX or 1)or 1,choice and C.drawScope and (C.resizeY or 1)or 1
   local nominal=C.theme.enabled()and C.theme.gbAdvance(id)and C.theme.gbScale()or 1
   local queue=M.queues[source]or {};M.queues[source]=queue
-  queue[#queue+1]={learning=C.mod.exports.moveLearningProfile and C.mod.exports.moveLearningProfile.active,choice=choice,id=id,x=ax,y=ay,hx=(bx-ax)/rx,hy=(by-ay)/rx,vx=(cx-ax)/ry,vy=(cy-ay)/ry,nominal=nominal,
+  queue[#queue+1]={waveOpacity=Font._menuCustomizerGB.mod.exports.jumpWave.opacity,learning=C.mod.exports.moveLearningProfile and C.mod.exports.moveLearningProfile.active,choice=choice,id=id,x=ax,y=ay,hx=(bx-ax)/rx,hy=(by-ay)/rx,vx=(cx-ax)/ry,vy=(cy-ay)/ry,nominal=nominal,
    color={G.getColor()},args={n=select('#',...),...}}
  end
  local draw=G.draw;local replaying=false
@@ -47,7 +47,8 @@ return function(Font)
       G.origin();G.setShader();G.setColor(unpack(item.color))
       G.translate(math.floor(px*dpi+.5)/dpi,math.floor(py*dpi+.5)/dpi)
       G.scale(unit/(dpi*item.nominal),unit/(dpi*item.nominal))
-      if item.render then item.render()else code(item.id,0,0,unpack(item.args,1,item.args.n))end
+      local function ink()if item.render then item.render()else code(item.id,0,0,unpack(item.args,1,item.args.n))end end
+      if item.waveOpacity then C.mod.exports.jumpWave.withOpacity(item.waveOpacity,ink)else ink()end
      end
     end)
     G.pop();replaying=false;C.dialogueScope,C.mod.exports.choiceFontScope=prior,priorChoice

@@ -27,7 +27,15 @@ return function(G,mod)
   G.translate(math.floor(x*dx+.5)/dx,math.floor(y*dy+.5)/dy);G.scale(sx,sy)
   local ok,err=pcall(fn);G.pop();if not ok then error(err,0)end
  end
- local function label(F,s,rect,sx,sy,dx,dy,font,colors,cursor,centerName)
+ local function waveDraw(F,s,x,y,opts,owner,index,selected)
+  local wave=mod and mod.exports.jumpWave
+  if selected and wave and wave.enabled()then
+   wave.select(owner,index,s)
+   return wave.draw(F.draw,function(c)return F.measure(c,opts)or 0 end,s,x,y,opts)
+  end
+  return F.draw(s,x,y,opts)
+ end
+ local function label(F,s,rect,sx,sy,dx,dy,font,colors,cursor,centerName,owner,index)
   local width=F.measure(s,{font=font})or 0
   local reserve=12*sx
   local x=rect.x+reserve
@@ -37,7 +45,7 @@ return function(G,mod)
   local _,breaks=s:gsub('\n','')
   local y=rect.y+(rect.h-16*(breaks+1)*sy)/2
   at(rect,sx,sy,dx,dy,x,y,function()
-   F.draw(s,0,0,{font=font,colors=colors})
+   waveDraw(F,s,0,0,{font=font,colors=colors},owner,index,cursor)
    if cursor then F.drawGlyph(F.CHAR_SELECTOR_ARROW,-10,0,{colors=colors})end
   end)
  end
@@ -81,7 +89,7 @@ return function(G,mod)
    local y=c.y+(c.h-12*sy)/2-2*sy
    local inkColors=commandOptions and commandOptions.colors(colors)or colors
    at(c,sx,sy,dx,dy,x,y,function()
-    F.draw(s,0,0,{font=commandFont,colors=inkColors})
+    waveDraw(F,s,0,0,{font=commandFont,colors=inkColors},battle,'command:'..i,i==(battle.menuIndex or 1))
     if i==(battle.menuIndex or 1)then
      local selectorColors={};for k,v in pairs(inkColors)do selectorColors[k]=v end
      local color=commandOptions and commandOptions.get('SelectorColor',-1)or -1
@@ -154,10 +162,10 @@ return function(G,mod)
     local x=mod.exports.allFonts.align(c.x+12*sx,c.w-12*sx,measure(s)*sx,'battle',2)
     local y=c.y+(c.h-10*sy)/2-3*sy
     at(c,sx,sy,dx,dy,x,y,function()
-     F.draw(s,0,0,{font='narrow',colors=colors()})
+     waveDraw(F,s,0,0,{font='narrow',colors=colors()},battle,'move:'..i,i==(battle.moveIndex or 1))
      if i==(battle.moveIndex or 1)or i==battle.moveSwapIndex then F.drawGlyph(F.CHAR_SELECTOR_ARROW,-10,0,{colors=colors()})end
     end)
-   else label(F,s,c,sx,sy,dx,dy,'narrow',colors(),i==(battle.moveIndex or 1)or i==battle.moveSwapIndex,true)end
+   else label(F,s,c,sx,sy,dx,dy,'narrow',colors(),i==(battle.moveIndex or 1)or i==battle.moveSwapIndex,true,battle,'move:'..i)end
   end
   local move=battle.player and battle.player.curMoves and battle.player.curMoves[battle.moveIndex or 1]
   local def=move and battle.data.moves[move.id]

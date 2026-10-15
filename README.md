@@ -1,3 +1,13 @@
+# Menu Customizer 3.34.0 — Stardew selector and trainer alignment
+
+Add STARDEW as an independent toggle in Selectors alongside JUMP WAVE. Combine it with existing cursor artwork. Split UTF-8 characters, retain spaces without consuming bounce phase, and alternate neighboring letters in opposite directions with a 5px sine bounce at a 450ms cycle (at 100% wave speed).
+
+Play once whenever the selected row changes: fade in over 300ms, hold for 3.5s, then ease downward 20px while fading out over 500ms. Keep it anchored to the selected menu label. The label stays faded until selection changes. Preserve fade alpha through deferred glyph replay and use integer vertical positions. Native menu rows and final-resolution battle command/move labels share the effect; original Jump Wave remains available.
+
+Move the native Gen 1 player trainer back sprite down exactly 2 logical pixels with Gen4 battle borders, extending its clip by the same amount so its feet sit on the visible frame top. Other borders and Pokémon back sprites retain their placement.
+
+GPU checks cover alternate letter phases, Unicode/spaces, one-shot timing, fade/error-state cleanup, companion marker preservation, Gen4 trainer offset/clipping, battle integer text, move-learning layering, native backgrounds, and Gen 1–3 startup/profile regressions. Restart after updating.
+
 # Menu Customizer 3.33.2 — Full-window battle backgrounds
 
 Paint native Gen 1 battle backgrounds across the full destination window, including letterbox margins. Keep the logical battle canvas transparent behind actors and HUD elements, and propagate backdrop ownership through intermediate canvases. Patterns and animations share one continuous destination backdrop. Sprite, HUD, dialogue geometry and integer text scaling remain unchanged.
