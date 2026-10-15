@@ -10,19 +10,20 @@ local rows=organize(raw,open)
 local found={}
 local function scan(list,path)
  for _,r in ipairs(list)do
-  assert(r.id~='wide_surface_mart'and r.id~='wide_surface_pc'and r.id~='wide_introSettings')
+  assert(r.id~='wide_surface_mart'and r.id~='wide_surface_pc'and r.id~='wide_surface_dialogue'and r.id~='wide_introSettings')
   found[r.id]={row=r,path=path}
   if r.children then scan(type(r.children)=='function'and r.children()or r.children,path..'/'..r.label)end
  end
 end
 scan(rows,'MENUS')
-for _,scope in ipairs({'mart','pc'})do
+for _,scope in ipairs({'mart','pc','dialogue'})do
  for suffix,page in pairs({Theme='FONT AND LAYOUT',BorderChoice='BORDERS',BackgroundColor='BACKGROUNDS',TextColor='COLORS',TextShadowColor='SHADOWS'})do
   local f=assert(found['surface_'..scope..suffix],scope..suffix)
   assert(f.path:find(page,1,true),f.path)
-  assert(f.row.label:find(scope=='mart'and'POKE MART'or'PC',1,true))
+  assert(f.row.label:find(scope=='mart'and'POKE MART'or scope=='pc'and'PC'or'DIALOGUE',1,true))
  end
 end
+assert(found.wide_allFonts.path=='MENUS/TEXT/FONT AND LAYOUT')
 for id,f in pairs(found)do
  if id:find('intro',1,true)then assert(not f.path:find('INTRO / START SCREEN',1,true))end
 end

@@ -1,3 +1,7 @@
+Menu Customizer 3.6.2 - Dialogue and font navigation
+
+Dialogue controls now live in the existing Text, Borders and Backgrounds submenus. ALL FONTS is under TEXT > FONT AND LAYOUT. Saved settings are preserved.
+
 Menu Customizer 3.6.1 - Settings navigation
 
 Poke Mart, PC and Intro/Start options now live in the existing customization categories. Decorative backgrounds share one DESIGNS list; animated borders share one ANIMATED BORDERS list. Saved settings and design IDs are unchanged.

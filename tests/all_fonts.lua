@@ -25,6 +25,8 @@ C.write(game,A.values('menu_fx_outline',1));for _,prefix in ipairs(effects)do as
 C.write(game,A.values('textCase',2));assert(bucket.textCase==2 and bucket.introTextCase==2)
 -- The organizer must retain one group instead of flattening the font page.
 local raw=C.rows(function()end);local roots=assert(loadfile(sourceRoot..'/lib/menu_organization.lua'))()(raw,function()end)
-assert(roots[1].id=='wide_allFonts'and roots[1].children and #roots[1].children==7)
+local fonts=roots[1].children[1].children[1]
+assert(roots[1].label=='TEXT'and roots[1].children[1].label=='FONT AND LAYOUT')
+assert(fonts.id=='wide_allFonts'and fonts.children and #fonts.children==7)
 assert(game.writes>0 and not C.preview and not api.menuSurfaces.current)
 print('PASS all-font styles, colors, shadows, alignment, effects, case, persistence and navigation')
