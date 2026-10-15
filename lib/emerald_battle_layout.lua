@@ -76,8 +76,9 @@ return function(G,mod)
   return true
  end
  local function moves(F,battle,rect,custom,colors,typeName,viewport)
-  custom.frames('moves',rect,viewport)
-  local pane=inner(rect,0,rect.w*2/3)
+  custom.frames('none',rect,viewport)
+  local interior=inner(rect,0,rect.w)
+  local pane={x=interior.x,y=interior.y,w=interior.w*.6,h=interior.h}
   local cell={w=pane.w/2,h=pane.h/2}
   local names,lines={},{};local rowLines={1,1}
   local function measure(s)return F.measure(s,{font='narrow'})or 0 end
@@ -121,7 +122,8 @@ return function(G,mod)
    local maximum=move.maxPp or base+(move.ppUps or 0)*math.floor(base/5)
    local pp=string.format('%2d/%2d',move.pp or 0,maximum)
    local kind=typeName(def.type,battle.data)
-   local right=inner(rect,rect.w*2/3,rect.w/3)
+   local gap=4*rect.h/48
+   local right={x=interior.x+interior.w*.6+gap,y=interior.y,w=interior.w*.4-gap,h=interior.h}
    local lines={'PP',pp:gsub('%s+',''),'TYPE',kind}
    local widest=0;for _,text in ipairs(lines)do widest=math.max(widest,F.measure(text,{font='narrow'})or 0)end
    local rsx,rsy,rdx,rdy=scale(right,widest+4,64,viewport)

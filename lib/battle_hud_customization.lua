@@ -89,6 +89,7 @@ return function(mod)
     tiles();local base=images[image]
     if base and quad then
      local x,y=quad:getViewport();local width=image:getWidth();local code=base+y/8*(width/8)+x/8
+     if code==0x73 then return end -- upper vertical HUD extension
      if code==0x6E then chosen='Level'
      elseif code==0x71 then chosen='HP'
      elseif code==0x73 or code==0x74 or code==0x76 or code==0x77 or code==0x78 or code==0x6F then chosen='Frame'end

@@ -1,3 +1,9 @@
+# Menu Customizer 3.26.1 — Larger move details
+
+Use one continuous frame for move selection, removing the space and duplicate borders between the move list and details. Widen the PP/type column and enlarge its four text lines using the recovered interior space. Full move names retain automatic wrapping when needed.
+
+Remove the upper vertical native HUD extension tile while retaining the customized lower status border and HP gauge. Verified rendered move details, native-canvas replay at all sizes/justifications, removed-tile transparency and palette color preservation. Restart after updating.
+
 # Menu Customizer 3.26.0 — Native battle panel fitting
 
 Fix command and move text clipping in native Gen 1/2 battles without KIM1025. Those panels now fit and rasterize at the final window destination instead of the small intermediate battle canvas. Battle dialogue retains its existing rendering. Commands retain their complete labels and prompt.
