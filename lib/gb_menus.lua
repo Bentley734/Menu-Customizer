@@ -650,7 +650,7 @@ return function(mod,catalog)
  end
  function Page:drawPreview()
   Font.drawBox(0,0,20,18)
-  G.setColor(0,0,0,1);C.compactText=true;Font.draw(self.title,8,10);C.compactText=nil
+  G.setColor(0,0,0,1);C.compactText=true;local titleLeft=select(1,C.borders.insets('option',160,144));Font.draw(self.title,titleLeft,10);C.compactText=nil
   for slot=1,(self.detail and 4 or 7) do
    local i=self.scroll+slot;local row=self.rows[i]
    if i<=#self.rows+1 then
