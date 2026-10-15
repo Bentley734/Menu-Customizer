@@ -183,6 +183,9 @@ return function(mod)
     out[#out+1]={id=ID..':font_size',label='BATTLE FONT SIZE',
       value=function()return ({'NORMAL','LARGE (150%)','EXTRA LARGE (200%)'})[setting('font_size',0)+1]end,
       step=function(ctx,dir)return persist(ctx,'font_size',(setting('font_size',0)+(dir and dir<0 and -1 or 1))%3)end}
+    if mod.generation<3 then out[#out+1]={id=ID..':move_layout',label='BATTLE MOVE LAYOUT',
+      value=function()return setting('move_layout',0)==1 and'LIST'or'GRID'end,
+      step=function(ctx)return persist(ctx,'move_layout',1-setting('move_layout',0))end}end
     out[#out+1] = {id=ID..':opacity',label='BATTLE OPACITY',
       value=function() return tostring(setting('opacity',100))..'%' end,
       step=function(ctx,dir)
@@ -453,6 +456,11 @@ return function(mod)
         end
       end
     end
+    local navigation=B.moveGridNavigation
+    if navigation then B.moveGridNavigation=function(self,...)
+      if enabled()and(setting('style',1)~=1 or battleFont.isEmerald())then return setting('move_layout',0)~=1 end
+      return navigation(self,...)
+    end end
     local method = mod.generation==2 and 'drawBottom' or 'drawTextArea'
     local draw = B[method]
     local mode, battle, wide, offset = nil,nil,false,0

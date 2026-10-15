@@ -79,8 +79,11 @@ return function(G,mod)
   custom.frames('none',rect,viewport)
   local interior=inner(rect,0,rect.w)
   local pane={x=interior.x,y=interior.y,w=interior.w*.6,h=interior.h}
-  local cell={w=pane.w/2,h=pane.h/2}
-  local names,lines={},{};local rowLines={1,1}
+  local list=custom.setting('move_layout',0)==1
+  local columns=list and 1 or 2
+  local rowCount=list and 4 or 2
+  local cell={w=pane.w/columns,h=pane.h/rowCount}
+  local names,lines={},{};local rowLines={};for i=1,rowCount do rowLines[i]=1 end
   local function measure(s)return F.measure(s,{font='narrow'})or 0 end
   local nominal=math.max(1,math.floor(math.min(pane.h/64,cell.w/50)))
   local budget=math.max(16,cell.w/nominal-14)
@@ -103,16 +106,17 @@ return function(G,mod)
    local move=battle.player and battle.player.curMoves and battle.player.curMoves[i]
    local def=move and battle.data.moves[move.id]
    names[i],lines[i]=wrap(def and def.name or '-')
-   rowLines[math.floor((i-1)/2)+1]=math.max(rowLines[math.floor((i-1)/2)+1],lines[i])
+   local row=math.floor((i-1)/columns)+1;rowLines[row]=math.max(rowLines[row],lines[i])
    width=math.max(width,measure(names[i]))
   end
-  local totalLines=rowLines[1]+rowLines[2]
-  local heights={pane.h*rowLines[1]/totalLines,pane.h*rowLines[2]/totalLines}
+  local totalLines=0;for _,n in ipairs(rowLines)do totalLines=totalLines+n end
+  local heights,tops={},{};local top=pane.y
+  for row,n in ipairs(rowLines)do tops[row]=top;heights[row]=pane.h*n/totalLines;top=top+heights[row]end
   local priorFactor=factor;factor=math.min(factor,1)
   local sx,sy,dx,dy=scale({w=cell.w,h=pane.h/totalLines},width+12,16,viewport);factor=priorFactor
   for i,s in ipairs(names)do
-   local row=math.floor((i-1)/2)+1
-   local c={x=pane.x+(i-1)%2*cell.w,y=pane.y+(row==2 and heights[1]or 0),w=cell.w,h=heights[row]}
+   local row=math.floor((i-1)/columns)+1
+   local c={x=pane.x+(i-1)%columns*cell.w,y=tops[row],w=cell.w,h=heights[row]}
    label(F,s,c,sx,sy,dx,dy,'narrow',colors(),i==(battle.moveIndex or 1)or i==battle.moveSwapIndex,true)
   end
   local move=battle.player and battle.player.curMoves and battle.player.curMoves[battle.moveIndex or 1]

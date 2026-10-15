@@ -1,3 +1,9 @@
+# Menu Customizer 3.27.0 — Move layout and navigation
+
+Fix Left/Right navigation in the customized Gen 1/2 move grid by matching the native navigation mode to the displayed layout. Add BATTLE MOVE LAYOUT (GRID / LIST) under Menus → Text → Font and Layout → Battle. Grid is the default and supports all four directions. List displays four vertical entries with Up/Down navigation. Native confirmation, cancellation and move swapping are retained.
+
+Validated all four directions for one to four available moves, adjacent Left/Right movement, layout navigation mode, and rendered grid/list native replay at all three sizes and alignments. Restart after updating.
+
 # Menu Customizer 3.26.1 — Larger move details
 
 Use one continuous frame for move selection, removing the space and duplicate borders between the move list and details. Widen the PP/type column and enlarge its four text lines using the recovered interior space. Full move names retain automatic wrapping when needed.
