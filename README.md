@@ -1,3 +1,7 @@
+Menu Customizer 3.19.0 - Load Report customization
+
+Adds independent Gen 1/2 Load Report font style, colors/shadows, case, alignment, background and border. Settings are organized in existing TEXT/BACKGROUNDS/BORDERS menus, with LOAD REPORT under FONT AND LAYOUT. Global controls and themes include this surface. Native report content, scrolling and Continue input remain unchanged.
+
 Menu Customizer 3.18.2 - Optional copyright dates
 
 Restore company-name-only customized credits by default. TEXT > FONT AND LAYOUT > INTRO / TITLE > INTRO COPYRIGHT DATES optionally shows the full version-specific copyright prefixes on intro credits and the title screen. Native credits remain unchanged.

@@ -69,8 +69,9 @@ return function(mod)
   local palette=assert(mod.exports.selectorPalette)
   local catalog=mod.exports.borderCatalog or assert(load(assert(mod:read('lib/border_catalog.lua'))))()
   local result={}
-  for _,scope in ipairs({'mart','pc','dialogue'})do
-   local label=scope=='mart'and'POKE MART'or scope=='pc'and'PC MENUS'or'DIALOGUE BOXES'
+  local scopes={'mart','pc','dialogue'};if mod.generation<3 then scopes[#scopes+1]='loadReport'end
+  for _,scope in ipairs(scopes)do
+   local label=scope=='mart'and'POKE MART'or scope=='pc'and'PC MENUS'or scope=='loadReport'and'LOAD REPORT'or'DIALOGUE BOXES'
    local rows={}
    local function write(ctx,key,n)
     local values={[key]=n,borderCatalogFormat=2}
@@ -99,7 +100,7 @@ return function(mod)
    add('BackgroundColor','BACKGROUND',0,0,#palette.menuBackgroundNames-1,palette.menuBackgroundNames,'menuBackground','menuBackgroundColor')
    add('TextColor','TEXT COLOR',0,0,#palette.names-1,palette.names,'text','menuTextColor')
    add('TextShadowColor','TEXT SHADOW',0,0,#palette.shadowNames-1,palette.shadowNames,'shadow','menuTextShadowColor')
-   if scope=='dialogue'then add('Justify','ALIGNMENT',1,1,3,{'LEFT','CENTER','RIGHT'})end
+   if scope=='dialogue'or scope=='loadReport'then add('Justify','ALIGNMENT',1,1,3,{'LEFT','CENTER','RIGHT'})end
    rows[#rows+1]={id='surface_'..scope..'Reset',label=scope=='dialogue'and'RESET DIALOGUE'or'USE MENU STYLE',activate=function(ctx)
     local values={}
     if scope=='dialogue'then values={dialogueTheme=2,dialogueBorderChoice=0,dialogueBorder=0,dialogueBackgroundColor=0,dialogueTextColor=0,dialogueTextShadowColor=0,dialogueJustify=1}
@@ -186,6 +187,7 @@ return function(mod)
     end
    end
    for _,path in ipairs({'src.ui.Menu','src.ui.ListMenu','src.ui.ChoiceBox','src.ui.QuantityBox','src.render.TextBox','src.ui.BoxMenu'})do constructor(path)end
+   constructor('src.ui.QuarantineReport','loadReport')
    if mod.generation==1 then
     constructor('src.ui.ShopMenu','mart');constructor('src.ui.PlayerPC','pc');constructor('src.ui.LeaguePC','pc')
     local World=require('src.world.OverworldController');local open=World.openPC

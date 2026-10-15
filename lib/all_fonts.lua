@@ -58,7 +58,7 @@ return function(mod)
  end
  local function enabled()
   local surfaces=mod.exports.menuSurfaces
-  return surfaces and surfaces.enabled()and mod.options:get('allFontAlign')~=nil
+  return surfaces and surfaces.enabled()and (mod.options:get('allFontAlign')~=nil or mod.options:get('loadReportJustify')~=nil)
  end
  local frames,scope,printing,anchors
  local function within(fn,group,initial,...)
@@ -120,6 +120,7 @@ return function(mod)
     return box(x,y,w,h,...)
    end
    hook(require('src.ui.Menu'),'draw','menu')
+   hook(require('src.ui.QuarantineReport'),'draw','loadReport')
    hook(require('src.ui.ListMenu'),'draw','menu',function(self)
     local width=136
     for _,item in ipairs(self.items or{})do if item.right and not self.dialogue then width=math.min(width,132-F.width(item.right))end end

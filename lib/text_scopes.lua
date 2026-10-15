@@ -3,7 +3,7 @@ return function(mod)
  local M={};mod.exports.textScopes=M
  M.scopes={{'menu','MENUS'},{'start','START MENU'},{'option','OPTIONS'},{'dialogue','DIALOGUE'},{'intro','INTRO / TITLE'},
  {'saveSummary','SAVE SUMMARY'},{'mart','POKE MART'},{'pc','PC'},{'battle','BATTLE'},{'battleName','BATTLE NAMES'},
- {'party','PARTY'},{'bag','BAG'},{'summary','POKEMON SUMMARY'},{'pokedex','POKEDEX'},{'trainerCard','TRAINER CARD'},{'other','OTHER MENUS'}}
+ {'party','PARTY'},{'bag','BAG'},{'summary','POKEMON SUMMARY'},{'pokedex','POKEDEX'},{'trainerCard','TRAINER CARD'},{'other','OTHER MENUS'},{'loadReport','LOAD REPORT'}}
  function M.currentScope()
   local e=mod.exports;local c=e.gbMenus
   if c and c.introScope then return'intro'end
@@ -61,7 +61,7 @@ return function(mod)
   if mod.generation<3 then
    local prefix=mod.generation==2 and'src.ui.gen2.'or'src.ui.'
    for _,s in ipairs({{'PartyMenu','party'},{'BagMenu','bag'},{'SummaryMenu','summary'},{'PokedexMenu','pokedex'},{'TrainerCard','trainerCard'},{'StartMenu','start'}})do specs[#specs+1]={prefix..s[1],s[2]}end
-   specs[#specs+1]={'src.ui.gen2.PackMenu','bag'};specs[#specs+1]={'src.ui.OptionsMenu','option'};specs[#specs+1]={'src.ui.gen2.OptionsMenu','option'}
+   specs[#specs+1]={'src.ui.QuarantineReport','loadReport'};specs[#specs+1]={'src.ui.gen2.PackMenu','bag'};specs[#specs+1]={'src.ui.OptionsMenu','option'};specs[#specs+1]={'src.ui.gen2.OptionsMenu','option'}
   else
    for _,s in ipairs({{'party_menu','party'},{'bag_menu','bag'},{'summary_menu','summary'},{'pokedex','pokedex'},{'trainer_card','trainerCard'},{'start_menu','start'},{'option_menu','option'}})do
     for _,prefix in ipairs({'src.ui.game3.','src.ui.game3.rse.','src.ui.game3.rs.'})do specs[#specs+1]={prefix..s[1],s[2]}end

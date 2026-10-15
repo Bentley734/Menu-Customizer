@@ -4,7 +4,7 @@ local M=assert(mod.menuSurfaces)
 local game={data=data,options=opts,mods=loader,writeOptions=function(self)self.writes=(self.writes or 0)+1 end}
 game.stack={states={},push=function(self,state)self.states[#self.states+1]=state end,top=function(self)return self.states[#self.states]end}
 local rows=M.rows(function(title,children,ctx)game.stack:push{title=title,rows=children}end)
-assert(#rows==3 and rows[1].label=='POKE MART'and rows[2].label=='PC MENUS'and rows[3].label=='DIALOGUE BOXES')
+assert((#rows==3 or #rows==4)and rows[1].label=='POKE MART'and rows[2].label=='PC MENUS'and rows[3].label=='DIALOGUE BOXES')
 local function find(scope,suffix)
  for _,r in ipairs(rows[scope].children)do if r.id=='surface_'..suffix then return r end end
  error('Missing setting: '..suffix)
