@@ -250,6 +250,10 @@ return WideBattle
     if battle.phase=='menu' and custom.emeraldLayout and custom.frames then
       return custom.emeraldLayout.commands(F,battle,generation,rect,custom,M.presentationColors(),viewport)
     end
+    if battle.phase~='menu' and custom.emeraldLayout and custom.frames then
+      custom.emeraldLayout.dialogue(F,battle,generation,rect,custom,M.presentationColors(),viewport,M.decode)
+      return true
+    end
     G.push('all')
     local ok,err=pcall(function()
       local menu=battle.phase=='menu'

@@ -60,6 +60,33 @@ for generation=1,3 do
   check(names[1]=='FIGHT'and names[2]==(generation<3 and 'POKéMON'or'BAG')and names[3]==(generation<3 and 'BAG'or'POKéMON')and names[4]=='RUN','command labels match native generation action order')
  end
 end
+-- Large/custom selectors retain their complete 16-pixel footprint.
+F.drawGlyph=function(id,x,y,opts)
+ glyphs[#glyphs+1]={s=id,x=t.x+x*t.sx,y=t.y+y*t.sy,sx=t.sx,sy=t.sy,width=16*t.sx,height=16*t.sy}
+end
+for _,factor in ipairs({1,1.5,2})do
+ custom.fontSizing={factor=function()return factor end,unscaled=function(fn)return fn()end}
+ for _,rect in ipairs({{x=160,y=880,w=1408,h=416},{x=0,y=432,w=960,h=168}})do
+  for index=1,4 do
+   for _,mode in ipairs({'commands','moves'})do
+    glyphs,frameCalls={},{}
+    battle.menuIndex=index;battle.moveIndex=index
+    if mode=='commands'then layout.commands(F,battle,1,rect,custom,{}, {})
+    else layout.moves(F,battle,rect,custom,function()return{}end,function(s)return s end,{})end
+    check(frameCalls[1].rect==rect,'large font must retain original frame rectangle')
+    for i,g in ipairs(glyphs)do
+     check(g.x>=rect.x and g.x+g.width<=rect.x+rect.w,'text/selector stays in frame horizontally')
+     check(g.y>=rect.y and g.y+g.height<=rect.y+rect.h,'text/selector stays in frame vertically')
+     check(g.sx==math.floor(g.sx)and g.sy==math.floor(g.sy),'final glyph scale uses integer pixels')
+     if g.s==F.CHAR_SELECTOR_ARROW then
+      local name=glyphs[i-1]
+      check(g.x+g.width<name.x,'full custom selector clears the selected label')
+     end
+    end
+   end
+  end
+ end
+end
 F.draw=function()error('Emerald font failure')end
 check(not pcall(api.draw,battle,{x=0,y=0,w=774,h=232},{}),'Emerald font errors propagate')
 check(depth==0,'font error restores all pane transforms')

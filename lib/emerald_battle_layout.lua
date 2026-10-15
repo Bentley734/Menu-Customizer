@@ -5,10 +5,12 @@ return function(G)
   local edge=8*rect.h/48
   return {x=rect.x+x+edge,y=rect.y+edge,w=math.max(1,w-2*edge),h=math.max(1,rect.h-2*edge)}
  end
+ local factor=1
  local function scale(rect,width,height,viewport)
   local dx,dy=tonumber(viewport and viewport.dpiX)or 1,tonumber(viewport and viewport.dpiY)or 1
   if dx<=0 then dx=1 end;if dy<=0 then dy=1 end
-  local p=math.min(rect.w*dx/math.max(1,width),rect.h*dy/height)
+  local normal=math.min(rect.w*dx/math.max(1,width),rect.h*dy/height)
+  local p=math.min(normal*factor,rect.w*dx/math.max(1,width),rect.h*dy/(height>18 and 32 or 16))
   if p>=1 then p=math.floor(p)end
   return p/dx,p/dy,dx,dy
  end
@@ -20,15 +22,16 @@ return function(G)
  end
  local function label(F,s,rect,sx,sy,dx,dy,font,colors,cursor,centerName)
   local width=F.measure(s,{font=font})or 0
-  local x=rect.x+8*sx
-  if centerName then x=rect.x+(rect.w-width*sx)/2 end
+  local reserve=20*sx
+  local x=rect.x+reserve
+  if centerName then x=rect.x+reserve+(rect.w-reserve-width*sx)/2 end
   local y=rect.y+(rect.h-16*sy)/2
   at(rect,sx,sy,dx,dy,x,y,function()
    F.draw(s,0,0,{font=font,colors=colors})
-   if cursor then F.drawGlyph(F.CHAR_SELECTOR_ARROW,-9,0,{colors=colors})end
+   if cursor then F.drawGlyph(F.CHAR_SELECTOR_ARROW,-18,0,{colors=colors})end
   end)
  end
- function M.commands(F,battle,generation,rect,custom,colors,viewport)
+ local function commands(F,battle,generation,rect,custom,colors,viewport)
   custom.frames('none',rect,viewport)
   local pane=inner(rect,0,rect.w)
   local promptWidth=pane.w*.40
@@ -36,7 +39,7 @@ return function(G)
   local commands=generation<3 and {'FIGHT','POKéMON','BAG','RUN'}or{'FIGHT','BAG','POKéMON','RUN'}
   local width=0;for _,s in ipairs(commands)do width=math.max(width,F.measure(s,{font='normal'})or 0)end
   local cell={w=commandWidth/2,h=pane.h/2}
-  local sx,sy,dx,dy=scale(cell,width+8,18*(custom.fontSizing and custom.fontSizing.factor()or 1),viewport)
+  local sx,sy,dx,dy=scale(cell,width+22,18,viewport)
   for i,s in ipairs(commands)do
    local c={x=pane.x+promptWidth+(i-1)%2*cell.w,y=pane.y+math.floor((i-1)/2)*cell.h,w=cell.w,h=cell.h}
    label(F,s,c,sx,sy,dx,dy,'normal',colors,i==(battle.menuIndex or 1))
@@ -46,14 +49,14 @@ return function(G)
   local name=p and p.name or mon and(mon.nickname or mon.name)or 'POKéMON'
   local first,last='What will',name..' do?'
   local left={x=pane.x,y=pane.y,w=promptWidth-4*sx,h=pane.h}
-  local px,py,pdx,pdy=scale(left,math.max(F.measure(first)or 0,F.measure(last)or 0)+8,36*(custom.fontSizing and custom.fontSizing.factor()or 1),viewport)
+  local px,py,pdx,pdy=scale(left,math.max(F.measure(first)or 0,F.measure(last)or 0)+8,36,viewport)
   local x=left.x+4*px;local y=left.y+(left.h-32*py)/2
   at(left,px,py,pdx,pdy,x,y,function()
    F.draw(first,0,0,{colors=colors});F.draw(last,0,16,{colors=colors})
   end)
   return true
  end
- function M.moves(F,battle,rect,custom,colors,typeName,viewport)
+ local function moves(F,battle,rect,custom,colors,typeName,viewport)
   custom.frames('moves',rect,viewport)
   local pane=inner(rect,0,rect.w*2/3)
   local cell={w=pane.w/2,h=pane.h/2}
@@ -64,7 +67,7 @@ return function(G)
    names[i]=def and def.name or '-'
    width=math.max(width,F.measure(names[i],{font='narrow'})or 0)
   end
-  local sx,sy,dx,dy=scale(cell,width+16,18*(custom.fontSizing and custom.fontSizing.factor()or 1),viewport)
+  local sx,sy,dx,dy=scale(cell,width+24,18,viewport)
   for i,s in ipairs(names)do
    local c={x=pane.x+(i-1)%2*cell.w,y=pane.y+math.floor((i-1)/2)*cell.h,w=cell.w,h=cell.h}
    label(F,s,c,sx,sy,dx,dy,'narrow',colors(),i==(battle.moveIndex or 1)or i==battle.moveSwapIndex,true)
@@ -79,7 +82,7 @@ return function(G)
    local right=inner(rect,rect.w*2/3,rect.w/3)
    local typeW=(F.measure('TYPE/',{font='narrow'})or 0)+(F.measure(kind)or 0)
    local ppW=(F.measure('PP',{font='narrow'})or 0)+8+(F.measure(pp)or 0)
-   local rsx,rsy,rdx,rdy=scale(right,math.max(typeW,ppW)+8,36*(custom.fontSizing and custom.fontSizing.factor()or 1),viewport)
+   local rsx,rsy,rdx,rdy=scale(right,math.max(typeW,ppW)+8,36,viewport)
    for row=0,1 do
     local w=row==0 and ppW or typeW
     local x=right.x+4*rsx
@@ -93,6 +96,41 @@ return function(G)
    end
   end
   return true
+ end
+ function M.dialogue(F,battle,generation,rect,custom,colors,viewport,decode)
+  custom.frames('none',rect,viewport)
+  local source=generation==2 and battle:messageLines()or battle.shown or{}
+  local lines={};for i,line in ipairs(source)do lines[i]=decode and decode(line)or line end
+  local pane=inner(rect,0,rect.w)
+  factor=custom.fontSizing and custom.fontSizing.factor()or 1
+  local function draw()
+   local width=0
+   for i,line in ipairs(lines)do if i<=2 then width=math.max(width,F.measure(line)or 0)end end
+   local sx,sy,dx,dy=scale(pane,width+16,36,viewport)
+   local gap=math.max(0,(pane.h-32*sy)/3)
+   for i,line in ipairs(lines)do if i<=2 then
+    at(pane,sx,sy,dx,dy,pane.x+4*sx,pane.y+gap+(i-1)*(16*sy+gap),function()F.draw(line,0,0,{colors=colors})end)
+   end end
+   local arrow=generation==2 and battle:messageArrowVisible()or battle.msgWaiting or battle.msgPrompt
+   if arrow then at(pane,sx,sy,dx,dy,pane.x+pane.w-8*sx,pane.y+pane.h-16*sy,function()F.drawGlyph(0x7A,0,0,{colors=colors})end)end
+  end
+  if custom.fontSizing and custom.fontSizing.unscaled then return custom.fontSizing.unscaled(draw)end
+  return draw()
+ end
+ local function run(fn,F,battle,rect,custom,...)
+  local args={...};factor=custom.fontSizing and custom.fontSizing.factor()or 1
+  local function draw()return fn(F,battle,rect,custom,(unpack or table.unpack)(args))end
+  if custom.fontSizing and custom.fontSizing.unscaled then return custom.fontSizing.unscaled(draw)end
+  return draw()
+ end
+ function M.commands(F,battle,generation,rect,custom,colors,viewport)
+  factor=custom.fontSizing and custom.fontSizing.factor()or 1
+  local function draw()return commands(F,battle,generation,rect,custom,colors,viewport)end
+  if custom.fontSizing and custom.fontSizing.unscaled then return custom.fontSizing.unscaled(draw)end
+  return draw()
+ end
+ function M.moves(F,battle,rect,custom,colors,typeName,viewport)
+  return run(moves,F,battle,rect,custom,colors,typeName,viewport)
  end
  return M
 end

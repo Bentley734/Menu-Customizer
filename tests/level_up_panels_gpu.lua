@@ -1,6 +1,6 @@
 local root=assert(os.getenv('MENU_WORKSPACE')):gsub('\\','/')
 local version=os.getenv('MENU_GAME')or'firered'
-local out=root..'/.work/level-up/gpu'
+local out=root..'/.work/battle-font-layout/gpu'
 local source=os.getenv('MENU_SOURCE')or root..'/MenuCustomizer'
 local engine=root..'/.work/moves-abilities/engine-0385'
 local cache=assert(os.getenv('APPDATA')):gsub('\\','/')..'/pokemon-love2d'
@@ -31,7 +31,7 @@ function love.load()
   function fs.read(p)return read(source..'/'..p:gsub('^mods/menu/',''))end
   function fs.write()return true end;function fs.createDirectory()return true end
   function fs.load(p)return loadstring(fs.read(p))end
-  local options={modOptions={gen3transparency={menuTheme=1,menuTransition=1,controlsLegend=3,opacityFormat=2,
+  local options={modOptions={gen3transparency={menuTheme=tonumber(os.getenv('MENU_FONT_THEME'))or 2,menuTransition=1,controlsLegend=3,opacityFormat=2,
    battle_style=3,battle_opacity=75,battle_background_color=5,battle_text_color=0,battle_font_size=0,battleBorderChoice=13,martCustom=1,martTheme=2,martBorderChoice=13,martBackgroundColor=10,martTextColor=0,martTextShadowColor=0,
    pcCustom=1,pcTheme=2,pcBorderChoice=13,pcBackgroundColor=6,pcTextColor=0,pcTextShadowColor=0,
    dialogueTheme=2,dialogueBorderChoice=13,dialogueBorder=1,dialogueBackgroundColor=10,dialogueTextColor=0}}}
@@ -42,9 +42,18 @@ function love.load()
   local G=love.graphics;local game={data=data,options=options,mods=loader,save={money=9000,player={money=9000},inventory={},bagOrder={}},writeOptions=function()end}
   game.stack={states={},push=function(self,s)self.states[#self.states+1]=s end,pop=function(self)return table.remove(self.states)end,top=function(self)return self.states[#self.states]end}
   local function capture(name,fn)
-   local canvas=G.newCanvas(960,600);G.setCanvas(canvas);G.origin();G.clear(.15,.2,.25,1)
+   local canvas=G.newCanvas(1728,1296);G.setCanvas(canvas);G.origin();G.clear(.15,.2,.25,1)
    G.push('all');G.translate(0,0);G.scale(GV.generation()<3 and 4 or 3.5)
-   fn();G.pop();G.setCanvas();write(version..'-'..name..'.png',canvas:newImageData():encode('png'):getString())
+   fn();G.pop();loader.hooks:call('render.hud',function()end,game,{width=1728,height=1296,dpiX=1,dpiY=1});G.setCanvas();write(version..'-'..name..'.png',canvas:newImageData():encode('png'):getString())
+  end
+  local battle={activeMon=function()return{name='SQUIRTLE'}end,phase='menu',menuIndex=2,moveIndex=2,player={name='SQUIRTLE',curMoves={{id='tackle',pp=25},{id='tailwhip',pp=30},{id='watergun',pp=25},{id='withdraw',pp=40}}},data={moves={tackle={name='TACKLE',pp=35,type='NORMAL'},tailwhip={name='TAIL WHIP',pp=30,type='NORMAL'},watergun={name='WATER GUN',pp=25,type='WATER'},withdraw={name='WITHDRAW',pp=40,type='WATER'}}}}
+  local rect={x=160,y=880,w=1408,h=416}
+  for size=0,2 do
+   options.modOptions.gen3transparency.battle_font_size=size
+   battle.phase='menu'
+   capture('commands-size'..size,function()api.battleUi.drawBottom(battle,rect,{dpiX=1,dpiY=1})end)
+   battle.phase='moveSelect'
+   capture('moves-size'..size,function()api.battleUi.moveScreen.draw(battle,rect,{dpiX=1,dpiY=1})end)
   end
   local old={maxHp=100,atk=100,def=90,spa=88,spd=87,spe=120}
   local new={maxHp=103,atk=102,def=93,spa=89,spd=90,spe=122}

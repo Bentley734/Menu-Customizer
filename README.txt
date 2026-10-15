@@ -1,3 +1,11 @@
+# Menu Customizer 3.3.3 — Crisp stats and fixed battle layouts
+
+Level-up stats now draw directly in the final framebuffer using the battle command font, with whole physical pixels. The native stat window keeps its normal-size geometry at every font setting. This replaces fractional text drawn into the tiny GB canvas.
+
+Battle command, dialogue and move frames retain their normal-size rectangles when LARGE or EXTRA LARGE is selected. Text fits the existing cells, reducing spare spacing and capping size where needed. Selectors reserve their full 16-pixel footprint and a gap before labels, including custom selectors. PP/type details stay in their own column, and native HUD anchors no longer inherit menu font enlargement. Gen 1/2 command actions and the stat confirmation flow are preserved.
+
+Validation: LuaJIT/Lua 5.3 compilation and focused regressions, 1,657 move/command layout checks covering all sizes and cursor positions, eleven-game combined KIM startup, native LOVE GPU command/move/stat rendering in Red/Gold/FireRed/Ruby/Emerald, all stat sizes/pages, and pixel-for-pixel GB stat glyph comparisons against the battle font atlas. No live playthrough was performed. Restart after installing. Johnto and other mods are unchanged.
+
 # Menu Customizer 3.3.2 — Battle command and stat corrections
 
 BAG and POKéMON now follow the native command actions in Gen 1/2; Gen 3 retains its own action order. Level-up stat text uses the same GB dialogue scale, with room for labels and values. The Gen 1 HUD yields while the native stat window is open so KIM cannot draw it over the numbers. Battle styling, font-size settings and native stat-window confirmation remain intact.

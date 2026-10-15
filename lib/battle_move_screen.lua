@@ -148,11 +148,6 @@ return function(mod)
   function api.draw(battle, rect, viewport)
     if battle.phase~='moveSelect' then return false end
     local custom=customizer()
-    local factor=custom and custom.fontSizing and custom.fontSizing.factor()or 1
-    if factor>1 then
-      local h=math.min(rect.h*factor,rect.y+rect.h)
-      rect={x=rect.x,y=rect.y+rect.h-h,w=rect.w,h=h}
-    end
     local port=custom and custom.nativeEmerald
     if custom and (custom.setting('style',1)==2 or custom.emeraldFont and custom.emeraldFont()) and port and (port.presentationReady and port.presentationReady() or port.ready()) then
       local g=love.graphics
@@ -208,6 +203,19 @@ return function(mod)
       end)
       g.pop();if not ok then error(err,0)end
       return true
+    end
+    -- Native GB font uses the same fitted cells and selector reservation.
+    -- Each native pixel is doubled in this 16-pixel font coordinate system.
+    if custom and custom.emeraldLayout and custom.fontSizing.unscaled then
+      local g=love.graphics
+      local F={CHAR_SELECTOR_ARROW=0xED,measure=function(s)return Font.width(s)*2 end}
+      local function native(draw,text,x,y)
+        g.push('all');g.translate(x,y);g.scale(2,2)
+        local ok,err=pcall(draw,text,0,0);g.pop();if not ok then error(err,0)end
+      end
+      F.draw=function(s,x,y)return native(Font.draw,s,x,y)end
+      F.drawGlyph=function(id,x,y)return native(Font.drawCode,id,x,y)end
+      return custom.emeraldLayout.moves(F,battle,rect,custom,function()return{}end,TypeChart.displayName,viewport)
     end
     local g=love.graphics
     local p=api.layout(rect,viewport and viewport.dpiX,viewport and viewport.dpiY)

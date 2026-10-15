@@ -3,9 +3,18 @@ return function(mod,enabled)
  local G=love.graphics;local M={depth=0,scopeDepth=0}
  local unpack=unpack or table.unpack
  function M.factor()
+  -- Native HUD tiles have fixed anchors; menu text size must not move them.
+  if mod.exports.battleHudScope then return 1 end
   if not enabled()or not(M.scopeDepth>0 or mod.exports.battleFontScope or mod.exports.dialogueFontScope)then return 1 end
   local n=tonumber(mod.options:get('battle_font_size')or mod.save:get('battle_font_size'))or 0
   return ({1,1.5,2})[math.max(0,math.min(2,math.floor(n)))+1]
+ end
+ -- Final-resolution layouts fit text and selector together, then draw once.
+ function M.unscaled(fn,...)
+  M.depth=M.depth+1
+  local out={pcall(fn,...)};M.depth=M.depth-1
+  if not out[1]then error(out[2],0)end
+  return unpack(out,2)
  end
  local function fitted(f,text,opts,width)
   if not mod.exports.dialogueFixedSize and not(opts and opts._fixedSize) and type(opts)=='table'and opts.maxWidth and width and width>0 then f=math.min(f,opts.maxWidth/width)end

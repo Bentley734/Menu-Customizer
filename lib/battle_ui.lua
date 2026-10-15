@@ -842,11 +842,6 @@ return function(mod)
   end
   function api.drawBottom(battle,rect,viewport)
     if not api.canDrawBottom(battle) then return false end
-    local factor=api.fontSizing and api.fontSizing.factor()or 1
-    if factor>1 then
-      local h=math.min(rect.h*factor,rect.y+rect.h)
-      rect={x=rect.x,y=rect.y+rect.h-h,w=rect.w,h=h}
-    end
     return nativeEmerald.bottom(battle,mod.generation,rect,api,viewport)
   end
   battleFont.active=enabled

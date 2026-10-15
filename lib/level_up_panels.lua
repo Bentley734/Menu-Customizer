@@ -2,40 +2,81 @@
 return function(mod,ui,font,panel,compose,enabled)
  local G=love.graphics;local unpack=unpack or table.unpack
  local M={};ui.levelUpPanels=M
- local function render(rows,rect,native)
-  if #rows==0 then return end
+ local pending
+ local function drawPanel(rows,rect,native)
   local sw,sh=mod.generation==3 and 240 or 160,mod.generation==3 and 160 or 144
   return font.scope(function()
-   local F=font.selected;local factor=ui.fontSizing.factor()
-   -- GB dialogue fits the 240-pixel battle face into a 160-pixel surface.
-   -- Apply the same ratio here instead of enlarging the native 8-pixel face.
-   local textScale=mod.generation<3 and 2/3 or 1
-   local labelWidth,valueWidth=0,0
-   for _,row in ipairs(rows)do labelWidth=math.max(labelWidth,F.measure(row[1]));valueWidth=math.max(valueWidth,F.measure(row[2]))end
-   local pad=8
-   local w=math.min(sw,math.max(rect.w,(labelWidth+valueWidth)*textScale+8+pad*2))
-   local h=math.min(sh,math.max(rect.h,#rows*16*factor*textScale+pad*2))
-   local x=math.max(0,math.min(sw-w,rect.x+rect.w-w));local y=math.max(0,math.min(sh-h,rect.y))
-   local fit=math.min(textScale,(w-pad*2)/math.max(1,labelWidth+valueWidth+8),(h-pad*2)/(#rows*16*factor))
-   local out={compose(function()
-    if ui.setting('style',1)==1 then
-     local borders=mod.exports.borders;local prior=borders.nativeDialogue;borders.nativeDialogue=true
-     local ok,err=pcall(native,x,y,w,h);borders.nativeDialogue=prior;if not ok then error(err,0)end
-     ui.fillBackground(x,y,w,h)
-    elseif ui.setting('style',1)==3 then mod.exports.borders.drawPixels(x,y,w,h,ui.backgroundColor(),'battle')
-    else panel(x,y,w,h,false)end
+   local F=font.selected;local height,base=16,mod.generation<3 and 2/3 or 1
+   if mod.generation<3 then
+    if ui.emeraldFont and ui.emeraldFont()then F=ui.nativeEmerald.presentation()
+    else
+     local nativeFont=require('src.render.Font')
+     F={draw=nativeFont.draw,measure=nativeFont.width};height=8;base=1
+    end
+   end
+   local factor=ui.fontSizing.factor()
+   local function draw()
+    local labelWidth,valueWidth=0,0
+    for _,row in ipairs(rows)do labelWidth=math.max(labelWidth,F.measure(row[1]));valueWidth=math.max(valueWidth,F.measure(row[2]))end
+    local pad=8
+    -- Geometry depends on normal text only, never on the selected font size.
+    local w=math.min(sw,math.max(rect.w,(labelWidth+valueWidth)*base+8+pad*2))
+    local h=math.min(sh,rect.h)
+    local x=math.max(0,math.min(sw-w,rect.x+rect.w-w));local y=math.max(0,math.min(sh-h,rect.y))
+    compose(function()
+     if ui.setting('style',1)==1 then
+      local borders=mod.exports.borders;local prior=borders.nativeDialogue;borders.nativeDialogue=true
+      local ok,err=pcall(native,x,y,w,h);borders.nativeDialogue=prior;if not ok then error(err,0)end
+      ui.fillBackground(x,y,w,h)
+     elseif ui.setting('style',1)==3 then mod.exports.borders.drawPixels(x,y,w,h,ui.backgroundColor(),'battle')
+     else panel(x,y,w,h,false)end
+    end,sw,sh,0,0)
+    -- Text bypasses the tiny native canvas. Fit and snap the whole font once
+    -- in the destination framebuffer, including the label/value column gap.
+    local ax,ay=G.transformPoint(x+pad,y+pad)
+    local bx,by=G.transformPoint(x+w-pad,y+h-pad)
+    local ex,ey=G.transformPoint(x+pad+1,y+pad)
+    local unit=math.sqrt((ex-ax)^2+(ey-ay)^2)
+    local target=G.getCanvas and G.getCanvas()
+    local physical=target and target:getDPIScale()or(G.getDPIScale and G.getDPIScale()or 1)
+    local pitch=(by-ay)/#rows
+    local pixels=math.max(1,math.floor(math.min(unit*base*factor,(bx-ax-4*unit)/math.max(1,labelWidth+valueWidth),(pitch-1)/height)*physical+.00001))/physical
     local colors=ui.palette.colors('battle')
-    G.push('all');G.translate(x+pad,y+pad);G.scale(fit,fit)
-    local pitch=(h-pad*2)/(fit*#rows)
+    G.push('all');G.origin();G.setShader()
     for i,row in ipairs(rows)do
-     F.draw(row[1],0,(i-1)*pitch,{colors=colors})
-     F.draw(row[2],(w-pad*2)/fit-F.measure(row[2]),(i-1)*pitch,{colors=colors})
+     local ty=math.floor((ay+(i-1)*pitch+(pitch-height*pixels)/2)*physical+.5)/physical
+     local function text(s,tx)
+      G.push('all');G.translate(math.floor(tx*physical+.5)/physical,ty);G.scale(pixels,pixels)
+      F.draw(s,0,0,{colors=colors});G.pop()
+     end
+     text(row[1],ax);text(row[2],bx-F.measure(row[2])*pixels)
     end
     G.pop()
-   end,sw,sh,0,0)}
-   if ui.protect then ui.protect(x,y,w,h)end
-   return unpack(out)
+    if ui.protect then ui.protect(x,y,w,h)end
+   end
+   if ui.fontSizing.unscaled then return ui.fontSizing.unscaled(draw)end
+   return draw()
   end)
+ end
+ local function render(rows,rect,native)
+  if #rows==0 then return end
+  if mod.hooks then pending={rows=rows,rect=rect,native=native};return end
+  return drawPanel(rows,rect,native)
+ end
+ if mod.hooks then
+  mod.hooks:wrap('render.hud',function(nextFn,game,viewport)
+   local out={nextFn(game,viewport)}
+   local job=pending;pending=nil
+   if job and enabled()then
+    local sw,sh=mod.generation==3 and 240 or 160,mod.generation==3 and 160 or 144
+    local w,h=viewport.width,viewport.height
+    local scale=math.min(w/sw,h/sh)
+    G.push('all');G.origin();G.setScissor();G.translate((w-sw*scale)/2,(h-sh*scale)/2);G.scale(scale,scale)
+    local ok,err=pcall(drawPanel,job.rows,job.rect,job.native);G.pop()
+    if not ok then error(err,0)end
+   end
+   return unpack(out)
+  end,30000)
  end
  M.render=render
  local function install(target,key,wrapper)
