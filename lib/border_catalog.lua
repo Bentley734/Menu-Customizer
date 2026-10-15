@@ -213,6 +213,9 @@ for i,name in ipairs(forestNames)do C.entries[#C.entries+1]={label=name,path='as
 for _,name in ipairs({'red','blue','green','yellow','gold','silver','crystal'})do
  C.entries[#C.entries+1]={label=name:upper()..' VERSION',path='assets/borders/pokemon_gradient.png',animation='gradient',gradient='version_'..name}
 end
+for i,name in ipairs({'BLACK','FIRE RED','LEAF GREEN','EMERALD','LIGHTNING YELLOW','SPARKLING CRYSTAL'})do
+ C.entries[#C.entries+1]={label='THIN '..name,path='assets/borders/pokemon_gradient.png',animation='thin',thin=i-1}
+end
 C.choices={}
 for i,entry in ipairs(C.entries) do C.choices[i]=entry.label end
 function C.selection(raw,format)
@@ -224,7 +227,8 @@ function C.groups()
  local groups,lookup={},{}
  for i,e in ipairs(C.entries)do if not e.hidden then
   local a=e.animation;local label
-  if not a then label=e.path and e.path:find('pokemon_',1,true)and'CLASSIC POKEMON FRAMES'or'GAME BORDERS'
+  if e.thin~=nil then label='THIN ANIMATED'
+  elseif not a then label=e.path and e.path:find('pokemon_',1,true)and'CLASSIC POKEMON FRAMES'or'GAME BORDERS'
   elseif e.gradient and e.gradient:find('version_',1,true)==1 then label='VERSION GRADIENTS'
   elseif a=='gradient'then label='GRADIENTS'
   elseif e.blackFamily then label=e.blackFamily

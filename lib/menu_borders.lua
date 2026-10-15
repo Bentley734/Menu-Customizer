@@ -4,6 +4,7 @@ return function(mod,setting,catalog,active)
  local G=love.graphics
  local M={atlases={}}
  local palette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
+ local thin=assert(load(assert(mod:read('lib/thin_borders.lua'))))()(mod,palette)
  local function paint(c,fn,...)return palette.paint(c,fn,...)end
  local function selection(scope)
   local gb=mod.exports.gbMenus
@@ -19,7 +20,7 @@ return function(mod,setting,catalog,active)
   image:setFilter('nearest','nearest')
   local w,h=image:getDimensions()
   assert(w==24 and h==24,'Menu Customizer: invalid border atlas '..entry.path)
-  local atlas={image=image,quads={},animation=entry.animation,gradient=entry.gradient,pokemonMotif=entry.pokemonMotif,selection=selection}
+  local atlas={image=image,quads={},animation=entry.animation,gradient=entry.gradient,thin=entry.thin,pokemonMotif=entry.pokemonMotif,selection=selection}
   for n=0,8 do atlas.quads[n]=G.newQuad(n%3*8,math.floor(n/3)*8,8,8,w,h) end
   M.atlases[selection]=atlas
   return atlas
@@ -288,6 +289,7 @@ return function(mod,setting,catalog,active)
   end
   local atlas=M.atlas(selection)
   if not atlas or w<=0 or h<=0 then return false end
+  if atlas.thin~=nil then return thin(atlas,x,y,w,h,background)end
   if atlas.animation and not background then background={1,1,1,1}end
   local image,paper,quads,textureSize=renderAtlas(atlas,selection,background~=nil)
   local edge=math.min(8,w/2,h/2)

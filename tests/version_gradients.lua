@@ -7,7 +7,7 @@ for i,name in ipairs(names)do
  local t=P.color('text',#P.names-8+i);local b=P.color('background',#P.backgroundNames-8+i)
  assert(t.gradient==key and b.gradient==key and t~=b)
  assert(t._speedGroup=='text'and b._speedGroup=='background')
- local frame=catalog.entries[#catalog.entries-7+i];assert(frame.label==label and frame.gradient==key and frame.animation=='gradient')
+ local frame;for _,entry in ipairs(catalog.entries)do if entry.gradient==key then frame=entry;break end end;assert(frame.label==label and frame.gradient==key and frame.animation=='gradient')
  local a,c=P.gradients.sample(key,0),P.gradients.sample(key,.25)
  assert(a and c and (a[1]~=c[1]or a[2]~=c[2]or a[3]~=c[3]))
  local z=P.gradients.sample(key,1);for n=1,3 do assert(math.abs(a[n]-z[n])<.00001)end

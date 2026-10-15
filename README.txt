@@ -1,3 +1,7 @@
+Menu Customizer 3.20.0 - Thin animated borders
+
+Adds THIN ANIMATED: Black, Fire Red, Leaf Green, Emerald, Lightning Yellow and Sparkling Crystal. Two-pixel procedural frames have distinct animated highlights/effects, independent per-design speeds, and support existing background choices. Appended choices preserve saved border IDs.
+
 Menu Customizer 3.19.6 - Themes first
 
 Themes is now the first entry in the main customization menu.
