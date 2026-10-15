@@ -30,8 +30,10 @@ return function(mod,palette,active)
    local uoy=frameRects and frameRects.uoy or ctx.oy
    finalBars={color=bars,width=ctx.ww,height=ctx.wh,top=uoy+32*uy,bottom=uoy+112*uy}
    G.origin();G.setShader();G.setColor((unpack or table.unpack)(bars))
-   G.rectangle('fill',0,0,ctx.ww,math.max(0,finalBars.top))
-   G.rectangle('fill',0,finalBars.bottom,ctx.ww,math.max(0,ctx.wh-finalBars.bottom))
+   if (bars[4]or 1)>=1 then
+    G.rectangle('fill',0,0,ctx.ww,math.max(0,finalBars.top))
+    G.rectangle('fill',0,finalBars.bottom,ctx.ww,math.max(0,ctx.wh-finalBars.bottom))
+   end
   end
   G.pop()
   if portrait then
@@ -100,6 +102,8 @@ return function(mod,palette,active)
      if not ok then image=obp(path,colors,group)end;protect(image);return image
     end
     local color=n>0 and palette.color('background',n-1)or nil
+    local fadeStep=self.fadeStep
+    local fade=path=='src.ui.IntroMovie'and color and self.phase==3 and fadeStep
     -- Font atlas masks contain white ink. Never apply the paper key shader
     -- while the font renderer is emitting glyphs.
     local Font=require('src.render.Font');local textDepth=0
@@ -126,6 +130,7 @@ return function(mod,palette,active)
      if path=='src.ui.IntroMovie' and self.phase==3 and mode=='fill'
        and x==0 and w==160 and h==32 and (y==0 or y==112)then
       pendingBars={r,g,b,a}
+      if fade then return end
      end
      -- Game Freak splash bars are decorative masks, not foreground artwork.
      if path=='src.ui.IntroMovie' and self.phase==2 and mode=='fill'
@@ -150,7 +155,21 @@ return function(mod,palette,active)
      G.push('all');G.setShader(keyShader);local result={pcall(imageDraw,image,...)};G.pop()
      if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
     end
+    -- Fade the original foreground into custom paper, rather than remapping
+    -- sprite colors toward opaque white. Keep native timing and hold intact.
+    local setColor=G.setColor;local replay=self.replayObjLayer
+    if fade then
+     local opacity=1-math.max(0,math.min(1,fadeStep/3))
+     self.fadeStep=nil
+     G.setColor=function(r,g,b,a)
+      if type(r)=='table'then return setColor(r[1],r[2],r[3],(r[4]or 1)*opacity)end
+      return setColor(r,g,b,(a or 1)*opacity)
+     end
+     -- Native palette replay would redraw opaque actors over our fade.
+     self.replayObjLayer=function()end
+    end
     local result={pcall(draw,self,...)};
+    if fade then self.fadeStep=fadeStep;self.replayObjLayer=replay;G.setColor=setColor end
     SR.obpImage=obp;for _,slot in ipairs(swapped)do slot[1][slot[2]]=slot[3]end
     G.rectangle,G.draw,G.clear=rectangle,imageDraw,clear
     Font.draw,Font.drawCode=fontDraw,fontCode

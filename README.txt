@@ -1,3 +1,7 @@
+Menu Customizer 3.13.3 - Fade intro into selected background
+
+The Gengar/Nidorino intro fades its foreground and cinematic bars into the selected intro background, including animated designs. The post-fade hold stays on that background without a white flash. Native background keeps the original white fade. Fade timing, title transition and intro state are preserved.
+
 Menu Customizer 3.13.2 - Splash animation optimization
 
 Batch falling stars into one animated-color setup per frame instead of up to sixteen. Cache star positions between movement steps, combine true-color marking, and precache splash masks and the selected star shader before the splash. Animated colors and continued falling motion remain enabled. GPU checks verify one setup per frame and zero warm-path canvas/shader creation.
