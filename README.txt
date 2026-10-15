@@ -1,3 +1,7 @@
+Menu Customizer 3.12.0 - Independent animation speeds and display fixes
+
+Backgrounds and Borders each have ANIMATION SPEEDS; TEXT has ANIMATED COLOR SPEEDS. Every animated design has its own saved rate (0% pauses, up to 400%). Old shared rates remain a fallback until customized; the shared speed row is removed. Sentence case capitalizes standalone I and contractions. Game Freak color/shadow controls target the actual Gen 1 splash emblem and wordmark, including a supplied studio logo, while copyright credits use normal intro settings. Start selectors use row geometry rather than capitalized label matching, including native start menus without a stamped screen ID.
+
 Menu Customizer 3.11.0 - Green landscapes and battlefields
 
 Adds ten matching animated green tree/grass backgrounds and borders. BACKGROUNDS > BATTLEFIELD selects scenery separately from BATTLE MENU. NATIVE restores existing scenery. Gen 1 requires KIM1025 1.7.46 and its HD scene; Gen 3 supports KIM backgrounds and native terrain. Gen 2 battle rendering is unchanged. Existing selections and settings are preserved.

@@ -81,7 +81,7 @@ return function(mod,catalog)
   C.previewUntil=love.timer.getTime()+3
  end
 
- local function isStart(s) return s and (s.screenId=='StartMenu' or s.screenId=='Gen2StartMenu') end
+ local function isStart(s) return s and (s.screenId=='StartMenu' or s.screenId=='Gen2StartMenu' or (s.startCloses==true and s.anchor=='topright')) end
  local function isGen2Options(s)
   return mod.generation==2 and (s.screenId=='Gen2OptionsMenu' or
    s.rows and s.view and s.options and type(s.visible)=='function')
@@ -311,7 +311,7 @@ return function(mod,catalog)
    if not start or x~=start.labelX then return render(text,x,y,...) end
    local n=(y-start.rowY)/start.pitch+1+start.scroll
    local entry=start.items[n]
-   if n~=math.floor(n) or not entry or (not start.options and text~=current.mod.exports.customization.text(entry.label)) then return render(text,x,y,...) end
+   if n~=math.floor(n) or not entry then return render(text,x,y,...) end
    local selector=start.options and current.arrows.id() or current.setting('startSelector')
    local left=start.left+8
    local right=start.left+start.width-8

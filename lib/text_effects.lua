@@ -58,7 +58,6 @@ return function(mod,palette)
   row('highlight_transparency','HIGHLIGHT TRANSPARENCY')
   row('outline_transparency','OUTLINE TRANSPARENCY')
   row('shadow_transparency','SHADOW TRANSPARENCY')
-  row('speed','COLOR SPEED')
   local prefix=kind=='intro'and 'INTRO 'or kind=='menu'and 'MENU 'or kind=='name'and 'NAME 'or 'BATTLE '
   for _,entry in ipairs(rows)do entry.label=prefix..entry.label end
   return rows
@@ -91,12 +90,14 @@ return function(mod,palette)
  end
  function M.resolve(c,kind)
   if not c or not c.animation then return c end
+  local speed=M.get(kind or 'menu','speed',100)
+  if mod.exports.animationSpeeds then speed=mod.exports.animationSpeeds.get(c._speedGroup or 'text',c._speedId or mod.exports.animationSpeeds.id(c),speed)end
   if c.animation=='POKEMON'then
    local col={};for k,v in pairs(c)do col[k]=v end
-   col.phase=(love.timer and love.timer.getTime and love.timer.getTime() or 0)*M.get(kind or 'menu','speed',100)/100
+   col.phase=(love.timer and love.timer.getTime and love.timer.getTime() or 0)*speed/100
    return col
   end
-  local t=(love.timer and love.timer.getTime and love.timer.getTime() or 0)*.08*M.get(kind or 'menu','speed',100)/100
+  local t=(love.timer and love.timer.getTime and love.timer.getTime() or 0)*.08*speed/100
   local col=palette.gradients.sample(c.gradient,t) or hue(t%1)
   col[4]=c[4] or 1
   if c.animation=='GRADIENT' then col.animation='GRADIENT';col.phase=t;col.gradient=c.gradient end

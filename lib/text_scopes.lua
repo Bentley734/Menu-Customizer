@@ -35,8 +35,12 @@ return function(mod)
   end
   local function current()return tonumber(mod.options:get('gameFreakTextColor'))or tonumber(mod.options:get('introTextColor'))or 0 end
   local function write(ctx,n)C.write(ctx,{gameFreakTextColor=n});return false end
-  local row={id='wide_gameFreakTextColor',label='GAME FREAK TEXT COLOR',value=function()return P.names[current()+1]end,step=function(ctx,d)return write(ctx,(current()+(d or 1))%#P.names)end}
+  local row={id='wide_gameFreakTextColor',label='GAME FREAK LOGO COLOR',value=function()return P.names[current()+1]end,step=function(ctx,d)return write(ctx,(current()+(d or 1))%#P.names)end}
   P.picker(row,'text',current,write,openPage);rows[#rows+1]=row
+  local function shadow()return tonumber(mod.options:get('gameFreakTextShadowColor'))or tonumber(mod.options:get('introTextShadowColor'))or 0 end
+  local function writeShadow(ctx,n)C.write(ctx,{gameFreakTextShadowColor=n});return false end
+  local shade={id='wide_gameFreakTextShadowColor',label='GAME FREAK LOGO SHADOW',value=function()return P.shadowNames[shadow()+1]end,step=function(ctx,d)return writeShadow(ctx,(shadow()+(d or 1))%#P.shadowNames)end}
+  P.picker(shade,'shadow',shadow,writeShadow,openPage);rows[#rows+1]=shade
   return rows
  end
  function M.install()

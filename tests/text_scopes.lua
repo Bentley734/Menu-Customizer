@@ -11,7 +11,7 @@ assert(not pcall(S.with,'party',function()error('probe')end)and not S.current)
 if api.gbMenus then local Box=require('src.render.TextBox');local box=Box.new(game,"DON'T GO",function()end);assert(box.pages[1][1]=="DON'T GO",'Independent dialogue mode missed encoded text')end
 local P=api.selectorPalette;C.write(game,{introTextColor=2,gameFreakTextColor=4})
 local c=api.gbMenus;if c then c.introScope=true end
-local normal=P.colors('intro').fg;api.gameFreakTextScope=true;local freak=P.colors('intro').fg;api.gameFreakTextScope=nil
+local normal=P.colors('intro').fg;api.gameFreakLogoScope=true;local freak=P.colors('intro').fg;api.gameFreakLogoScope=nil
 assert(freak==P.color('text',4)and normal~=freak,'Game Freak color leaks into intro text')
 if c then c.introScope=nil end
 local raw=C.rows(function()end);for _,r in ipairs(api.menuSurfaces.rows(function()end))do raw[#raw+1]=r end

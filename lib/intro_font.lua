@@ -14,28 +14,17 @@ return function(mod,Font,active)
      C.introFitScale=1;local width=Font.width(text)
      C.introFitScale=C.introMenuScale or math.max(1,math.min(chosen,math.floor(152/math.max(1,width))))
      local actual=Font.width(text);if C.introCenter then x=(160-actual)/2 end;x=math.floor(math.max(4,math.min(x,156-actual))+.5);y=math.floor(y+.5)
-     local oldFreak=mod.exports.gameFreakTextScope
-     if tostring(text):upper():find('GAME FREAK',1,true)then mod.exports.gameFreakTextScope=true end
-     local result={pcall(printer,text,x,y,...)};mod.exports.gameFreakTextScope=oldFreak;C.introFitScale=prior
+     local result={pcall(printer,text,x,y,...)};C.introFitScale=prior
      if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
     end
     local result={pcall(draw,self,...)};Font.draw=printer
     C.drawScope,C.introScope,C.resizeX,C.resizeY=scope,intro,rx,ry
     if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
    end
-   if path=='src.ui.IntroMovie'and Class.drawObp0 then
-    local sprite=Class.drawObp0
-    Class.drawObp0=function(self,image,path,x,y,...)
-     if active()and image==self.gfText and mod.options:get('gameFreakTextColor')~=nil then
-      return Font.draw('GAME FREAK',x,y)
-     end
-     return sprite(self,image,path,x,y,...)
-    end
-   end
    if Class.drawCopyright then local original=Class.drawCopyright
     Class.drawCopyright=function(self,y,...)
      local C=Font._menuCustomizerGB
-     if not(C and C.introScope and (C.theme.enabled()or mod.options:get('gameFreakTextColor')~=nil))then return original(self,y,...)end
+     if not(C and C.introScope and C.theme.enabled())then return original(self,y,...)end
      local G=love.graphics;G.setColor(0,0,0,1)
      local function caption(text,row)
       local old=C.introCenter;C.introCenter=true

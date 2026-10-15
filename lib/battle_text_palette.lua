@@ -102,6 +102,13 @@ return function(mod)
   end
   for _,e in ipairs(M.pokemonBackgrounds.blackEntries or{})do M.backgroundNames[#M.backgroundNames+1]=e.name;backgrounds[#backgrounds+1]=M.pokemonBackgrounds.color(e.key)end
   for _,e in ipairs(M.pokemonBackgrounds.forestEntries or{})do M.backgroundNames[#M.backgroundNames+1]=e.name;backgrounds[#backgrounds+1]=M.pokemonBackgrounds.color(e.key)end
+  -- Background and text rates must not share a palette table by reference.
+  for _,pair in ipairs({{backgrounds,'background'},{foreground,'text'},{shadows,'text'}})do
+   for i,c in ipairs(pair[1])do if c.animation then
+    local copy={};for k,v in pairs(c)do copy[k]=v end
+    copy._speedGroup=pair[2];copy._speedId=c.pokemon or c.gradient or c.animation;pair[1][i]=copy
+   end end
+  end
   local lists={text=foreground,shadow=shadows,background=backgrounds}
   function M.color(kind,n)local l=lists[kind] or foreground;return l[math.max(0,math.min(#l-1,math.floor(n or 0)))+1]end
   local function hue(c)
@@ -248,7 +255,7 @@ return function(mod)
   function M.background()
     local n=tonumber(mod.options:get('battle_background_color') or mod.save:get('battle_background_color')) or 0
     local color=backgrounds[math.max(0,math.min(#backgrounds-1,math.floor(n)))+1]
-    if color.animation then return {color[1],color[2],color[3],color[4],animation=color.animation,gradient=color.gradient,pokemon=color.pokemon,_kind='battle'}end
+    if color.animation then return {color[1],color[2],color[3],color[4],animation=color.animation,gradient=color.gradient,pokemon=color.pokemon,_kind='battle',_speedGroup='background',_speedId=color._speedId}end
     return color
   end
   function M.colors(kind)
@@ -257,11 +264,12 @@ return function(mod)
     local dialogue=kind=='menu'and(mod.exports.dialogueFontScope or gb and gb.dialogueScope)
     if dialogue then key='dialogueTextColor'elseif kind=='intro'or kind=='menu'and gb and gb.introScope then key='introTextColor'end
     local n=tonumber(mod.options:get(key) or mod.save:get(key)) or 0
-    if mod.exports.gameFreakTextScope then n=tonumber(mod.options:get('gameFreakTextColor'))or n end
+    if mod.exports.gameFreakLogoScope then n=tonumber(mod.options:get('gameFreakTextColor'))or n end
     n=math.max(0,math.min(#foreground-1,math.floor(n)))
     local shadowKey=(kind=='menu'or kind=='intro') and 'menuTextShadowColor' or kind=='name' and 'battle_name_shadow_color' or 'battle_shadow_color'
     if dialogue then shadowKey='dialogueTextShadowColor'elseif kind=='intro'or kind=='menu'and gb and gb.introScope then shadowKey='introTextShadowColor'end
     local sh=tonumber(mod.options:get(shadowKey) or mod.save:get(shadowKey)) or 0
+    if mod.exports.gameFreakLogoScope then sh=tonumber(mod.options:get('gameFreakTextShadowColor'))or sh end
     sh=math.max(0,math.min(#shadows-1,math.floor(sh)))
     return {fg=foreground[n+1],shadow=shadows[sh+1],bg={0,0,0,0},_kind=kind or 'battle',_effects=M.effects}
   end

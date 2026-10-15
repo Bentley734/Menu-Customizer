@@ -35,7 +35,7 @@ return function(mod)
    for _,k in ipairs({'indoorVoidBackgroundColor','outdoorVoidBackgroundColor','battlefieldBackgroundColor'})do if (tonumber(mod.options:get(k))or 0)>0 then v[k]=n end end
   elseif key=='allTextColor'or key=='allTextShadowColor'then
    local keys=key=='allTextColor'and{'menuTextColor','dialogueTextColor','introTextColor','gameFreakTextColor','selectorColor','choiceSelectorColor','battle_text_color','battle_name_color','martTextColor','pcTextColor'}
-    or{'menuTextShadowColor','dialogueTextShadowColor','introTextShadowColor','battle_shadow_color','battle_name_shadow_color','martTextShadowColor','pcTextShadowColor'}
+    or{'menuTextShadowColor','dialogueTextShadowColor','introTextShadowColor','gameFreakTextShadowColor','battle_shadow_color','battle_name_shadow_color','martTextShadowColor','pcTextShadowColor'}
    for _,k in ipairs(keys)do v[k]=n end
   else
    for _,prefix in ipairs({'menu_fx_','intro_fx_','battle_fx_','battle_name_fx_','mart_fx_','pc_fx_'})do v[prefix..'shadow_transparency']=100-n end
@@ -103,6 +103,7 @@ return function(mod)
    if mode==1 then
     if first then chunk=chunk:gsub('(%a)',string.upper,1);if chunk:find('%a')then first=false end end
     chunk=chunk:gsub('([%.%!%?]%s+)(%a)',function(p,c)return p..c:upper()end)
+    chunk=chunk:gsub('%f[%w]i%f[%W]','I')
    end
    if mode==3 then
     chunk=chunk:gsub('[%z\1-\127\194-\244][\128-\191]*',function(c)
@@ -220,6 +221,7 @@ return function(mod)
   if mod.exports.allFonts then out[#out+1]=mod.exports.allFonts.row(openPage)end
   out[#out+1]={id='wide_themeSets',label='THEMES',group=true,activate=function(ctx)return openPage('THEMES',choices,ctx)end}
   if mod.exports.textScopes then for _,row in ipairs(mod.exports.textScopes.rows(openPage))do out[#out+1]=row end end
+  if mod.exports.animationSpeeds then for _,row in ipairs(mod.exports.animationSpeeds.rows(openPage))do out[#out+1]=row end end
   if mod.exports.battlefieldBackground then for _,row in ipairs(mod.exports.battlefieldBackground.rows(openPage))do out[#out+1]=row end end
   if mod.exports.voidBackgrounds then for _,row in ipairs(mod.exports.voidBackgrounds.rows(openPage))do out[#out+1]=row end end
   return out

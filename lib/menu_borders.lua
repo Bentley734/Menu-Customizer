@@ -19,7 +19,7 @@ return function(mod,setting,catalog,active)
   image:setFilter('nearest','nearest')
   local w,h=image:getDimensions()
   assert(w==24 and h==24,'Menu Customizer: invalid border atlas '..entry.path)
-  local atlas={image=image,quads={},animation=entry.animation,gradient=entry.gradient,pokemonMotif=entry.pokemonMotif}
+  local atlas={image=image,quads={},animation=entry.animation,gradient=entry.gradient,pokemonMotif=entry.pokemonMotif,selection=selection}
   for n=0,8 do atlas.quads[n]=G.newQuad(n%3*8,math.floor(n/3)*8,8,8,w,h) end
   M.atlases[selection]=atlas
   return atlas
@@ -231,7 +231,7 @@ return function(mod,setting,catalog,active)
   panelShader:send('rainbow',atlas.animation=='gradient')
   panelShader:send('borderEffect',({balls=1,lightning=2,water=3,ghost=4,stars=5,vines=6,acid=7,plasma=8,kaleido=9,molten=10,circuit=11,tunnel=12,checker=13,braid=14,pokemon=15,psy0=16,psy1=17,psy2=18,psy3=19,psy4=20,psy5=21,psy6=22,psy7=23})[atlas.animation] or (atlas.animation and atlas.animation:match('^redpsy(%d+)$')and 24+tonumber(atlas.animation:match('^redpsy(%d+)$'))) or (atlas.animation and atlas.animation:match('^redfire(%d+)$')and 44+tonumber(atlas.animation:match('^redfire(%d+)$'))) or (atlas.animation and atlas.animation:match('^black(%d+)$')and 54+tonumber(atlas.animation:match('^black(%d+)$'))) or (atlas.animation and atlas.animation:match('^forest(%d+)$')and 104+tonumber(atlas.animation:match('^forest(%d+)$'))) or 0)
   local phase=0
-  if atlas.animation then phase=(love.timer and love.timer.getTime and love.timer.getTime() or 0)*.08*palette.effects.get('menu','speed',100)/100 end
+  if atlas.animation then phase=(love.timer and love.timer.getTime and love.timer.getTime() or 0)*.08*(mod.exports.animationSpeeds and mod.exports.animationSpeeds.get('border',atlas.selection,palette.effects.get('menu','speed',100))or palette.effects.get('menu','speed',100))/100 end
   panelShader:send('phase',phase)
   G.setShader(panelShader);G.draw(image,x,y,0,w/30,h/30)
   return true
@@ -250,7 +250,7 @@ return function(mod,setting,catalog,active)
   if G.transformPoint then ax,ay=G.transformPoint(x,y);bx,by=G.transformPoint(x+w,y+h)end
   palette.gradients.send(gradientShader,atlas.gradient)
   gradientShader:send('anchor',{ax,ay});gradientShader:send('span',{math.max(1,bx-ax),math.max(1,by-ay)})
-  local speed=palette.effects.get('menu','speed',100)/100
+  local speed=(mod.exports.animationSpeeds and mod.exports.animationSpeeds.get('border',atlas.selection,palette.effects.get('menu','speed',100))or palette.effects.get('menu','speed',100))/100
   gradientShader:send('phase',(love.timer and love.timer.getTime and love.timer.getTime() or 0)*.08*speed)
   G.setShader(gradientShader);return true
  end

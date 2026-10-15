@@ -10,9 +10,12 @@ return function(entries,openPage)
   copy.label=label~=''and label or row.label
   return copy
  end
- local storage,themes,fonts
+ local storage,themes,fonts,textSpeeds
  local pages={};for _,name in ipairs(order)do pages[name]={}end
  local function add(r)
+  if r.id=='wide_animationSpeeds_text'then textSpeeds=r;return end
+  if r.id=='wide_animationSpeeds_background'then pages.BACKGROUNDS[#pages.BACKGROUNDS+1]=r;return end
+  if r.id=='wide_animationSpeeds_border'then pages.BORDERS[#pages.BORDERS+1]=r;return end
   if r.id=='wide_surface_mart'or r.id=='wide_surface_pc'or r.id=='wide_surface_dialogue'then
    local prefix=r.id=='wide_surface_mart'and'POKE MART'or r.id=='wide_surface_pc'and'PC'or'DIALOGUE'
    for _,child in ipairs(r.children)do
@@ -92,6 +95,7 @@ return function(entries,openPage)
   if #children>0 then pages.TEXT[#pages.TEXT+1]={id='wide_text_page_'..name,label=name,group=true,children=children,
    value=function()return #children..' OPTIONS'end,activate=function(ctx)return openPage(name,children,ctx)end}end
  end
+ if textSpeeds then pages.TEXT[#pages.TEXT+1]=textSpeeds end
  -- Global controls belong at the top of their matching page.
  for _,name in ipairs({'BORDERS','BACKGROUNDS'})do
   for i,row in ipairs(pages[name])do if (row.id or ''):find('wide_all',1,true)==1 then table.remove(pages[name],i);table.insert(pages[name],1,row);break end end
