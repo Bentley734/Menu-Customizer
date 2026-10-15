@@ -102,6 +102,7 @@ return function(mod)
   end
   for _,e in ipairs(M.pokemonBackgrounds.blackEntries or{})do M.backgroundNames[#M.backgroundNames+1]=e.name;backgrounds[#backgrounds+1]=M.pokemonBackgrounds.color(e.key)end
   for _,e in ipairs(M.pokemonBackgrounds.forestEntries or{})do M.backgroundNames[#M.backgroundNames+1]=e.name;backgrounds[#backgrounds+1]=M.pokemonBackgrounds.color(e.key)end
+  for _,e in ipairs(M.pokemonBackgrounds.extraEntries or{})do M.backgroundNames[#M.backgroundNames+1]=e.name;backgrounds[#backgrounds+1]=M.pokemonBackgrounds.color(e.key)end
   for _,e in ipairs(M.gradients.versionEntries or{})do animated(e.name,e.key)end
   -- Background and text rates must not share a palette table by reference.
   for _,pair in ipairs({{backgrounds,'background'},{foreground,'text'},{shadows,'text'}})do

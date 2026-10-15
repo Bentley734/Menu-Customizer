@@ -175,12 +175,14 @@ return function(mod)
  for i,name in ipairs(forest.names)do M.forestEntries[i]={key='forest_art_'..i,name=name,style=150+i,a='021009',b='082610',ink='208C35'}end
  M.blackEntries={}
  for i,name in ipairs(black.names)do M.blackEntries[i]={key='black_art_'..i,name=name,style=80+i,blackFamily=(i<=10 or i>20)and 'BLACK PSYCHEDELIC' or 'BLACK POKEMON',a='010101',b='010101',ink='302038'}end
+ M.extraEntries={{key='black_waterfall',name='BLACK WATERFALL',style=131,blackFamily='DESIGNS',a='010102',b='010102',ink='19242E'}}
  M.byKey={}
  for _,e in ipairs(M.entries)do e.baseA=rgb(e.a);e.baseB=rgb(e.b);e.accent=rgb(e.ink);M.byKey[e.key]=e
   if e.variant and not e.pokemonName then e.pokemonName=e.pokemon:upper() end
  end
  for _,e in ipairs(M.blackEntries)do e.baseA=rgb(e.a);e.baseB=rgb(e.b);e.accent=rgb(e.ink);M.byKey[e.key]=e end
  for _,e in ipairs(M.forestEntries)do e.baseA=rgb(e.a);e.baseB=rgb(e.b);e.accent=rgb(e.ink);M.byKey[e.key]=e end
+ for _,e in ipairs(M.extraEntries)do e.baseA=rgb(e.a);e.baseB=rgb(e.b);e.accent=rgb(e.ink);M.byKey[e.key]=e end
  local sheets,images
  local function sprite(key)
   if not sheets then sheets=assert(load(assert(mod:read('assets/pokemon-paper/sheets.lua'))))();images={}end

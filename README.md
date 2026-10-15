@@ -1,3 +1,9 @@
+# Menu Customizer 3.35.3 — Black Waterfall
+
+Add BLACK WATERFALL under background Designs: nearly black scenery with downward-flowing slate water ribbons, moving glints, a subtle splash line and plunge-pool ripples. Available through the shared background pickers, including battle backgrounds. Append the palette entry to preserve every existing saved background ID and use the existing animation-speed controls.
+
+No tests run, continuing the requested low-cost workflow. Published release assets verified. Restart after updating.
+
 # Menu Customizer 3.35.2 — Stardew text rendering and saved-game message
 
 Apply Stardew at the complete-string rendering boundary for imported and native text, rather than relying solely on glyph-effect sequence state. Retain per-character spacing, independent speed/height/count, selector combination, and baseline restoration.
