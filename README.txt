@@ -1,3 +1,7 @@
+Menu Customizer 3.21.3 - Stable Jump Wave selection clocks
+
+Keep wave timing per menu and selected row so native/customized draw passes and overlapping menus cannot overwrite the first-letter restart. Includes real menu-input and GPU rendering regression coverage.
+
 Menu Customizer 3.21.2 - Restart Jump Wave on selection
 
 Jump Wave starts at the first letter whenever the selected row or menu changes. Uses selection-relative time, preserving phase while the same row remains selected, including duplicate-label rows.

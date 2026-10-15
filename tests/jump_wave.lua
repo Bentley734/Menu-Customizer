@@ -25,3 +25,13 @@ J.select(owner,3,'SAME');assert(J.started==10.11,'Duplicate label did not restar
 tick=11;J.select({},3,'SAME');assert(J.started==11,'New page did not restart')
 love.timer.getTime=clock
 print('PASS selection, duplicate-label and page changes restart wave; redraws preserve phase')
+
+-- A second rendering pass must not restart or borrow another menu's clock.
+love.timer.getTime=function()return tick end
+tick=20;J.select(owner,4,'NEW GAME')
+tick=20.11;J.select({},1,'OTHER');J.select(owner,4,'New Game')
+assert(J.started==20 and J.offset(1,8,tick-J.started)==3)
+tick=21;J.select(owner,5,'OPTION');assert(J.started==21)
+tick=21.11;J.select(owner,5,'Option');assert(J.offset(1,6,tick-J.started)==3)
+love.timer.getTime=clock
+print('PASS independent menu clocks and native/customized capitalization passes')

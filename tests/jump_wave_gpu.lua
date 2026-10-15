@@ -67,6 +67,24 @@ function love.load()
     assert(before==frame(),'Closing Continue changed underlying title menu pixels');tick=.33;assert(before~=frame(),'Jump Wave did not animate the selected label')
    end
   end
+  -- Exercise real Menu:update input and the wrapped font renderer, including
+  -- a separate menu draw between passes and return to an earlier row.
+  api.customization.write(game,{jumpWaveEnabled=1,jumpWaveSpeed=100})
+  local J=api.jumpWave;local realDraw=J.draw;local observed
+  J.draw=function(...) observed=love.timer.getTime()-J.started;return realDraw(...)end
+  local pressed;game.input={wasPressed=function(_,key)return key==pressed end}
+  local other=Menu.new(game,{{label='OTHER'}},{tx=0,ty=0,tw=13,th=4})
+  for _,index in ipairs({2,3,2,1})do
+   tick=tick+2;pressed=index>menu.index and 'down' or 'up'
+   menu:update(1/60);pressed=nil
+   game.stack.states={menu};G.setCanvas(target);menu:draw();G.setCanvas()
+   assert(menu.index==index and observed==0,'New menu selection did not start at first letter')
+   local started=tick;tick=tick+.11
+   game.stack.states={other};G.setCanvas(target);other:draw();G.setCanvas()
+   game.stack.states={menu};G.setCanvas(target);menu:draw();G.setCanvas()
+   assert(math.abs(observed-.11)<.00001 and J.offset(1,8,observed)==3,'First letter lost its jump after another draw')
+  end
+  J.draw=realDraw
   write(version..'-right-aligned.png',target:newImageData():encode('png'):getString())
   love.timer.getTime=clock
   write(version..'-result.txt','PASS GPU retained title alignment: native/Emerald, left/center/right, open/close Continue')

@@ -1,9 +1,15 @@
 return function(mod)
  local M={}
+ local selections=setmetatable({},{__mode="k"})
  function M.select(owner,index,text)
-  if M.owner~=owner or M.index~=index or M.text~=text then
-   M.owner,M.index,M.text=owner,index,text;M.started=love.timer.getTime()
+  -- Native and customized passes may draw the same row with different case.
+  -- Keep its clock on the menu, rather than on the most recent draw call.
+  local key=owner or M
+  local state=selections[key]
+  if not state or state.index~=index or index==nil and state.text~=text then
+   state={index=index,text=text,started=love.timer.getTime()};selections[key]=state
   end
+  M.owner,M.index,M.text,M.started=owner,index,text,state.started
  end
  function M.enabled()
   local n=mod.options:get('jumpWaveEnabled');if n~=nil then return n==1 end
