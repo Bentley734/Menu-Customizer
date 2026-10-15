@@ -515,9 +515,9 @@ return function(mod,catalog)
     local current=Font._menuCustomizerGB
     if current and current.drawingSave and current.theme.enabled() then
      if ty==2 and tx==5 then
-      local name=tostring(text):match('^PLAYER%s+(.+)$')
+      local name=tostring(text):match('^[Pp][Ll][Aa][Yy][Ee][Rr]%s+(.+)$')
       if name then
-       Chrome._menuCustomizerSavePrint('PLAYER',tx,ty,...)
+       Chrome._menuCustomizerSavePrint(current.mod.exports.customization.text('PLAYER'),tx,ty,...)
        return Chrome._menuCustomizerSavePrint(name,(152-Font.width(name))/8,ty,...)
       end
      end
@@ -701,7 +701,6 @@ return function(mod,catalog)
  end
  parent[#parent+1]=row('introTextColor','INTRO TEXT COLOR',selectorNames)
  parent[#parent+1]=row('introTextShadowColor','INTRO SHADOW COLOR',shadowNames)
- parent[#parent+1]=row('introTextCase','INTRO TEXT CASE',{[0]='ORIGINAL',[1]='SENTENCE CASE',[2]='LOWERCASE',[3]='TITLE CASE'})
  parent[#parent+1]=row('introLogo','TITLE LOGO',{[0]='VANILLA',[1]='HIGH RESOLUTION'})
  parent[#parent+1]=row('introTrainer','ASH TITLE ARTWORK',{[0]='OFF',[1]='ON'})
  for _,r in ipairs(menuPalette.effects.rows('intro',function(ctx,key,n)C.persist(ctx.game or ctx,key,n);return false end,function(title,rows,ctx)pushPage(ctx.game or ctx,title,rows)end))do parent[#parent+1]=r end

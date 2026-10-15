@@ -1,6 +1,7 @@
 return function(mod)
   assert(load(assert(mod:read('lib/settings_profiles.lua')),'@menu-customizer/settings_profiles.lua'))()(mod)
   assert(load(assert(mod:read('lib/customization_live.lua'))))()(mod)
+  local textScopes=assert(load(assert(mod:read('lib/text_scopes.lua'))))()(mod)
   local surfaces=assert(load(assert(mod:read('lib/menu_surfaces.lua'))))()(mod)
   local fonts=assert(load(assert(mod:read('lib/all_fonts.lua')),'@menu-customizer/all_fonts.lua'))()(mod)
   local void=assert(load(assert(mod:read('lib/void_backgrounds.lua'))))()(mod)
@@ -10,4 +11,5 @@ return function(mod)
   void.install()
   surfaces.install()
   fonts.install()
+  textScopes.install()
 end

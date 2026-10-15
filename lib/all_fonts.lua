@@ -13,7 +13,7 @@ return function(mod)
   local values=C.globalValues(key,n)or{[key]=n}
   if key=='allTextColor'then
    for _,prefix in ipairs(prefixes)do values[prefix..'preset']=0;values[prefix..'alternate']=0 end
-  elseif key=='textCase'then values.introTextCase=n
+  elseif key=='textCase'then if mod.exports.textScopes then values=mod.exports.textScopes.values(n)else values.introTextCase=n end
   elseif key:match('^menu_fx_')then
    if key=='menu_fx_shadow_transparency'then values.allShadowOpacity=100-n end
    for _,prefix in ipairs(prefixes)do values[prefix..key:sub(9)]=n end

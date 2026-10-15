@@ -34,7 +34,7 @@ return function(mod)
    -- Keep native void fill opt-in; global changes include enabled voids.
    for _,k in ipairs({'indoorVoidBackgroundColor','outdoorVoidBackgroundColor'})do if (tonumber(mod.options:get(k))or 0)>0 then v[k]=n end end
   elseif key=='allTextColor'or key=='allTextShadowColor'then
-   local keys=key=='allTextColor'and{'menuTextColor','dialogueTextColor','introTextColor','selectorColor','choiceSelectorColor','battle_text_color','battle_name_color','martTextColor','pcTextColor'}
+   local keys=key=='allTextColor'and{'menuTextColor','dialogueTextColor','introTextColor','gameFreakTextColor','selectorColor','choiceSelectorColor','battle_text_color','battle_name_color','martTextColor','pcTextColor'}
     or{'menuTextShadowColor','dialogueTextShadowColor','introTextShadowColor','battle_shadow_color','battle_name_shadow_color','martTextShadowColor','pcTextShadowColor'}
    for _,k in ipairs(keys)do v[k]=n end
   else
@@ -91,7 +91,7 @@ return function(mod)
  function M.text(text)
   if type(text)~='string'then return text end
   local C=mod.exports.gbMenus
-  local mode=tonumber(mod.options:get(C and C.introScope and 'introTextCase'or 'textCase'))or 0
+  local mode=mod.exports.textScopes and mod.exports.textScopes.mode()or tonumber(mod.options:get(C and C.introScope and 'introTextCase'or 'textCase'))or 0
   if mode==0 then return text end
   -- Leave encoded control tags untouched; never rewrite game data.
   local out={};local at=1;local first=true;local inWord=false
@@ -141,8 +141,8 @@ return function(mod)
   if game.writeOptions then game:writeOptions()end
  end
  function M.rows(openPage)
-  local out={{id='wide_textCase',label='TEXT DECAPITALIZATION',value=function()return modes[(tonumber(mod.options:get('textCase'))or 0)+1]end,
-   step=function(ctx,dir)M.write(ctx,{textCase=((tonumber(mod.options:get('textCase'))or 0)+(dir or 1))%#modes})end}}
+  local out={{id='wide_textCase',label='ALL DECAPITALIZATION',value=function()return modes[(tonumber(mod.options:get('textCase'))or 0)+1]end,
+   step=function(ctx,dir)local n=((tonumber(mod.options:get('textCase'))or 0)+(dir or 1))%#modes;M.write(ctx,mod.exports.textScopes and mod.exports.textScopes.values(n)or{textCase=n})end}}
   local themes={
    {'MIDNIGHT AURORA','NAVY','INFINITE STAR GATES','NAVY','WHITE','CYAN'},
    {'OCEAN GLASS','NAVY','NEON CHRYSALIS','NAVY','WHITE','MINT'},
@@ -175,8 +175,10 @@ return function(mod)
    local defaults=mod.exports.visualDefaults or {};for key,n in pairs(defaults)do if v[key]==nil then v[key]=n end end
    local accent=locate(P.names,t[6],true)
    v.choiceSelector=14;v.choiceSelectorColor=accent;v.selectorColor=accent;v.arrowSelector=12;v.startSelector=4
-   v.introTheme=2;v.introTextColor=color;v.introTextShadowColor=1;v.introTextCase=1;v.introBackgroundColor=bg;v.introFontSize=0
-   v.saveSummaryTheme=2;v.saveSummaryBackgroundColor=bg;v.textCase=1;v.menuTransition=2;v.backgroundDim=20
+   v.introTheme=2;v.introTextColor=color;v.gameFreakTextColor=color;v.introTextShadowColor=1;v.introTextCase=1;v.introBackgroundColor=bg;v.introFontSize=0
+   v.saveSummaryTheme=2;v.saveSummaryBackgroundColor=bg;v.textCase=1;
+   if mod.exports.textScopes then for key,n in pairs(mod.exports.textScopes.values(1))do v[key]=n end end
+   v.menuTransition=2;v.backgroundDim=20
    for _,scope in ipairs({'start','option','save','other','battle','dialogue'})do
     v[scope..'Position']=1;v[scope..'Scale']=100;v[scope..'Width']=100;v[scope..'Height']=100;v[scope..'OffsetX']=0;v[scope..'OffsetY']=0
    end
@@ -217,6 +219,7 @@ return function(mod)
   end
   if mod.exports.allFonts then out[#out+1]=mod.exports.allFonts.row(openPage)end
   out[#out+1]={id='wide_themeSets',label='THEMES',group=true,activate=function(ctx)return openPage('THEMES',choices,ctx)end}
+  if mod.exports.textScopes then for _,row in ipairs(mod.exports.textScopes.rows(openPage))do out[#out+1]=row end end
   if mod.exports.voidBackgrounds then for _,row in ipairs(mod.exports.voidBackgrounds.rows(openPage))do out[#out+1]=row end end
   return out
  end

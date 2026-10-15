@@ -1,3 +1,7 @@
+Menu Customizer 3.10.0 - Independent menu text settings
+
+TEXT > FONT AND LAYOUT now contains menu-specific submenus, with only global controls at its root. Each menu has independent decapitalization; unset choices preserve the prior global setting. ALL DECAPITALIZATION and ALL FONTS intentionally update all menu case settings. Covers menus, start/options, dialogue, intro/title, save summary, Mart, PC, battle/names, party, bag, Pokemon summary, Pokedex and trainer card. TEXT > COLORS includes GAME FREAK separately from other intro text; global colors and themes include it. Native Gen 2 print paths also apply the selected case.
+
 Menu Customizer 3.9.0 - Dialogue casing fixes and vivid black psychedelia
 
 Fixes actual Gen 1/2 dialogue capitalization before glyph encoding and keeps contraction glyphs literal, so sentence case displays Don't rather than Don'T and Title Case reaches dialogue. Adds ten animated rainbow-on-black border/background pairs: spirals, kaleidoscopes, fractal vortices, mandalas, acid waves, tunnels, lotus, mirrors, infinity gates and rosettes. Wide black bands keep black dominant. Existing saved choices remain stable.

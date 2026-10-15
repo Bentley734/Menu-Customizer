@@ -54,7 +54,38 @@ return function(entries,openPage)
   elseif category=='SHADOWS'then words={'TEXT','SHADOW','SHADOWS','COLOR','COLORS'}end
   local list=textPages[category];list[#list+1]=compact(row,words)
  end
- if fonts then table.insert(textPages['FONT AND LAYOUT'],1,fonts)end
+ -- Keep global controls here; menu-specific controls get one focused page.
+ local layout,menus,menuOrder={},{},{'MENUS','START MENU','OPTIONS','DIALOGUE','INTRO / TITLE','SAVE SUMMARY','POKE MART','PC','BATTLE','BATTLE NAMES','PARTY','BAG','POKEMON SUMMARY','POKEDEX','TRAINER CARD','OTHER MENUS'}
+ for _,name in ipairs(menuOrder)do menus[name]={}end
+ for _,row in ipairs(textPages['FONT AND LAYOUT'])do
+  local key=(row.id or ''):gsub('^wide_',''):gsub('^surface_',''):lower();local group
+  if key=='textcase'or key:find('^all')or key=='controlslegend'then layout[#layout+1]=row
+  else
+   if key:find('intro',1,true)then group='INTRO / TITLE'
+   elseif key:find('savesummary',1,true)or key:find('save',1,true)==1 then group='SAVE SUMMARY'
+   elseif key:find('mart',1,true)then group='POKE MART'
+   elseif key:find('pc',1,true)==1 then group='PC'
+   elseif key:find('battlename',1,true)or key:find('battle_name',1,true)then group='BATTLE NAMES'
+   elseif key:find('battle',1,true)then group='BATTLE'
+   elseif key:find('dialogue',1,true)then group='DIALOGUE'
+   elseif key:find('party',1,true)then group='PARTY'
+   elseif key:find('bag',1,true)then group='BAG'
+   elseif key:find('summary',1,true)then group='POKEMON SUMMARY'
+   elseif key:find('pokedex',1,true)then group='POKEDEX'
+   elseif key:find('trainer',1,true)then group='TRAINER CARD'
+   elseif key:find('start',1,true)then group='START MENU'
+   elseif key:find('option',1,true)then group='OPTIONS'
+   elseif key:find('menu',1,true)then group='MENUS'
+   else group='OTHER MENUS'end
+   menus[group][#menus[group]+1]=row
+  end
+ end
+ if fonts then table.insert(layout,1,fonts)end
+ for _,name in ipairs(menuOrder)do local children=menus[name]
+  if #children>0 then layout[#layout+1]={id='wide_layout_'..name,label=name,group=true,children=children,
+   value=function()return #children..' OPTIONS'end,activate=function(ctx)return openPage(name,children,ctx)end}end
+ end
+ textPages['FONT AND LAYOUT']=layout
  pages.TEXT={}
  for _,name in ipairs(textOrder)do
   local children=textPages[name]
