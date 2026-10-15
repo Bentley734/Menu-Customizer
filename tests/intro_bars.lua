@@ -32,11 +32,11 @@ for mode=0,2 do
  assert(clip[2]==(mode==0 and 32 or mode==1 and 8 or 0))
  assert(clip[4]==(mode==0 and 80 or mode==1 and 128 or 144),'Sprite replay still clipped full sprites')
 end
-local movie={gengarY=56,nidoY=72,gengarPose=1,gengarFrames={{getHeight=function()return 56 end}}}
+local movie={gengarY=56,nidoY=72,nidoFrame=1,nidoFrames={{getHeight=function()return 48 end}},gengarPose=1,gengarFrames={{getHeight=function()return 56 end}}}
 for mode=0,2 do
  barMode=mode;intro.drawFight(movie)
  local offset=mode==0 and 0 or mode==1 and 24 or 32
- assert(drawnGengarY==56+offset and drawnNidoY==72+offset,'Intro actors did not move together to their new floor')
+ assert(drawnGengarY==56+offset and drawnNidoY==(mode==0 and 72 or mode==1 and 88 or 96),'Intro actors did not move together to their new floor')
  assert(movie.gengarY==56 and movie.nidoY==72,'Drawing modified animation state')
 end
 movie.fail=true;assert(not pcall(intro.drawFight,movie));assert(movie.gengarY==56 and movie.nidoY==72,'Error leaked actor offset')

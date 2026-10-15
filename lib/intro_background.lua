@@ -101,7 +101,10 @@ return function(mod,palette,active)
      local gengarY,nidoY=self.gengarY,self.nidoY
      local floor=mode==0 and 112 or mode==1 and 136 or 144
      local offset=math.max(0,floor-(gengarY+image:getHeight()))
-     self.gengarY,self.nidoY=gengarY+offset,nidoY+offset
+     local nido=self.nidoFrames and self.nidoFrames[self.nidoFrame]
+     local playerY=nidoY+offset
+     if mode~=0 and nido then playerY=math.min(playerY,floor-nido:getHeight())end
+     self.gengarY,self.nidoY=gengarY+offset,playerY
      local printer,replay=G.draw,self.replayObjLayer
      if factor>1 then
       local queue={factor=factor,floor=floor,mode=mode};pendingFight=queue

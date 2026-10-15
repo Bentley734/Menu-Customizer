@@ -1,3 +1,7 @@
+Menu Customizer 3.19.1 - Preserve full Nidorino intro sprite
+
+In EDGE/HIDDEN intro modes, fit Nidorino independently above the chosen floor instead of applying Gengar's offset past the clipping boundary. Prevents the bottom eight pixels being cut off in both Native and Colorized modes, including ultrawide replay. Gengar remains anchored and animation state restores after drawing.
+
 Menu Customizer 3.19.0 - Load Report customization
 
 Adds independent Gen 1/2 Load Report font style, colors/shadows, case, alignment, background and border. Settings are organized in existing TEXT/BACKGROUNDS/BORDERS menus, with LOAD REPORT under FONT AND LAYOUT. Global controls and themes include this surface. Native report content, scrolling and Continue input remain unchanged.
