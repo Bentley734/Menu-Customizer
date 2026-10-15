@@ -1,3 +1,7 @@
+Menu Customizer 3.18.0 - Colorized intro Pokemon
+
+Adds TEXT > FONT AND LAYOUT > INTRO / TITLE > INTRO BATTLE SPRITES: NATIVE or COLORIZED. Gengar uses purple and Nidorino lavender, retaining black outlines and native animation. Recolored frames are cached and reused by sprite replay, custom backgrounds, bar modes and ultrawide presentation. Native remains the default.
+
 Menu Customizer 3.17.2 - Ultrawide intro actors
 
 Scale intro Pokemon proportionally with window aspect above 16:9, capped at 160%. Render actors in the full-window pass to avoid narrow-canvas cropping, preserving their common bottom anchor and selected cinematic bar mode. Standard/narrow windows retain existing scale.

@@ -134,15 +134,23 @@ return function(mod,palette,active)
     if not active()then return draw(self,...)end
     pending=true;pendingBars=nil
     local SR=require('src.render.SpriteRenderer');local obp=SR.obpImage
-    local protected={};local swapped={};local stars={}
+    local protected={};local swapped={};local stars={};local actorColors={}
+    local colorize=path=='src.ui.IntroMovie'and mod.options:get('introBattleSprites')==1
+    if colorize then
+     for _,spec in ipairs({{'gengarPaths',{{255,255,255},{160,112,208},{88,56,136},{0,0,0}}},
+       {'nidoPaths',{{255,255,255},{208,168,224},{144,96,168},{0,0,0}}}})do
+      for _,file in pairs(self[spec[1]]or{})do actorColors[file]={colors=spec[2],group='intro_'..spec[1]..'_color'}end
+     end
+    end
     for _,field in ipairs({'smallStar','smallStarBlink','bigStar','studioLogo','logo','gfText'})do if self[field]and (field~='logo'or path=='src.ui.IntroMovie')then stars[self[field]]=true end end
     local function protect(image)if image then protected[image]=true end end
     for _,field in ipairs({'player','pic','yellowPikachu','yellowBubble','walkSheet'})do protect(self[field])end
     if self.currentSprite then local image=self:currentSprite();protect(image)end
     for _,pair in ipairs({{'nidoFrames','nidoPaths'},{'gengarFrames','gengarPaths'}})do
      local frames,paths=self[pair[1]],self[pair[2]]
-     if n>0 and frames and paths then for i,file in pairs(paths)do
-      local ok,image=pcall(portrait,file)
+     if (n>0 or colorize)and frames and paths then for i,file in pairs(paths)do
+      local tint=actorColors[file]
+      local ok,image=pcall(portrait,file,tint and tint.colors,tint and tint.group)
       if ok then swapped[#swapped+1]={frames,i,frames[i]};frames[i]=image;protect(image)end
      end end
     end
@@ -150,13 +158,15 @@ return function(mod,palette,active)
      -- GAME FREAK lettering is decorative tile text, not a portrait.
      if path==self.gfTextPath or path==self.logoPath then local image=obp(path,colors,group);stars[image]=true;return image end
      if path==self.bigStarPath then local image=obp(path,colors,group);stars[image]=true;return image end
+     local tint=actorColors[path]
+     if tint then local image=portrait(path,tint.colors,tint.group);protect(image);return image end
      if n<=0 then return obp(path,colors,group)end
      local ok,image=pcall(portrait,path,colors,group)
      if not ok then image=obp(path,colors,group)end;protect(image);return image
     end
     local color=n>0 and palette.color('background',n-1)or nil
     local fadeStep=self.fadeStep
-    local fade=path=='src.ui.IntroMovie'and color and self.phase==3 and fadeStep
+    local fade=path=='src.ui.IntroMovie'and(color or colorize)and self.phase==3 and fadeStep
     -- Font atlas masks contain white ink. Never apply the paper key shader
     -- while the font renderer is emitting glyphs.
     local Font=require('src.render.Font');local textDepth=0
