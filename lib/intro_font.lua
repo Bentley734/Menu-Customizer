@@ -40,10 +40,10 @@ return function(mod,Font,active)
      end
      if path=='src.ui.IntroMovie'then
       if self.studio and(self.studio.card or self.studio.credit)then return original(self,y,...)end
-      local prefix=self.yellowCopy and '©1995-1999 'or "©'95.'96.'98 "
+      local prefix=mod.options:get('introCopyrightDates')==1 and(self.yellowCopy and '©1995-1999 'or "©'95.'96.'98 ")or''
       caption(prefix..'Nintendo',56);caption(prefix..'Creatures inc.',72);caption(prefix..'GAME FREAK inc.',88)
      else
-      local fallback=path=='src.ui.TitleState'and(self.yellow and '©1995-1999 GAME FREAK inc.'or "©'95.'96.'98 GAME FREAK inc.")or'GAME FREAK inc.'
+      local fallback=path=='src.ui.TitleState'and mod.options:get('introCopyrightDates')==1 and(self.yellow and '©1995-1999 GAME FREAK inc.'or "©'95.'96.'98 GAME FREAK inc.")or'GAME FREAK inc.'
       caption(self.title and self.title.copyrightText or fallback,y or 136)
      end
      G.setColor(1,1,1,1)

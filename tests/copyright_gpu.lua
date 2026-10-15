@@ -51,7 +51,7 @@ function love.load()
   local pixels=canvas:newImageData();local r,g,b=pixels:getPixel(7,7);assert(r>g*3 and r>b*3,'Emblem did not use its own red color')
   local r,g,b=pixels:getPixel(4,4);assert(r==0 and g==0 and b==0,'Emblem white paper became an opaque box')
   assert(not api.gameFreakLogoScope)
-  api.customization.write(game,{introTheme=2,menuTheme=2,introBackgroundColor=2,introTextColor=6,introTextCase=0})
+  api.customization.write(game,{introTheme=2,menuTheme=2,introCopyrightDates=1,introBackgroundColor=2,introTextColor=6,introTextCase=0})
   local theme=api.gbMenus.theme;local rows={};local glyphs=0;local printer,glyph=theme.draw,theme.glyph
   theme.draw=function(text,x,y,opts)if rows[#rows]~=text then rows[#rows+1]=text end;assert(theme.measure(text,opts)<=152,'Credits overflow');return printer(text,x,y,opts)end
   theme.glyph=function(id,...)if id==512 then glyphs=glyphs+1 end;return glyph(id,...)end
@@ -64,6 +64,8 @@ function love.load()
   local title=require('src.ui.TitleState').new(game,{});rows={};api.gbMenus.introScope=true;api.gbMenus.drawScope=true
   G.setCanvas(target);title:drawCopyright(136);G.setCanvas();api.gbMenus.introScope=nil;api.gbMenus.drawScope=nil
   assert(rows[1]==prefix..'GAME FREAK inc.','Title copyright prefix missing')
+  api.customization.write(game,{introCopyrightDates=0});rows={};local F=require('src.render.Font');local draw=F.draw;F.draw=function(t,...)if rows[#rows]~=t then rows[#rows+1]=t end;return draw(t,...)end;G.setCanvas(target);movie:draw();G.setCanvas();F.draw=draw
+  assert(rows[1]=='Nintendo'and rows[2]=='Creatures inc.'and rows[3]=='GAME FREAK inc.','Previous look not restored')
   theme.draw,theme.glyph=printer,glyph
   write(version..'-result.txt','PASS GPU version-specific vanilla credit strings, copyright glyphs, title prefix and text bounds')
  end,debug.traceback)

@@ -47,6 +47,8 @@ return function(mod)
    step=function(ctx,d)return writeStars(ctx,((stars()or 0)+(d or 1))%#P.names)end}
   P.picker(starRow,'text',function()return stars()or 0 end,writeStars,openPage);rows[#rows+1]=starRow
   if mod.generation==1 then
+   rows[#rows+1]={id='wide_introCopyrightDates',label='INTRO COPYRIGHT DATES',value=function()return mod.options:get('introCopyrightDates')==1 and'SHOW'or'HIDE'end,
+    step=function(ctx)C.write(ctx,{introCopyrightDates=mod.options:get('introCopyrightDates')==1 and 0 or 1});return false end}
    rows[#rows+1]={id='wide_introBattleSprites',label='INTRO BATTLE SPRITES',value=function()return mod.options:get('introBattleSprites')==1 and'COLORIZED'or'NATIVE'end,
     step=function(ctx)C.write(ctx,{introBattleSprites=mod.options:get('introBattleSprites')==1 and 0 or 1});return false end}
    rows[#rows+1]={id='wide_introBattleBars',label='INTRO BATTLE BARS',value=function()return({'ORIGINAL','EDGE','HIDDEN'})[(tonumber(mod.options:get('introBattleBars'))or 0)+1]end,

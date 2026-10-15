@@ -1,3 +1,7 @@
+Menu Customizer 3.18.2 - Optional copyright dates
+
+Restore company-name-only customized credits by default. TEXT > FONT AND LAYOUT > INTRO / TITLE > INTRO COPYRIGHT DATES optionally shows the full version-specific copyright prefixes on intro credits and the title screen. Native credits remain unchanged.
+
 Menu Customizer 3.18.1 - Restore copyright credits
 
 Restore full version-specific copyright/date prefixes on customized Gen 1 intro credits and the title Game Freak line. Adds a pixel copyright glyph to the Emerald renderer with color/shadow support. Complete credits use the small Emerald face to fit without clipping. Native rendering and supplied custom credit strings remain intact.
