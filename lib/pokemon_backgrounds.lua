@@ -169,10 +169,14 @@ return function(mod)
  M.entries[#M.entries+1]={key='red_fire_9',name='CRIMSON FIRE WHIRL',style=80,fire=true,a='200305',b='B30E19',ink='FF742F'}
  local function rgb(hex)return{tonumber(hex:sub(1,2),16)/255,tonumber(hex:sub(3,4),16)/255,tonumber(hex:sub(5,6),16)/255}end
  for _,e in ipairs(M.entries)do if e.scene and not e.still then e.hidden=true;e.retired=true;e.removedAnimation=true end end
+ local black=assert(load(assert(mod:read('lib/black_artwork.lua'))))()
+ M.blackEntries={}
+ for i,name in ipairs(black.names)do M.blackEntries[i]={key='black_art_'..i,name=name,style=80+i,blackFamily=i<=10 and 'BLACK PSYCHEDELIC' or 'BLACK POKEMON',a='010101',b='010101',ink='302038'}end
  M.byKey={}
  for _,e in ipairs(M.entries)do e.baseA=rgb(e.a);e.baseB=rgb(e.b);e.accent=rgb(e.ink);M.byKey[e.key]=e
   if e.variant and not e.pokemonName then e.pokemonName=e.pokemon:upper() end
  end
+ for _,e in ipairs(M.blackEntries)do e.baseA=rgb(e.a);e.baseB=rgb(e.b);e.accent=rgb(e.ink);M.byKey[e.key]=e end
  local sheets,images
  local function sprite(key)
   if not sheets then sheets=assert(load(assert(mod:read('assets/pokemon-paper/sheets.lua'))))();images={}end
@@ -216,6 +220,7 @@ return function(mod)
   float paperHash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
   float paperDot(vec2 p,vec2 c,float r){return 1.0-step(r,length(p-c));}
   vec3 pokemonPaper(vec2 p){
+   if(pokeStyle>=81){vec2 size=max(pokeArea.zw,vec2(1.0));vec2 q=(p-pokeArea.xy-size*.5)/min(size.x,size.y)*2.0;return blackArtwork(q,pokePhase*.5,pokeStyle-81);}
    if(pokeStyle>=71){
     vec2 size=max(pokeArea.zw,vec2(1.0));vec2 q=(p-pokeArea.xy)/min(size.x,size.y);
     float t=pokePhase*.65,k=float(pokeStyle-71);
@@ -371,6 +376,7 @@ return function(mod)
   }
  ]]
  local sceneShader=assert(load(assert(mod:read('lib/pokemon_scenes.lua'))))()
+ M.glsl=black.glsl..M.glsl
  M.glsl=M.glsl:gsub('  float paperDot',function()return sceneShader..'\n  float paperDot'end,1)
  return M
 end

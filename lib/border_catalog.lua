@@ -200,6 +200,12 @@ C.entries[#C.entries+1]={label='CRIMSON FIRE WHIRL',path='assets/borders/pokemon
 C.entries[#C.entries+1]={label='OBSIDIAN CURRENT',path='assets/borders/pokemon_gradient.png',animation='gradient',gradient='dark_frame_midnight'}
 C.entries[#C.entries+1]={label='ABYSSAL CURRENT',path='assets/borders/pokemon_gradient.png',animation='gradient',gradient='dark_frame_abyss'}
 C.entries[#C.entries+1]={label='VIOLET CURRENT',path='assets/borders/pokemon_gradient.png',animation='gradient',gradient='dark_frame_violet'}
+local blackNames={
+ 'BLACK SPIRAL','BLACK MANDALA','BLACK MOIRE','BLACK LOTUS','BLACK LIQUID',
+ 'BLACK INFINITY','BLACK PRISM','BLACK THIRD EYE','BLACK WAVE WEAVE','BLACK ORBITS',
+ 'BLACK POKEBALLS','BLACK UMBREON RINGS','BLACK GENGAR EYES','BLACK PIKACHU BOLTS','BLACK CHARMANDER EMBERS',
+ 'BLACK SQUIRTLE BUBBLES','BLACK BULBASAUR LEAVES','BLACK MEW STARS','BLACK JIGGLYPUFF NOTES','BLACK SNORLAX DREAMS'}
+for i,name in ipairs(blackNames)do C.entries[#C.entries+1]={label=name,path='assets/borders/pokemon_gradient.png',animation='black'..(i-1),blackFamily=i<=10 and 'BLACK PSYCHEDELIC' or 'BLACK POKEMON'}end
 C.choices={}
 for i,entry in ipairs(C.entries) do C.choices[i]=entry.label end
 function C.selection(raw,format)
@@ -211,7 +217,7 @@ function C.groups()
  local groups,lookup={},{}
  local families={'VOLT TRAILS','EMBER FLOW','TIDAL WAVES','LEAF DANCE','PSYCHIC EYES','POKEBALL ORBITS'}
  for i,e in ipairs(C.entries)do if not e.hidden then
-  local label=e.redFire and 'RED FIRE' or e.redPsy and 'RED PSYCHEDELIC' or e.pokemonMotif and families[(e.pokemonMotif-1)%6+1] or e.animation and 'OTHER ANIMATED DESIGNS' or e.path and e.path:find('pokemon_',1,true) and 'CLASSIC POKEMON FRAMES' or 'GAME BORDERS'
+  local label=e.blackFamily or e.redFire and 'RED FIRE' or e.redPsy and 'RED PSYCHEDELIC' or e.pokemonMotif and families[(e.pokemonMotif-1)%6+1] or e.animation and 'OTHER ANIMATED DESIGNS' or e.path and e.path:find('pokemon_',1,true) and 'CLASSIC POKEMON FRAMES' or 'GAME BORDERS'
   if not lookup[label]then lookup[label]={label=label,choices={}};groups[#groups+1]=lookup[label]end
   lookup[label].choices[#lookup[label].choices+1]={id=i,label=e.pokemonMotif and e.label or e.pokemonName or e.label}
  end end

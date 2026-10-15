@@ -1,3 +1,7 @@
+Menu Customizer 3.6.0 - Black artwork collection
+
+20 new animated borders and 20 new animated backgrounds: ten psychedelic and ten Pokemon designs in each set. Mostly black with sparse muted accents. Available in BLACK PSYCHEDELIC and BLACK POKEMON groups, including ALL BORDERS and ALL BACKGROUNDS. Saved design IDs are preserved.
+
 # Menu Customizer 3.5.0 — ALL FONTS
 
 Open OPTIONS → MENUS → ALL FONTS to change font style (NATIVE/EMERALD), font color, shadow color/opacity, alignment, text case and shared text effects together. Font choices fan out to menu, dialogue, intro/save summary, battle/name/level-up text and custom Mart/PC profiles. Choosing a solid font color clears older alternating-color presets so the new choice is visible.

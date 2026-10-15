@@ -100,6 +100,7 @@ return function(mod)
     M.backgroundNames[#M.backgroundNames+1]=e.name
     backgrounds[#backgrounds+1]={1,1,1,1,animation='GRADIENT',gradient=e.key}
   end
+  for _,e in ipairs(M.pokemonBackgrounds.blackEntries or{})do M.backgroundNames[#M.backgroundNames+1]=e.name;backgrounds[#backgrounds+1]=M.pokemonBackgrounds.color(e.key)end
   local lists={text=foreground,shadow=shadows,background=backgrounds}
   function M.color(kind,n)local l=lists[kind] or foreground;return l[math.max(0,math.min(#l-1,math.floor(n or 0)))+1]end
   local function hue(c)
@@ -151,7 +152,7 @@ return function(mod)
   -- IDs stay flat in storage; navigation groups the same colours by hue.
   function M.groups(kind,defaultLabel)
     local names=kind=='shadow' and M.shadowNames or kind=='background' and M.backgroundNames or kind=='menuBackground' and M.menuBackgroundNames or M.names
-    local families={'SPECIAL','NEUTRALS','REDS','ORANGES','YELLOWS','GREENS','CYANS','BLUES','PURPLES','PINKS','BROWNS','ANIMATED','POKEMON','TRIPPY','POKEMON STILL','POKEMON ANIMATED','RED FIRE'}
+    local families={'SPECIAL','NEUTRALS','REDS','ORANGES','YELLOWS','GREENS','CYANS','BLUES','PURPLES','PINKS','BROWNS','ANIMATED','POKEMON','TRIPPY','POKEMON STILL','POKEMON ANIMATED','RED FIRE','BLACK PSYCHEDELIC','BLACK POKEMON'}
     local buckets={};for _,name in ipairs(families)do buckets[name]={label=name,ids={}}end
     local count=#names
     for i=0,count-1 do
@@ -160,7 +161,7 @@ return function(mod)
       else
         c=M.color(kind=='menuBackground' and 'background' or kind,kind=='menuBackground' and i-1 or i)
         label=names[i+1]
-        if c.pokemon then family=M.pokemonBackgrounds.byKey[c.pokemon].fire and 'RED FIRE' or M.pokemonBackgrounds.byKey[c.pokemon].scene and (M.pokemonBackgrounds.byKey[c.pokemon].still and 'POKEMON STILL' or 'POKEMON ANIMATED') or M.pokemonBackgrounds.byKey[c.pokemon].clip and 'ANIMATED' or M.pokemonBackgrounds.byKey[c.pokemon].style>=13 and 'TRIPPY' or 'POKEMON'
+        if c.pokemon then family=M.pokemonBackgrounds.byKey[c.pokemon].blackFamily or M.pokemonBackgrounds.byKey[c.pokemon].fire and 'RED FIRE' or M.pokemonBackgrounds.byKey[c.pokemon].scene and (M.pokemonBackgrounds.byKey[c.pokemon].still and 'POKEMON STILL' or 'POKEMON ANIMATED') or M.pokemonBackgrounds.byKey[c.pokemon].clip and 'ANIMATED' or M.pokemonBackgrounds.byKey[c.pokemon].style>=13 and 'TRIPPY' or 'POKEMON'
         elseif c.animation then family='ANIMATED'
         else
           local h,v=hue(c);local lo=math.min(c[1],c[2],c[3]);local sat=v>0 and (v-lo)/v or 0
