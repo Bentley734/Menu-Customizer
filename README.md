@@ -1,3 +1,7 @@
+Menu Customizer 3.22.2 - Matching party labels and HP placement
+
+Party level and HP labels use the same font renderer and styling as names. Keep HP counts beside the bar, independent of global text justification. Native label spacing avoids bar/level overlap.
+
 Menu Customizer 3.22.1 - Sentence Case name formatting
 
 Keep Pokemon/Pokémon capitalized in Sentence Case. Player, rival and character names use an initial capital followed by lowercase; species name handling and other case modes remain unchanged.

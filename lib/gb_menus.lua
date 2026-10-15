@@ -272,6 +272,9 @@ return function(mod,catalog)
     local def=mon and game.data and game.data.pokemon and game.data.pokemon[mon.species]
     if mon then text=(def and def.name) or mon.name or mon.species or text end
    end
+   if current and current.drawingParty and tostring(text):match('^%s*%d+/%s*%d+$')then
+    return render(tostring(text):gsub('%s+',''),108,y,...)
+   end
    if current and current.drawScope and current.theme.enabled() then
     -- Preserve cartridge numeric fields' right edges with proportional text.
     local raw=tostring(text)
@@ -346,6 +349,17 @@ return function(mod,catalog)
   -- GBC palette printing paints paper and individual glyphs directly, bypassing
   -- Font.draw. Move the whole print operation, including its background.
   Font._menuCustomizerLabel=label
+  local Hud=require('src.render.HudTiles');local tile=Hud.tile
+  Hud.tile=function(id,x,y,...)
+   local c=Font._menuCustomizerGB
+   if c and c.drawingParty then
+    if id==0x6E then return Font.draw(c.theme.enabled()and 'Lv'or 'L',x,y)end
+    if id==0x71 then return Font.draw('HP:',math.min(x,48-Font.width('HP:')),y)end
+    if id==0x62 then return end -- second native HP-label tile
+   end
+   return tile(id,x,y,...)
+  end
+
   Font.drawCode=function(glyph,x,y,...)
    local current=Font._menuCustomizerGB
    local start=current and (current.drawingStart or current.drawingOptions)
