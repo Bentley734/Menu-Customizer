@@ -36,7 +36,7 @@ return function(mod)
   end
   local fonts=mod.exports.allFonts
   local out
-  if scope=='mods'and fonts and fonts.withFrame then out={pcall(fonts.withFrame,scope,fn,...)}else out={pcall(fn,...)}end
+  if (scope=='mods'or scope=='trainerCard')and fonts and fonts.withFrame then out={pcall(fonts.withFrame,scope,fn,...)}else out={pcall(fn,...)}end
   G.rectangle=rect
   M.current=prior;mod.exports.menuPaperScope=paper;mod.exports.previewScope=preview
   if not out[1]then error(out[2],0)end;return unpack(out,2)
@@ -71,9 +71,9 @@ return function(mod)
   local palette=assert(mod.exports.selectorPalette)
   local catalog=mod.exports.borderCatalog or assert(load(assert(mod:read('lib/border_catalog.lua'))))()
   local result={}
-  local scopes={'mart','pc','dialogue','mods'};if mod.generation<3 then scopes[#scopes+1]='loadReport'end
+  local scopes={'mart','pc','dialogue','mods'};if mod.generation<3 then scopes[#scopes+1]='loadReport';scopes[#scopes+1]='trainerCard'end
   for _,scope in ipairs(scopes)do
-   local label=scope=='mods'and'MOD MENUS'or scope=='mart'and'POKE MART'or scope=='pc'and'PC MENUS'or scope=='loadReport'and'LOAD REPORT'or'DIALOGUE BOXES'
+   local label=scope=='trainerCard'and'PLAYER CARD'or scope=='mods'and'MOD MENUS'or scope=='mart'and'POKE MART'or scope=='pc'and'PC MENUS'or scope=='loadReport'and'LOAD REPORT'or'DIALOGUE BOXES'
    local rows={}
    local function write(ctx,key,n)
     local values={[key]=n,borderCatalogFormat=2}
@@ -108,7 +108,7 @@ return function(mod)
    add('BackgroundColor','BACKGROUND',0,0,#palette.menuBackgroundNames-1,palette.menuBackgroundNames,'menuBackground','menuBackgroundColor')
    add('TextColor','TEXT COLOR',0,0,#palette.names-1,palette.names,'text','menuTextColor')
    add('TextShadowColor','TEXT SHADOW',0,0,#palette.shadowNames-1,palette.shadowNames,'shadow','menuTextShadowColor')
-   if scope=='dialogue'or scope=='loadReport'or scope=='mods'then add('Justify','ALIGNMENT',scope=='loadReport'and 2 or 1,1,3,{'LEFT','CENTER','RIGHT'})end
+   if scope=='dialogue'or scope=='loadReport'or scope=='mods'or scope=='trainerCard'then add('Justify','ALIGNMENT',scope=='loadReport'and 2 or 1,1,3,{'LEFT','CENTER','RIGHT'})end
    rows[#rows+1]={id='surface_'..scope..'Reset',label=scope=='dialogue'and'RESET DIALOGUE'or'USE MENU STYLE',activate=function(ctx)
     local values={}
     if scope=='dialogue'then values={dialogueTheme=2,dialogueBorderChoice=0,dialogueBorder=0,dialogueBackgroundColor=0,dialogueTextColor=0,dialogueTextShadowColor=0,dialogueJustify=1}
@@ -198,6 +198,7 @@ return function(mod)
    for _,path in ipairs({'src.ui.Menu','src.ui.ListMenu','src.ui.ChoiceBox','src.ui.QuantityBox','src.render.TextBox','src.ui.BoxMenu'})do constructor(path)end
    constructor('src.ui.QuarantineReport','loadReport')
    constructor('src.mods.ManagerState','mods')
+   constructor(mod.generation==1 and'src.ui.TrainerCard'or'src.ui.gen2.TrainerCard','trainerCard')
    local Screens=require('src.ui.Screens');local push=Screens.push
    if not Screens._menuCustomizerMods then
     Screens._menuCustomizerMods=true

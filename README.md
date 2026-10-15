@@ -1,3 +1,11 @@
+# Menu Customizer 3.25.0 — Player Card customization
+
+Add a dedicated PLAYER CARD submenu with independent font, frame, background, text color, shadow and alignment settings for Gen 1/2. Its initial style inherits the menu style; choosing a card setting enables its custom profile. Global controls still include the card. Gen 1 gym leader and badge artwork preserves enclosed white highlights against custom backgrounds, while exterior paper stays transparent.
+
+Move the party screen prompt inside the Gen 4 frame insets, including left, center and right alignment. Existing saved options remain compatible.
+
+Validated rendered Gen 1 player card and Gen 4 party prompt, independent profile scope, and Gen 1/2/3 startup with KIM1025. Restart after updating.
+
 Menu Customizer 3.24.2 - Inner selector and mod value margins
 
 Reserve space inside Gen IV borders for customization-menu selectors. Bound mod-menu values, including numbers, by the frame interior so Tool Music values clear the right side.

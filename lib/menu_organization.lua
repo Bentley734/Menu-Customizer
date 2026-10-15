@@ -10,9 +10,10 @@ return function(entries,openPage)
   copy.label=label~=''and label or row.label
   return copy
  end
- local storage,themes,fonts,textSpeeds
+ local storage,themes,fonts,textSpeeds,playerCard
  local pages={};for _,name in ipairs(order)do pages[name]={}end
  local function add(r)
+  if r.id=='wide_surface_trainerCard'then playerCard=r;return end
   if r.id=='wide_animationSpeeds_text'then textSpeeds=r;return end
   if r.id=='wide_animationSpeeds_background'then pages.BACKGROUNDS[#pages.BACKGROUNDS+1]=r;return end
   if r.id=='wide_animationSpeeds_border'then pages.BORDERS[#pages.BORDERS+1]=r;return end
@@ -109,6 +110,7 @@ return function(entries,openPage)
   out[#out+1]={id='wide_page_'..name,label=name,group=true,children=children,value=function()return #children..' OPTIONS'end,activate=function(ctx)return openPage(name,children,ctx)end}
  end
  if themes then table.insert(out,1,themes)end
+ if playerCard then out[#out+1]=playerCard end
  if storage then out[#out+1]=storage end
  return out
 end

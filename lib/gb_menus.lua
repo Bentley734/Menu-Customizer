@@ -272,6 +272,10 @@ return function(mod,catalog)
      else x=math.max(il,math.min(x,160-ir-width))end
     end
    end
+   if current and current.drawingParty and y>=96 and x==8 then
+    local il,ir,ds=current.borders.insets(nil,160,48)
+    if ds then x=current.mod.exports.allFonts.align(il+2,160-il-ir-4,Font.width(text),'party')end
+   end
    if current and current.drawingParty and text=='' and x==24 and y%16==0 then
     -- Transferred mons can carry an empty nickname. Resolve the displayed
     -- row name without editing the party record or its persisted nickname.
