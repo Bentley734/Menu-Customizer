@@ -1,3 +1,13 @@
+# Menu Customizer 3.26.0 — Native battle panel fitting
+
+Fix command and move text clipping in native Gen 1/2 battles without KIM1025. Those panels now fit and rasterize at the final window destination instead of the small intermediate battle canvas. Battle dialogue retains its existing rendering. Commands retain their complete labels and prompt.
+
+Long move names automatically wrap into two lines. Each grid row reserves the height required by its tallest name, keeping neighboring moves and selectors separate. PP and type use fitted narrow text.
+
+Protect the customized status-frame tiles from native palette recoloring, including animated colors, using the same compositing protection as the party indicators.
+
+Validation: real GPU native-canvas command/move replay matches full-resolution renders pixel-for-pixel at all three font sizes and justifications; rendered long move names checked; native palette regression verifies status-frame colors and both party rows. Gen 1–3 startup with KIM1025 passed. Restart after installing.
+
 # Menu Customizer 3.25.2 — Full battle command text
 
 Use a smaller, fitted narrow font for battle commands so Fight, Pokémon, Bag and Run remain visible inside wide Gen 4 frame panels. Restore the full two-line prompt, What will / [Pokémon] do?, instead of the shortened What now? layout. Command text stays within the available space at every battle font-size setting.

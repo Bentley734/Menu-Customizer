@@ -493,6 +493,8 @@ return function(mod)
           end
           view.player.curMoves=copied
         end
+        local deferred=mod.exports.battlePanelSurface
+        if deferred and deferred.defer(view,{x=px,y=py,w=ex-px,h=ey-py})then mode=priorMode;return end
         local ok,err=pcall(api.moveScreen.draw,view,{x=px,y=py,w=ex-px,h=ey-py},{})
         protect(x,y,width,height);mode=priorMode
         if not ok then error(err,0)end
@@ -723,6 +725,8 @@ return function(mod)
         local width=wide and 304 or 160+(mod.generation==2 and (tonumber(select(1,...))or 0)or 0)*8
         local y=wide and 104 or 96;local h=wide and 40 or 48
         local x1,y1=G.transformPoint(0,y);local x2,y2=G.transformPoint(width,y+h)
+        local deferred=mod.exports.battlePanelSurface
+        if self.phase=='menu'and deferred and deferred.defer(self,{x=x1,y=y1,w=x2-x1,h=y2-y1})then return end
         if nativeEmerald.bottom(self,mod.generation,{x=x1,y=y1,w=x2-x1,h=y2-y1,nativeWidth=width,nativeHeight=h,wide=wide},api) then
           protect(0,y,width,h);return
         end

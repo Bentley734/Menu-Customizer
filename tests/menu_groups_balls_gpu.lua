@@ -60,6 +60,9 @@ function love.load()
   local src=G.newCanvas(160,144);G.setCanvas(src);G.origin();G.clear(0,0,0,0)
   local party={{hp=20},nil,nil,nil,nil,nil}
   B.drawBallRow({},party,64,16,-8);B.drawBallRow({},party,88,80,8)
+  api.customization.write(game,{battleHudFrameColor=4})
+  api.battleHudScope=true;require('src.render.HudTiles').tile(0x73,32,32);api.battleHudScope=nil
+  G.setCanvas();local before=src:newImageData()
   local target=G.newCanvas(160,144);G.setCanvas(target);G.origin();G.clear(1,1,1,1)
   local pals={};for i=0,3 do pals[i]={{1,1,1},{.8,.6,.2},{.4,.2,.1},{0,0,0}}end
   local owner={sgbBattlePals=function()return pals end,activeBgp=function()return nil end}
@@ -69,6 +72,11 @@ function love.load()
    local r,g,b=pixels:getPixel(x+3,y+1);assert(r>.7 and g<.2,'Party ball red lost during palette compositing')
    local r,g,b=pixels:getPixel(x+3,y+6);assert(r>.9 and g>.9 and b>.9,'Party ball white lost during palette compositing')
   end
+  local red=0
+  for y=32,39 do for x=32,39 do local r,g,b,a=before:getPixel(x,y)
+   if a>.1 then local rr,gg,bb=pixels:getPixel(x,y);assert(math.abs(r-rr)<.01 and math.abs(g-gg)<.01 and math.abs(b-bb)<.01,'Status frame recolored');if r>.4 and g<.2 then red=red+1 end end
+  end end
+  assert(red>0,'Status frame test did not draw colored frame ink')
   write(version..'-party-balls-final.png',pixels:encode('png'):getString())
   assert(not M.current and not api.previewScope,'surface scope leaked')
   write(version..'-result.txt','PASS grouped position/transparency menus and both party ball rows after native palette compositing\n')

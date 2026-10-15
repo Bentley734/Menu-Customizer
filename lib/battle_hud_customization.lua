@@ -97,7 +97,7 @@ return function(mod)
    if not chosen then return draw(image,...)end
    if chosen=='Frame'and mod.options:get('battleHudFrameVisible')==0 then return end
    local fg=tonumber(mod.options:get('battleHud'..chosen..'Color'));local shadow=tonumber(mod.options:get('battleHud'..chosen..'ShadowColor'))
-   if fg==nil and shadow==nil then return draw(image,...)end
+   if fg==nil and shadow==nil and chosen~='Frame'then return draw(image,...)end
    local P=mod.exports.selectorPalette;local ink=mask(image,quad)
    if quad then table.remove(args,1)end
    G.push('all');G.setShader();G.setBlendMode('alpha','alphamultiply')
@@ -110,6 +110,8 @@ return function(mod)
     P.effects.paint(P.color('text',fg or 0),'battle',function()draw(ink,unpack(args))end)
    end)
    role=oldRole;G.pop();if not ok then error(err,0)end
+   local ui=mod.exports.battleUi
+   if ui and ui.protect then ui.protect(args[1]or 0,args[2]or 0,ink:getWidth()*(args[4]or 1),ink:getHeight()*(args[5]or args[4]or 1))end
    if not mod.exports.battleHudCapture then
     local FX=require('src.render.PaletteFX');if FX.markTrueColor then FX.markTrueColor(args[1]or 0,args[2]or 0,ink:getWidth()*(args[4]or 1),ink:getHeight()*(args[5]or args[4]or 1))end
    end

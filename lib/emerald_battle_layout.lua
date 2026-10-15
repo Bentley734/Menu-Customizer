@@ -34,7 +34,8 @@ return function(G,mod)
   local fonts=mod and mod.exports.allFonts
   if fonts then x=fonts.align(rect.x+reserve,rect.w-reserve,width*sx,'battle',centerName and 2 or 1)
   elseif centerName then x=rect.x+reserve+(rect.w-reserve-width*sx)/2 end
-  local y=rect.y+(rect.h-16*sy)/2
+  local _,breaks=s:gsub('\n','')
+  local y=rect.y+(rect.h-16*(breaks+1)*sy)/2
   at(rect,sx,sy,dx,dy,x,y,function()
    F.draw(s,0,0,{font=font,colors=colors})
    if cursor then F.drawGlyph(F.CHAR_SELECTOR_ARROW,-10,0,{colors=colors})end
@@ -78,16 +79,39 @@ return function(G,mod)
   custom.frames('moves',rect,viewport)
   local pane=inner(rect,0,rect.w*2/3)
   local cell={w=pane.w/2,h=pane.h/2}
-  local names={};local width=0
+  local names,lines={},{};local rowLines={1,1}
+  local function measure(s)return F.measure(s,{font='narrow'})or 0 end
+  local nominal=math.max(1,math.floor(math.min(pane.h/64,cell.w/50)))
+  local budget=math.max(16,cell.w/nominal-14)
+  local function wrap(s)
+   if measure(s)<=budget then return s,1 end
+   local best,score
+   for pos in s:gmatch('() ')do
+    local a,b=s:sub(1,pos-1),s:sub(pos+1)
+    local n=math.max(measure(a),measure(b))
+    if not score or n<score then best={a,b};score=n end
+   end
+   if not best then
+    local chars={};for c in s:gmatch('[%z\1-\127\194-\244][\128-\191]*')do chars[#chars+1]=c end
+    local half=math.ceil(#chars/2);best={table.concat(chars,'',1,half),table.concat(chars,'',half+1)}
+   end
+   return best[1]..'\n'..best[2],2
+  end
+  local width=0
   for i=1,4 do
    local move=battle.player and battle.player.curMoves and battle.player.curMoves[i]
    local def=move and battle.data.moves[move.id]
-   names[i]=def and def.name or '-'
-   width=math.max(width,F.measure(names[i],{font='narrow'})or 0)
+   names[i],lines[i]=wrap(def and def.name or '-')
+   rowLines[math.floor((i-1)/2)+1]=math.max(rowLines[math.floor((i-1)/2)+1],lines[i])
+   width=math.max(width,measure(names[i]))
   end
-  local sx,sy,dx,dy=scale(cell,width+14,18,viewport)
+  local totalLines=rowLines[1]+rowLines[2]
+  local heights={pane.h*rowLines[1]/totalLines,pane.h*rowLines[2]/totalLines}
+  local priorFactor=factor;factor=math.min(factor,1)
+  local sx,sy,dx,dy=scale({w=cell.w,h=pane.h/totalLines},width+12,16,viewport);factor=priorFactor
   for i,s in ipairs(names)do
-   local c={x=pane.x+(i-1)%2*cell.w,y=pane.y+math.floor((i-1)/2)*cell.h,w=cell.w,h=cell.h}
+   local row=math.floor((i-1)/2)+1
+   local c={x=pane.x+(i-1)%2*cell.w,y=pane.y+(row==2 and heights[1]or 0),w=cell.w,h=heights[row]}
    label(F,s,c,sx,sy,dx,dy,'narrow',colors(),i==(battle.moveIndex or 1)or i==battle.moveSwapIndex,true)
   end
   local move=battle.player and battle.player.curMoves and battle.player.curMoves[battle.moveIndex or 1]
@@ -99,15 +123,15 @@ return function(G,mod)
    local kind=typeName(def.type,battle.data)
    local right=inner(rect,rect.w*2/3,rect.w/3)
    local lines={'PP',pp:gsub('%s+',''),'TYPE',kind}
-   local widest=0;for _,text in ipairs(lines)do widest=math.max(widest,F.measure(text,{font='normal'})or 0)end
+   local widest=0;for _,text in ipairs(lines)do widest=math.max(widest,F.measure(text,{font='narrow'})or 0)end
    local rsx,rsy,rdx,rdy=scale(right,widest+4,64,viewport)
    for row,text in ipairs(lines)do
-    local w=F.measure(text,{font='normal'})or 0
+    local w=F.measure(text,{font='narrow'})or 0
     local x=right.x+(right.w-w*rsx)/2
     local fonts=mod and mod.exports.allFonts;if fonts then x=fonts.align(right.x,right.w,w*rsx,'battle',2)end
     local y=right.y+(row-1)*right.h/4+(right.h/4-16*rsy)/2
     at(right,rsx,rsy,rdx,rdy,x,y,function()
-     F.draw(text,0,0,{font='normal',colors=row==2 and colors(move.pp or 0,maximum)or colors()})
+     F.draw(text,0,0,{font='narrow',colors=row==2 and colors(move.pp or 0,maximum)or colors()})
     end)
    end
   end
