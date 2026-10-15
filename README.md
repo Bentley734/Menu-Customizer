@@ -1,3 +1,7 @@
+# Menu Customizer 3.3.4 — Consistent dex number marker
+
+The summary No. marker and special dot now use the selected menu font alongside the Pokédex number. Native-font mode retains its original artwork. Focused LuaJIT/Lua 5.3 tests and Red/Gold combined KIM startup pass.
+
 # Menu Customizer 3.3.3 — Crisp stats and fixed battle layouts
 
 Level-up stats now draw directly in the final framebuffer using the battle command font, with whole physical pixels. The native stat window keeps its normal-size geometry at every font setting. This replaces fractional text drawn into the tiny GB canvas.

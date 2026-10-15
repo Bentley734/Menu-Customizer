@@ -88,7 +88,7 @@ return function(mod,enabled)
     local id=glyphId(c)
     if #codes==1 and (codes[1]~=missing or c=='?') and codes[1]~=space and id~=0 then map[codes[1]]={id} end
    end
-   for token,text in pairs({['<PO>']='PO',['<KE>']='Ké',['<PK>']='PK',['<MN>']='MN',["'d"]="'d",["'l"]="'l",["'m"]="'m",["'r"]="'r",["'s"]="'s",["'t"]="'t",["'v"]="'v"}) do
+   for token,text in pairs({['№']='No',['<DOT>']='.',['<PO>']='PO',['<KE>']='Ké',['<PK>']='PK',['<MN>']='MN',["'d"]="'d",["'l"]="'l",["'m"]="'m",["'r"]="'r",["'s"]="'s",["'t"]="'t",["'v"]="'v"}) do
     local codes=GB.encode(token)
     if #codes==1 and codes[1]~=missing and codes[1]~=space then map[codes[1]]=glyphs(text) end
    end
