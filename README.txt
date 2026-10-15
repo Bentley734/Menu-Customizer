@@ -1,3 +1,7 @@
+Menu Customizer 3.23.7 - Player and rival name casing
+
+Read names from the actual save.player.name / save.player.rival fields and Continue summary saves. Sentence Case and Title Case show only the first name letter capitalized. Vanilla and lowercase modes remain unchanged.
+
 Menu Customizer 3.23.6 - YES/NO selector inside left margin
 
 Shift YES/NO text right and position its selector on the left, inside the Gen IV frame interior.

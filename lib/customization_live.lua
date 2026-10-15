@@ -118,6 +118,7 @@ return function(mod)
     end)
    end
    if mode==1 then chunk=properNames.restore(chunk)end
+   if mode==1 or mode==3 then chunk=properNames.players(chunk)end
    out[#out+1]=chunk;if not a then break end;out[#out+1]=text:sub(a,b);at=b+1
   end
   return table.concat(out)

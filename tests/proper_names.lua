@@ -13,3 +13,12 @@ assert(C.text('HELLO ASH KETCHUM AND GARY OAK!')=='Hello Ash ketchum and Gary oa
 C.write(g,{textCase=2});assert(C.text('PIKACHU AND OAK')=='pikachu and oak')
 C.write(g,{textCase=3});assert(C.text('PIKACHU AND OAK')=='Pikachu And Oak')
 print('PASS Sentence Case preserves species and character names, tags, contractions; other case modes unchanged')
+
+-- Real save schema: rival lives under player.rival, not rivalName.
+testLoader.events:emit('game.ready',{game={save={player={name='ALICE',rival='BOB'}}}})
+for _,mode in ipairs({1,3})do
+ C.write(g,{textCase=mode});assert(C.text('ALICE MET BOB')==(mode==1 and 'Alice met Bob'or'Alice Met Bob'))
+end
+C.write(g,{textCase=0});assert(C.text('ALICE MET BOB')=='ALICE MET BOB')
+C.write(g,{textCase=2});assert(C.text('ALICE MET BOB')=='alice met bob')
+print('PASS actual player.rival schema, Sentence/Title Case names, vanilla unchanged')
