@@ -1,3 +1,7 @@
+Menu Customizer 3.20.2 - Thin borders with animated paper
+
+Fix thin animated borders disappearing when animated backgrounds replace their shader during menu paper tinting. Thin frames now use the captured drawing primitive, keeping background and border shader scopes independent. Includes an actual mirrored-menu GPU regression with animated paper.
+
 Menu Customizer 3.20.1 - Larger Load Report and visibility option
 
 Load Report uses full-size Emerald text, a vertically centered five-row body, centered default alignment and an inset Continue footer. Long reports remain scrollable. SHOW LOAD REPORT under TEXT > FONT AND LAYOUT > LOAD REPORT can skip the screen without disabling save validation. Enabled by default.

@@ -1,6 +1,6 @@
 -- Two-pixel animated frames, drawn procedurally without image downloads.
 return function(mod,palette)
- local G=love.graphics;local shader
+ local G=love.graphics;local rectangle=G.rectangle;local shader
  return function(atlas,x,y,w,h,background)
   if not shader then shader=G.newShader([[
    extern vec2 origin;extern vec2 scale;extern vec2 size;extern float phase;extern int style;
@@ -21,12 +21,12 @@ return function(mod,palette)
    }
   ]])end
   G.push('all');G.setShader()
-  palette.paint(background or{1,1,1,1},G.rectangle,'fill',x,y,w,h)
+  palette.paint(background or{1,1,1,1},rectangle,'fill',x,y,w,h)
   local ax,ay=G.transformPoint(x,y);local bx,by=G.transformPoint(x+1,y+1)
   local canvas=G.getCanvas();local dpi=canvas and canvas:getDPIScale()or G.getDPIScale()
   shader:send('origin',{ax*dpi,ay*dpi});shader:send('scale',{math.max(.0001,(bx-ax)*dpi),math.max(.0001,(by-ay)*dpi)});shader:send('size',{w,h})
   local speeds=mod.exports.animationSpeeds;local speed=speeds and speeds.get('border',atlas.selection,100)or 100
   shader:send('phase',love.timer.getTime()*speed/100);shader:send('style',atlas.thin)
-  G.setShader(shader);G.setColor(1,1,1,1);G.rectangle('fill',x,y,w,h);G.pop();return true
+  G.setShader(shader);G.setColor(1,1,1,1);rectangle('fill',x,y,w,h);G.pop();return true
  end
 end
