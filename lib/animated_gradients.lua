@@ -90,4 +90,14 @@ function M.send(shader,key,prefix)
  local stops=entry and entry.stops or {{1,0,0},{1,1,0},{0,1,1},{.5,0,1}}
  for i,label in ipairs({'stopA','stopB','stopC','stopD'})do shader:send(prefix..label,stops[i])end
 end
+-- Appended catalog: keep every existing saved palette index stable.
+M.versionEntries={
+ {key='version_red',name='RED VERSION',hex={'A81F35','ED4050','FF8C91','CD2942'}},
+ {key='version_blue',name='BLUE VERSION',hex={'235FC2','438FF2','9BCFFF','3C76D8'}},
+ {key='version_green',name='GREEN VERSION',hex={'23834B','4BCB72','B0F5B0','379F63'}},
+ {key='version_yellow',name='YELLOW VERSION',hex={'D5AE19','F5D947','FFF6A2','E9C32B'}},
+ {key='version_gold',name='GOLD VERSION',hex={'A97523','DFAC43','FFE4A0','C58C30'}},
+ {key='version_silver',name='SILVER VERSION',hex={'788390','BAC5D0','F3F7FC','9BA9B9'}},
+ {key='version_crystal',name='CRYSTAL VERSION',hex={'5A91CD','85D5E8','D8F9FF','A2ACEE'}}}
+M.register(M.versionEntries)
 return M

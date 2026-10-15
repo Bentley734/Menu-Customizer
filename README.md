@@ -1,3 +1,7 @@
+Menu Customizer 3.14.0 - Game version gradients
+
+Adds seven matching animated gradient sets: RED VERSION, BLUE VERSION, GREEN VERSION, YELLOW VERSION, GOLD VERSION, SILVER VERSION and CRYSTAL VERSION. Each is available for text/shadows, backgrounds and animated borders, including global pickers and per-design animation speeds. New choices are appended so existing saved selections keep their designs.
+
 Menu Customizer 3.13.4 - Continue menu justification
 
 Keep the title menu justification while the Continue save summary is open. The retained title menu no longer loses alignment just because the summary becomes the top screen. Verified identical underlying-menu pixels before, during and after Continue for left, center and right justification in native and Emerald styles.

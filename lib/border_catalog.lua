@@ -210,6 +210,9 @@ local vividNames={'BLACK CHROMATIC SPIRAL','BLACK KALEIDOSCOPE','BLACK FRACTAL V
 for i,name in ipairs(vividNames)do C.entries[#C.entries+1]={label=name,path='assets/borders/pokemon_gradient.png',animation='black'..(39+i)}end
 local forestNames={'EMERALD FOREST','WINDY GRASSLAND','MIDNIGHT PINES','BAMBOO GROVE','FERN WAVES','CLOVER DRIFT','FIREFLY MEADOW','JUNGLE VINES','RAINY WOODLAND','MOSSY GLADE'}
 for i,name in ipairs(forestNames)do C.entries[#C.entries+1]={label=name,path='assets/borders/pokemon_gradient.png',animation='forest'..(i-1)}end
+for _,name in ipairs({'red','blue','green','yellow','gold','silver','crystal'})do
+ C.entries[#C.entries+1]={label=name:upper()..' VERSION',path='assets/borders/pokemon_gradient.png',animation='gradient',gradient='version_'..name}
+end
 C.choices={}
 for i,entry in ipairs(C.entries) do C.choices[i]=entry.label end
 function C.selection(raw,format)
