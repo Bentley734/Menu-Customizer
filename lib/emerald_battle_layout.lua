@@ -51,14 +51,21 @@ return function(G,mod)
   local mon=generation==2 and battle:activeMon('player')or p and p.mon
   local name=p and p.name or mon and(mon.nickname or mon.name)or 'POKéMON'
   local first,last='What will',name..' do?'
-  local promptFont='normal'
+  local prompt=mod.exports.battlePrompt
+  local promptFont=prompt and prompt.get('Font',1)==2 and'narrow'or'normal'
   local promptInk=math.max(F.measure(first,{font=promptFont})or 0,F.measure(last,{font=promptFont})or 0)
   -- Allocate by measured text, including the complete selector reservation.
-  local promptWidth=pane.w*.34
+  local originalPromptWidth=pane.w*.34
+  local promptWidth=pane.w*.4
   local cell={w=(pane.w-promptWidth)/2,h=pane.h/2}
   local dx,dy=tonumber(viewport and viewport.dpiX)or 1,tonumber(viewport and viewport.dpiY)or 1
   local commandPixels=math.max(1,math.floor(math.min(cell.w*dx/(width+12),cell.h*dy/16)))
-  local promptPixels=math.max(1,math.floor(math.min(promptWidth*dx/(promptInk+4),pane.h*dy/32)))
+  local basePixels=math.max(1,math.floor(math.min(originalPromptWidth*dx/(promptInk+4),pane.h*dy/32)))
+  local promptPixels=basePixels*(prompt and prompt.get('Size',2)or 2)
+  local promptLines={first,last}
+  if promptInk*promptPixels>promptWidth*dx then promptLines={first,name,'do?'}end
+  local maxInk=0;for _,text in ipairs(promptLines)do maxInk=math.max(maxInk,F.measure(text,{font=promptFont})or 0)end
+  promptPixels=math.max(1,math.min(promptPixels,math.floor(promptWidth*dx/math.max(1,maxInk)),math.floor(pane.h*dy/(#promptLines*11))))
   local sx,sy=commandPixels/dx,commandPixels/dy
   local px,py,pdx,pdy=promptPixels/dx,promptPixels/dy,dx,dy
   for i,s in ipairs(commands)do
@@ -66,14 +73,16 @@ return function(G,mod)
    label(F,s,c,sx,sy,dx,dy,commandFont,colors,i==(battle.menuIndex or 1))
   end
   local left={x=pane.x,y=pane.y,w=promptWidth,h=pane.h}
-  local x=left.x;local y=left.y+(left.h-32*py)/2
+  local blockHeight=#promptLines*11*py
+  local x=left.x;local y=left.y+(left.h-blockHeight)/2-2*py
   at(left,px,py,pdx,pdy,x,y,function()
-   local fonts=mod and mod.exports.allFonts
-   local function prompt(text,y)
-    local tx=fonts and fonts.align(0,left.w/px,F.measure(text,{font=promptFont})or 0,'battle')or 0
-    F.draw(text,tx,y,{font=promptFont,colors=colors})
+   for i,text in ipairs(promptLines)do
+    local ink=F.measure(text,{font=promptFont})or 0
+    local align=prompt and prompt.get('Justify',2)or 2
+    local gap=math.max(0,left.w/px-ink)
+    local tx=align==2 and gap/2 or align==3 and gap or 0
+    F.draw(text,math.floor(tx+.5),(i-1)*11,{font=promptFont,colors=prompt and prompt.colors(colors)or colors})
    end
-   prompt(first,0);prompt(last,16)
   end)
   return true
  end

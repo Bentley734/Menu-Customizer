@@ -1,3 +1,9 @@
+# Menu Customizer 3.31.1 — Larger independent command prompt
+
+Default the What Will / Pokémon / Do? question to 2x its former integer scale. Give the prompt a dedicated area and use three lines when the complete name-plus-question needs more width. Keep the panel bounds unchanged and fit exceptionally long names at whole-pixel scales.
+
+Add independent COMMAND PROMPT controls for 1x/2x/3x size, regular/narrow font, alignment, text color, shadow and effects. These appear beneath Battle in their matching existing Text submenus. Native battle HUD and final-window glyph regression checks passed; enlarged prompt rendering inspected. Restart after updating.
+
 # Menu Customizer 3.31.0 — Move Select customization and battle grouping
 
 Add an independent Move Select visual profile: inherited/custom style, font, font size, Grid/List, alignment, border, background, text/shadow colors, text effects, selector/color, X/Y offsets and opacity. Untouched properties inherit the battle settings. Move layout navigation follows the active move profile.
