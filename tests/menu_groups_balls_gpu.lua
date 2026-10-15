@@ -64,7 +64,7 @@ function love.load()
   api.battleHudScope=true;require('src.render.HudTiles').tile(0x76,32,32);require('src.render.HudTiles').tile(0x6D,48,32);require('src.render.HudTiles').tile(0x73,64,32);api.battleHudScope=nil
   G.setCanvas();local before=src:newImageData()
   local r,g,b,a=before:getPixel(51,32);assert(a>.9 and r>.4 and g<.2,'Restored HP-cap stroke did not use frame color')
-  local _,_,_,cap=before:getPixel(48,35);assert(cap>.9,'Functional HP gauge cap was removed')
+  local cr,cg,cb,cap=before:getPixel(48,35);assert(cap>.9 and cr<.01 and cg<.01 and cb<.01,'HP gauge cap is not black')
   local _,_,_,side=before:getPixel(67,32);assert(side>.9,'Customizable HUD side was not restored')
   local target=G.newCanvas(160,144);G.setCanvas(target);G.origin();G.clear(1,1,1,1)
   local pals={};for i=0,3 do pals[i]={{1,1,1},{.8,.6,.2},{.4,.2,.1},{0,0,0}}end

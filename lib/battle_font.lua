@@ -32,10 +32,12 @@ return function(mod)
       local capture=mod.exports.battleHudCapture
       local names=mod.exports.battleHudNames
       local battle=select(1,...)
+      local priorOwner=mod.exports.battleHudOwner;mod.exports.battleHudOwner=battle
       mod.exports.battleHudScope=true
       mod.exports.battleHudCapture=type(battle)=='table' and battle._kantoInMotionHudCapture==true
       mod.exports.battleHudNames=type(battle)=='table' and battle._kimHudNames or nil
       local result={pcall(original,...)}
+      mod.exports.battleHudOwner=priorOwner
       mod.exports.battleHudScope=prior
       mod.exports.battleHudCapture=capture
       mod.exports.battleHudNames=names

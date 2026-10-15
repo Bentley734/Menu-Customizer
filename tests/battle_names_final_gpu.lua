@@ -70,9 +70,10 @@ function love.load()
   assert(not B.moveGridNavigation({wideLayout=function()return true end}),'List still uses grid navigation')
   api.customization.write(game,{battle_move_layout=0})
   api.customization.write(game,{textCase=3,battleTextCase=3})
-  local theme=api.gbMenus.theme;local glyph=theme.glyph;local count=0;local properM=false;local names=0
+  local theme=api.gbMenus.theme;local glyph=theme.glyph;local count=0;local properM=false;local names=0;local forbidEnemy=false
   local textDraw=theme.draw
   theme.draw=function(text,x,y,opts)
+   if forbidEnemy then assert(text:upper()~='BULBASAUR','Fainted enemy name remained')end
    if text:upper()=='BULBASAUR'or text:upper()=='SQUIRTLE'then assert(not G.getCanvas(),'HUD name rasterized into a canvas');assert(opts.font=='normal','HUD name did not use regular face');names=names+1 end
    return textDraw(text,x,y,opts)
   end
@@ -88,14 +89,22 @@ function love.load()
    api.customization.write(game,{battle_move_layout=layout});battle.phase=phase
    battle.data.moves.tailwhip.name='TAIL WHIP';battle.data.moves.watergun.name='WATER GUN'
    local native=G.newCanvas(160,144);G.setCanvas(native);G.origin();G.clear(0,0,0,0);B.drawTextArea(battle)
-   api.battleHudScope=true;api.battleFontScope=true
+   api.battleHudScope=true;api.battleFontScope=true;api.battleHudOwner=battle
    require('src.render.Font').draw('BULBASAUR',24,0);require('src.render.Font').draw('SQUIRTLE',80,56)
-   api.battleHudScope=nil;api.battleFontScope=nil
+   api.battleHudScope=nil;api.battleFontScope=nil;api.battleHudOwner=nil
    local intermediate=G.newCanvas(1280,832);G.setCanvas(intermediate);G.origin();G.clear(0,0,0,0);G.setColor(1,1,1,1);G.draw(native,17.3,4.7,0,5.13,4.81)
    assert(count==0,'Text was rasterized before the final window copy')
    G.setCanvas();G.origin();G.clear(.1,.1,.1,1);G.draw(intermediate,3.4,2.6,0,.91,.87)
    assert(count>0,'Final window did not draw battle text');count=0
   end end
+  local surface=G.newCanvas(160,144);local enemy={};local player={};local owner={enemy=enemy,player=player}
+  G.setCanvas(surface);G.origin();G.clear(0,0,0,0)
+  api.battleHudOwner=owner;api.battleHudScope=true;api.battleFontScope=true
+  require('src.render.Font').draw('BULBASAUR',24,0);require('src.render.Font').draw('SQUIRTLE',80,56)
+  api.battleHudScope=nil;api.battleFontScope=nil;api.battleHudOwner=nil;G.setCanvas()
+  local before=names;enemy.fainted=true;forbidEnemy=true;G.draw(surface,0,0,0,5,5);assert(names>before,'Living player name disappeared')
+  before=names;player.fainted=true;G.draw(surface,0,0,0,5,5);assert(names==before,'Fainted player name remained')
+  owner.enemy={};owner.player={};G.draw(surface,0,0,0,5,5);assert(names==before,'Stale names survived switching')
   assert(names>=8,'Both HUD names were not rendered for each layout and panel')
   assert(properM,'Title-case Pokemon m was not exercised')
   assert(not M.current and not api.previewScope,'surface scope leaked')

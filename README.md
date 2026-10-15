@@ -1,3 +1,9 @@
+# Menu Customizer 3.29.3 — Fainting names and black gauge cap
+
+Tie deferred HUD names to their owning battler and HUD visibility. Suppress names after fainting, field clearing, hidden HUD transitions or switching battlers, including names retained in intermediate canvases. Keep the player HP gauge small end-cap black while the adjacent tall frame stroke continues using the chosen frame animation.
+
+GPU checks cover enemy fainting with the player name retained, both battlers fainted, switching stale records, black cap pixels and native palette preservation. Restart after updating.
+
 # Menu Customizer 3.29.2 — Original command frame and fitted spacing
 
 Restore the command panel original bounds. Allocate separate prompt and command regions inside the actual border insets, reserve selector width, and choose the largest whole-pixel text scale that fits each region. The full What Will / [name] Do? prompt stays within its own area without touching the border or commands.

@@ -3,7 +3,17 @@ return function(mod)
  if mod.generation~=1 then return end
  local G=love.graphics;local queues=setmetatable({},{__mode='k'});local replay=false
  local M={}
+ local function visible(item)
+  local owner=item.owner;if not owner then return true end
+  local mon=owner[item.side]
+  if mon~=item.mon or not mon or mon.fainted or owner.fieldCleared then return false end
+  if owner.statusHUDVisible and not owner:statusHUDVisible()then return false end
+  if item.side=='player'and(owner.showPlayerBack or owner.safari or owner.demo)then return false end
+  if item.side=='enemy'and(owner.showEnemyTrainer or owner.enemySendingOut or owner.enemyHudPending)then return false end
+  return true
+ end
  local function render(item)
+  if not visible(item)then return end
   local e=mod.exports;local theme=e.gbMenus.theme;local r=item.rect
   local dpi=G.getDPIScale and G.getDPIScale()or 1
   local width=theme.measure(item.text,{battle=true,font='normal'})or 1
@@ -22,7 +32,8 @@ return function(mod)
   local width=math.max(48,(y==0 and 88 or 152)-x)
   local ax,ay=G.transformPoint(x,y-1);local bx,by=G.transformPoint(x+width,y+11)
   local q=queues[source]or{};queues[source]=q
-  q[tostring(x)..':'..tostring(y)]={text=display,rect={x=ax,y=ay,w=bx-ax,h=by-ay}}
+  local owner=e.battleHudOwner;local side=y==0 and'enemy'or'player'
+  q[tostring(x)..':'..tostring(y)]={text=display,owner=owner,side=side,mon=owner and owner[side],rect={x=ax,y=ay,w=bx-ax,h=by-ay}}
   return(e.gbMenus.theme.measure(display,{battle=true,font='normal'})or 0)*.75
  end
  local clear=G.clear
@@ -35,7 +46,7 @@ return function(mod)
    for key,item in pairs(q)do local r=item.rect
     local ax,ay=G.transformPoint(x+(r.x-(a[6]or 0))*sx,y+(r.y-(a[7]or 0))*sy)
     local bx,by=G.transformPoint(x+(r.x+r.w-(a[6]or 0))*sx,y+(r.y+r.h-(a[7]or 0))*sy)
-    local nextItem={text=item.text,rect={x=ax,y=ay,w=bx-ax,h=by-ay}}
+    local nextItem={text=item.text,owner=item.owner,side=item.side,mon=item.mon,rect={x=ax,y=ay,w=bx-ax,h=by-ay}}
     if target then queues[target]=queues[target]or{};queues[target][key]=nextItem
     else replay=true;render(nextItem);replay=false end
    end

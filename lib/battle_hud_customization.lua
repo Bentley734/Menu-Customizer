@@ -84,11 +84,12 @@ return function(mod)
   G.draw=function(image,...)
    if not mod.exports.battleHudScope then return draw(image,...)end
    local args={...};local quad=type(args[1])=='userdata'and args[1].typeOf and args[1]:typeOf('Quad')and args[1]or nil
-   local chosen=role
+   local chosen=role;local gaugeCap=false
    if not chosen then
     tiles();local base=images[image]
     if base and quad then
      local x,y=quad:getViewport();local width=image:getWidth();local code=base+y/8*(width/8)+x/8
+     if code==0x6D then gaugeCap=true end
      if code==0x6E then chosen='Level'
      elseif code==0x71 then chosen='HP'
      elseif code==0x6D or code==0x73 or code==0x74 or code==0x76 or code==0x77 or code==0x78 or code==0x6F then chosen='Frame'end
@@ -109,6 +110,12 @@ return function(mod)
     end
     P.effects.paint(P.color('text',fg or 0),'battle',function()draw(ink,unpack(args))end)
    end)
+   if gaugeCap then
+    -- First three columns close the gauge; the tall stroke starts at column 3.
+    local x,y=args[1]or 0,args[2]or 0;local sx,sy=args[4]or 1,args[5]or args[4]or 1
+    local ax,ay=G.transformPoint(x,y);local bx,by=G.transformPoint(x+3*sx,y+8*sy)
+    G.setScissor(math.min(ax,bx),math.min(ay,by),math.abs(bx-ax),math.abs(by-ay));G.setShader();G.setColor(0,0,0,1);draw(ink,unpack(args))
+   end
    role=oldRole;G.pop();if not ok then error(err,0)end
    local ui=mod.exports.battleUi
    if ui and ui.protect then ui.protect(args[1]or 0,args[2]or 0,ink:getWidth()*(args[4]or 1),ink:getHeight()*(args[5]or args[4]or 1))end
