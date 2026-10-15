@@ -49,7 +49,9 @@ return function(mod,ui,font,panel,compose,enabled)
       G.push('all');G.translate(math.floor(tx*physical+.5)/physical,ty);G.scale(pixels,pixels)
       F.draw(s,0,0,{colors=colors});G.pop()
      end
-     text(row[1],ax);text(row[2],bx-F.measure(row[2])*pixels)
+     local labelX=ax;local fonts=mod.exports.allFonts
+     if fonts then labelX=fonts.align(ax,bx-ax-valueWidth*pixels-4*unit,F.measure(row[1])*pixels,'battle')end
+     text(row[1],labelX);text(row[2],bx-F.measure(row[2])*pixels)
     end
     G.pop()
     if ui.protect then ui.protect(x,y,w,h)end

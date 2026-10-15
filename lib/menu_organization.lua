@@ -1,13 +1,14 @@
 -- Existing saved IDs remain stable; navigation follows customization type.
 return function(entries,openPage)
  local order={'TEXT','BORDERS','BACKGROUNDS','TRANSITIONS','SELECTORS','POSITION','TRANSPARENCY'}
- local storage,themes;local intro={};local surfaces={}
+ local storage,themes,fonts;local intro={};local surfaces={}
  local pages={};for _,name in ipairs(order)do pages[name]={}end
  local function add(r)
   if (r.id or ''):find('wide_surface_',1,true)==1 then surfaces[#surfaces+1]=r;return end
   if (r.id or ''):find('intro',1,true)then intro[#intro+1]=r;return end
   if r.id=='wide_settingsScope'then storage=r;return end
   if r.id=='wide_themeSets'then themes=r;return end
+  if r.id=='wide_allFonts'then fonts=r;return end
   if r.children then local children=type(r.children)=='function'and r.children()or r.children;for _,child in ipairs(children)do add(child)end;return end
   local key=r.id or '';local dest
   if key:find('menuTransition',1,true)then r.label='MISC TRANSITIONS'end
@@ -42,7 +43,7 @@ return function(entries,openPage)
  for _,name in ipairs({'BORDERS','BACKGROUNDS'})do
   for i,row in ipairs(pages[name])do if (row.id or ''):find('wide_all',1,true)==1 then table.remove(pages[name],i);table.insert(pages[name],1,row);break end end
  end
- local out={};for _,row in ipairs(surfaces)do out[#out+1]=row end
+ local out={};if fonts then out[#out+1]=fonts end;for _,row in ipairs(surfaces)do out[#out+1]=row end
  for _,name in ipairs(order)do local children=pages[name]
   out[#out+1]={id='wide_page_'..name,label=name,group=true,children=children,value=function()return #children..' OPTIONS'end,activate=function(ctx)return openPage(name,children,ctx)end}
  end

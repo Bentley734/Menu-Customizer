@@ -1,3 +1,11 @@
+# Menu Customizer 3.5.0 — ALL FONTS
+
+Open OPTIONS → MENUS → ALL FONTS to change font style (NATIVE/EMERALD), font color, shadow color/opacity, alignment, text case and shared text effects together. Font choices fan out to menu, dialogue, intro/save summary, battle/name/level-up text and custom Mart/PC profiles. Choosing a solid font color clears older alternating-color presets so the new choice is visible.
+
+Alignment stays inside text cells: start/dialogue settings are synchronized, boxed menu/Mart/PC labels and battle labels/prompt/details/stat labels align within their available space. Prices and stat values retain their numeric anchors. Partly covered parent menus keep their existing placement; alignment does not resize boxes. Themes reset the shared font controls to their coordinated defaults.
+
+Validated in all eleven games with KIM1025; Native/Emerald and all three alignments rendered in native LOVE for Red, Gold, FireRed, Ruby and Emerald. Focused LuaJIT/Lua 5.3 tests cover settings persistence, shared controls, numeric columns, covered menus and error cleanup. No live playthrough was performed. Restart after installing. Johnto and other mods are unchanged.
+
 # Menu Customizer 3.4.0 — Complete themes and animated dark modes
 
 OPTIONS → MENUS → THEMES now includes 14 coordinated presets. All eight existing themes cover the separate Mart/PC profiles and their text effects, dialogue boxes, battle/level-up windows, intro and save summary styling. Reapply an existing theme to extend it to the new surfaces.

@@ -1,5 +1,5 @@
 -- Original Emerald glyphs, fitted to the selected frame's actual interior.
-return function(G)
+return function(G,mod)
  local M={}
  local function inner(rect,x,w)
   local edge=8*rect.h/48
@@ -24,7 +24,9 @@ return function(G)
   local width=F.measure(s,{font=font})or 0
   local reserve=12*sx
   local x=rect.x+reserve
-  if centerName then x=rect.x+reserve+(rect.w-reserve-width*sx)/2 end
+  local fonts=mod and mod.exports.allFonts
+  if fonts then x=fonts.align(rect.x+reserve,rect.w-reserve,width*sx,'battle',centerName and 2 or 1)
+  elseif centerName then x=rect.x+reserve+(rect.w-reserve-width*sx)/2 end
   local y=rect.y+(rect.h-16*sy)/2
   at(rect,sx,sy,dx,dy,x,y,function()
    F.draw(s,0,0,{font=font,colors=colors})
@@ -54,7 +56,12 @@ return function(G)
   local px,py,pdx,pdy=scale(left,math.max(F.measure(first,{font=promptFont})or 0,F.measure(last,{font=promptFont})or 0)+8,36,viewport)
   local x=left.x+4*px;local y=left.y+(left.h-32*py)/2
   at(left,px,py,pdx,pdy,x,y,function()
-   F.draw(first,0,0,{font=promptFont,colors=colors});F.draw(last,0,16,{font=promptFont,colors=colors})
+   local fonts=mod and mod.exports.allFonts
+   local function prompt(text,y)
+    local tx=fonts and fonts.align(0,left.w/px-8,F.measure(text,{font=promptFont})or 0,'battle')or 0
+    F.draw(text,tx,y,{font=promptFont,colors=colors})
+   end
+   prompt(first,0);prompt(last,16)
   end)
   return true
  end
@@ -88,6 +95,7 @@ return function(G)
    for row=0,1 do
     local w=row==0 and ppW or typeW
     local x=right.x+4*rsx
+    local fonts=mod and mod.exports.allFonts;if fonts then x=fonts.align(x,right.w-8*rsx,w*rsx,'battle')end
     local y=right.y+row*right.h/2+(right.h/2-16*rsy)/2
     at(right,rsx,rsy,rdx,rdy,x,y,function()
      local prefix=row==0 and 'PP' or 'TYPE/'
@@ -111,7 +119,9 @@ return function(G)
    local sx,sy,dx,dy=scale(pane,width+16,36,viewport)
    local gap=math.max(0,(pane.h-32*sy)/3)
    for i,line in ipairs(lines)do if i<=2 then
-    at(pane,sx,sy,dx,dy,pane.x+4*sx,pane.y+gap+(i-1)*(16*sy+gap),function()F.draw(line,0,0,{colors=colors})end)
+    local tx=pane.x+4*sx
+    local fonts=mod and mod.exports.allFonts;if fonts then tx=fonts.align(tx,pane.w-12*sx,(F.measure(line)or 0)*sx,'battle')end
+    at(pane,sx,sy,dx,dy,tx,pane.y+gap+(i-1)*(16*sy+gap),function()F.draw(line,0,0,{colors=colors})end)
    end end
    local arrow=generation==2 and battle:messageArrowVisible()or battle.msgWaiting or battle.msgPrompt
    if arrow then at(pane,sx,sy,dx,dy,pane.x+pane.w-8*sx,pane.y+pane.h-16*sy,function()F.drawGlyph(0x7A,0,0,{colors=colors})end)end

@@ -831,7 +831,7 @@ return function(mod)
     end
   end
   api={frames=frames,frameGeometry=frameGeometry,emeraldFont=battleFont.isEmerald,setting=setting,panel=panel,faded=faded,fadedScreen=function(fn,w,h)return compose(fn,w,h,0,0)end,placement=placement,textPlaced=textPlaced,rows=rows,nativeEmerald=nativeEmerald,protect=protectRegion}
-  api.emeraldLayout=assert(load(assert(mod:read('lib/emerald_battle_layout.lua'))))()(G)
+  api.emeraldLayout=assert(load(assert(mod:read('lib/emerald_battle_layout.lua'))))()(G,mod)
   api.hudNames=assert(load(assert(mod:read('lib/battle_hud_names.lua'))))()(mod,textPalette,enabled)
   function api.canDrawBottom(battle)
     if not enabled() or battle.safari or battle.contest then return false end

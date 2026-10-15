@@ -42,7 +42,7 @@ else
  for _,row in ipairs(root)do if row.id=='wide_menus'then row.activate(game)end end
  rootRows=game.stack:top().rows
 end
-assert(rootRows and rootRows[1].label=='POKE MART'and rootRows[2].label=='PC MENUS'and rootRows[3].label=='DIALOGUE BOXES','Native options navigation omitted surface pages')
+assert(rootRows and rootRows[1].label=='ALL FONTS'and rootRows[2].label=='POKE MART'and rootRows[3].label=='PC MENUS'and rootRows[4].label=='DIALOGUE BOXES','Native options navigation omitted surface pages')
 local called=0
 local state=M.tag({items={{onSelect=function()called=called+1;assert(M.current=='mart')end}},draw=function()assert(M.current=='mart')end},'mart')
 state.items[1].onSelect();state:draw();assert(called==1)

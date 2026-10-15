@@ -38,6 +38,11 @@ return function(mod,palette,active)
    -- If the top edge leaves no room, move the entire HUD body with the name.
    local shift=math.max(0,2/dy-(y+2*pixels/dy))
    band.y=band.y+shift;y=y+shift
+   local fonts=mod.exports.allFonts
+   if fonts and mod.options:get('allFontAlign')~=nil then
+    local left=band.x+(entry.side=='player'and 80 or 8)*bands.scaleX
+    x=fonts.align(left,80*bands.scaleX,textWidth*pixels/dx,'battle')
+   end
    if width then x=math.max(2/dx,math.min(width-2/dx-textWidth*pixels/dx,x))end
    result[#result+1]={text=entry.text,x=x,y=y,unit=pixels,levelY=levelY+shift,side=entry.side}
   end
