@@ -16,8 +16,8 @@ return function(entries,openPage)
   if r.id=='wide_animationSpeeds_text'then textSpeeds=r;return end
   if r.id=='wide_animationSpeeds_background'then pages.BACKGROUNDS[#pages.BACKGROUNDS+1]=r;return end
   if r.id=='wide_animationSpeeds_border'then pages.BORDERS[#pages.BORDERS+1]=r;return end
-  if r.id=='wide_surface_mart'or r.id=='wide_surface_pc'or r.id=='wide_surface_dialogue'or r.id=='wide_surface_loadReport'then
-   local prefix=r.id=='wide_surface_loadReport'and'LOAD REPORT'or r.id=='wide_surface_mart'and'POKE MART'or r.id=='wide_surface_pc'and'PC'or'DIALOGUE'
+  if r.id=='wide_surface_mods'or r.id=='wide_surface_mart'or r.id=='wide_surface_pc'or r.id=='wide_surface_dialogue'or r.id=='wide_surface_loadReport'then
+   local prefix=r.id=='wide_surface_mods'and'MOD MENUS'or r.id=='wide_surface_loadReport'and'LOAD REPORT'or r.id=='wide_surface_mart'and'POKE MART'or r.id=='wide_surface_pc'and'PC'or'DIALOGUE'
    for _,child in ipairs(r.children)do
     -- Copy the presentation row; the original callbacks and saved keys survive.
     local row={};for k,v in pairs(child)do row[k]=v end
@@ -60,13 +60,14 @@ return function(entries,openPage)
   local list=textPages[category];list[#list+1]=compact(row,words)
  end
  -- Keep global controls here; menu-specific controls get one focused page.
- local layout,menus,menuOrder={},{},{'MENUS','START MENU','OPTIONS','DIALOGUE','INTRO / TITLE','SAVE SUMMARY','POKE MART','PC','BATTLE','BATTLE NAMES','PARTY','BAG','POKEMON SUMMARY','POKEDEX','TRAINER CARD','OTHER MENUS','LOAD REPORT'}
+ local layout,menus,menuOrder={},{},{'MENUS','START MENU','OPTIONS','DIALOGUE','INTRO / TITLE','SAVE SUMMARY','POKE MART','PC','BATTLE','BATTLE NAMES','PARTY','BAG','POKEMON SUMMARY','POKEDEX','TRAINER CARD','OTHER MENUS','LOAD REPORT','MOD MENUS'}
  for _,name in ipairs(menuOrder)do menus[name]={}end
  for _,row in ipairs(textPages['FONT AND LAYOUT'])do
   local key=(row.id or ''):gsub('^wide_',''):gsub('^surface_',''):lower();local group
   if key=='textcase'or key:find('^all')or key=='controlslegend'then layout[#layout+1]=row
   else
-   if key:find('loadreport',1,true)then group='LOAD REPORT'
+   if key:find('mods',1,true)then group='MOD MENUS'
+   elseif key:find('loadreport',1,true)then group='LOAD REPORT'
    elseif key:find('intro',1,true)then group='INTRO / TITLE'
    elseif key:find('savesummary',1,true)or key:find('save',1,true)==1 then group='SAVE SUMMARY'
    elseif key:find('mart',1,true)then group='POKE MART'

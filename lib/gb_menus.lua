@@ -100,7 +100,7 @@ return function(mod,catalog)
  end
  local known={StartMenu=true,Gen2StartMenu=true,OptionsMenu=true,Gen2OptionsMenu=true,
   BagMenu=true,Gen2PackMenu=true,PartyMenu=true,Gen2PartyMenu=true,PokedexMenu=true,DexEntryMenu=true,Gen2PokedexMenu=true,
-  TrainerCard=true,Gen2TrainerCard=true,Gen2Pokegear=true,Gen2SaveMenu=true,MenuCustomizerOptions=true}
+  TrainerCard=true,Gen2TrainerCard=true,Gen2Pokegear=true,Gen2SaveMenu=true,MenuCustomizerOptions=true,ManagerState=true,ModManager=true,ModsMenu=true}
  function C.context(game)
   if not C.live() or not game or not game.stack then return nil end
   local world=game.world or game.overworld
@@ -109,7 +109,7 @@ return function(mod,catalog)
    local bootOptions
    for _,state in ipairs(states)do
     local id=state.screenId or''
-    if id=='OptionsMenu'or id=='Gen2OptionsMenu'or id=='MenuCustomizerOptions'or state.rows and(state.view or state.options)then bootOptions=true end
+    if id=='ManagerState'or id=='ModManager'or id=='ModsMenu'or id=='OptionsMenu'or id=='Gen2OptionsMenu'or id=='MenuCustomizerOptions'or state.rows and(state.view or state.options)then bootOptions=true end
    end
    if not bootOptions then return nil end
    world={map={}} -- Same options mirror before an overworld has been loaded.
@@ -127,7 +127,7 @@ return function(mod,catalog)
   if not recognized or not first then return nil end
   -- Mod manager screens have their own rendering/layout contract.
   local top=game.stack:top()
-  if top and (top.screenId=='ModManager' or top.screenId=='ModsMenu' or top.screenId=='ManagerState') then return nil end
+
   local base=first
   for i=first,#states do if states[i].isOpaque then base=i end end
   local group=groupOf(top or states[base])

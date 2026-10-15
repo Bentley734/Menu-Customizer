@@ -13,7 +13,7 @@ return function(mod)
   return false
  end
  local aliases={menuTheme='Theme',menuBorder='BorderChoice',otherBorderChoice='BorderChoice',
-  menuBackgroundColor='BackgroundColor',menuTextColor='TextColor',menuTextShadowColor='TextShadowColor'}
+  arrowSelector='Selector',selectorColor='SelectorColor',menuBackgroundColor='BackgroundColor',menuTextColor='TextColor',menuTextShadowColor='TextShadowColor'}
  function M.resolve(key)
   local scope=M.current
   if not scope or tonumber(get(mod.options,scope..'Custom'))~=1 then return nil end
@@ -69,9 +69,9 @@ return function(mod)
   local palette=assert(mod.exports.selectorPalette)
   local catalog=mod.exports.borderCatalog or assert(load(assert(mod:read('lib/border_catalog.lua'))))()
   local result={}
-  local scopes={'mart','pc','dialogue'};if mod.generation<3 then scopes[#scopes+1]='loadReport'end
+  local scopes={'mart','pc','dialogue','mods'};if mod.generation<3 then scopes[#scopes+1]='loadReport'end
   for _,scope in ipairs(scopes)do
-   local label=scope=='mart'and'POKE MART'or scope=='pc'and'PC MENUS'or scope=='loadReport'and'LOAD REPORT'or'DIALOGUE BOXES'
+   local label=scope=='mods'and'MOD MENUS'or scope=='mart'and'POKE MART'or scope=='pc'and'PC MENUS'or scope=='loadReport'and'LOAD REPORT'or'DIALOGUE BOXES'
    local rows={}
    local function write(ctx,key,n)
     local values={[key]=n,borderCatalogFormat=2}
@@ -94,6 +94,11 @@ return function(mod)
     end
     rows[#rows+1]=row
    end
+   if scope=='mods'then
+    add('Selector','SELECTOR',1,1,13,mod.exports.arrowSelectors.names or mod.exports.gbMenus and mod.exports.gbMenus.selectors.names)
+    add('SelectorColor','SELECTOR COLOR',0,0,#palette.names-1,palette.names,'text','selectorColor')
+    for _,effect in ipairs(palette.effects.rows('mods',function(ctx,key,n)write(ctx,key,n);return false end,openPage))do rows[#rows+1]=effect end
+   end
    if scope=='loadReport'then add('Enabled','SHOW LOAD REPORT',1,0,1,{'DISABLED','ENABLED'})end
    if scope~='dialogue'then add('Custom','STYLE',0,0,1,{'USE MENU','CUSTOM'})end
    add('Theme','FONT',2,1,2,{'NATIVE','EMERALD'},nil,scope=='dialogue'and nil or'menuTheme')
@@ -101,7 +106,7 @@ return function(mod)
    add('BackgroundColor','BACKGROUND',0,0,#palette.menuBackgroundNames-1,palette.menuBackgroundNames,'menuBackground','menuBackgroundColor')
    add('TextColor','TEXT COLOR',0,0,#palette.names-1,palette.names,'text','menuTextColor')
    add('TextShadowColor','TEXT SHADOW',0,0,#palette.shadowNames-1,palette.shadowNames,'shadow','menuTextShadowColor')
-   if scope=='dialogue'or scope=='loadReport'then add('Justify','ALIGNMENT',scope=='loadReport'and 2 or 1,1,3,{'LEFT','CENTER','RIGHT'})end
+   if scope=='dialogue'or scope=='loadReport'or scope=='mods'then add('Justify','ALIGNMENT',scope=='loadReport'and 2 or 1,1,3,{'LEFT','CENTER','RIGHT'})end
    rows[#rows+1]={id='surface_'..scope..'Reset',label=scope=='dialogue'and'RESET DIALOGUE'or'USE MENU STYLE',activate=function(ctx)
     local values={}
     if scope=='dialogue'then values={dialogueTheme=2,dialogueBorderChoice=0,dialogueBorder=0,dialogueBackgroundColor=0,dialogueTextColor=0,dialogueTextShadowColor=0,dialogueJustify=1}
@@ -114,6 +119,7 @@ return function(mod)
  end
  function M.install()
   if mod.generation==3 then
+   local manager=require('src.ui.game3.mod_manager');if manager.draw then manager.draw=callback('mods',manager.draw)end
    local ShopChrome=require('src.ui.game3.shop_chrome')
    if not ShopChrome._menuCustomizerSurfaceBg then
     local draw=ShopChrome.drawBg;ShopChrome._menuCustomizerSurfaceBg=draw
@@ -189,6 +195,18 @@ return function(mod)
    end
    for _,path in ipairs({'src.ui.Menu','src.ui.ListMenu','src.ui.ChoiceBox','src.ui.QuantityBox','src.render.TextBox','src.ui.BoxMenu'})do constructor(path)end
    constructor('src.ui.QuarantineReport','loadReport')
+   constructor('src.mods.ManagerState','mods')
+   local Screens=require('src.ui.Screens');local push=Screens.push
+   if not Screens._menuCustomizerMods then
+    Screens._menuCustomizerMods=true
+    Screens.push=function(game,id,...)
+     local scope=M.current;local inst=push(game,id,...)
+     -- Some screen factories do not return the pushed state.
+     inst=inst or(game.stack and game.stack:top())
+     if scope=='mods'and type(inst)=='table'then M.tag(inst,'mods')end
+     return inst
+    end
+   end
    if mod.generation==1 then
     constructor('src.ui.ShopMenu','mart');constructor('src.ui.PlayerPC','pc');constructor('src.ui.LeaguePC','pc')
     local World=require('src.world.OverworldController');local open=World.openPC

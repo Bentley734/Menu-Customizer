@@ -8,7 +8,7 @@ return function(mod)
   local gap=math.max(0,width-ink)
   return math.floor(x+(n==2 and gap/2 or n==3 and gap or 0)+.5)
  end
- local prefixes={'menu_fx_','intro_fx_','battle_fx_','battle_name_fx_','mart_fx_','pc_fx_'}
+ local prefixes={'menu_fx_','intro_fx_','battle_fx_','battle_name_fx_','mart_fx_','pc_fx_','mods_fx_'}
  function M.values(key,n)
   local values=C.globalValues(key,n)or{[key]=n}
   if key=='allTextColor'then
@@ -129,6 +129,7 @@ return function(mod)
    end
    hook(require('src.ui.Menu'),'draw','menu')
    hook(require('src.ui.QuarantineReport'),'draw','loadReport')
+   hook(require('src.mods.ManagerState'),'draw','mods')
    hook(require('src.ui.ListMenu'),'draw','menu',function(self)
     local width=136
     for _,item in ipairs(self.items or{})do if item.right and not self.dialogue then width=math.min(width,132-F.width(item.right))end end

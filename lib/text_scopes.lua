@@ -3,7 +3,7 @@ return function(mod)
  local M={};mod.exports.textScopes=M
  M.scopes={{'menu','MENUS'},{'start','START MENU'},{'option','OPTIONS'},{'dialogue','DIALOGUE'},{'intro','INTRO / TITLE'},
  {'saveSummary','SAVE SUMMARY'},{'mart','POKE MART'},{'pc','PC'},{'battle','BATTLE'},{'battleName','BATTLE NAMES'},
- {'party','PARTY'},{'bag','BAG'},{'summary','POKEMON SUMMARY'},{'pokedex','POKEDEX'},{'trainerCard','TRAINER CARD'},{'other','OTHER MENUS'},{'loadReport','LOAD REPORT'}}
+ {'party','PARTY'},{'bag','BAG'},{'summary','POKEMON SUMMARY'},{'pokedex','POKEDEX'},{'trainerCard','TRAINER CARD'},{'other','OTHER MENUS'},{'loadReport','LOAD REPORT'},{'mods','MOD MENUS'}}
  function M.currentScope()
   local e=mod.exports;local c=e.gbMenus
   if c and c.introScope then return'intro'end
