@@ -69,8 +69,10 @@ function love.load()
   api.customization.write(game,{battle_move_layout=1})
   assert(not B.moveGridNavigation({wideLayout=function()return true end}),'List still uses grid navigation')
   api.customization.write(game,{battle_move_layout=0})
-  local theme=api.gbMenus.theme;local glyph=theme.glyph;local count=0
+  api.customization.write(game,{textCase=3,battleTextCase=3})
+  local theme=api.gbMenus.theme;local glyph=theme.glyph;local count=0;local properM=false
   theme.glyph=function(id,x,y,opts)
+   if battle.phase=='menu'and id==225 then assert(opts.font=='normal','Command m still uses the malformed narrow atlas');properM=true end
    local ax,ay=G.transformPoint(x,y);local bx,by=G.transformPoint(x+1,y);local cx,cy=G.transformPoint(x,y+1)
    local sx,sy=math.sqrt((bx-ax)^2+(by-ay)^2),math.sqrt((cx-ax)^2+(cy-ay)^2)
    assert(math.abs(sx-sy)<.0001 and math.abs(sx-math.floor(sx+.5))<.0001,'Text pixels have fractional or uneven scaling')
@@ -86,6 +88,7 @@ function love.load()
    G.setCanvas();G.origin();G.clear(.1,.1,.1,1);G.draw(intermediate,3.4,2.6,0,.91,.87)
    assert(count>0,'Final window did not draw battle text');count=0
   end end
+  assert(properM,'Title-case Pokemon m was not exercised')
   assert(not M.current and not api.previewScope,'surface scope leaked')
   write(version..'-result.txt','PASS integer square pixels and aligned glyphs after fractional intermediate canvas resizing, grid/list and command/move panels\n')
  end,debug.traceback)

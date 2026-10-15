@@ -1,3 +1,9 @@
+# Menu Customizer 3.28.1 — Correct command glyphs
+
+Use the regular Emerald face for battle commands and prompts instead of the narrow face, whose lowercase m has a malformed middle stroke in its source atlas. Give command cells a larger share of the panel while retaining whole-pixel fitting and the full prompt.
+
+GPU regression exercises title-case Pokémon, verifies the m uses the regular atlas, and checks integer square glyph scaling and aligned anchors after fractional intermediate resizing. Restart after updating.
+
 # Menu Customizer 3.28.0 — Final-window integer battle text
 
 Delay native battle command and move text through every intermediate canvas, including canvases larger than the window, and render only at the final screen copy. This prevents a later fractional resize from distorting already-rasterized letters. Final glyph scales are whole, equal pixel multiples and anchors are snapped to the pixel grid.

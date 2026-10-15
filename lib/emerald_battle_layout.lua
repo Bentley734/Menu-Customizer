@@ -44,10 +44,10 @@ return function(G,mod)
  local function commands(F,battle,generation,rect,custom,colors,viewport)
   custom.frames('none',rect,viewport)
   local pane=inner(rect,0,rect.w)
-  local promptWidth=pane.w*.36
+  local promptWidth=pane.w*.32
   local commandWidth=pane.w-promptWidth
   local commands=generation<3 and {'FIGHT','POKéMON','BAG','RUN'}or{'FIGHT','BAG','POKéMON','RUN'}
-  local commandFont='narrow'
+  local commandFont='normal'
   local width=0;for _,s in ipairs(commands)do width=math.max(width,F.measure(s,{font=commandFont})or 0)end
   local cell={w=commandWidth/2,h=pane.h/2}
   local priorFactor=factor;factor=math.max(1,factor)
@@ -60,7 +60,7 @@ return function(G,mod)
   local mon=generation==2 and battle:activeMon('player')or p and p.mon
   local name=p and p.name or mon and(mon.nickname or mon.name)or 'POKéMON'
   local first,last='What will',name..' do?'
-  local promptFont=pane.w<600 and 'narrow'or'normal'
+  local promptFont='normal'
   local left={x=pane.x,y=pane.y,w=promptWidth,h=pane.h}
   local priorFactor=factor;factor=math.max(1,factor)
   local px,py,pdx,pdy=scale(left,math.max(F.measure(first,{font=promptFont})or 0,F.measure(last,{font=promptFont})or 0)+8,34,viewport);factor=priorFactor
