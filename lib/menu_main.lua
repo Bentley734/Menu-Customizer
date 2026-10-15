@@ -71,7 +71,7 @@ return function(mod)
     'startOpacity', 'optionOpacity', 'otherOpacity', 'hideStartMods'}
   local menuPalette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
   local Transitions=assert(load(assert(mod:read('lib/menu_transitions.lua'))))()
-  local extra = {selectionHighlight={25,0,100,5},arrowSelector={1,1,13,1},selectorColor={0,0,#menuPalette.names-1,1},dialogueJustify={1,1,3,1},menuTextColor={0,0,#menuPalette.names-1,1},menuTextShadowColor={0,0,#menuPalette.shadowNames-1,1},menuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},startMenuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1}, menuBorder={1,1,#borderChoices,1}, backgroundDim={0,0,70,10}, controlsLegend={2,1,3,1},
+  local extra = {selectionHighlight={25,0,100,5},arrowSelector={1,1,14,1},selectorColor={0,0,#menuPalette.names-1,1},dialogueJustify={1,1,3,1},menuTextColor={0,0,#menuPalette.names-1,1},menuTextShadowColor={0,0,#menuPalette.shadowNames-1,1},menuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},startMenuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1}, menuBorder={1,1,#borderChoices,1}, backgroundDim={0,0,70,10}, controlsLegend={2,1,3,1},
     menuTransition={3,1,#Transitions.names,1}, positionPreview={1,0,1,1}}
 
   for _,scope in ipairs({'start','battle','option','save','other','dialogue'})do extra[scope..'BorderChoice']={0,0,#borderChoices,1}end

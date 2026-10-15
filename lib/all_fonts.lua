@@ -59,7 +59,7 @@ return function(mod)
   local surfaces=mod.exports.menuSurfaces
   return surfaces and surfaces.enabled()and (mod.options:get('allFontAlign')~=nil or mod.options:get('loadReportJustify')~=nil)
  end
- local frames,scope,printing,anchors
+ local frames,scope,printing,anchors,jumpLabel
  local function within(fn,group,initial,...)
   if not enabled()or frames then return fn(...)end
   local oldFrames,oldScope,oldAnchors=frames,scope,anchors;frames,scope,anchors=initial or{},group,{}
@@ -86,7 +86,10 @@ return function(mod)
     end
    end
    if anchors and not printing then anchors[tostring(inputX)..':'..tostring(y)]=x end
-   local old=printing;printing=true;local args={...};local out={pcall(draw,text,x,y,opts,unpack(args))};printing=old
+   local old=printing;printing=true;local args={...};local out
+   if not ownLayout and jumpLabel==text and tonumber(mod.options:get('arrowSelector'))==14 and mod.exports.jumpWave then
+    out={pcall(mod.exports.jumpWave.draw,draw,F.measure or F.width,text,x,y,opts,unpack(args))}
+   else out={pcall(draw,text,x,y,opts,unpack(args))}end;printing=old
    if not out[1]then error(out[2],0)end;return unpack(out,2)
   end
   local markerKey=mod.generation<3 and'drawCode'or'drawGlyph'
@@ -109,7 +112,9 @@ return function(mod)
      if top and top~=owner and not retainedTitle then return original(...)end
     end
     local initial=seed and seed(...)
-    return within(original,group,initial,...)
+    local previous=jumpLabel;local item=type(owner)=='table'and owner.items and owner.items[owner.index or 1];jumpLabel=item and item.label
+    local result={pcall(within,original,group,initial,...)};jumpLabel=previous
+    if not result[1]then error(result[2],0)end;return unpack(result,2)
    end
   end
   if mod.generation<3 then

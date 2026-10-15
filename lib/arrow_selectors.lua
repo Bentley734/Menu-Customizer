@@ -1,7 +1,7 @@
 -- Non-START selection arrows share one independent setting. Fit artwork in
 -- the native eight-pixel cursor column, retaining a pixel gap on each side.
 return function(mod,icons,setting,active)
- local M={names={'ARROW','POKEBALL','STAR','HEART','LIGHTNING','CRESCENT','DIAMOND','FLAME','PSYCHIC EYE','SPIRAL','UNDERLINE','DOTS','NONE'},ids={3,1,5,6,7,8,9,10,11,12,2,4,0}}
+ local M={names={'ARROW','POKEBALL','STAR','HEART','LIGHTNING','CRESCENT','DIAMOND','FLAME','PSYCHIC EYE','SPIRAL','UNDERLINE','DOTS','NONE','JUMP WAVE'},ids={3,1,5,6,7,8,9,10,11,12,2,4,0,14}}
  local G=love.graphics
  local ball={'..1111..','.122221.','12222221','11144111','13344331','13333331','.133331.','..1111..'}
  local colors={{0,0,0,1},{.85,.12,.12,1},{1,1,1,1},{.5,.5,.5,1}}
@@ -11,6 +11,7 @@ return function(mod,icons,setting,active)
   local id=opts and opts._selectorStyle and M.ids[opts._selectorStyle]or startArrow and 3 or M.id()
   if not active() or mod.exports.startSelectorScope and not startArrow then return false end
   if opts and opts.colors and opts.colors.fg and opts.colors.fg[4]==0 then return false end
+  if id==14 then return true end
   if id==0 then
    -- OPTIONS already paints the complete selected row. Other native cursors
    -- own this compact row highlight when no marker is requested.

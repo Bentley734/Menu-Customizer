@@ -89,6 +89,7 @@ return function(mod)
  local upperAccents={};for upper,lower in pairs(lowerAccents)do upperAccents[lower]=upper end
  local modes={'ORIGINAL','SENTENCE CASE','LOWERCASE','TITLE CASE'}
  function M.text(text)
+  if mod.exports.jumpWave and mod.exports.jumpWave.active then return text end
   if type(text)~='string'then return text end
   local C=mod.exports.gbMenus
   local mode=mod.exports.textScopes and mod.exports.textScopes.mode()or tonumber(mod.options:get(C and C.introScope and 'introTextCase'or 'textCase'))or 0

@@ -1,3 +1,7 @@
+Menu Customizer 3.21.0 - Jump Wave selector
+
+Adds JUMP WAVE to Start and menu arrow selector styles. The selected label hops one letter at a time, pauses briefly, then repeats. Preserves label spacing, justification, case and font colors. Covers GB Start/options/customizer and generic menu labels, including the title menu.
+
 Menu Customizer 3.20.2 - Thin borders with animated paper
 
 Fix thin animated borders disappearing when animated backgrounds replace their shader during menu paper tinting. Thin frames now use the captured drawing primitive, keeping background and border shader scopes independent. Includes an actual mirrored-menu GPU regression with animated paper.
