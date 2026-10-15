@@ -1,3 +1,7 @@
+Menu Customizer 3.7.0 - Matching black psychedelic backgrounds
+
+Adds 20 animated black backgrounds: two variations for each existing black psychedelic border family. Thin muted violet patterns on near-black fields. Find their BLACK-prefixed names in the consolidated DESIGNS list, including ALL BACKGROUNDS. All existing saved design IDs remain unchanged.
+
 Menu Customizer 3.6.5 - Title Case
 
 Adds TITLE CASE after LOWERCASE in decapitalization, Intro text case and ALL FONTS. Capitalizes each word, preserves control tags and apostrophes, and supports common accented Latin letters. Existing mode IDs and settings remain unchanged.

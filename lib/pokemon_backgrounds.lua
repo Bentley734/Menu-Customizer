@@ -171,7 +171,7 @@ return function(mod)
  for _,e in ipairs(M.entries)do if e.scene and not e.still then e.hidden=true;e.retired=true;e.removedAnimation=true end end
  local black=assert(load(assert(mod:read('lib/black_artwork.lua'))))()
  M.blackEntries={}
- for i,name in ipairs(black.names)do M.blackEntries[i]={key='black_art_'..i,name=name,style=80+i,blackFamily=i<=10 and 'BLACK PSYCHEDELIC' or 'BLACK POKEMON',a='010101',b='010101',ink='302038'}end
+ for i,name in ipairs(black.names)do M.blackEntries[i]={key='black_art_'..i,name=name,style=80+i,blackFamily=(i<=10 or i>20)and 'BLACK PSYCHEDELIC' or 'BLACK POKEMON',a='010101',b='010101',ink='302038'}end
  M.byKey={}
  for _,e in ipairs(M.entries)do e.baseA=rgb(e.a);e.baseB=rgb(e.b);e.accent=rgb(e.ink);M.byKey[e.key]=e
   if e.variant and not e.pokemonName then e.pokemonName=e.pokemon:upper() end
