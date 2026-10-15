@@ -1,3 +1,7 @@
+Menu Customizer 3.21.5 - Shorter casing menu labels
+
+Remove the repeated Decapitalization suffix from individual menu entries. All Decapitalization remains unchanged.
+
 Menu Customizer 3.21.4 - Proper names in Sentence Case
 
 Preserve capitalization of loaded Pokemon and trainer names, saved player/rival names and nicknames, and story character names when applying Sentence Case. Other casing modes remain independent.

@@ -30,7 +30,7 @@ return function(mod)
  function M.rows(openPage)
   local C=mod.exports.customization;local P=mod.exports.selectorPalette;local names={'ORIGINAL','SENTENCE CASE','LOWERCASE','TITLE CASE'};local rows={}
   for _,s in ipairs(M.scopes)do local scope,label=s[1],s[2];local key=scope..'TextCase'
-   rows[#rows+1]={id='wide_'..key,label=label..' DECAPITALIZATION',value=function()return names[M.mode(scope)+1]end,
+   rows[#rows+1]={id='wide_'..key,label=label,value=function()return names[M.mode(scope)+1]end,
     step=function(ctx,d)C.write(ctx,{[key]=(M.mode(scope)+(d or 1))%4});return false end}
   end
   local function current()return tonumber(mod.options:get('gameFreakTextColor'))or tonumber(mod.options:get('introTextColor'))or 0 end
