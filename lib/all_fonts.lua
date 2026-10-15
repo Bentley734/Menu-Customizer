@@ -14,7 +14,7 @@ return function(mod)
   if key=='allTextColor'then
    for _,prefix in ipairs(prefixes)do values[prefix..'preset']=0;values[prefix..'alternate']=0 end
   elseif key=='textCase'then if mod.exports.textScopes then values=mod.exports.textScopes.values(n)else values.introTextCase=n end
-  elseif key=='menu_fx_stardew'or key=='menu_fx_stardew_jumps'then
+  elseif key=='menu_fx_stardew'or key:match('^menu_fx_stardew_')then
    local suffix=key:sub(9)
    for _,scope in ipairs(mod.exports.textScopes.scopes)do values[scope[1]..'_fx_'..suffix]=n end
    for _,scope in ipairs({'battle_name','battleCommands','battlePrompt','moveSelect','moveLearning'})do values[scope..'_fx_'..suffix]=n end

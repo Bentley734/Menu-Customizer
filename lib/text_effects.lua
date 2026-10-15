@@ -24,17 +24,17 @@ return function(mod,palette)
  end
  function M.stardewRows(scope,label,persist)
   local rows={}
-  for _,spec in ipairs({{'stardew','STARDEW',0,0,1},{'stardew_jumps','STARDEW JUMPS',3,1,20}})do
+  for _,spec in ipairs({{'stardew','STARDEW',0,0,1},{'stardew_jumps','STARDEW JUMPS',3,1,20},{'stardew_speed','STARDEW SPEED',100,25,300,25},{'stardew_height','STARDEW HEIGHT',5,1,12}})do
    local key=scope..'_fx_'..spec[1]
    local function value()return tonumber(mod.options:get(key))or spec[3]end
-   rows[#rows+1]={id='fx_'..key,label=label..' '..spec[2],value=function()return spec[1]=='stardew'and(value()==1 and'ON'or'OFF')or tostring(value())end,
-    step=function(ctx,d)return persist(ctx,key,spec[4]+(value()-spec[4]+(d or 1))%(spec[5]-spec[4]+1))end}
+   rows[#rows+1]={id='fx_'..key,label=label..' '..spec[2],value=function()return spec[1]=='stardew'and(value()==1 and'ON'or'OFF')or tostring(value())..(spec[1]=='stardew_speed'and'%'or spec[1]=='stardew_height'and' PX'or'')end,
+    step=function(ctx,d)return persist(ctx,key,spec[4]+(value()-spec[4]+(d or 1)*(spec[6]or 1))%(spec[5]-spec[4]+(spec[6]or 1)))end}
   end
   return rows
  end
  function M.specs(kind)
   local p=prefixes[kind];local s={}
-  s[p..'stardew']={0,0,1,1};s[p..'stardew_jumps']={3,1,20,1}
+  s[p..'stardew']={0,0,1,1};s[p..'stardew_jumps']={3,1,20,1};s[p..'stardew_speed']={100,25,300,25};s[p..'stardew_height']={5,1,12,1}
   s[p..'preset']={0,0,#presets,1}
   s[p..'alternate']={0,0,2,1};s[p..'count']={2,2,5,1};s[p..'speed']={100,25,200,25}
   s[p..'highlight']={0,0,1,1};s[p..'highlight_color']={6,0,#palette.names-1,1}
@@ -48,7 +48,7 @@ return function(mod,palette)
   local function row(key,label,labels,default)
    local k=p..key;local spec=M.specs(kind)[k]
    local entry={id='fx_'..k,label=label,preview=function()return mod.exports.customization.values(k,M.get(kind,key,default or spec[1]))end,value=function()
-    local n=M.get(kind,key,default or spec[1]);return labels and labels[n+1] or tostring(n)..((key=='speed'or key:find('transparency')) and '%' or '')
+    local n=M.get(kind,key,default or spec[1]);return labels and labels[n+1] or tostring(n)..((key=='speed'or key=='stardew_speed'or key:find('transparency')) and '%' or key=='stardew_height'and' PX'or '')
    end,step=function(ctx,dir)
     local n=M.get(kind,key,default or spec[1]);dir=dir and dir<0 and -1 or 1
     if key:match('^color')or key=='highlight_color'or key=='outline_color'then n=palette.step('text',n,dir)
@@ -62,6 +62,8 @@ return function(mod,palette)
   end
   row('stardew','STARDEW',{'OFF','ON'})
   row('stardew_jumps','STARDEW JUMPS')
+  row('stardew_speed','STARDEW SPEED')
+  row('stardew_height','STARDEW HEIGHT')
   row('preset','COLOR PRESET',presetNames)
   local parent=rows
   if kind=='menu'then rows={}end
@@ -97,7 +99,7 @@ return function(mod,palette)
  function M.drawStardew(kind,printer,measure,text,x,y,...)
   local wave=mod.exports.jumpWave
   if not wave or wave.active or M.stardewGet(kind,'stardew',0)~=1 then return printer(text,x,y,...)end
-  return wave.drawProfile(printer,measure,text,x,y,M.elapsed(kind,text,x,y),M.stardewGet(kind,'stardew_jumps',3),...)
+  return wave.drawProfile(printer,measure,text,x,y,M.elapsed(kind,text,x,y),M.stardewGet(kind,'stardew_jumps',3),M.stardewGet(kind,'stardew_speed',100),M.stardewGet(kind,'stardew_height',5),...)
  end
  local sequences={}
  function M.sequence(kind,fn,...)
@@ -210,7 +212,7 @@ return function(mod,palette)
   local wave=mod.exports.jumpWave;local seq=sequences[kind]
   local offset=0
   if wave and not wave.active and seq and seq.started and M.stardewGet(kind,'stardew',0)==1 then
-   offset=wave.bounce(love.timer.getTime()-seq.started,seq.letter,M.stardewGet(kind,'stardew_jumps',3),100)
+   offset=wave.bounce(love.timer.getTime()-seq.started,seq.letter,M.stardewGet(kind,'stardew_jumps',3),M.stardewGet(kind,'stardew_speed',100),M.stardewGet(kind,'stardew_height',5))
   end
   return M.aspect(x,y,function()
    love.graphics.push('all');love.graphics.translate(0,-offset)

@@ -79,6 +79,9 @@ function love.load()
   assert(found and not J.alternating(),'Stardew toggle missing or cannot disable');assert(api.gbMenus.mod.options:get('arrowSelector')==2,'Stardew changed companion marker')
   api.customization.write(game,{arrowSelector=14});assert(J.alternating()and J.enabled(),'Standalone Stardew style does not enable animation')
   api.customization.write(game,{arrowSelector=2})
+  assert(J.bounce(.05625,1,3,200,9)==9,'Speed/height ignored at the doubled-speed peak')
+  assert(J.bounce(.675,1,3,200,9)==0,'Faster cycles did not settle after requested jumps')
+  assert(J.bounce(.225,2,3,50,2)==-2,'Slow bounce/short height ignored')
   local E=api.selectorPalette.effects;local scope=api.textScopes
   api.customization.write(game,{menu_fx_stardew=1,menu_fx_stardew_jumps=2,party_fx_stardew=0})
   scope.with('party',function()assert(E.stardewGet('menu','stardew',0)==0,'Party inherited menu Stardew')end)
@@ -96,6 +99,7 @@ function love.load()
   for i=2,10 do now=10+i*.1;effectsDraw()end
   observed={};now=11.1;effectsDraw();assert(observed[1]==0 and observed[2]==0,'Text effect did not settle at baseline')
   local global=api.allFonts.values('menu_fx_stardew_jumps',7)
+  assert(api.allFonts.values('menu_fx_stardew_speed',150).party_fx_stardew_speed==150 and api.allFonts.values('menu_fx_stardew_height',8).moveSelect_fx_stardew_height==8,'All Fonts speed/height did not reach text scopes')
   assert(global.party_fx_stardew_jumps==7 and global.battleCommands_fx_stardew_jumps==7,'All Fonts Stardew did not reach individual scopes')
   local textRows=scope.rows(function()end);local party=false
   for _,row in ipairs(textRows)do if row.id=='fx_party_fx_stardew'then party=true end end

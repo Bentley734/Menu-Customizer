@@ -1,3 +1,9 @@
+# Menu Customizer 3.35.1 — Stardew speed and height
+
+Add independent STARDEW SPEED (25–300%, 25% steps) and STARDEW HEIGHT (1–12 logical pixels) to Selectors and all Stardew text-effect controls, including All Fonts propagation. Defaults retain the 450ms cycle and 5px amplitude. Keep original Jump Wave speed independent. All paths, including native HP/level strings and deferred/imported glyphs, use the selected speed/height and return to baseline after the requested jump count.
+
+GPU checks cover fast/slow cycles, short/tall jumps, settling, text-scope propagation, choice layering, integer battle text, and Gen 1–3 startup/profile checks. Restart after updating.
+
 # Menu Customizer 3.35.0 — Stardew jump counts and text customization
 
 Stardew now stays visible and returns to its original baseline after a configurable 1–20 jumps (default 3). Remove the previous notification-style fade/downward exit. Add STARDEW JUMPS beside the selector toggle; changing selection restarts the animation and companion cursor artwork remains independent.
