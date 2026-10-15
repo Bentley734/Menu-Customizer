@@ -66,7 +66,22 @@ function love.load()
   assert(r==g and g==b,'Offscreen star remained visible')
   api.customization.write(game,{gameFreakStarsColor=200})
   frame(278)
-  write(version..'-stars.png',target:newImageData():encode('png'):getString())
+  api.gameFreakLogo.precache(splash)
+  local paints,canvases,shaders=0,0,0
+  local paint,newCanvas,newShader=api.selectorPalette.effects.paint,G.newCanvas,G.newShader
+  api.selectorPalette.effects.paint=function(...)paints=paints+1;return paint(...)end
+  G.newCanvas=function(...)canvases=canvases+1;return newCanvas(...)end
+  G.newShader=function(...)shaders=shaders+1;return newShader(...)end
+  splash.timer=206
+  assert(#api.gameFreakLogo.starPositions(206)==16)
+  assert(api.gameFreakLogo.starPositions(206)==api.gameFreakLogo.starPositions(207),'Position cache missed unchanged step')
+  G.setCanvas(target)
+  for i=1,30 do api.gameFreakLogo.drawStars(splash)end
+  G.setCanvas()
+  api.selectorPalette.effects.paint,G.newCanvas,G.newShader=paint,newCanvas,newShader
+  assert(paints==30,'Animated star shader was rebound per star')
+  assert(canvases==0 and shaders==0,'Warm splash allocated canvases or compiled shaders')
+  write(version..'-stars.png' ,target:newImageData():encode('png'):getString())
   write(version..'-result.txt','PASS GPU falling star independent color, continued motion, bottom bar and offscreen cleanup')
  end,debug.traceback)
  if not ok then write(version..'-result.txt','FAIL '..tostring(err))end

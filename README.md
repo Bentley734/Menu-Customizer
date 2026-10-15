@@ -1,3 +1,7 @@
+Menu Customizer 3.13.2 - Splash animation optimization
+
+Batch falling stars into one animated-color setup per frame instead of up to sixteen. Cache star positions between movement steps, combine true-color marking, and precache splash masks and the selected star shader before the splash. Animated colors and continued falling motion remain enabled. GPU checks verify one setup per frame and zero warm-path canvas/shader creation.
+
 Menu Customizer 3.13.1 - Intro cinematic alignment
 
 Align Gengar/Nidorino cinematic bars with the UI sprite canvas rather than the independently zoomed world. This prevents the bottom bar from rising over the actors when world and UI scales differ. Preserves the original 32..112 scene band and intro timing.

@@ -29,9 +29,12 @@ return function(mod)
  end
  -- Keep each original wave moving after the cartridge's 48-step cap.
  local waves={{40,56,80,112},{48,64,88,104},{44,68,76,92},{52,84,100,108}}
+ local lastStep,lastPositions
  function M.starPositions(timer)
-  local positions={};if timer<134 then return positions end
   local moves=math.floor((timer-134)/3)+1
+  if moves==lastStep then return lastPositions end
+  local positions={};lastStep,lastPositions=moves,positions
+  if timer<134 then return positions end
   for w,xs in ipairs(waves)do
    local step=moves-(w-1)*8;local y=88+step
    if step>0 and y<144 then for _,x in ipairs(xs)do positions[#positions+1]={x=x,y=y,lit=moves%2==1}end end
@@ -39,23 +42,39 @@ return function(mod)
   return positions
  end
  function M.drawStars(self)
+  local positions=M.starPositions(self.timer);if #positions==0 then return end
   local P=mod.exports.selectorPalette;local choice=tonumber(mod.options:get('gameFreakStarsColor'))
-  local FX=require('src.render.PaletteFX')
+  local image=positions[1].lit and(self.smallStarBlink or self.smallStar)or self.smallStar
+  local mask=choice and image and M.mask(image,true)
   G.push('all');G.setShader();G.setColor(1,1,1,1)
-  local ok,err=pcall(function()
-   for _,star in ipairs(M.starPositions(self.timer))do
-    local image=star.lit and(self.smallStarBlink or self.smallStar)or self.smallStar
+  local function batch()
+   for _,star in ipairs(positions)do
     if choice then
-     local mask=image and M.mask(image,true)
-     P.effects.paint(P.color('text',choice),'intro',function()
-      if mask then draw(mask,star.x,star.y)else G.rectangle('fill',star.x+3,star.y+1,2,2)end
-     end)
-     if FX.markTrueColor then local w,h=8,8;if image then w,h=image:getDimensions()end;FX.markTrueColor(star.x,star.y,w,h)end
-    elseif image then G.setColor(1,1,1,1);draw(image,star.x,star.y)
+     if mask then draw(mask,star.x,star.y)else G.rectangle('fill',star.x+3,star.y+1,2,2)end
+    elseif image then draw(image,star.x,star.y)
     else G.setColor(0,0,0,1);G.rectangle('fill',star.x+3,star.y+1,2,2)end
    end
+  end
+  -- Every star shares its sprite and color: bind/send the animation once.
+  local ok,err=pcall(function()
+   if choice then P.effects.paint(P.color('text',choice),'intro',batch)else batch()end
   end)
   G.pop();if not ok then error(err,0)end
+  if choice then
+   local FX=require('src.render.PaletteFX');local w,h=8,8;if image then w,h=image:getDimensions()end
+   local left,top,right,bottom=160,144,0,0
+   for _,star in ipairs(positions)do left=math.min(left,star.x);top=math.min(top,star.y);right=math.max(right,star.x+w);bottom=math.max(bottom,star.y+h)end
+   if FX.markTrueColor then FX.markTrueColor(left,top,right-left,bottom-top)end
+  end
+ end
+ local precached=setmetatable({},{__mode='k'})
+ function M.precache(self)
+  if precached[self]then return end
+  for _,key in ipairs({'logo','gfText','smallStar','smallStarBlink'})do if self[key]then M.mask(self[key],true)end end
+  if self.studioLogo then M.mask(self.studioLogo,false)end
+  local choice=tonumber(mod.options:get('gameFreakStarsColor'))
+  if choice then mod.exports.selectorPalette.effects.paint(mod.exports.selectorPalette.color('text',choice),'intro',function()end)end
+  precached[self]=true
  end
  function M.install()
   if mod.generation~=1 then return end
@@ -84,6 +103,7 @@ return function(mod)
    return sprite(self,image,path,x,y,...)
   end end
   Class.draw=function(self,...)
+   if not mod.exports.menuSurfaces or mod.exports.menuSurfaces.enabled()then M.precache(self)end
    local imageDraw=G.draw
    G.draw=function(image,...)
     if image and image==self.studioLogo and M.draw(image,false,...)then return end
