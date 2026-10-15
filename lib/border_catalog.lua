@@ -197,6 +197,9 @@ C.entries[#C.entries+1]={label='PHOENIX FIRE',path='assets/borders/pokemon_gradi
 C.entries[#C.entries+1]={label='SCARLET HEAT HAZE',path='assets/borders/pokemon_gradient.png',animation='redfire7',gradient='red_fire_7',redFire=true}
 C.entries[#C.entries+1]={label='VOLCANIC HEART',path='assets/borders/pokemon_gradient.png',animation='redfire8',gradient='red_fire_8',redFire=true}
 C.entries[#C.entries+1]={label='CRIMSON FIRE WHIRL',path='assets/borders/pokemon_gradient.png',animation='redfire9',gradient='red_fire_9',redFire=true}
+C.entries[#C.entries+1]={label='OBSIDIAN CURRENT',path='assets/borders/pokemon_gradient.png',animation='gradient',gradient='dark_frame_midnight'}
+C.entries[#C.entries+1]={label='ABYSSAL CURRENT',path='assets/borders/pokemon_gradient.png',animation='gradient',gradient='dark_frame_abyss'}
+C.entries[#C.entries+1]={label='VIOLET CURRENT',path='assets/borders/pokemon_gradient.png',animation='gradient',gradient='dark_frame_violet'}
 C.choices={}
 for i,entry in ipairs(C.entries) do C.choices[i]=entry.label end
 function C.selection(raw,format)

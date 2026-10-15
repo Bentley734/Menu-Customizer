@@ -4,8 +4,41 @@ return function(mod)
  local get,saveGet=mod.options.get,mod.save.get
  mod.options.get=function(self,key)if M.preview and M.preview[key]~=nil then return M.preview[key]end;return get(self,key)end
  mod.save.get=function(self,key,...)if M.preview and M.preview[key]~=nil then return M.preview[key]end;return saveGet(self,key,...)end
+ -- Materialize inherited surfaces before changing a single global property.
+ -- This avoids reviving old, inactive PC/Mart overrides when enabling them.
+ local function surface(v,scope)
+  if tonumber(mod.options:get(scope..'Custom'))~=1 then
+   for suffix,key in pairs({Theme='menuTheme',BorderChoice='menuBorder',BackgroundColor='menuBackgroundColor',TextColor='menuTextColor',TextShadowColor='menuTextShadowColor'})do
+    v[scope..suffix]=mod.options:get(key)or(suffix=='Theme'and 2 or suffix=='BorderChoice'and 1 or 0)
+   end
+   local P=mod.exports.selectorPalette
+   for key,spec in pairs(P and P.effects.specs('menu')or{})do v[scope..key:sub(5)]=mod.options:get(key)or spec[1]end
+  end
+  v[scope..'Custom']=1
+ end
+ function M.globalValues(key,n)
+  local v={[key]=n}
+  if key=='allBorderChoice'or key=='allBackgroundColor'or key=='allTextColor'or key=='allTextShadowColor'or key=='allShadowOpacity'then
+   for _,scope in ipairs({'mart','pc'})do surface(v,scope)end
+  else return nil end
+  if key=='allBorderChoice'then
+   v.menuBorder=n;v.dialogueBorder=1;v.battle_style=3;v.borderCatalogFormat=2
+   for _,scope in ipairs({'start','battle','option','save','other','dialogue','pokedex','mart','pc'})do v[scope..'BorderChoice']=n end
+  elseif key=='allBackgroundColor'then
+   for _,k in ipairs({'menuBackgroundColor','startMenuBackgroundColor','dialogueBackgroundColor','saveSummaryBackgroundColor','introBackgroundColor','martBackgroundColor','pcBackgroundColor'})do v[k]=n end
+   v.battle_background_color=math.max(0,n-1)
+  elseif key=='allTextColor'or key=='allTextShadowColor'then
+   local keys=key=='allTextColor'and{'menuTextColor','dialogueTextColor','introTextColor','selectorColor','choiceSelectorColor','battle_text_color','battle_name_color','martTextColor','pcTextColor'}
+    or{'menuTextShadowColor','dialogueTextShadowColor','introTextShadowColor','battle_shadow_color','battle_name_shadow_color','martTextShadowColor','pcTextShadowColor'}
+   for _,k in ipairs(keys)do v[k]=n end
+  else
+   for _,prefix in ipairs({'menu_fx_','intro_fx_','battle_fx_','battle_name_fx_','mart_fx_','pc_fx_'})do v[prefix..'shadow_transparency']=100-n end
+  end
+  return v
+ end
  function M.values(key,n)
   key=key:gsub('^gen3transparency:','battle_')
+  local global=M.globalValues(key,n);if global then return global end
   local v={[key]=n}
   if key:find('Border')then for _,s in ipairs({'option','other'})do v[s..'BorderChoice']=n end;v.menuBorder=n;v.borderCatalogFormat=2
   elseif key:find('Background')or key:find('background_color')then v.menuBackgroundColor=n;v.startMenuBackgroundColor=n;v.dialogueBackgroundColor=n;if key:find('background_color')then v.menuBackgroundColor=n+1 end
@@ -99,7 +132,14 @@ return function(mod)
    {'WARM PAPER','CREAM','GOLD RIBBON','CREAM','CHARCOAL','RED'},
    {'SILVER NOIR','CHARCOAL','SILVER','CHARCOAL','WHITE','CYAN'},
    {'ROSE QUARTZ','CREAM','PASTEL STRIPE','CREAM','PURPLE','RED'},
-   {'AMBER LOUNGE','CHARCOAL','BLACK & GOLD','CHARCOAL','CREAM','YELLOW'}}
+   {'AMBER LOUNGE','CHARCOAL','BLACK & GOLD','CHARCOAL','CREAM','YELLOW'},
+   {'DARK MODE - OBSIDIAN','MIDNIGHT DRIFT','OBSIDIAN CURRENT','MIDNIGHT DRIFT','WHITE','CYAN'},
+   {'DARK MODE - ABYSS','ABYSSAL DRIFT','ABYSSAL CURRENT','ABYSSAL DRIFT','WHITE','MINT'},
+   {'DARK MODE - VIOLET','VIOLET DRIFT','VIOLET CURRENT','VIOLET DRIFT','WHITE','LIGHT BLUE'},
+   {'GLACIER','PALE BLUE','ICE BLUE','PALE BLUE','NAVY','BLUE'},
+   {'SCARLET LOUNGE','CHARCOAL','SCARLET HEAT HAZE','CHARCOAL','CREAM','RED'},
+   {'MEW NEBULA','MEW NEBULA','MEW STAR ORBIT','MEW NEBULA','WHITE','LIGHT BLUE'}}
+  M.themes=themes
   local function locate(names,name,zero)for i,n in ipairs(names)do if n==name then return i-(zero and 1 or 0)end end;return zero and 0 or 1 end
   local function values(t)
    local P=mod.exports.selectorPalette;local B=mod.exports.borderCatalog
@@ -115,7 +155,7 @@ return function(mod)
    end
    local defaults=mod.exports.visualDefaults or {};for key,n in pairs(defaults)do if v[key]==nil then v[key]=n end end
    local accent=locate(P.names,t[6],true)
-   v.choiceSelector=14;v.choiceSelectorColor=accent;v.selectorColor=accent;v.arrowSelector=3;v.startSelector=3
+   v.choiceSelector=14;v.choiceSelectorColor=accent;v.selectorColor=accent;v.arrowSelector=12;v.startSelector=4
    v.introTheme=2;v.introTextColor=color;v.introTextShadowColor=1;v.introTextCase=1;v.introBackgroundColor=bg;v.introFontSize=0
    v.saveSummaryTheme=2;v.saveSummaryBackgroundColor=bg;v.textCase=1;v.menuTransition=2;v.backgroundDim=20
    for _,scope in ipairs({'start','option','save','other','battle','dialogue'})do
@@ -124,7 +164,32 @@ return function(mod)
    for _,prefix in ipairs({'menu','intro','battle','name'})do
     for key,spec in pairs(P.effects.specs(prefix))do v[key]=spec[1]end
    end
+   -- Every theme covers both custom and previously inherited new surfaces.
+   for _,scope in ipairs({'mart','pc'})do
+    v[scope..'Custom']=1;v[scope..'Theme']=2;v[scope..'BorderChoice']=border
+    v[scope..'BackgroundColor']=bg;v[scope..'TextColor']=color;v[scope..'TextShadowColor']=1
+    for key in pairs(P.effects.specs('menu'))do v[scope..key:sub(5)]=v[key]end
+   end
+   v.allBorderChoice=border;v.allBackgroundColor=bg;v.allTextColor=color;v.allTextShadowColor=1;v.allShadowOpacity=65
+   for _,prefix in ipairs({'menu_fx_','intro_fx_','battle_fx_','battle_name_fx_','mart_fx_','pc_fx_'})do v[prefix..'shadow_transparency']=35 end
    return v
+  end
+  if mod.generation==3 then
+   local P,B=mod.exports.selectorPalette,mod.exports.borderCatalog
+   for _,spec in ipairs({{'allBorderChoice','ALL BORDERS',1,B.choices,1},{'allBackgroundColor','ALL BACKGROUNDS',0,P.menuBackgroundNames,0,'menuBackground'},
+    {'allTextColor','ALL COLORS',0,P.names,0,'text'},{'allTextShadowColor','ALL SHADOWS',0,P.shadowNames,0,'shadow'},{'allShadowOpacity','ALL SHADOW OPACITY',100,nil,0}})do
+    local k,title,default,names,minimum,kind=(unpack or table.unpack)(spec)
+    local function current()return tonumber(mod.options:get(k))or default end
+    local function write(ctx,n)M.write(ctx,M.globalValues(k,n));return false end
+    local row={id='wide_'..k,label=title,value=function()local n=current();return names and names[n-minimum+1]or tostring(n)..'%'end,
+     preview=function()return M.values(k,current())end,step=function(ctx,dir)
+      local n=names and(minimum+(current()-minimum+(dir or 1))%#names)or math.max(0,math.min(100,current()+(dir or 1)*5))
+      return write(ctx,n)
+     end,customization=M}
+    if kind then P.picker(row,kind,current,write,openPage)
+    elseif names then P.designPicker(row,B.groups,current,write,openPage)end
+    out[#out+1]=row
+   end
   end
   local choices={};for _,t in ipairs(themes)do local theme=t
    choices[#choices+1]={id='theme_'..theme[1],label=theme[1],preview=function()return values(theme)end,value=function()return 'APPLY'end,activate=function(ctx)M.write(ctx,values(theme))end}

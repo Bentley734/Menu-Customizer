@@ -1,3 +1,13 @@
+# Menu Customizer 3.4.0 — Complete themes and animated dark modes
+
+OPTIONS → MENUS → THEMES now includes 14 coordinated presets. All eight existing themes cover the separate Mart/PC profiles and their text effects, dialogue boxes, battle/level-up windows, intro and save summary styling. Reapply an existing theme to extend it to the new surfaces.
+
+Six new presets: DARK MODE - OBSIDIAN, DARK MODE - ABYSS, DARK MODE - VIOLET, GLACIER, SCARLET LOUNGE and MEW NEBULA. The three dark modes add matching animated dark gradient borders and backgrounds, bright readable text and coordinated selector accents. New palette/frame IDs are appended; existing saved design IDs retain their meanings.
+
+ALL BORDERS and ALL BACKGROUNDS now reach custom Mart and PC windows as well as existing surfaces. ALL COLORS, ALL SHADOWS and ALL SHADOW OPACITY also include the new profiles. These global controls are now exposed in Gen 3. Enabling an inherited profile copies its current global appearance first, avoiding stale disabled overrides.
+
+Validated: all 14 themes and global controls in all eleven games with KIM1025, independent profile regressions, animated dark Mart/PC rendering in native LOVE across five game families, sampled dark-background contrast, and focused LuaJIT/Lua 5.3 compilation/rendering regressions. No live playthrough was performed. Restart after installing. Johnto and other mods are unchanged.
+
 # Menu Customizer 3.3.5 — Small-window battle readability
 
 Names retain readable integer pixels, fit inside the window and reserve clearance above level/status labels. Compact command layouts use the actual eight-pixel selector footprint and a narrow prompt to avoid unnecessary shrinking. Requires KIM1025 1.7.45 for cooperative HUD placement. Validated with 1,440 layout checks and 186,895 real KIM GPU pixel/clearance checks across small, large and high-DPI windows, plus dual-runtime regressions and eleven-game startup.

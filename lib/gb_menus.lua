@@ -58,29 +58,8 @@ return function(mod,catalog)
   return math.max(spec[2],math.min(spec[3],math.floor(n or spec[1])))
  end
  function C.persist(game,key,value)
-  if key=='allShadowOpacity' then
-   local values={allShadowOpacity=value}
-   for _,prefix in ipairs({'menu_fx_','intro_fx_','battle_fx_','battle_name_fx_'})do values[prefix..'shadow_transparency']=100-value end
-   return mod.exports.customization.write(game,values)
-  end
-  if key=='allTextColor' or key=='allTextShadowColor' then
-   local values={[key]=value}
-   local keys=key=='allTextColor' and {'menuTextColor','dialogueTextColor','introTextColor','selectorColor','battle_text_color','battle_name_color'}
-    or {'menuTextShadowColor','dialogueTextShadowColor','introTextShadowColor','battle_shadow_color','battle_name_shadow_color'}
-   for _,setting in ipairs(keys)do values[setting]=value end
-   return mod.exports.customization.write(game,values)
-  end
-  if key=='allBorderChoice' or key=='allBackgroundColor' then
-   local values={[key]=value}
-   if key=='allBorderChoice' then
-    values.menuBorder=value;values.dialogueBorder=1;values.battle_style=3;values.borderCatalogFormat=2
-    for _,scope in ipairs({'start','battle','option','save','other','dialogue','pokedex'})do values[scope..'BorderChoice']=value end
-   else
-    for _,key in ipairs({'menuBackgroundColor','startMenuBackgroundColor','dialogueBackgroundColor','saveSummaryBackgroundColor','introBackgroundColor'})do values[key]=value end
-    values.battle_background_color=math.max(0,value-1)
-   end
-   return mod.exports.customization.write(game,values)
-  end
+  local global=mod.exports.customization.globalValues(key,value)
+  if global then return mod.exports.customization.write(game,global)end
   local options=game.options or (game.save and game.save.options)
   assert(options,'Menu Customizer: no option storage')
   if key=='menuTransition' and C.resetTransitions then C.resetTransitions()end

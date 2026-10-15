@@ -58,6 +58,16 @@ M.register({
  {key='red_fire_8',hex={'861026','D22434','FF6841','A4142C'}},
  {key='red_fire_9',hex={'8C0815','D71722','FF7836','A80D1B'}},
 })
+-- Dark paper is appended separately so existing palette IDs never move.
+M.darkEntries={
+ {key='dark_midnight',name='MIDNIGHT DRIFT',hex={'080B12','0E1422','151B2B','090E18'}},
+ {key='dark_abyss',name='ABYSSAL DRIFT',hex={'061112','0A1C20','102A2C','081619'}},
+ {key='dark_violet',name='VIOLET DRIFT',hex={'100A18','1C102B','28183A','140D20'}}}
+M.register(M.darkEntries)
+M.register({
+ {key='dark_frame_midnight',hex={'111722','1B2534','30435B','151F2C'}},
+ {key='dark_frame_abyss',hex={'10282C','173D43','20545A','122F35'}},
+ {key='dark_frame_violet',hex={'261735','38224F','4B3068','2D1B40'}}})
 function M.sample(key,t)
  local entry=M.byKey[key];if not entry then return nil end
  local pos=(t%1)*4;local i=math.floor(pos);local f=pos-i;f=f*f*(3-2*f)
