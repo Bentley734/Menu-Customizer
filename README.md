@@ -1,3 +1,7 @@
+Menu Customizer 3.23.5 - YES/NO selector after text
+
+Move the Gen IV YES/NO selector to the right of the selected label, reserving space inside the frame.
+
 Menu Customizer 3.23.4 - Choice palette protection and integer text
 
 Protect DS YES/NO panels from native palette remapping. Queue Emerald choice labels for final-resolution integer rasterization instead of shrinking them into the game canvas.

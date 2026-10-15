@@ -25,7 +25,7 @@ return function(mod,palette,active)
     if ds then
      local F=require('src.render.Font');oldTX,oldTW=owner.tx,owner.tw
      local widest=0;for _,text in ipairs(owner.labels or{'YES','NO'})do widest=math.max(widest,F.width(require('src.core.Strings')(text)))end
-     owner.tw=math.min(20,math.max(owner.tw,math.ceil((widest+il+ir)/8)))
+     owner.tw=math.min(20,math.max(owner.tw,math.ceil((widest+il+ir+12)/8)))
      owner.tx=math.max(0,math.min(owner.tx,20-owner.tw))
 
     end
@@ -61,7 +61,9 @@ return function(mod,palette,active)
        else F.draw(text,x,y)end
       end
      end)
-     current.arrows.draw(owner.tx*8+4,(owner.ty+row+((owner.index or 1)-1)*2)*8,8)
+     local selected=exports.customization.text(Strings((owner.labels or{'YES','NO'})[owner.index or 1]))
+     local width=current.theme.enabled()and current.theme.measure(selected)*.75 or F.width(selected)
+     current.arrows.draw(owner.tx*8+il+width+2,(owner.ty+row+((owner.index or 1)-1)*2)*8,8)
     end)
     G.pop();if not ok then error(err,0)end
    end)}
