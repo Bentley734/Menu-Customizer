@@ -1,0 +1,48 @@
+-- Sentence-case exceptions come from the loaded game's species/trainers and save.
+return function(mod)
+ local M={};local names={};local game
+ local function lower(s)return s:lower():gsub('É','é')end
+ local function add(s)
+  if type(s)~='string'or s==''or s:find('[<>{}\n]')then return end
+  local key=lower(s);local word=true
+  local display=key:gsub('[%z\1-\127\194-\244][\128-\191]*',function(c)
+   if c:match('%w')or c:byte()>=128 then local out=word and(c=='é'and'É'or c:upper())or c;word=false;return out end
+   if c~="'"then word=true end;return c
+  end)
+  local first=key:sub(1,1);names[first]=names[first]or{};names[first][key]=display
+ end
+ local function scan(t,seen)
+  if type(t)~='table'or seen[t]then return end;seen[t]=true
+  for k,v in pairs(t)do
+   if k=='name'or k=='nickname'or k=='trainerName'or k=='rivalName'or k=='playerName'then add(v)
+   elseif type(v)=='table'then scan(v,seen)end
+  end
+ end
+ -- Named characters whose names also occur in ordinary dialogue, rather than
+ -- trainer records (professors, family members, and story NPCs).
+ for s in ('Oak|Elm|Birch|Rowan|Juniper|Sycamore|Kukui|Magnolia|Sonia|Bill|Mr. Fuji|Daisy|Giovanni|Brock|Misty|Lt. Surge|Erika|Koga|Sabrina|Blaine|Lorelei|Bruno|Agatha|Lance|Professor Oak|Professor Elm|Professor Birch|Steven|Wallace|Wally|May|Brendan|Norman|Roxanne|Brawly|Wattson|Flannery|Winona|Tate|Liza|Sidney|Phoebe|Glacia|Drake|Archie|Maxie|Aqua|Magma|Kurt|Eusine|Morty|Whitney|Jasmine|Chuck|Pryce|Clair|Falkner|Bugsy|Karen|Will|Janine|Blue|Red|Green|Silver|Gold|Crystal|Ash|Gary|Jessie|James|Mary|Ben|Celio|Celio'):gmatch('[^|]+')do add(s)end
+ mod.events:on('mods.loaded',function(e)
+  local d=e.data or{};scan(d.pokemon,{});scan(d.trainers,{})
+ end)
+ mod.events:on('game.ready',function(e)game=e.game;scan(game and game.save,{})end)
+ function M.restore(text)
+  if game and game.save then
+   local s=game.save;add(s.rivalName);add(s.playerName);if s.player then add(s.player.name)end
+   for _,p in pairs(s.party or{})do if type(p)=='table'then add(p.nickname);add(p.name)end end
+  end
+  -- Longest match first, with byte boundaries supporting accented names.
+  local at,out=1,{}
+  while at<=#text do
+   local best,display
+   if at==1 or not text:sub(at-1,at-1):match('[%w\128-\255]')then
+    for key,value in pairs(names[lower(text:sub(at,at))]or{})do
+     local tail=at+#key
+     if(not best or #key>#best)and lower(text:sub(at,tail-1))==key and(tail>#text or not text:sub(tail,tail):match('[%w\128-\255]'))then best,display=key,value end
+    end
+   end
+   if best then out[#out+1]=display;at=at+#best else out[#out+1]=text:sub(at,at);at=at+1 end
+  end
+  return table.concat(out)
+ end
+ return M
+end

@@ -87,6 +87,7 @@ return function(mod)
  end
  local lowerAccents={['Á']='á',['É']='é',['Í']='í',['Ó']='ó',['Ú']='ú',['Ü']='ü',['Ñ']='ñ'}
  local upperAccents={};for upper,lower in pairs(lowerAccents)do upperAccents[lower]=upper end
+ local properNames=assert(load(assert(mod:read('lib/proper_names.lua'))))()(mod)
  local modes={'ORIGINAL','SENTENCE CASE','LOWERCASE','TITLE CASE'}
  function M.text(text)
   if mod.exports.jumpWave and mod.exports.jumpWave.active then return text end
@@ -116,6 +117,7 @@ return function(mod)
      return c
     end)
    end
+   if mode==1 then chunk=properNames.restore(chunk)end
    out[#out+1]=chunk;if not a then break end;out[#out+1]=text:sub(a,b);at=b+1
   end
   return table.concat(out)

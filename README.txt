@@ -1,3 +1,7 @@
+Menu Customizer 3.21.4 - Proper names in Sentence Case
+
+Preserve capitalization of loaded Pokemon and trainer names, saved player/rival names and nicknames, and story character names when applying Sentence Case. Other casing modes remain independent.
+
 Menu Customizer 3.21.3 - Stable Jump Wave selection clocks
 
 Keep wave timing per menu and selected row so native/customized draw passes and overlapping menus cannot overwrite the first-letter restart. Includes real menu-input and GPU rendering regression coverage.
