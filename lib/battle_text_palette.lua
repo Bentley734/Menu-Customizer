@@ -101,6 +101,7 @@ return function(mod)
     backgrounds[#backgrounds+1]={1,1,1,1,animation='GRADIENT',gradient=e.key}
   end
   for _,e in ipairs(M.pokemonBackgrounds.blackEntries or{})do M.backgroundNames[#M.backgroundNames+1]=e.name;backgrounds[#backgrounds+1]=M.pokemonBackgrounds.color(e.key)end
+  for _,e in ipairs(M.pokemonBackgrounds.forestEntries or{})do M.backgroundNames[#M.backgroundNames+1]=e.name;backgrounds[#backgrounds+1]=M.pokemonBackgrounds.color(e.key)end
   local lists={text=foreground,shadow=shadows,background=backgrounds}
   function M.color(kind,n)local l=lists[kind] or foreground;return l[math.max(0,math.min(#l-1,math.floor(n or 0)))+1]end
   local function hue(c)

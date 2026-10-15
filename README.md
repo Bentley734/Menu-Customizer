@@ -1,3 +1,7 @@
+Menu Customizer 3.11.0 - Green landscapes and battlefields
+
+Adds ten matching animated green tree/grass backgrounds and borders. BACKGROUNDS > BATTLEFIELD selects scenery separately from BATTLE MENU. NATIVE restores existing scenery. Gen 1 requires KIM1025 1.7.46 and its HD scene; Gen 3 supports KIM backgrounds and native terrain. Gen 2 battle rendering is unchanged. Existing selections and settings are preserved.
+
 Menu Customizer 3.10.0 - Independent menu text settings
 
 TEXT > FONT AND LAYOUT now contains menu-specific submenus, with only global controls at its root. Each menu has independent decapitalization; unset choices preserve the prior global setting. ALL DECAPITALIZATION and ALL FONTS intentionally update all menu case settings. Covers menus, start/options, dialogue, intro/title, save summary, Mart, PC, battle/names, party, bag, Pokemon summary, Pokedex and trainer card. TEXT > COLORS includes GAME FREAK separately from other intro text; global colors and themes include it. Native Gen 2 print paths also apply the selected case.

@@ -32,7 +32,7 @@ return function(mod)
    for _,k in ipairs({'menuBackgroundColor','startMenuBackgroundColor','dialogueBackgroundColor','saveSummaryBackgroundColor','introBackgroundColor','martBackgroundColor','pcBackgroundColor'})do v[k]=n end
    v.battle_background_color=math.max(0,n-1)
    -- Keep native void fill opt-in; global changes include enabled voids.
-   for _,k in ipairs({'indoorVoidBackgroundColor','outdoorVoidBackgroundColor'})do if (tonumber(mod.options:get(k))or 0)>0 then v[k]=n end end
+   for _,k in ipairs({'indoorVoidBackgroundColor','outdoorVoidBackgroundColor','battlefieldBackgroundColor'})do if (tonumber(mod.options:get(k))or 0)>0 then v[k]=n end end
   elseif key=='allTextColor'or key=='allTextShadowColor'then
    local keys=key=='allTextColor'and{'menuTextColor','dialogueTextColor','introTextColor','gameFreakTextColor','selectorColor','choiceSelectorColor','battle_text_color','battle_name_color','martTextColor','pcTextColor'}
     or{'menuTextShadowColor','dialogueTextShadowColor','introTextShadowColor','battle_shadow_color','battle_name_shadow_color','martTextShadowColor','pcTextShadowColor'}
@@ -220,6 +220,7 @@ return function(mod)
   if mod.exports.allFonts then out[#out+1]=mod.exports.allFonts.row(openPage)end
   out[#out+1]={id='wide_themeSets',label='THEMES',group=true,activate=function(ctx)return openPage('THEMES',choices,ctx)end}
   if mod.exports.textScopes then for _,row in ipairs(mod.exports.textScopes.rows(openPage))do out[#out+1]=row end end
+  if mod.exports.battlefieldBackground then for _,row in ipairs(mod.exports.battlefieldBackground.rows(openPage))do out[#out+1]=row end end
   if mod.exports.voidBackgrounds then for _,row in ipairs(mod.exports.voidBackgrounds.rows(openPage))do out[#out+1]=row end end
   return out
  end

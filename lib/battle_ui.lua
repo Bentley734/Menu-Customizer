@@ -197,7 +197,7 @@ return function(mod)
     out[#out+1]={id=ID..':text_color',label='BATTLE TEXT COLOR',
       value=function()return textPalette.names[setting('text_color',0)+1]end,
       step=function(ctx,dir)return persist(ctx,'text_color',textPalette.step('text',setting('text_color',0),dir))end}
-    out[#out+1]={id=ID..':background_color',label='BATTLE BACKGROUND',
+    out[#out+1]={id=ID..':background_color',label='BATTLE MENU BACKGROUND',
       value=function()return textPalette.backgroundNames[setting('background_color',0)+1]end,
       step=function(ctx,dir)return persist(ctx,'background_color',textPalette.step('background',setting('background_color',0),dir))end}
     out[#out+1]={id=ID..':shadow_color',label='BATTLE TEXT SHADOW',
