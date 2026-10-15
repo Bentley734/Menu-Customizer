@@ -7,7 +7,7 @@ return function(mod,palette)
   presetNames[#presetNames+1]=e.name;e.colors={}
   for _,h in ipairs(e.hex)do e.colors[#e.colors+1]={tonumber(h:sub(1,2),16)/255,tonumber(h:sub(3,4),16)/255,tonumber(h:sub(5,6),16)/255,1}end
  end
- local prefixes={mods='mods_fx_',intro='intro_fx_',menu='menu_fx_',battle='battle_fx_',name='battle_name_fx_'}
+ local prefixes={moveSelect='moveSelect_fx_',mods='mods_fx_',intro='intro_fx_',menu='menu_fx_',battle='battle_fx_',name='battle_name_fx_'}
  function M.get(kind,key,default)
   if kind=='menu'and mod.exports.gbMenus and mod.exports.gbMenus.introScope then kind='intro'end
   local k=(prefixes[kind] or prefixes.battle)..key

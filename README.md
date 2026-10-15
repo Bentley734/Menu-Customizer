@@ -1,3 +1,11 @@
+# Menu Customizer 3.31.0 — Move Select customization and battle grouping
+
+Add an independent Move Select visual profile: inherited/custom style, font, font size, Grid/List, alignment, border, background, text/shadow colors, text effects, selector/color, X/Y offsets and opacity. Untouched properties inherit the battle settings. Move layout navigation follows the active move profile.
+
+Group battle controls within the existing Text, Borders, Backgrounds, Selectors, Position, Transparency and Transitions categories, nesting Move Select under Battle where applicable. Existing option keys remain compatible.
+
+Validated profile isolation, returning to inherited style and startup across Gen 1–3 with KIM1025; GPU integer-scaling/HUD checks passed with independent move colors and selector. Restart after updating.
+
 # Menu Customizer 3.30.1 — Larger move-list text
 
 Increase list-view move names and PP/type text toward twice the previous integer pixel scale, fitting by actual glyph ink height instead of unused font-cell padding. Keep the frame unchanged and retain independent rows, selector space and right-side details. Constrain exceptionally long labels to their available width using whole pixels. Final-window integer glyph and HUD regression checks passed. Restart after updating.

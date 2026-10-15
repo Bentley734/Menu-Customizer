@@ -61,13 +61,14 @@ return function(entries,openPage)
   local list=textPages[category];list[#list+1]=compact(row,words)
  end
  -- Keep global controls here; menu-specific controls get one focused page.
- local layout,menus,menuOrder={},{},{'MENUS','START MENU','OPTIONS','DIALOGUE','INTRO / TITLE','SAVE SUMMARY','POKE MART','PC','BATTLE','BATTLE NAMES','PARTY','BAG','POKEMON SUMMARY','POKEDEX','TRAINER CARD','OTHER MENUS','LOAD REPORT','MOD MENUS'}
+ local layout,menus,menuOrder={},{},{'MENUS','START MENU','OPTIONS','DIALOGUE','INTRO / TITLE','SAVE SUMMARY','POKE MART','PC','BATTLE','MOVE SELECT','BATTLE NAMES','PARTY','BAG','POKEMON SUMMARY','POKEDEX','TRAINER CARD','OTHER MENUS','LOAD REPORT','MOD MENUS'}
  for _,name in ipairs(menuOrder)do menus[name]={}end
  for _,row in ipairs(textPages['FONT AND LAYOUT'])do
   local key=(row.id or ''):gsub('^wide_',''):gsub('^surface_',''):lower();local group
   if key=='textcase'or key:find('^all')or key=='controlslegend'then layout[#layout+1]=row
   else
-   if key:find('mods',1,true)then group='MOD MENUS'
+   if key:find('moveselect',1,true)then group='MOVE SELECT'
+   elseif key:find('mods',1,true)then group='MOD MENUS'
    elseif key:find('loadreport',1,true)then group='LOAD REPORT'
    elseif key:find('intro',1,true)then group='INTRO / TITLE'
    elseif key:find('savesummary',1,true)or key:find('save',1,true)==1 then group='SAVE SUMMARY'
@@ -81,6 +82,7 @@ return function(entries,openPage)
    elseif key:find('summary',1,true)then group='POKEMON SUMMARY'
    elseif key:find('pokedex',1,true)then group='POKEDEX'
    elseif key:find('trainer',1,true)then group='TRAINER CARD'
+   elseif key:find('moveselect',1,true)then group='MOVE SELECT'
    elseif key:find('mods',1,true)then group='MOD MENUS'
    elseif key:find('mart',1,true)then group='POKE MART'
    elseif key:find('pc',1,true)then group='PC'
@@ -113,11 +115,12 @@ return function(entries,openPage)
  end
  -- Position and opacity use the same menu ownership as the layout pages.
  for _,category in ipairs({'POSITION','TRANSPARENCY'})do
-  local buckets={};local names={'ALL MENUS','MENUS','START MENU','OPTIONS','SAVE SUMMARY','BATTLE','BATTLE NAMES','DIALOGUE','INTRO / TITLE','POKE MART','PC','PLAYER CARD','LOAD REPORT','MOD MENUS','OTHER MENUS'}
+  local buckets={};local names={'ALL MENUS','MENUS','START MENU','OPTIONS','SAVE SUMMARY','BATTLE','MOVE SELECT','BATTLE NAMES','DIALOGUE','INTRO / TITLE','POKE MART','PC','PLAYER CARD','LOAD REPORT','MOD MENUS','OTHER MENUS'}
   for _,name in ipairs(names)do buckets[name]={}end
   for _,row in ipairs(pages[category])do
    local key=(row.id or ''):lower();local group
    if key:find('positionpreview',1,true)or key:find('backgrounddim',1,true)or key:find('all',1,true)then group='ALL MENUS'
+   elseif key:find('moveselect',1,true)then group='MOVE SELECT'
    elseif key:find('mods',1,true)then group='MOD MENUS'
    elseif key:find('mart',1,true)then group='POKE MART'
    elseif key:find('pc',1,true)then group='PC'
@@ -140,6 +143,26 @@ return function(entries,openPage)
    if #children>0 then pages[category][#pages[category]+1]={id='wide_'..category..'_'..name,label=name,group=true,children=children,
     value=function()return #children..' OPTIONS'end,activate=function(ctx)return openPage(name,children,ctx)end}end
   end
+ end
+ -- Battle settings stay together inside each existing customization category.
+ local function battleGroups(rows,category)
+  local rest,battle,moves={},{},{}
+  for _,row in ipairs(rows)do
+   local key=(row.id or''):lower()
+   local isMove=key:find('moveselect',1,true)or row.label=='MOVE SELECT'
+   local dest=isMove and moves or(key:find('battle',1,true)or key:find('name_',1,true))and battle or rest
+   if (row.label=='BATTLE'or row.label=='MOVE SELECT')and row.children then for _,child in ipairs(row.children)do dest[#dest+1]=child end else dest[#dest+1]=row end
+  end
+  local function group(label,children)
+   return{id='group_'..category..'_'..label,label=label,children=children,group=true,value=function()return #children..' OPTIONS'end,activate=function(ctx)return openPage(label,children,ctx)end}
+  end
+  if #moves>0 then battle[#battle+1]=group('MOVE SELECT',moves)end
+  if #battle>0 then rest[#rest+1]=group('BATTLE',battle)end
+  return rest
+ end
+ for _,category in ipairs({'BORDERS','BACKGROUNDS','SELECTORS','TRANSITIONS','POSITION','TRANSPARENCY'})do pages[category]=battleGroups(pages[category],category)end
+ for _,category in ipairs(textOrder)do
+  for _,page in ipairs(pages.TEXT)do if page.label==category and category~='DECAPITALIZATION'then page.children=battleGroups(page.children,category);local children,title=page.children,page.label;page.activate=function(ctx)return openPage(title,children,ctx)end;page.value=function()return #children..' OPTIONS'end end end
  end
  local out={}
  for _,name in ipairs(order)do local children=pages[name]

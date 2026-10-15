@@ -222,6 +222,7 @@ return function(mod)
       for _,kind in ipairs({'battle','name'})do
       local k=kind;out[#out+1]={id=ID..':fx_'..k,label=k=='name' and 'NAME TEXT EFFECTS' or 'BATTLE TEXT EFFECTS',children=textPalette.effects.rows(k,effectPersist,openPage),value=function()return 'OPEN'end,activate=function()openPage(k=='name' and 'NAME TEXT EFFECTS' or 'BATTLE TEXT EFFECTS',textPalette.effects.rows(k,effectPersist,openPage))end}
     end end
+    if mod.exports.moveSelectProfile then for _,row in ipairs(mod.exports.moveSelectProfile.rows(openPage))do out[#out+1]=row end end
     return out
   end
   marker=function(nextFn,game,out) return nextFn(game,out) end
