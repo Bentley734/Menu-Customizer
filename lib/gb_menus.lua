@@ -104,8 +104,16 @@ return function(mod,catalog)
  function C.context(game)
   if not C.live() or not game or not game.stack then return nil end
   local world=game.world or game.overworld
-  if not world or not world.map then return nil end
   local states=game.stack.states or {}
+  if not world or not world.map then
+   local bootOptions
+   for _,state in ipairs(states)do
+    local id=state.screenId or''
+    if id=='OptionsMenu'or id=='Gen2OptionsMenu'or id=='MenuCustomizerOptions'or state.rows and(state.view or state.options)then bootOptions=true end
+   end
+   if not bootOptions then return nil end
+   world={map={}} -- Same options mirror before an overworld has been loaded.
+  end
   local first,recognized
   for i,s in ipairs(states) do
    if s.isBattle or (s.screenId or ''):find('Battle') then return nil end

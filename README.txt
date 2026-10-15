@@ -1,3 +1,7 @@
+Menu Customizer 3.17.0 - Title Options and intro bar modes
+
+Title-screen Options now uses the same customized options renderer before a world is loaded. Adds TEXT > FONT AND LAYOUT > INTRO / TITLE > INTRO BATTLE BARS: ORIGINAL, EDGE (8-pixel outer bars), or HIDDEN. Expanded sprite replay clipping reveals the full Gengar/Nidorino artwork in EDGE/HIDDEN modes. Original bar mode remains the default; custom-background fades retain their timing.
+
 Menu Customizer 3.16.0 - Themed design menus and aligned selectors
 
 Organizes wallpapers and animated borders into themed submenus: gradients, game-version gradients, Pokemon, psychedelic/effects, red psychedelic, fire, black artwork and forest/grass. Large design lists are split into pages of at most 24 choices. Stored IDs and selections are preserved. Menu selectors now follow centered/right-aligned labels, including the title menu while Continue is open.

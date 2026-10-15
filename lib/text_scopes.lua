@@ -46,6 +46,10 @@ return function(mod)
   local starRow={id='wide_gameFreakStarsColor',label='GAME FREAK FALLING STARS COLOR',value=function()local n=stars();return n and P.names[n+1]or 'NATIVE'end,
    step=function(ctx,d)return writeStars(ctx,((stars()or 0)+(d or 1))%#P.names)end}
   P.picker(starRow,'text',function()return stars()or 0 end,writeStars,openPage);rows[#rows+1]=starRow
+  if mod.generation==1 then
+   rows[#rows+1]={id='wide_introBattleBars',label='INTRO BATTLE BARS',value=function()return({'ORIGINAL','EDGE','HIDDEN'})[(tonumber(mod.options:get('introBattleBars'))or 0)+1]end,
+    step=function(ctx,d)C.write(ctx,{introBattleBars=((tonumber(mod.options:get('introBattleBars'))or 0)+(d or 1))%3});return false end}
+  end
   return rows
  end
  function M.install()

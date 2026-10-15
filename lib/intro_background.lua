@@ -28,7 +28,7 @@ return function(mod,palette,active)
    -- differ, so the cinematic band must follow the same UI transform.
    local uy=frameRects and frameRects.Uy or sy
    local uoy=frameRects and frameRects.uoy or ctx.oy
-   finalBars={color=bars,width=ctx.ww,height=ctx.wh,top=uoy+32*uy,bottom=uoy+112*uy}
+   finalBars={color=bars,width=ctx.ww,height=ctx.wh,top=uoy+(bars.bandTop or 32)*uy,bottom=uoy+(bars.bandBottom or 112)*uy}
    G.origin();G.setShader();G.setColor((unpack or table.unpack)(bars))
    if (bars[4]or 1)>=1 then
     G.rectangle('fill',0,0,ctx.ww,math.max(0,finalBars.top))
@@ -76,6 +76,21 @@ return function(mod,palette,active)
   local ok,Class=pcall(require,path)
   if ok and type(Class.draw)=='function'and not Class._customBootPaper then
    Class._customBootPaper=true;local draw=Class.draw
+   if path=='src.ui.IntroMovie'and Class.replayObjLayer then
+    local replay=Class.replayObjLayer
+    Class.replayObjLayer=function(self,...)
+     local mode=tonumber(mod.options:get('introBattleBars'))or 0
+     if not active()or mode==0 then return replay(self,...)end
+     local FX=require('src.render.PaletteFX');local mark=FX.markUiSpriteRedraw
+     FX.markUiSpriteRedraw=function(image,quad,x,y,opts)
+      local copy={};for k,v in pairs(opts or{})do copy[k]=v end
+      copy.clip=mode==1 and{0,8,160,128}or{0,0,160,144}
+      return mark(image,quad,x,y,copy)
+     end
+     local result={pcall(replay,self,...)};FX.markUiSpriteRedraw=mark
+     if not result[1]then error(result[2],0)end;return(unpack or table.unpack)(result,2)
+    end
+   end
    Class.draw=function(self,...)
     local n=tonumber(mod.options:get('introBackgroundColor')or mod.save:get('introBackgroundColor'))or 0
     if not active()then return draw(self,...)end
@@ -129,8 +144,11 @@ return function(mod,palette,active)
      local r,g,b,a=G.getColor()
      if path=='src.ui.IntroMovie' and self.phase==3 and mode=='fill'
        and x==0 and w==160 and h==32 and (y==0 or y==112)then
-      pendingBars={r,g,b,a}
+      local mode=tonumber(mod.options:get('introBattleBars'))or 0
+      if mode==2 then return end
+      pendingBars={r,g,b,a,bandTop=mode==1 and 8 or 32,bandBottom=mode==1 and 136 or 112}
       if fade then return end
+      if mode==1 then return rectangle('fill',0,y==0 and 0 or 136,160,8)end
      end
      -- Game Freak splash bars are decorative masks, not foreground artwork.
      if path=='src.ui.IntroMovie' and self.phase==2 and mode=='fill'
