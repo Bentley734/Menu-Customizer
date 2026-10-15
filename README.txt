@@ -1,3 +1,9 @@
+# Menu Customizer 3.35.4 - Scenery-only provider compatibility
+
+Accept the optional HD Dynamic Battlefields scenery provider underneath existing battle rendering. Backgrounds and mounds do not change fonts, panels, selectors, HP displays, sprite placement or battle UI settings. Preserve the current background picker and fall back when the provider is unavailable, disabled or fails.
+
+Validation: focused provider dispatch/fallback checks and LuaJIT compilation. HD prototype checks use official v0.3.88 runtime modules; full gameplay coexistence remains pending.
+
 Menu Customizer 3.24.2 - Inner selector and mod value margins
 
 Reserve space inside Gen IV borders for customization-menu selectors. Bound mod-menu values, including numbers, by the frame interior so Tool Music values clear the right side.

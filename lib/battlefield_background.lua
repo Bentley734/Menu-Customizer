@@ -2,7 +2,19 @@
 return function(mod)
  local M={};mod.exports.battlefieldBackground=M
  function M.choice()return math.max(0,math.floor(tonumber(mod.options:get('battlefieldBackgroundColor'))or 0))end
+ -- Optional scenery providers never render battle UI or own composition.
+ function M.scenery()
+  local ok,other=pcall(mod.find,mod,'hd-dynamic-battlefields')
+  local provider=ok and other and other.exports and other.exports.battlefieldScenery
+  if provider and provider.apiVersion==1 and provider.enabled()then return provider end
+ end
+ function M.available()return M.choice()~=0 or M.scenery()~=nil end
  function M.draw(x,y,w,h)
+  local provider=M.scenery()
+  if provider then
+   local ok,painted=pcall(provider.draw,x,y,w,h)
+   if ok and painted then return true end
+  end
   if M.choice()==0 then return false end
   local R=require('src.mods.Runtime');local enabled=false
   for _,v in ipairs(R.hooks and R.hooks.chains and R.hooks.chains['ui.start_menu.items']or{})do if v.owner==mod.id then enabled=true end end
@@ -44,7 +56,7 @@ return function(mod)
     if not out[1]then error(out[2],0)end;return(unpack or table.unpack)(out,2)
    end
    B.drawClassic=function(self,...)
-    if self.blankForAskName or M.choice()==0 then return classic(self,...)end
+    if self.blankForAskName or not M.available()then return classic(self,...)end
     -- Paint scenery on the destination, keeping the native HUD scratch layer
     -- transparent instead of erasing the scenery with its white paper.
     local G=love.graphics;local source=G.getCanvas()
