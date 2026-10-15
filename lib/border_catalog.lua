@@ -206,6 +206,8 @@ local blackNames={
  'BLACK POKEBALLS','BLACK UMBREON RINGS','BLACK GENGAR EYES','BLACK PIKACHU BOLTS','BLACK CHARMANDER EMBERS',
  'BLACK SQUIRTLE BUBBLES','BLACK BULBASAUR LEAVES','BLACK MEW STARS','BLACK JIGGLYPUFF NOTES','BLACK SNORLAX DREAMS'}
 for i,name in ipairs(blackNames)do C.entries[#C.entries+1]={label=name,path='assets/borders/pokemon_gradient.png',animation='black'..(i-1),blackFamily=i<=10 and 'BLACK PSYCHEDELIC' or 'BLACK POKEMON'}end
+local vividNames={'BLACK CHROMATIC SPIRAL','BLACK KALEIDOSCOPE','BLACK FRACTAL VORTEX','BLACK PRISM MANDALA','BLACK ACID WAVES','BLACK HYPNOTIC TUNNEL','BLACK COSMIC LOTUS','BLACK LIQUID MIRRORS','BLACK INFINITY GATES','BLACK ELECTRIC ROSETTE'}
+for i,name in ipairs(vividNames)do C.entries[#C.entries+1]={label=name,path='assets/borders/pokemon_gradient.png',animation='black'..(39+i)}end
 C.choices={}
 for i,entry in ipairs(C.entries) do C.choices[i]=entry.label end
 function C.selection(raw,format)

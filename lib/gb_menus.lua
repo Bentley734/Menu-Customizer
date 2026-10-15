@@ -457,7 +457,9 @@ return function(mod,catalog)
   TextBox.new=function(...)
    local current=Font._menuCustomizerGB;local enabled=current and current.live()
    local old=current and current.dialogueScope;if enabled then current.dialogueScope=true end
-   local result={pcall(TextBox._menuCustomizerDialogueNew,...)}
+   local args={n=select('#',...),...}
+   if enabled and type(args[2])=='string'then args[2]=current.mod.exports.customization.text(args[2])end
+   local result={pcall(TextBox._menuCustomizerDialogueNew,unpack(args,1,args.n))}
    if current then current.dialogueScope=old end
    if not result[1]then error(result[2],0)end;return unpack(result,2)
   end

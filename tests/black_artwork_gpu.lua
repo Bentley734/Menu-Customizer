@@ -7,8 +7,8 @@ function love.load()
  local shader=G.newShader(art.glsl..[[extern int kind;extern float phase;vec4 effect(vec4 c,Image tex,vec2 uv,vec2 p){return vec4(blackArtwork((uv-.5)*vec2(3.0,2.0),phase,kind),1.0);}]])
  local tile=G.newCanvas(160,128);local image=G.newImage(love.image.newImageData(1,1))
  for _,time in ipairs({0,1.5})do
- local gallery=G.newCanvas(800,1024);G.setCanvas(gallery);G.clear(0,0,0,1)
- for i=0,39 do
+ local gallery=G.newCanvas(800,math.ceil(#art.names/5)*128);G.setCanvas(gallery);G.clear(0,0,0,1)
+ for i=0,#art.names-1 do
  G.setCanvas(tile);G.clear();G.setShader(shader);shader:send('kind',i);shader:send('phase',time);G.setColor(1,1,1,1);G.draw(image,0,0,0,160,128);G.setShader()
  G.setCanvas();local d=tile:newImageData();local f=assert(io.open(root..'/.work/black-art/gpu/art-'..i..'-'..time..'.png','wb'));f:write(d:encode('png'):getString());f:close()
  G.setCanvas(gallery);G.draw(tile,i%5*160,math.floor(i/5)*128)

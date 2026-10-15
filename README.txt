@@ -1,3 +1,7 @@
+Menu Customizer 3.9.0 - Dialogue casing fixes and vivid black psychedelia
+
+Fixes actual Gen 1/2 dialogue capitalization before glyph encoding and keeps contraction glyphs literal, so sentence case displays Don't rather than Don'T and Title Case reaches dialogue. Adds ten animated rainbow-on-black border/background pairs: spirals, kaleidoscopes, fractal vortices, mandalas, acid waves, tunnels, lotus, mirrors, infinity gates and rosettes. Wide black bands keep black dominant. Existing saved choices remain stable.
+
 Menu Customizer 3.8.0 - World void backgrounds
 
 BACKGROUND settings now include INDOOR VOID and OUTDOOR VOID. Choose any static or animated background independently; NATIVE restores the recomp fill, including its existing trees/water/black choices. Defaults remain NATIVE. Backgrounds paint only outside map bodies and connected neighbors. ALL BACKGROUNDS also updates enabled void backgrounds without enabling native ones. Gen 1/2 ground renderers and the Gen 3 native field renderer are supported.

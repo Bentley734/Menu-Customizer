@@ -9,10 +9,29 @@ local M={names={
  'BLACK LIQUID RIBBONS','BLACK LIQUID CONTOURS','BLACK INFINITY LOOPS','BLACK INFINITY BRAID',
  'BLACK PRISM TUNNEL','BLACK PRISM REFLECTION','BLACK THIRD EYE IRIS','BLACK THIRD EYE AURA',
  'BLACK WAVE CROSSING','BLACK WAVE RIPPLE','BLACK ORBIT ECLIPSE','BLACK ORBIT CONSTELLATION'}}
+M.vividNames={'BLACK CHROMATIC SPIRAL','BLACK KALEIDOSCOPE','BLACK FRACTAL VORTEX','BLACK PRISM MANDALA','BLACK ACID WAVES','BLACK HYPNOTIC TUNNEL','BLACK COSMIC LOTUS','BLACK LIQUID MIRRORS','BLACK INFINITY GATES','BLACK ELECTRIC ROSETTE'}
+for _,name in ipairs(M.vividNames)do M.names[#M.names+1]=name end
 M.glsl=[[
  float blackLine(float d,float w){return 1.0-smoothstep(w,w+.018,abs(d));}
  vec3 blackArtwork(vec2 p,float t,int kind){
   vec2 z=p;float r=max(length(z),.001),a=atan(z.y,z.x);float v=0.0;
+  if(kind>=40){
+   float k=float(kind-40),wave=0.0;
+   if(kind==40)wave=sin(log(r+.08)*15.0-a*3.0-t);
+   if(kind==41)wave=sin(r*19.0+cos(a*8.0+t*.25)*5.0-t);
+   if(kind==42)wave=sin(log(r+.1)*23.0+sin(a*5.0+t*.3)*4.0-t);
+   if(kind==43)wave=cos(r*22.0+abs(cos(a*6.0-t*.2))*7.0-t);
+   if(kind==44)wave=sin(z.x*12.0+sin(z.y*8.0+t)*3.0-t);
+   if(kind==45)wave=sin(log(r+.09)*27.0+t*1.3+cos(a*4.0)*2.0);
+   if(kind==46)wave=cos(r*24.0+sin(a*9.0+t*.25)*5.0-t);
+   if(kind==47)wave=sin(z.x*10.0+sin(z.y*9.0-t)*3.0)*cos(z.y*11.0+t*.3);
+   if(kind==48)wave=cos((abs(z.x)+abs(z.y))*23.0+sin(a*4.0+t)*3.0-t);
+   if(kind==49)wave=sin(r*25.0+cos(a*12.0+t*.2)*6.0-t);
+   // Wide black bands separate vivid ink: no tinted base or glow fill.
+   float ink=step(.68,wave);
+   vec3 rainbow=.5+.5*cos(vec3(0.0,2.094,4.188)+a*1.6+r*3.0-t*.3+k*.6);
+   return ink*(.15+.8*rainbow);
+  }
   if(kind==0)v=blackLine(sin(r*14.0-a*3.0-t),.025);
   else if(kind==1)v=blackLine(r-(.52+.16*cos(a*8.0+t*.3)),.012);
   else if(kind==2)v=blackLine(sin(z.x*15.0+sin(z.y*6.0+t))*cos(z.y*13.0-t*.3),.016);

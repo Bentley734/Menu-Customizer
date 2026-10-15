@@ -26,9 +26,9 @@ return function(mod,enabled)
  for n=32,126 do supported[string.char(n)]=true end
  local function chars(text)return tostring(text):gmatch('[%z\1-\127\194-\244][\128-\191]*')end
  for c in chars('éÉàèùâêîôûäëïöüçÀÈÙÂÊÎÔÛÄËÏÖÜÇ♀♂¥')do supported[c]=true end
- local function glyphs(text)
+ local function glyphs(text,raw)
   text=tostring(text)
-  if mod.exports.customization then text=mod.exports.customization.text(text)end
+  if not raw and mod.exports.customization then text=mod.exports.customization.text(text)end
   if text:find('[<>{}]') then return nil end
   local out={};for c in chars(text)do if c=='\n' then out[#out+1]=-1 elseif not supported[c]then return nil else out[#out+1]=glyphId(c)end end;return out
  end
@@ -90,7 +90,7 @@ return function(mod,enabled)
    end
    for token,text in pairs({['№']='No',['<DOT>']='.',['<PO>']='PO',['<KE>']='Ké',['<PK>']='PK',['<MN>']='MN',["'d"]="'d",["'l"]="'l",["'m"]="'m",["'r"]="'r",["'s"]="'s",["'t"]="'t",["'v"]="'v"}) do
     local codes=GB.encode(token)
-    if #codes==1 and codes[1]~=missing and codes[1]~=space then map[codes[1]]=glyphs(text) end
+    if #codes==1 and codes[1]~=missing and codes[1]~=space then map[codes[1]]=glyphs(text,true) end
    end
    -- Unsupported engine characters may encode to SPACE. Never let one of
    -- those aliases replace the blank with an unrelated Emerald glyph.
