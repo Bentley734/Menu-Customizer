@@ -18,4 +18,5 @@ return function(mod)
   fonts.install()
   textScopes.install()
   hud.install()
+  assert(load(assert(mod:read('lib/load_report_layout.lua'))))()(mod)
 end

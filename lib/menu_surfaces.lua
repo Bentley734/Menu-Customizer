@@ -94,13 +94,14 @@ return function(mod)
     end
     rows[#rows+1]=row
    end
+   if scope=='loadReport'then add('Enabled','SHOW LOAD REPORT',1,0,1,{'DISABLED','ENABLED'})end
    if scope~='dialogue'then add('Custom','STYLE',0,0,1,{'USE MENU','CUSTOM'})end
    add('Theme','FONT',2,1,2,{'NATIVE','EMERALD'},nil,scope=='dialogue'and nil or'menuTheme')
    add('BorderChoice','BORDER',scope=='dialogue'and 0 or 1,0,#catalog.choices,nil,nil,'menuBorder')
    add('BackgroundColor','BACKGROUND',0,0,#palette.menuBackgroundNames-1,palette.menuBackgroundNames,'menuBackground','menuBackgroundColor')
    add('TextColor','TEXT COLOR',0,0,#palette.names-1,palette.names,'text','menuTextColor')
    add('TextShadowColor','TEXT SHADOW',0,0,#palette.shadowNames-1,palette.shadowNames,'shadow','menuTextShadowColor')
-   if scope=='dialogue'or scope=='loadReport'then add('Justify','ALIGNMENT',1,1,3,{'LEFT','CENTER','RIGHT'})end
+   if scope=='dialogue'or scope=='loadReport'then add('Justify','ALIGNMENT',scope=='loadReport'and 2 or 1,1,3,{'LEFT','CENTER','RIGHT'})end
    rows[#rows+1]={id='surface_'..scope..'Reset',label=scope=='dialogue'and'RESET DIALOGUE'or'USE MENU STYLE',activate=function(ctx)
     local values={}
     if scope=='dialogue'then values={dialogueTheme=2,dialogueBorderChoice=0,dialogueBorder=0,dialogueBackgroundColor=0,dialogueTextColor=0,dialogueTextShadowColor=0,dialogueJustify=1}

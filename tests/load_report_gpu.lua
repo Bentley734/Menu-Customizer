@@ -52,7 +52,7 @@ function love.load()
   assert(not api.gameFreakLogoScope)
   local Report=require('src.ui.QuarantineReport');local menu=Report.new(game,{});menu.screenId='QuarantineReport';menu.lines={'This save was made','with 14 mods; 4','changed version.'}
   assert(menu._menuCustomizerSurface=='loadReport')
-  api.customization.write(game,{loadReportCustom=1,loadReportTheme=2,loadReportBorderChoice=13,loadReportBackgroundColor=4,loadReportTextColor=6,loadReportTextShadowColor=1,loadReportTextCase=1,menuTransition=1,controlsLegend=3})
+  api.customization.write(game,{loadReportJustify=2,loadReportCustom=1,loadReportTheme=2,loadReportBorderChoice=13,loadReportBackgroundColor=4,loadReportTextColor=6,loadReportTextShadowColor=1,loadReportTextCase=1,menuTransition=1,controlsLegend=3})
   game.world={map={}};game.stack.states={game.world,menu}
   local target=G.newCanvas(960,600)
   local function frame()
@@ -60,6 +60,11 @@ function love.load()
    G.setCanvas(target);G.origin();G.clear(0,0,0,1);api.gbMenus.draw(game,{width=960,height=600,scale=4});G.setCanvas()
    return target:newImageData():getString()
   end
+  assert(menu:maxOffset()==0)
+  local original=menu.lines;menu.lines={};for i=1,12 do menu.lines[i]='ROW '..i end
+  assert(menu:maxOffset()==7,'Long report scroll capacity incorrect');menu.lines=original
+  local Screens=require('src.ui.Screens');api.customization.write(game,{loadReportEnabled=0});local count=#game.stack.states;Screens.push(game,'QuarantineReport',{});assert(#game.stack.states==count,'Disabled report was pushed')
+  api.customization.write(game,{loadReportEnabled=1})
   local custom=frame();write(version..'-report.png',target:newImageData():encode('png'):getString())
   api.customization.write(game,{loadReportCustom=0,menuTheme=1});assert(custom~=frame(),'Load report customization did not change rendering')
   local before=menu.offset;game.input={wasPressed=function(_,k)return k=='a'end};menu:update();assert(game.stack:top()~=menu,'Report Continue action broken')

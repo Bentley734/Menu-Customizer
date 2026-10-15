@@ -1,3 +1,7 @@
+Menu Customizer 3.20.1 - Larger Load Report and visibility option
+
+Load Report uses full-size Emerald text, a vertically centered five-row body, centered default alignment and an inset Continue footer. Long reports remain scrollable. SHOW LOAD REPORT under TEXT > FONT AND LAYOUT > LOAD REPORT can skip the screen without disabling save validation. Enabled by default.
+
 Menu Customizer 3.20.0 - Thin animated borders
 
 Adds THIN ANIMATED: Black, Fire Red, Leaf Green, Emerald, Lightning Yellow and Sparkling Crystal. Two-pixel procedural frames have distinct animated highlights/effects, independent per-design speeds, and support existing background choices. Appended choices preserve saved border IDs.
