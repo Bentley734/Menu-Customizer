@@ -92,7 +92,7 @@ return function(mod)
   G.draw=function(image,...)
    if not mod.exports.battleHudScope then return draw(image,...)end
    local args={...};local quad=type(args[1])=='userdata'and args[1].typeOf and args[1]:typeOf('Quad')and args[1]or nil
-   local chosen=role;local gaugeCap=false
+   local chosen=role;local gaugeCap=false;local hpTail=false
    if not chosen then
     tiles();local base=images[image]
     if base and quad then
@@ -114,6 +114,7 @@ return function(mod)
      if code==0x6D then gaugeCap=true end
      if code==0x6E then chosen='Level'
      elseif code==0x71 then chosen='HP'
+     elseif code==0x62 then chosen='HP';hpTail=true
      elseif code==0x6D or code==0x73 or code==0x74 or code==0x76 or code==0x77 or code==0x78 or code==0x6F then chosen='Frame'end
     end
    end
@@ -121,9 +122,14 @@ return function(mod)
    if chosen=='Frame'and mod.options:get('battleHudFrameVisible')==0 then return end
    local fg=tonumber(mod.options:get('battleHud'..chosen..'Color'));local shadow=tonumber(mod.options:get('battleHud'..chosen..'ShadowColor'))
    if fg==nil and shadow==nil and chosen~='Frame'then return draw(image,...)end
+   if hpTail then draw(image,...)end -- retain the gauge-opening stroke in the last column
    local P=mod.exports.selectorPalette;local ink=mask(image,quad)
    if quad then table.remove(args,1)end
    G.push('all');G.setShader();G.setBlendMode('alpha','alphamultiply')
+   if hpTail then
+    local x,y=args[1]or 0,args[2]or 0;local ax,ay=G.transformPoint(x,y);local bx,by=G.transformPoint(x+6,y+8)
+    G.intersectScissor(math.min(ax,bx),math.min(ay,by),math.abs(bx-ax),math.abs(by-ay))
+   end
    local oldRole=role;role=nil
    local ok,err=pcall(function()
     if shadow and shadow>0 then
@@ -141,9 +147,9 @@ return function(mod)
    end
    role=oldRole;G.pop();if not ok then error(err,0)end
    local ui=mod.exports.battleUi
-   if ui and ui.protect then ui.protect(args[1]or 0,args[2]or 0,ink:getWidth()*(args[4]or 1),ink:getHeight()*(args[5]or args[4]or 1))end
+   if ui and ui.protect then ui.protect(args[1]or 0,args[2]or 0,(hpTail and 6 or ink:getWidth())*(args[4]or 1),ink:getHeight()*(args[5]or args[4]or 1))end
    if not mod.exports.battleHudCapture then
-    local FX=require('src.render.PaletteFX');if FX.markTrueColor then FX.markTrueColor(args[1]or 0,args[2]or 0,ink:getWidth()*(args[4]or 1),ink:getHeight()*(args[5]or args[4]or 1))end
+    local FX=require('src.render.PaletteFX');if FX.markTrueColor then FX.markTrueColor(args[1]or 0,args[2]or 0,(hpTail and 6 or ink:getWidth())*(args[4]or 1),ink:getHeight()*(args[5]or args[4]or 1))end
    end
   end
  end

@@ -291,6 +291,17 @@ return function(mod,catalog)
    if current and current.drawingParty and tostring(text):match('^%s*%d+/%s*%d+$')then
     return render(tostring(text):gsub('%s+',''),108,y,...)
    end
+   if current and current.mod.generation==1 and current.drawingSave then
+    local il,ir,ds=current.borders.insets('save',128,80)
+    if ds and(y==16 or y==32 or y==48 or y==64)then
+     -- The in-game summary keeps its native (4,0,16,10) panel bounds.
+     -- Apply both asymmetric Gen4 insets before padded-number alignment.
+     local left,right=32+il,160-ir
+     text=tostring(text):match('^%s*(.-)%s*$')
+     if x==40 then return render(text,left,y,...)end
+     return render(text,math.max(left,right-Font.width(text)),y,...)
+    end
+   end
    if current and current.drawScope and current.theme.enabled() then
     -- Preserve cartridge numeric fields' right edges with proportional text.
     local raw=tostring(text)

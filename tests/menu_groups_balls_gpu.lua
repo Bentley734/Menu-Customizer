@@ -57,6 +57,16 @@ function love.load()
    assert(#p.children==2 and p.children[1].children and p.children[2].children,'Settings were not grouped by menu')
   end end
   local B=require('src.battle.BattleState');api.customization.write(game,{battleEmptySlotColor=3})
+  api.customization.write(game,{battleHudHPColor=6,battleHudHPShadowColor=0})
+  local hp=G.newCanvas(160,144);G.setCanvas(hp);G.origin();G.clear(0,0,0,0)
+  api.battleHudScope=true;require('src.render.HudTiles').tile(0x62,24,16);api.battleHudScope=nil
+  local colored=G.newCanvas(160,144);G.setCanvas(colored);G.origin();G.clear(0,0,0,1)
+  local hpPals={};for i=0,3 do hpPals[i]={{1,1,1},{.7,.7,.7},{0,1,0},{0,0,0}}end
+  B.drawZonePass({sgbBattlePals=function()return hpPals end,activeBgp=function()return nil end},hp,0,0)
+  G.setCanvas();local hpPixels=colored:newImageData();local r,g,b,a=hpPixels:getPixel(27,21)
+  assert(r>.9 and g>.9 and b>.9 and a>.9,'HP colon still inherits gauge palette')
+  local r,g,b=hpPixels:getPixel(31,19);assert(r<.1 and g<.1 and b<.1,'HP text recolored the gauge-opening stroke')
+
   local src=G.newCanvas(160,144);G.setCanvas(src);G.origin();G.clear(0,0,0,0)
   local party={{hp=20},nil,nil,nil,nil,nil}
   B.drawBallRow({},party,64,16,-8);B.drawBallRow({},party,88,80,8)

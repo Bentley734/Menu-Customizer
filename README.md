@@ -1,3 +1,11 @@
+# Menu Customizer 3.34.1 — Save summary insets and complete HP label
+
+Inset both columns of the in-game Gen 1 save summary using the selected Gen4 frame’s asymmetric left/right margins. Apply the layout before padded-number alignment, retain a shared right edge for values, and preserve panel size and other border layouts.
+
+Apply HP text/shadow customization to the second HP-label tile as well, including the trailing P pixels and colon. Preserve the gauge-opening stroke in the last column and protect only the text columns from the native HP palette.
+
+GPU checks verify save-summary label/value bounds, the colon remaining white through a green-gauge palette pass, the unchanged black gauge-opening stroke, party/gauge regressions, native backgrounds, and Stardew/trainer placement. Restart after updating.
+
 # Menu Customizer 3.34.0 — Stardew selector and trainer alignment
 
 Add STARDEW as an independent toggle in Selectors alongside JUMP WAVE. Combine it with existing cursor artwork. Split UTF-8 characters, retain spaces without consuming bounce phase, and alternate neighboring letters in opposite directions with a 5px sine bounce at a 450ms cycle (at 100% wave speed).
