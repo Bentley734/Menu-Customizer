@@ -41,6 +41,11 @@ return function(mod)
   local function writeShadow(ctx,n)C.write(ctx,{gameFreakTextShadowColor=n});return false end
   local shade={id='wide_gameFreakTextShadowColor',label='GAME FREAK LOGO SHADOW',value=function()return P.shadowNames[shadow()+1]end,step=function(ctx,d)return writeShadow(ctx,(shadow()+(d or 1))%#P.shadowNames)end}
   P.picker(shade,'shadow',shadow,writeShadow,openPage);rows[#rows+1]=shade
+  local function stars()return tonumber(mod.options:get('gameFreakStarsColor'))end
+  local function writeStars(ctx,n)C.write(ctx,{gameFreakStarsColor=n});return false end
+  local starRow={id='wide_gameFreakStarsColor',label='GAME FREAK FALLING STARS COLOR',value=function()local n=stars();return n and P.names[n+1]or 'NATIVE'end,
+   step=function(ctx,d)return writeStars(ctx,((stars()or 0)+(d or 1))%#P.names)end}
+  P.picker(starRow,'text',function()return stars()or 0 end,writeStars,openPage);rows[#rows+1]=starRow
   return rows
  end
  function M.install()

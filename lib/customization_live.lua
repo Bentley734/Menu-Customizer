@@ -34,7 +34,7 @@ return function(mod)
    -- Keep native void fill opt-in; global changes include enabled voids.
    for _,k in ipairs({'indoorVoidBackgroundColor','outdoorVoidBackgroundColor','battlefieldBackgroundColor'})do if (tonumber(mod.options:get(k))or 0)>0 then v[k]=n end end
   elseif key=='allTextColor'or key=='allTextShadowColor'then
-   local keys=key=='allTextColor'and{'menuTextColor','dialogueTextColor','introTextColor','gameFreakTextColor','selectorColor','choiceSelectorColor','battle_text_color','battle_name_color','martTextColor','pcTextColor'}
+   local keys=key=='allTextColor'and{'menuTextColor','dialogueTextColor','introTextColor','gameFreakTextColor','gameFreakStarsColor','selectorColor','choiceSelectorColor','battle_text_color','battle_name_color','martTextColor','pcTextColor'}
     or{'menuTextShadowColor','dialogueTextShadowColor','introTextShadowColor','gameFreakTextShadowColor','battle_shadow_color','battle_name_shadow_color','martTextShadowColor','pcTextShadowColor'}
    for _,k in ipairs(keys)do v[k]=n end
   else
@@ -176,7 +176,7 @@ return function(mod)
    local defaults=mod.exports.visualDefaults or {};for key,n in pairs(defaults)do if v[key]==nil then v[key]=n end end
    local accent=locate(P.names,t[6],true)
    v.choiceSelector=14;v.choiceSelectorColor=accent;v.selectorColor=accent;v.arrowSelector=12;v.startSelector=4
-   v.introTheme=2;v.introTextColor=color;v.gameFreakTextColor=color;v.introTextShadowColor=1;v.introTextCase=1;v.introBackgroundColor=bg;v.introFontSize=0
+   v.introTheme=2;v.introTextColor=color;v.gameFreakTextColor=color;v.gameFreakStarsColor=color;v.introTextShadowColor=1;v.introTextCase=1;v.introBackgroundColor=bg;v.introFontSize=0
    v.saveSummaryTheme=2;v.saveSummaryBackgroundColor=bg;v.textCase=1;
    if mod.exports.textScopes then for key,n in pairs(mod.exports.textScopes.values(1))do v[key]=n end end
    v.menuTransition=2;v.backgroundDim=20

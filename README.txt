@@ -1,3 +1,7 @@
+Menu Customizer 3.13.0 - Falling star customization
+
+TEXT > COLORS > GAME FREAK FALLING STARS controls the splash stars independently from the emblem and wordmark. Supports the full static and animated color catalog; global colors and themes include it. Falling waves keep moving past the old cap and bottom bar until they leave the screen or the intro advances. Other intro timing and the shooting star remain unchanged.
+
 Menu Customizer 3.12.1 - Start selector visibility
 
 Fix global font alignment shifting start labels before selector placement. Start/options retain their own layout. Dots and underlines now render animated selector colors through the color shader instead of using its black base color. Verified all 14 selector choices in native and Emerald fonts for Gen 1 and Gen 2, including centered global alignment.
