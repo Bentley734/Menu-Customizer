@@ -1,3 +1,7 @@
+Menu Customizer 3.16.0 - Themed design menus and aligned selectors
+
+Organizes wallpapers and animated borders into themed submenus: gradients, game-version gradients, Pokemon, psychedelic/effects, red psychedelic, fire, black artwork and forest/grass. Large design lists are split into pages of at most 24 choices. Stored IDs and selections are preserved. Menu selectors now follow centered/right-aligned labels, including the title menu while Continue is open.
+
 Menu Customizer 3.15.0 - Battle status customization
 
 Adds Gen 1 battle level/status and HP label/number colors and shadows under TEXT, plus partial status-frame color, shadow and visibility under BORDERS. Includes static and animated palettes, global font colors/shadows, and theme presets. Works inside the native HUD draw and KIM capture without changing geometry or HP fill colors. Unset controls retain native rendering. Other generations retain their status renderers.

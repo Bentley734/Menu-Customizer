@@ -29,7 +29,7 @@ for id,f in pairs(found)do
 end
 local catalog=api.borderCatalog;local seen={};local visible=0
 for _,g in ipairs(catalog.groups())do
- assert(g.label=='ANIMATED BORDERS'or g.label=='GAME BORDERS'or g.label=='CLASSIC POKEMON FRAMES')
+ assert(#g.choices<=24,'Oversized border submenu')
  for _,c in ipairs(g.choices)do assert(not seen[c.id]);seen[c.id]=true;visible=visible+1 end
 end
 for i,e in ipairs(catalog.entries)do assert(not not seen[i]==not e.hidden)end
@@ -37,15 +37,15 @@ local P=api.selectorPalette
 for _,kind in ipairs({'background','menuBackground'})do
  local groups=P.groups(kind);local seen={};local designs
  for _,g in ipairs(groups)do
-  assert(not g.label:find('RED FIRE')and not g.label:find('BLACK')and g.label~='TRIPPY'and not g.label:find('POKEMON'))
-  if g.label=='DESIGNS'then designs=g end
+  assert(g.label~='DESIGNS','Uncategorized wallpaper list remains')
+  if g.label=='VERSION GRADIENTS'then designs=g end
   for _,id in ipairs(g.ids)do assert(not seen[id]);seen[id]=true end
  end
- assert(designs and #designs.ids>40)
+ assert(designs and #designs.ids==7)
  local selected=designs.ids[#designs.ids];local saved
  local row=P.picker({id='wide_menuBackgroundColor',label='BACKGROUND'},kind,function()return selected end,function(_,id)saved=id end,open)
- row.activate({});for _,r in ipairs(opened)do if r.label=='DESIGNS'then r.activate({});break end end
- assert(title=='DESIGNS')
+ row.activate({});for _,r in ipairs(opened)do if r.label=='VERSION GRADIENTS'then r.activate({});break end end
+ assert(title=='VERSION GRADIENTS')
  local selectedRow
  for _,r in ipairs(opened)do assert(not r.group);if r.selected()then selectedRow=r end end
  assert(selectedRow);selectedRow.activate({});assert(saved==selected)
@@ -63,4 +63,4 @@ assert(labels.wide_startMenuBackgroundColor=='START'and labels.wide_allBorderCho
 assert(labels.wide_menuTextColor=='MENU'and labels.wide_menuTextShadowColor=='MENU')
 assert(labels.wide_introFontSize=='INTRO / START SIZE')
 assert(examples[1].label=='START BACKGROUND','Source labels mutated')
-print('PASS categorized surface/intro settings, consolidated complete design lists and stable selection callbacks')
+print('PASS categorized surface/intro settings, themed complete design lists and stable selection callbacks')

@@ -161,7 +161,7 @@ return function(mod)
   -- IDs stay flat in storage; navigation groups the same colours by hue.
   function M.groups(kind,defaultLabel)
     local names=kind=='shadow' and M.shadowNames or kind=='background' and M.backgroundNames or kind=='menuBackground' and M.menuBackgroundNames or M.names
-    local families={'SPECIAL','NEUTRALS','REDS','ORANGES','YELLOWS','GREENS','CYANS','BLUES','PURPLES','PINKS','BROWNS','ANIMATED','DESIGNS'}
+    local families={'SPECIAL','NEUTRALS','REDS','ORANGES','YELLOWS','GREENS','CYANS','BLUES','PURPLES','PINKS','BROWNS','ANIMATED','GRADIENTS','VERSION GRADIENTS','POKEMON','PSYCHEDELIC','RED PSYCHEDELIC','FIRE','BLACK PSYCHEDELIC','BLACK POKEMON','FOREST / GRASS','DESIGNS'}
     local buckets={};for _,name in ipairs(families)do buckets[name]={label=name,ids={}}end
     local count=#names
     for i=0,count-1 do
@@ -170,7 +170,11 @@ return function(mod)
       else
         c=M.color(kind=='menuBackground' and 'background' or kind,kind=='menuBackground' and i-1 or i)
         label=names[i+1]
-        if c.pokemon or c.animation and (kind=='background'or kind=='menuBackground')then family='DESIGNS'
+        if c.pokemon then
+          local e=M.pokemonBackgrounds.byKey[c.pokemon];local style=e.style or 0
+          family=e.blackFamily or(style>=151 and'FOREST / GRASS'or e.fire and'FIRE'or c.pokemon:find('red_psy',1,true)and'RED PSYCHEDELIC'or style>=13 and style<=32 and'PSYCHEDELIC'or'POKEMON')
+        elseif c.animation and(kind=='background'or kind=='menuBackground')then
+          family=c.gradient and c.gradient:find('version_',1,true)==1 and'VERSION GRADIENTS'or'GRADIENTS'
         elseif c.animation then family='ANIMATED'
         else
           local h,v=hue(c);local lo=math.min(c[1],c[2],c[3]);local sat=v>0 and (v-lo)/v or 0
@@ -205,7 +209,13 @@ return function(mod)
           local _,va=hue(ca);local _,vb=hue(cb)
           if math.abs(va-vb)>.000001 then return va<vb end;return a<b
         end)
-        result[#result+1]=group
+        if #group.ids>24 and family~='ANIMATED'and family~='NEUTRALS'then
+         for first=1,#group.ids,24 do
+          local part={label=family..' '..math.floor((first-1)/24+1),ids={}}
+          for index=first,math.min(first+23,#group.ids)do part.ids[#part.ids+1]=group.ids[index]end
+          result[#result+1]=part
+         end
+        else result[#result+1]=group end
       end
     end
     return result,names

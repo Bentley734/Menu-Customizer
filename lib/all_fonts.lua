@@ -60,11 +60,11 @@ return function(mod)
   local surfaces=mod.exports.menuSurfaces
   return surfaces and surfaces.enabled()and mod.options:get('allFontAlign')~=nil
  end
- local frames,scope,printing
+ local frames,scope,printing,anchors
  local function within(fn,group,initial,...)
   if not enabled()or frames then return fn(...)end
-  local oldFrames,oldScope=frames,scope;frames,scope=initial or{},group
-  local out={pcall(fn,...)};frames,scope=oldFrames,oldScope
+  local oldFrames,oldScope,oldAnchors=frames,scope,anchors;frames,scope,anchors=initial or{},group,{}
+  local out={pcall(fn,...)};frames,scope,anchors=oldFrames,oldScope,oldAnchors
   if not out[1]then error(out[2],0)end
   return unpack(out,2)
  end
@@ -72,6 +72,7 @@ return function(mod)
   local F=require(mod.generation==3 and'src.ui.game3.frlg_font'or'src.render.Font')
   local draw=F.draw
   F.draw=function(text,x,y,opts,...)
+   local inputX=x
    local gb=mod.exports.gbMenus
    local ownLayout=gb and (gb.drawingStart or gb.drawingOptions)
    if frames and not printing and not ownLayout and type(x)=='number'and type(y)=='number'and not tostring(text):match('^[%d%s%p]+$')then
@@ -85,9 +86,19 @@ return function(mod)
      if ink and ink<=width then x=M.align(x,width,ink,scope)end
     end
    end
+   if anchors and not printing then anchors[tostring(inputX)..':'..tostring(y)]=x end
    local old=printing;printing=true;local args={...};local out={pcall(draw,text,x,y,opts,unpack(args))};printing=old
    if not out[1]then error(out[2],0)end;return unpack(out,2)
   end
+  local markerKey=mod.generation<3 and'drawCode'or'drawGlyph'
+  local marker=F[markerKey]
+  if marker then F[markerKey]=function(id,x,y,...)
+   if anchors and (id==0xED or id==0xEC or mod.generation==3 and id==F.CHAR_SELECTOR_ARROW)then
+    local aligned=anchors[tostring(x+8)..':'..tostring(y)]
+    if aligned then x=aligned-8 end
+   end
+   return marker(id,x,y,...)
+  end end
   local function hook(target,key,group,seed)
    if not target or type(target[key])~='function'then return end
    local original=target[key]

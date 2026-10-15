@@ -223,10 +223,30 @@ end
 function C.groups()
  local groups,lookup={},{}
  for i,e in ipairs(C.entries)do if not e.hidden then
-  local label=e.animation and 'ANIMATED BORDERS' or e.path and e.path:find('pokemon_',1,true) and 'CLASSIC POKEMON FRAMES' or 'GAME BORDERS'
+  local a=e.animation;local label
+  if not a then label=e.path and e.path:find('pokemon_',1,true)and'CLASSIC POKEMON FRAMES'or'GAME BORDERS'
+  elseif e.gradient and e.gradient:find('version_',1,true)==1 then label='VERSION GRADIENTS'
+  elseif a=='gradient'then label='GRADIENTS'
+  elseif e.blackFamily then label=e.blackFamily
+  elseif a:find('black',1,true)==1 then label='BLACK PSYCHEDELIC'
+  elseif a:find('forest',1,true)==1 then label='FOREST / GRASS'
+  elseif e.redFire then label='FIRE'
+  elseif e.redPsy then label='RED PSYCHEDELIC'
+  elseif e.pokemonMotif or a=='pokemon'then label='POKEMON'
+  else label='PSYCHEDELIC / EFFECTS'end
   if not lookup[label]then lookup[label]={label=label,choices={}};groups[#groups+1]=lookup[label]end
   lookup[label].choices[#lookup[label].choices+1]={id=i,label=e.pokemonMotif and e.label or e.pokemonName or e.label}
  end end
- return groups
+ local pages={}
+ for _,group in ipairs(groups)do
+  if #group.choices>24 then
+   for first=1,#group.choices,24 do
+    local page={label=group.label..' '..math.floor((first-1)/24+1),choices={}}
+    for i=first,math.min(first+23,#group.choices)do page.choices[#page.choices+1]=group.choices[i]end
+    pages[#pages+1]=page
+   end
+  else pages[#pages+1]=group end
+ end
+ return pages
 end
 return C
