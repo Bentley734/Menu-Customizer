@@ -1,3 +1,7 @@
+Menu Customizer 3.22.0 - Generation border groups and Platinum frames
+
+Replace Game Borders pages with generation-sorted groups. Add 20 original Platinum message-box frames and its standard field/system frames, with native DS side widths and custom paper support. Saved border IDs remain unchanged. Source attribution: assets/borders/PLATINUM-SOURCES.md.
+
 Menu Customizer 3.21.5 - Shorter casing menu labels
 
 Remove the repeated Decapitalization suffix from individual menu entries. All Decapitalization remains unchanged.

@@ -66,3 +66,15 @@ assert(labels.wide_menuTextColor=='MENU'and labels.wide_menuTextShadowColor=='ME
 assert(labels.wide_introFontSize=='INTRO / START SIZE')
 assert(examples[1].label=='START BACKGROUND','Source labels mutated')
 print('PASS categorized surface/intro settings, themed complete design lists and stable selection callbacks')
+
+local gen={}
+for _,g in ipairs(catalog.groups())do
+ assert(not g.label:find('GAME BORDERS',1,true))
+ for _,choice in ipairs(g.choices)do local e=catalog.entries[choice.id]
+  if e.path and e.path:find('rby_',1,true)then assert(g.label=='GEN 1')end
+  if e.path and e.path:find('gsc_',1,true)then assert(g.label=='GEN 2')end
+  if e.generation==4 then assert(g.label=='GEN 4');gen[#gen+1]=choice.id end
+ end
+end
+assert(#gen==22,'Missing imported Gen IV frames')
+print('PASS generation-sorted game borders, preserved catalog IDs, 22 Gen IV imports')

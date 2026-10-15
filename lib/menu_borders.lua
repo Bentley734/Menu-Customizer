@@ -6,6 +6,7 @@ return function(mod,setting,catalog,active)
  local palette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
  local thin=assert(load(assert(mod:read('lib/thin_borders.lua'))))()(mod,palette)
  local function paint(c,fn,...)return palette.paint(c,fn,...)end
+ local ds=assert(load(assert(mod:read('lib/ds_frames.lua'))))()(mod,paint)
  local function selection(scope)
   local gb=mod.exports.gbMenus
   scope=scope or M.scope or mod.exports.menuPaperScope or (gb and gb.drawScope and gb.paperGroup)or (gb and gb.dialogueScope and 'dialogue')or 'other'
@@ -19,6 +20,7 @@ return function(mod,setting,catalog,active)
   local image=mod.assets:image(entry.path)
   image:setFilter('nearest','nearest')
   local w,h=image:getDimensions()
+  if entry.dsFrame then local atlas={image=image,path=entry.path,dsFrame=true,selection=selection};M.atlases[selection]=atlas;return atlas end
   assert(w==24 and h==24,'Menu Customizer: invalid border atlas '..entry.path)
   local atlas={image=image,quads={},animation=entry.animation,gradient=entry.gradient,thin=entry.thin,pokemonMotif=entry.pokemonMotif,selection=selection}
   for n=0,8 do atlas.quads[n]=G.newQuad(n%3*8,math.floor(n/3)*8,8,8,w,h) end
@@ -289,6 +291,7 @@ return function(mod,setting,catalog,active)
   end
   local atlas=M.atlas(selection)
   if not atlas or w<=0 or h<=0 then return false end
+  if atlas.dsFrame then return ds.draw(atlas,x,y,w,h,background)end
   if atlas.thin~=nil then return thin(atlas,x,y,w,h,background)end
   if atlas.animation and not background then background={1,1,1,1}end
   local image,paper,quads,textureSize=renderAtlas(atlas,selection,background~=nil)

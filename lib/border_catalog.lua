@@ -216,6 +216,9 @@ end
 for i,name in ipairs({'BLACK','FIRE RED','LEAF GREEN','EMERALD','LIGHTNING YELLOW','SPARKLING CRYSTAL'})do
  C.entries[#C.entries+1]={label='THIN '..name,path='assets/borders/pokemon_gradient.png',animation='thin',thin=i-1}
 end
+-- Original Gen IV graphics; append only to preserve saved IDs.
+for i=0,19 do C.entries[#C.entries+1]={label='PLATINUM FRAME '..(i+1),path=string.format('assets/borders/platinum_message_box_%02d.png',i),generation=4,dsFrame=true}end
+for _,name in ipairs({'field','system'})do C.entries[#C.entries+1]={label='PLATINUM '..name:upper(),path='assets/borders/platinum_standard_'..name..'.png',generation=4}end
 C.choices={}
 for i,entry in ipairs(C.entries) do C.choices[i]=entry.label end
 function C.selection(raw,format)
@@ -228,7 +231,13 @@ function C.groups()
  for i,e in ipairs(C.entries)do if not e.hidden then
   local a=e.animation;local label
   if e.thin~=nil then label='THIN ANIMATED'
-  elseif not a then label=e.path and e.path:find('pokemon_',1,true)and'CLASSIC POKEMON FRAMES'or'GAME BORDERS'
+  elseif not a then
+   if e.generation then label='GEN '..e.generation
+   elseif not e.path then label='DEFAULT'
+   elseif e.path:find('rby_',1,true)then label='GEN 1'
+   elseif e.path:find('gsc_',1,true)then label='GEN 2'
+   elseif e.path:find('pokemon_',1,true)then label='CLASSIC POKEMON FRAMES'
+   else label='GEN 3'end
   elseif e.gradient and e.gradient:find('version_',1,true)==1 then label='VERSION GRADIENTS'
   elseif a=='gradient'then label='GRADIENTS'
   elseif e.blackFamily then label=e.blackFamily
@@ -241,6 +250,9 @@ function C.groups()
   if not lookup[label]then lookup[label]={label=label,choices={}};groups[#groups+1]=lookup[label]end
   lookup[label].choices[#lookup[label].choices+1]={id=i,label=e.pokemonMotif and e.label or e.pokemonName or e.label}
  end end
+ local ranks={DEFAULT=0,['GEN 1']=1,['GEN 2']=2,['GEN 3']=3,['GEN 4']=4}
+ for i,g in ipairs(groups)do g.order=i end
+ table.sort(groups,function(a,b)local ar,br=ranks[a.label]or 100,ranks[b.label]or 100;if ar==br then return a.order<b.order end;return ar<br end)
  local pages={}
  for _,group in ipairs(groups)do
   if #group.choices>24 then

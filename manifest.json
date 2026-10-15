@@ -1,7 +1,7 @@
 {
   "id": "gen3transparency",
   "name": "Menu Customizer",
-  "version": "3.21.5",
+  "version": "3.22.0",
   "api": 2,
   "entry": "main.lua",
   "profile": "overhaul",
