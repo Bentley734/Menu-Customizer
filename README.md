@@ -1,3 +1,9 @@
+# Menu Customizer 3.25.2 — Full battle command text
+
+Use a smaller, fitted narrow font for battle commands so Fight, Pokémon, Bag and Run remain visible inside wide Gen 4 frame panels. Restore the full two-line prompt, What will / [Pokémon] do?, instead of the shortened What now? layout. Command text stays within the available space at every battle font-size setting.
+
+Validated rendered command and move screens at all three battle font sizes with Gen 4 borders. Restart after updating.
+
 # Menu Customizer 3.25.1 — Grouped layout controls and party ball colors
 
 Position and Transparency now group their settings into submenus by the affected menu, with shared controls under ALL MENUS. Existing option keys and values are preserved.

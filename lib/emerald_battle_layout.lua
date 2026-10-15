@@ -46,21 +46,23 @@ return function(G,mod)
   local promptWidth=pane.w*.36
   local commandWidth=pane.w-promptWidth
   local commands=generation<3 and {'FIGHT','POKéMON','BAG','RUN'}or{'FIGHT','BAG','POKéMON','RUN'}
-  local width=0;for _,s in ipairs(commands)do width=math.max(width,F.measure(s,{font='normal'})or 0)end
+  local commandFont='narrow'
+  local width=0;for _,s in ipairs(commands)do width=math.max(width,F.measure(s,{font=commandFont})or 0)end
   local cell={w=commandWidth/2,h=pane.h/2}
-  local sx,sy,dx,dy=scale(cell,width+14,18,viewport)
+  local priorFactor=factor;factor=math.min(factor,.85)
+  local sx,sy,dx,dy=scale(cell,width+20,18,viewport);factor=priorFactor
   for i,s in ipairs(commands)do
    local c={x=pane.x+promptWidth+(i-1)%2*cell.w,y=pane.y+math.floor((i-1)/2)*cell.h,w=cell.w,h=cell.h}
-   label(F,s,c,sx,sy,dx,dy,'normal',colors,i==(battle.menuIndex or 1))
+   label(F,s,c,sx,sy,dx,dy,commandFont,colors,i==(battle.menuIndex or 1))
   end
   local p=battle.player
   local mon=generation==2 and battle:activeMon('player')or p and p.mon
   local name=p and p.name or mon and(mon.nickname or mon.name)or 'POKéMON'
   local first,last='What will',name..' do?'
   local promptFont=pane.w<600 and 'narrow'or'normal'
-  if pane.w<600 then first,last=name,'What now?'end
   local left={x=pane.x,y=pane.y,w=promptWidth,h=pane.h}
-  local px,py,pdx,pdy=scale(left,math.max(F.measure(first,{font=promptFont})or 0,F.measure(last,{font=promptFont})or 0)+8,36,viewport)
+  local priorFactor=factor;factor=math.min(factor,.7)
+  local px,py,pdx,pdy=scale(left,math.max(F.measure(first,{font=promptFont})or 0,F.measure(last,{font=promptFont})or 0)+8,44,viewport);factor=priorFactor
   local x=left.x+4*px;local y=left.y+(left.h-32*py)/2
   at(left,px,py,pdx,pdy,x,y,function()
    local fonts=mod and mod.exports.allFonts
