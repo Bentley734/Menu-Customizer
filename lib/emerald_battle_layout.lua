@@ -45,7 +45,8 @@ return function(G,mod)
   custom.frames('none',rect,viewport)
   local pane=inner(rect,0,rect.w)
   local commands=generation<3 and {'FIGHT','POKéMON','BAG','RUN'}or{'FIGHT','BAG','POKéMON','RUN'}
-  local commandFont='normal'
+  local commandOptions=mod.exports.battleCommands
+  local commandFont=commandOptions and commandOptions.get('Font',1)==2 and'narrow'or'normal'
   local width=0;for _,text in ipairs(commands)do width=math.max(width,F.measure(text,{font=commandFont})or 0)end
   local p=battle.player
   local mon=generation==2 and battle:activeMon('player')or p and p.mon
@@ -66,11 +67,28 @@ return function(G,mod)
   if promptInk*promptPixels>promptWidth*dx then promptLines={first,name,'do?'}end
   local maxInk=0;for _,text in ipairs(promptLines)do maxInk=math.max(maxInk,F.measure(text,{font=promptFont})or 0)end
   promptPixels=math.max(1,math.min(promptPixels,math.floor(promptWidth*dx/math.max(1,maxInk)),math.floor(pane.h*dy/(#promptLines*11))))
+  if commandOptions and commandOptions.get('Size',2)==2 then
+   commandPixels=math.max(1,math.min(math.max(commandPixels,promptPixels),math.floor(cell.w*dx/(width+10)),math.floor(cell.h*dy/12)))
+  end
   local sx,sy=commandPixels/dx,commandPixels/dy
   local px,py,pdx,pdy=promptPixels/dx,promptPixels/dy,dx,dy
   for i,s in ipairs(commands)do
    local c={x=pane.x+promptWidth+(i-1)%2*cell.w,y=pane.y+math.floor((i-1)/2)*cell.h,w=cell.w,h=cell.h}
-   label(F,s,c,sx,sy,dx,dy,commandFont,colors,i==(battle.menuIndex or 1))
+   local ink=F.measure(s,{font=commandFont})or 0
+   local reserve=10*sx;local slack=math.max(0,c.w-reserve-ink*sx)
+   local align=commandOptions and commandOptions.get('Justify',2)or 2
+   local x=c.x+reserve+(align==2 and slack/2 or align==3 and slack or 0)
+   local y=c.y+(c.h-12*sy)/2-2*sy
+   local inkColors=commandOptions and commandOptions.colors(colors)or colors
+   at(c,sx,sy,dx,dy,x,y,function()
+    F.draw(s,0,0,{font=commandFont,colors=inkColors})
+    if i==(battle.menuIndex or 1)then
+     local selectorColors={};for k,v in pairs(inkColors)do selectorColors[k]=v end
+     local color=commandOptions and commandOptions.get('SelectorColor',-1)or -1
+     if color>=0 then selectorColors.fg=mod.exports.selectorPalette.color('text',color)end
+     F.drawGlyph(F.CHAR_SELECTOR_ARROW,-10,0,{colors=selectorColors,_selectorStyle=commandOptions and commandOptions.get('Selector',mod.options:get('arrowSelector')or 1)})
+    end
+   end)
   end
   local left={x=pane.x,y=pane.y,w=promptWidth,h=pane.h}
   local blockHeight=#promptLines*11*py

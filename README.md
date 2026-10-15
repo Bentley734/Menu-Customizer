@@ -1,3 +1,11 @@
+# Menu Customizer 3.32.0 — Independent command options
+
+Default Fight, Pokémon, Bag and Run to the enlarged command-prompt pixel scale where their cells permit. Offer 1X to retain the previous fitted size and 2X for the enlarged default, with integer square pixels and unchanged panel bounds.
+
+Add independent COMMAND OPTIONS controls for size, regular/narrow font, alignment, text/shadow colors, effects, selector and selector color. Group them under Battle in the matching existing customization categories, alongside Command Prompt and Move Select.
+
+Final-window glyph/HUD GPU checks and Gen 1–3 startup/profile regressions passed. Restart after updating.
+
 # Menu Customizer 3.31.1 — Larger independent command prompt
 
 Default the What Will / Pokémon / Do? question to 2x its former integer scale. Give the prompt a dedicated area and use three lines when the complete name-plus-question needs more width. Keep the panel bounds unchanged and fit exceptionally long names at whole-pixel scales.

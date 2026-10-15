@@ -146,18 +146,19 @@ return function(entries,openPage)
  end
  -- Battle settings stay together inside each existing customization category.
  local function battleGroups(rows,category)
-  local rest,battle,moves,prompts={},{},{},{}
+  local rest,battle,moves,prompts,commands={},{},{},{},{}
   local expanded={}
   for _,row in ipairs(rows)do if row.label=='BATTLE'and row.children then for _,child in ipairs(row.children)do expanded[#expanded+1]=child end else expanded[#expanded+1]=row end end
   for _,row in ipairs(expanded)do
    local key=(row.id or''):lower()
    local isMove=key:find('moveselect',1,true)or row.label=='MOVE SELECT'
-   local dest=key:find('battleprompt',1,true)and prompts or isMove and moves or(key:find('battle',1,true)or key:find('name_',1,true))and battle or rest
+   local dest=key:find('battlecommands',1,true)and commands or key:find('battleprompt',1,true)and prompts or isMove and moves or(key:find('battle',1,true)or key:find('name_',1,true))and battle or rest
    if (row.label=='BATTLE'or row.label=='MOVE SELECT')and row.children then for _,child in ipairs(row.children)do dest[#dest+1]=child end else dest[#dest+1]=row end
   end
   local function group(label,children)
    return{id='group_'..category..'_'..label,label=label,children=children,group=true,value=function()return #children..' OPTIONS'end,activate=function(ctx)return openPage(label,children,ctx)end}
   end
+  if #commands>0 then battle[#battle+1]=group('COMMAND OPTIONS',commands)end
   if #prompts>0 then battle[#battle+1]=group('COMMAND PROMPT',prompts)end
   if #moves>0 then battle[#battle+1]=group('MOVE SELECT',moves)end
   if #battle>0 then rest[#rest+1]=group('BATTLE',battle)end
