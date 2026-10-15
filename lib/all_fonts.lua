@@ -42,7 +42,6 @@ return function(mod)
   add('allTextShadowColor','SHADOW COLOR',P.shadowNames,0,0,'shadow')
   add('allShadowOpacity','SHADOW OPACITY',nil,100)
   add('allFontAlign','ALIGNMENT',{'LEFT','CENTER','RIGHT'},1,1)
-  add('textCase','TEXT CASE',{'ORIGINAL','SENTENCE CASE','LOWERCASE','TITLE CASE'},0)
   local effects=P.effects.rows('menu',function(ctx,key,n)C.write(ctx,M.values(key,n));return false end,openPage)
   for _,row in ipairs(effects)do
    row.label=row.label:gsub('^MENU ','ALL ')

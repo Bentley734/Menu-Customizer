@@ -16,6 +16,8 @@ local function scan(list,path)
  end
 end
 scan(rows,'MENUS')
+assert(found.wide_textCase.path=='MENUS/TEXT/DECAPITALIZATION')
+for _,scope in ipairs(api.textScopes.scopes)do assert(found['wide_'..scope[1]..'TextCase'].path=='MENUS/TEXT/DECAPITALIZATION')end
 for _,scope in ipairs({'mart','pc','dialogue'})do
  for suffix,page in pairs({Theme='FONT AND LAYOUT',BorderChoice='BORDERS',BackgroundColor='BACKGROUNDS',TextColor='COLORS',TextShadowColor='SHADOWS'})do
   local f=assert(found['surface_'..scope..suffix],scope..suffix)

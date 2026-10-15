@@ -1,3 +1,7 @@
+Menu Customizer 3.19.2 - Decapitalization submenu
+
+TEXT > DECAPITALIZATION now contains ALL DECAPITALIZATION and every per-menu case chooser. Removes the duplicate TEXT CASE chooser from ALL FONTS. Existing saved case settings and global application behavior are preserved.
+
 Menu Customizer 3.19.1 - Preserve full Nidorino intro sprite
 
 In EDGE/HIDDEN intro modes, fit Nidorino independently above the chosen floor instead of applying Gengar's offset past the clipping boundary. Prevents the bottom eight pixels being cut off in both Native and Colorized modes, including ultrawide replay. Gengar remains anchored and animation state restores after drawing.

@@ -44,11 +44,12 @@ return function(entries,openPage)
   pages[dest][#pages[dest]+1]=r
  end
  for _,r in ipairs(entries)do add(r)end
- local textOrder={'FONT AND LAYOUT','COLORS','SHADOWS','MENU EFFECTS','BATTLE EFFECTS','NAME EFFECTS'}
+ local textOrder={'FONT AND LAYOUT','DECAPITALIZATION','COLORS','SHADOWS','MENU EFFECTS','BATTLE EFFECTS','NAME EFFECTS'}
  local textPages={};for _,name in ipairs(textOrder)do textPages[name]={}end
  for _,row in ipairs(pages.TEXT)do
   local key=(row.id or ''):lower();local category
-  if key:find('_fx_',1,true)then
+  if key:find('textcase',1,true)then category='DECAPITALIZATION'
+  elseif key:find('_fx_',1,true)then
    category=key:find('name',1,true)and 'NAME EFFECTS'or key:find('battle',1,true)and 'BATTLE EFFECTS'or 'MENU EFFECTS'
   elseif key:find('shadow',1,true)then category='SHADOWS'
   elseif key:find('color',1,true)then category='COLORS'
