@@ -1,3 +1,7 @@
+Menu Customizer 3.23.0 - Colored party balls and readable move details
+
+Color both Gen 1 party rows red/white, with distinct fainted/status indicators and a configurable empty-slot color under Text / Colors. Move details use two lines each for PP and type with larger normal font.
+
 Menu Customizer 3.22.7 - Visible choices and DS Pokedex text
 
 Restore visible YES/NO labels after frame sizing. Pokedex descriptions paginate within native DS side margins through the existing KIM presentation; entry text uses the matching interior.

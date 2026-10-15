@@ -18,11 +18,41 @@ return function(mod)
   end
   rows[#rows+1]={id='wide_battleHudFrameVisible',label='BATTLE STATUS FRAME',value=function()return mod.options:get('battleHudFrameVisible')==0 and'HIDDEN'or'VISIBLE'end,
    step=function(ctx)C.write(ctx,{battleHudFrameVisible=mod.options:get('battleHudFrameVisible')==0 and 1 or 0});return false end}
+  local key='battleEmptySlotColor'
+  local function value()return tonumber(mod.options:get(key))or 6 end
+  local function write(ctx,n)C.write(ctx,{[key]=n});return false end
+  local row={id='wide_'..key,label='BATTLE EMPTY PARTY SLOTS COLOR',value=function()return P.names[value()+1]end,step=function(ctx,d)return write(ctx,(value()+(d or 1))%#P.names)end}
+  P.picker(row,'text',value,write,openPage);rows[#rows+1]=row
   return rows
  end
  function M.install()
   if mod.generation~=1 then return end
   local G=love.graphics;local F=require('src.render.Font');local original=F.draw
+  local B=require('src.battle.BattleState');local nativeBalls=B.drawBallRow
+  local ball={ '..1111..','.122221.','12222221','11133111','14433441','14444441','.144441.','..1111..' }
+  local ring={ '..1111..','.1....1.','1......1','1......1','1......1','1......1','.1....1.','..1111..' }
+  B.drawBallRow=function(self,party,x,y,dx)
+   local gb=mod.exports.gbMenus
+   if not(gb and gb.live())then return nativeBalls(self,party,x,y,dx)end
+   local P=mod.exports.selectorPalette
+   G.push('all');G.setShader()
+   for i=1,6 do
+    local mon=party[i];local bx=x+(i-1)*dx
+    if not mon then
+     P.effects.paint(P.color('text',tonumber(mod.options:get('battleEmptySlotColor'))or 6),'battle',function()
+      for py,line in ipairs(ring)do for px=1,8 do if line:sub(px,px)=='1'then G.rectangle('fill',bx+px-1,y+py-1,1,1)end end end
+     end)
+    else
+     local colors={{0,0,0,1},{.9,.08,.1,1},{.55,.55,.55,1},{1,1,1,1}}
+     if mon.hp and mon.hp<=0 then colors[2]={.3,.3,.3,1};colors[4]={.55,.55,.55,1}
+     elseif mon.status then colors[3]={1,.8,.1,1}end
+     for py,line in ipairs(ball)do for px=1,8 do local col=colors[tonumber(line:sub(px,px))];if col then G.setColor(col);G.rectangle('fill',bx+px-1,y+py-1,1,1)end end end
+    end
+    if not mod.exports.battleHudCapture then require('src.render.PaletteFX').markTrueColor(bx,y,8,8)end
+   end
+   G.pop()
+  end
+
   F.draw=function(text,x,y,...)
    local prior=role
    if mod.exports.battleHudScope and not mod.exports.battleNameScope then

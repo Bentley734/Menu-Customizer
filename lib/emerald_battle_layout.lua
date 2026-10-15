@@ -96,19 +96,16 @@ return function(G,mod)
    local pp=string.format('%2d/%2d',move.pp or 0,maximum)
    local kind=typeName(def.type,battle.data)
    local right=inner(rect,rect.w*2/3,rect.w/3)
-   local typeW=(F.measure('TYPE/',{font='narrow'})or 0)+(F.measure(kind,{font='narrow'})or 0)
-   local ppW=(F.measure('PP',{font='narrow'})or 0)+8+(F.measure(pp)or 0)
-   local rsx,rsy,rdx,rdy=scale(right,math.max(typeW,ppW)+8,36,viewport)
-   for row=0,1 do
-    local w=row==0 and ppW or typeW
-    local x=right.x+4*rsx
-    local fonts=mod and mod.exports.allFonts;if fonts then x=fonts.align(x,right.w-8*rsx,w*rsx,'battle')end
-    local y=right.y+row*right.h/2+(right.h/2-16*rsy)/2
+   local lines={'PP',pp:gsub('%s+',''),'TYPE',kind}
+   local widest=0;for _,text in ipairs(lines)do widest=math.max(widest,F.measure(text,{font='normal'})or 0)end
+   local rsx,rsy,rdx,rdy=scale(right,widest+4,64,viewport)
+   for row,text in ipairs(lines)do
+    local w=F.measure(text,{font='normal'})or 0
+    local x=right.x+(right.w-w*rsx)/2
+    local fonts=mod and mod.exports.allFonts;if fonts then x=fonts.align(right.x,right.w,w*rsx,'battle',2)end
+    local y=right.y+(row-1)*right.h/4+(right.h/4-16*rsy)/2
     at(right,rsx,rsy,rdx,rdy,x,y,function()
-     local prefix=row==0 and 'PP' or 'TYPE/'
-     local c=row==0 and colors(move.pp or 0,maximum)or colors()
-     F.draw(prefix,0,0,{font='narrow',colors=c})
-     F.draw(row==0 and pp or kind,(F.measure(prefix,{font='narrow'})or 0)+(row==0 and 8 or 0),0,{font='narrow',colors=c})
+     F.draw(text,0,0,{font='normal',colors=row==2 and colors(move.pp or 0,maximum)or colors()})
     end)
    end
   end
