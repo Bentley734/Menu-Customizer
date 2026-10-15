@@ -326,11 +326,11 @@ return function(mod,catalog)
    if n~=math.floor(n) or not entry then return render(text,x,y,...) end
    local selector=start.options and current.arrows.id() or current.setting('startSelector')
    if not start.options and current.mod.options:get('startSelector')==14 then selector=3 end
-   local insetLeft,insetRight=current.borders.insets(nil,start.width,144)
+   local insetLeft,insetRight,ds=current.borders.insets(nil,start.width,144)
    local left=start.left+insetLeft
    local right=start.left+start.width-insetRight
    local reserve=selector==1 or selector==3 or selector>=5 and selector<=12
-   local minimum=math.max(start.labelX,left+(reserve and 10 or selector==4 and 4 or 0))
+   local minimum=ds and left or math.max(start.labelX,left+(reserve and 10 or selector==4 and 4 or 0))
    local maximum=right-(selector==4 and 4 or 0)
    if not start.inlineValues then text=windowText(text,math.max(1,maximum-minimum),n==start.index) end
    local shown=Font.width(text)
@@ -340,7 +340,7 @@ return function(mod,catalog)
    local result
    if current.mod.exports.jumpWave.enabled()and n==start.index then current.mod.exports.jumpWave.select(start.owner or start.items,start.index,text);result=current.mod.exports.jumpWave.draw(render,Font.width,text,0,0,...)else result=render(text,0,0,...)end
    G.pop()
-   if n==start.index then start.selection={x=textX,y=y,width=shown,selector=selector} end
+   if n==start.index then start.selection={x=textX,y=y,width=shown,selector=selector,panelX=ds and start.left+4 or nil} end
    return result
   end
   Font.draw=function(text,x,y,...)
@@ -390,6 +390,7 @@ return function(mod,catalog)
    local current=Font._menuCustomizerGB
    local rx,ry=current.resizeX or 1,current.resizeY or 1
    G.translate(x,y);G.scale(1/rx,1/ry);width=width*rx;x,y=0,0
+   local iconX=sel.panelX and (sel.panelX-sel.x)*rx or x-10
    local platform=love.system and love.system.getOS and love.system.getOS()
    if start.options then
     -- Retain the original 8x8 marker and horizontal gap; move it up only.
@@ -416,8 +417,8 @@ return function(mod,catalog)
    if sel.selector==0 or sel.selector==14 then G.pop();return end
    if sel.selector==13 then
     G.setColor(.25,.65,1,current.setting('selectionHighlight')/100);G.rectangle('fill',((start.left or 0)+8-sel.x)*rx,-((current.theme.enabled() and current.theme.gbScale()==1) and 7 or 1),math.max(1,(start.width or 160)-16)*rx,(start.pitch or 16)*ry)
-   elseif sel.selector>=5 then C.selectors.draw(sel.selector,x-10,y)
-   elseif sel.selector==3 then code(0xED,x-10,y)
+   elseif sel.selector>=5 then C.selectors.draw(sel.selector,iconX,y)
+   elseif sel.selector==3 then code(0xED,iconX,y)
    elseif sel.selector==2 then
     G.setColor(1,1,1,1);G.rectangle('fill',x-1,y+7,width+2,3)
     current.palette.effects.paint(current.palette.color('text',current.setting('selectorColor')),'menu',function()G.rectangle('fill',x,y+8,width,1)end)
@@ -431,7 +432,7 @@ return function(mod,catalog)
     local colors={{0,0,0,1},{.85,.12,.12,1},{1,1,1,1},{.5,.5,.5,1}}
     for py,row in ipairs(pixels) do for px=1,#row do
      local c=colors[tonumber(row:sub(px,px))]
-     if c then G.setColor(unpack(c));G.rectangle('fill',x-10+px-1,y+py-1,1,1) end
+     if c then G.setColor(unpack(c));G.rectangle('fill',iconX+px-1,y+py-1,1,1) end
     end end
    end
    G.pop()
@@ -909,6 +910,17 @@ return function(mod,catalog)
     C.drawingSave=s.screenId=='Gen2SaveMenu' or (C.mod.generation==1 and groupOf(s)=='save');C.saveHours=nil
     C.drawingTrainerCard=s.screenId=='Gen2TrainerCard';C.cardHours=nil
     C.drawingParty=mod.generation==1 and s.screenId=='PartyMenu' and (s.game or game) or nil
+    local savedTX,savedTW=s.tx,s.tw
+    if isStart(s)and s.tw then
+     local il,ir,ds=C.borders.insets(nil,s.tw*8,144)
+     if ds then
+      local widest=0;local prior=C.drawingStart;C.drawingStart=true
+      for _,item in ipairs(s.items or{})do widest=math.max(widest,Font.width(item.label))end
+      C.drawingStart=prior
+      s.tw=math.min(20,math.max(s.tw,math.ceil((widest+il+ir)/8)))
+      s.tx=math.max(0,math.min(s.tx,20-s.tw))
+     end
+    end
     C.drawingStart=startMetadata(s)
     C.drawingOptions=nil
     if mod.generation==1 and s.screenId=='OptionsMenu' and (s.view or s.rows) then
@@ -968,7 +980,7 @@ return function(mod,catalog)
          w>=160 and h>=144 and w<=640 and h<=576 then G.scale(160/w,144/h) end
     end
     local drawn,e=pcall(draw,s)
-    G.pop();s.anchor=anchor;s.showDescription=description
+    G.pop();s.anchor=anchor;s.showDescription=description;s.tx,s.tw=savedTX,savedTW
     if drawn and C.drawSelector then
      C.selectorScope=true
      local selected,e=pcall(C.drawSelector,C.drawingStart or C.drawingOptions)

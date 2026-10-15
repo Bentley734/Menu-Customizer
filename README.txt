@@ -1,3 +1,7 @@
+Menu Customizer 3.22.4 - DS Start menu selector panel
+
+Move Gen IV menu icon selectors onto the left panel. Return reserved icon space to labels and size Start frames to their longest label so normal entries fit without scrolling.
+
 Menu Customizer 3.22.3 - Gen IV frame text margins
 
 Account for wide asymmetric DS borders in menu alignment and selector spacing. Title menu boxes grow to retain the chosen font size. Start/customizer labels and option values respect the wider interior.
