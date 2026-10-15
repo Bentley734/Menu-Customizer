@@ -71,8 +71,14 @@ function love.load()
   now=5;marks={};J.draw(printer,function()return 8 end,'A',0,0);assert(marks[1][4]==0,'One-shot restarted itself')
   now=6;J.select(owner,2,'B');assert(J.started==6,'New selection did not restart')
   local color=G.setColor;local ok=pcall(J.draw,function()error('test')end,function()return 8 end,'A',0,0);assert(not ok and G.setColor==color and not J.active,'Wave error leaked graphics state')
-  local rows={};api.battleUi.rows(rows,function()end);local found=false;for _,row in ipairs(rows)do if row.id=='wide_stardewSelector'then found=row.label=='STARDEW';row.step(game)end end
+  local selectors;for _,page in ipairs(api.gbMenus.rows)do if page.label=='SELECTORS'then selectors=page.children end end
+  assert(selectors,'Actual Selectors page missing')
+  local found=false;for _,row in ipairs(selectors)do if row.id=='wide_stardewSelector'then found=row.label=='STARDEW';row.step(game)end end
+  assert(api.arrowSelectors.names[14]=='STARDEW'and api.gbMenus.selectors.names[14]=='STARDEW','Stardew cursor style missing')
+  local count=0;for _,row in ipairs(selectors)do if row.id=='wide_stardewSelector'then count=count+1 end end;assert(count==1,'Duplicate Stardew toggle')
   assert(found and not J.alternating(),'Stardew toggle missing or cannot disable');assert(api.gbMenus.mod.options:get('arrowSelector')==2,'Stardew changed companion marker')
+  api.customization.write(game,{arrowSelector=14});assert(J.alternating()and J.enabled(),'Standalone Stardew style does not enable animation')
+  api.customization.write(game,{arrowSelector=2})
   love.timer.getTime=timer
   local B=require('src.battle.BattleState');local pixels=love.image.newImageData(8,8);pixels:mapPixel(function()return 1,0,0,1 end);local image=G.newImage(pixels)
   local fake={data={},showPlayerBack=true,playerBackPic=image,picImage=function()return image end,picOffset=function()return 0 end,bottomUIVisible=function()return true end}

@@ -21,7 +21,7 @@ return function(mod)
    rows[#rows+1]=row
   end
   add('Size','TEXT SIZE',2,1,2,{'1X','2X'})
-  add('Selector','SELECTOR',1,1,13,mod.exports.arrowSelectors.names)
+  add('Selector','SELECTOR',1,1,#mod.exports.arrowSelectors.names,mod.exports.arrowSelectors.names)
   add('SelectorColor','SELECTOR COLOR',-1,-1,#P.names-1,setmetatable({'USE BATTLE'},{__index=function(_,i)return P.names[i-1]end}),'text')
   add('Font','FONT',1,1,2,{'REGULAR','NARROW'})
   add('Justify','ALIGNMENT',2,1,3,{'LEFT','CENTER','RIGHT'})

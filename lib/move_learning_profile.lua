@@ -42,7 +42,7 @@ return function(mod)
   add('BackgroundColor','BACKGROUND',0,0,#P.menuBackgroundNames-1,P.menuBackgroundNames,'menuBackground','dialogueBackgroundColor')
   add('TextColor','TEXT COLOR',0,0,#P.names-1,P.names,'text','dialogueTextColor')
   add('TextShadowColor','TEXT SHADOW',0,0,#P.shadowNames-1,P.shadowNames,'shadow','dialogueTextShadowColor')
-  add('Selector','SELECTOR',1,1,13,mod.exports.arrowSelectors.names,nil,'arrowSelector')
+  add('Selector','SELECTOR',1,1,#mod.exports.arrowSelectors.names,mod.exports.arrowSelectors.names,nil,'arrowSelector')
   add('SelectorColor','SELECTOR COLOR',0,0,#P.names-1,P.names,'text','selectorColor')
   for _,row in ipairs(P.effects.rows('moveLearning',function(ctx,key,n)C.write(ctx,{[key]=n,moveLearningCustom=1});return false end,openPage))do out[#out+1]=row end
   return out

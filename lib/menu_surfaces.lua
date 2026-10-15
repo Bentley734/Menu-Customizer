@@ -97,7 +97,7 @@ return function(mod)
     rows[#rows+1]=row
    end
    if scope=='mods'then
-    add('Selector','SELECTOR',1,1,13,mod.exports.arrowSelectors.names or mod.exports.gbMenus and mod.exports.gbMenus.selectors.names)
+    add('Selector','SELECTOR',1,1,#mod.exports.arrowSelectors.names,mod.exports.arrowSelectors.names or mod.exports.gbMenus and mod.exports.gbMenus.selectors.names)
     add('SelectorColor','SELECTOR COLOR',0,0,#palette.names-1,palette.names,'text','selectorColor')
     for _,effect in ipairs(palette.effects.rows('mods',function(ctx,key,n)write(ctx,key,n);return false end,openPage))do rows[#rows+1]=effect end
    end

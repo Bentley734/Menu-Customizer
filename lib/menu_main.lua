@@ -71,7 +71,7 @@ return function(mod)
     'startOpacity', 'optionOpacity', 'otherOpacity', 'hideStartMods'}
   local menuPalette=assert(load(assert(mod:read('lib/battle_text_palette.lua'))))()(mod)
   local Transitions=assert(load(assert(mod:read('lib/menu_transitions.lua'))))()
-  local extra = {selectionHighlight={25,0,100,5},arrowSelector={1,1,13,1},selectorColor={0,0,#menuPalette.names-1,1},dialogueJustify={1,1,3,1},menuTextColor={0,0,#menuPalette.names-1,1},menuTextShadowColor={0,0,#menuPalette.shadowNames-1,1},menuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},startMenuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1}, menuBorder={1,1,#borderChoices,1}, backgroundDim={0,0,70,10}, controlsLegend={2,1,3,1},
+  local extra = {selectionHighlight={25,0,100,5},arrowSelector={1,1,14,1},selectorColor={0,0,#menuPalette.names-1,1},dialogueJustify={1,1,3,1},menuTextColor={0,0,#menuPalette.names-1,1},menuTextShadowColor={0,0,#menuPalette.shadowNames-1,1},menuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},startMenuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1}, menuBorder={1,1,#borderChoices,1}, backgroundDim={0,0,70,10}, controlsLegend={2,1,3,1},
     menuTransition={3,1,#Transitions.names,1}, positionPreview={1,0,1,1}}
 
   for _,scope in ipairs({'start','battle','option','save','other','dialogue'})do extra[scope..'BorderChoice']={0,0,#borderChoices,1}end
@@ -726,7 +726,11 @@ return function(mod)
           love.graphics.push('all');love.graphics.setShader();love.graphics.setColor(.25,.65,1,setting('selectionHighlight')/100)
           love.graphics.rectangle('fill',tpl.left*8,y,tpl.w*8,pitch);love.graphics.pop()
         end
-        local result = originalPrint(text, x, y, opts)
+        local result
+        local wave=mod.exports.jumpWave
+        if selected and wave.enabled()then
+          wave.select(Start,Start.cursor,text);result=wave.draw(originalPrint,FrlgFont.measure,text,x,y,opts)
+        else result=originalPrint(text,x,y,opts)end
         if selected and selector>=5 and selector<=12 then
           Selectors.draw(selector,x-10,y+3)
         end

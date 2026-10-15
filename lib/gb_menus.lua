@@ -13,7 +13,7 @@ return function(mod,catalog)
  C.palette=menuPalette
  local Transitions=assert(load(assert(mod:read('lib/menu_transitions.lua'))))()
  mod.exports.menuBackground=function()if C.drawScope or C.dialogueScope then return menuPalette.menuBackground(C.paperGroup)end end
- local specs={selectionHighlight={25,0,100,5},menuTextColor={0,0,#menuPalette.names-1,1},menuTextShadowColor={0,0,#menuPalette.shadowNames-1,1},menuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},startMenuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1},menuBorder={1,1,#catalog.choices,1},startJustify={1,1,3,1},startSelector={3,1,#C.selectors.names,1},arrowSelector={1,1,13,1},selectorColor={0,0,#menuPalette.names-1,1},dialogueJustify={1,1,3,1},hideStartMods={0,0,1,1},
+ local specs={selectionHighlight={25,0,100,5},menuTextColor={0,0,#menuPalette.names-1,1},menuTextShadowColor={0,0,#menuPalette.shadowNames-1,1},menuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},startMenuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1},menuBorder={1,1,#catalog.choices,1},startJustify={1,1,3,1},startSelector={3,1,#C.selectors.names,1},arrowSelector={1,1,14,1},selectorColor={0,0,#menuPalette.names-1,1},dialogueJustify={1,1,3,1},hideStartMods={0,0,1,1},
   backgroundDim={0,0,70,10},controlsLegend={2,1,3,1},menuTransition={3,1,#Transitions.names,1},positionPreview={1,0,1,1}}
 
  for _,scope in ipairs({'start','battle','option','save','other','dialogue','pokedex'})do specs[scope..'BorderChoice']={0,0,#catalog.choices,1}end
@@ -352,7 +352,6 @@ return function(mod,catalog)
    local entry=start.items[n]
    if n~=math.floor(n) or not entry then return render(text,x,y,...) end
    local selector=start.options and current.arrows.id() or current.setting('startSelector')
-   if not start.options and current.mod.options:get('startSelector')==14 then selector=3 end
    local insetLeft,insetRight,ds=current.borders.insets(nil,start.width,144)
    local left=start.left+insetLeft
    local right=start.left+start.width-insetRight

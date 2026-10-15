@@ -15,7 +15,7 @@ return function(mod)
   local n=mod.options:get('jumpWaveEnabled');if n~=nil then return n==1 end
   return mod.options:get('startSelector')==14 or mod.options:get('arrowSelector')==14
  end
- function M.alternating()return mod.options:get('stardewEnabled')==1 end
+ function M.alternating()return mod.options:get('stardewEnabled')==1 or mod.options:get('arrowSelector')==14 or mod.options:get('startSelector')==14 end
  function M.enabled()return M.alternating()or M.classicEnabled()end
  function M.timeline(time)
   if time<.3 then return math.max(0,time/.3),0 end

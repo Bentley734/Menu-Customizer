@@ -1,3 +1,9 @@
+# Menu Customizer 3.34.2 — Discoverable Stardew selector
+
+Add STARDEW to the Start Selector and Arrow Selector style choices as well as the independent STARDEW toggle under Menus → Selectors. Selecting the style enables its animation directly; keeping another marker selected and turning the toggle on combines the two. Extend independent battle/move/mod selector pickers to include the new style, without changing saved IDs for existing markers.
+
+Remove duplicate wave-control registration through Battle settings. Check the actual initially constructed Selectors page for exactly one functional Stardew toggle, plus both selector catalogs and standalone activation. Apply selected-label wave rendering to Gen 3 Start and themed Yes/No choices too. Stardew, choice layering, integer battle text and Gen 1–3 startup/profile checks passed. Restart after updating.
+
 # Menu Customizer 3.34.1 — Save summary insets and complete HP label
 
 Inset both columns of the in-game Gen 1 save summary using the selected Gen4 frame’s asymmetric left/right margins. Apply the layout before padded-number alignment, retain a shared right edge for values, and preserve panel size and other border layouts.

@@ -1,7 +1,7 @@
 -- Non-START selection arrows share one independent setting. Fit artwork in
 -- the native eight-pixel cursor column, retaining a pixel gap on each side.
 return function(mod,icons,setting,active)
- local M={names={'ARROW','POKEBALL','STAR','HEART','LIGHTNING','CRESCENT','DIAMOND','FLAME','PSYCHIC EYE','SPIRAL','UNDERLINE','DOTS','NONE'},ids={3,1,5,6,7,8,9,10,11,12,2,4,0}}
+ local M={names={'ARROW','POKEBALL','STAR','HEART','LIGHTNING','CRESCENT','DIAMOND','FLAME','PSYCHIC EYE','SPIRAL','UNDERLINE','DOTS','NONE','STARDEW'},ids={3,1,5,6,7,8,9,10,11,12,2,4,0,14}}
  local G=love.graphics
  local ball={'..1111..','.122221.','12222221','11144111','13344331','13333331','.133331.','..1111..'}
  local colors={{0,0,0,1},{.85,.12,.12,1},{1,1,1,1},{.5,.5,.5,1}}

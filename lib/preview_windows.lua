@@ -56,7 +56,16 @@ return function(mod,palette,active)
        text=exports.customization.text(Strings(text));local x,y=owner.tx*8+il+12,(owner.ty+row+(i-1)*2)*8
        if current.theme.enabled()then
         local colors=current.theme.gbColors();local value=text
-        local function render()G.push('all');G.scale(.75,.75);current.theme.draw(value,0,0,{colors=colors});G.pop()end
+        local selected=i==(owner.index or 1)
+        local function render()
+         G.push('all');G.scale(.75,.75)
+         local wave=exports.jumpWave
+         if selected and wave.enabled()then
+          wave.select(owner,owner.index or 1,value)
+          wave.draw(function(t,x,y)return current.theme.draw(t,x,y,{colors=colors})end,current.theme.measure,value,0,0)
+         else current.theme.draw(value,0,0,{colors=colors})end
+         G.pop()
+        end
         if state.mod.generation==1 and current.dialogueText then current.dialogueText.enqueue(x,y-2,.75,render)
         else G.push('all');G.translate(x,y-2);render();G.pop()end
        else F.draw(text,x,y)end
