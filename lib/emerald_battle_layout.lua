@@ -50,8 +50,8 @@ return function(G,mod)
   local commandFont='narrow'
   local width=0;for _,s in ipairs(commands)do width=math.max(width,F.measure(s,{font=commandFont})or 0)end
   local cell={w=commandWidth/2,h=pane.h/2}
-  local priorFactor=factor;factor=math.min(factor,.85)
-  local sx,sy,dx,dy=scale(cell,width+20,18,viewport);factor=priorFactor
+  local priorFactor=factor;factor=math.max(1,factor)
+  local sx,sy,dx,dy=scale(cell,width+14,16,viewport);factor=priorFactor
   for i,s in ipairs(commands)do
    local c={x=pane.x+promptWidth+(i-1)%2*cell.w,y=pane.y+math.floor((i-1)/2)*cell.h,w=cell.w,h=cell.h}
    label(F,s,c,sx,sy,dx,dy,commandFont,colors,i==(battle.menuIndex or 1))
@@ -62,8 +62,8 @@ return function(G,mod)
   local first,last='What will',name..' do?'
   local promptFont=pane.w<600 and 'narrow'or'normal'
   local left={x=pane.x,y=pane.y,w=promptWidth,h=pane.h}
-  local priorFactor=factor;factor=math.min(factor,.7)
-  local px,py,pdx,pdy=scale(left,math.max(F.measure(first,{font=promptFont})or 0,F.measure(last,{font=promptFont})or 0)+8,44,viewport);factor=priorFactor
+  local priorFactor=factor;factor=math.max(1,factor)
+  local px,py,pdx,pdy=scale(left,math.max(F.measure(first,{font=promptFont})or 0,F.measure(last,{font=promptFont})or 0)+8,34,viewport);factor=priorFactor
   local x=left.x+4*px;local y=left.y+(left.h-32*py)/2
   at(left,px,py,pdx,pdy,x,y,function()
    local fonts=mod and mod.exports.allFonts

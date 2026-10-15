@@ -1,3 +1,7 @@
+# Menu Customizer 3.27.2 — Larger battle commands
+
+Enlarge the four battle command labels and the full two-line prompt by using the available panel space. Retain whole-pixel scaling, full labels and selector clearance. Move selection and dialogue are unchanged. Rendered native replay comparisons passed across all battle text sizes and justifications. Restart after updating.
+
 # Menu Customizer 3.27.1 — Correct HP-cap cleanup
 
 Restore the customizable vertical status-border tile removed in 3.26.1. Remove the separate tall black stroke embedded in the native player HP gauge end-cap instead, retaining the three-pixel functional gauge cap. This stroke comes from the native battle_hud_1 tile, not 1025Dex.
