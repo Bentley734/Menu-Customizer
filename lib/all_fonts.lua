@@ -113,6 +113,7 @@ return function(mod)
     end
     local initial=seed and seed(...)
     local previous=jumpLabel;local item=type(owner)=='table'and owner.items and owner.items[owner.index or 1];jumpLabel=item and item.label
+    if item and not(mod.exports.gbMenus and(mod.exports.gbMenus.drawingStart or mod.exports.gbMenus.drawingOptions))and mod.exports.jumpWave and mod.exports.jumpWave.enabled()then mod.exports.jumpWave.select(owner,owner.index or 1,item.label)end
     local result={pcall(within,original,group,initial,...)};jumpLabel=previous
     if not result[1]then error(result[2],0)end;return unpack(result,2)
    end

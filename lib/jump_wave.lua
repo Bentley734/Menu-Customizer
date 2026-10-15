@@ -1,5 +1,10 @@
 return function(mod)
  local M={}
+ function M.select(owner,index,text)
+  if M.owner~=owner or M.index~=index or M.text~=text then
+   M.owner,M.index,M.text=owner,index,text;M.started=love.timer.getTime()
+  end
+ end
  function M.enabled()
   local n=mod.options:get('jumpWaveEnabled');if n~=nil then return n==1 end
   return mod.options:get('startSelector')==14 or mod.options:get('arrowSelector')==14
@@ -19,7 +24,7 @@ return function(mod)
   if type(text)~='string'or text:find('[<>{}]')then return printer(text,x,y,...)end
   if mod.exports.customization then text=mod.exports.customization.text(text)end
   local chars={};for c in text:gmatch('[%z\1-\127\194-\244][\128-\191]*')do chars[#chars+1]=c end
-  local pen=0;local time=love.timer.getTime()
+  local pen=0;if not M.started then M.select(nil,1,text)end;local time=math.max(0,love.timer.getTime()-M.started)
   local previous=M.active;M.active=true;local args={...}
   local ok,err=pcall(function()for i,c in ipairs(chars)do printer(c,x+pen,y-M.offset(i,#chars,time),(unpack or table.unpack)(args));pen=pen+measure(c)end end)
   M.active=previous;if not ok then error(err,0)end

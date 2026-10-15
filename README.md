@@ -1,3 +1,7 @@
+Menu Customizer 3.21.2 - Restart Jump Wave on selection
+
+Jump Wave starts at the first letter whenever the selected row or menu changes. Uses selection-relative time, preserving phase while the same row remains selected, including duplicate-label rows.
+
 Menu Customizer 3.21.1 - Secondary Jump Wave and speed
 
 SELECTORS now has independent JUMP WAVE on/off and JUMP WAVE SPEED (25-300%). Wave motion combines with other selector markers. Prior wave-only selections continue as wave enabled with an arrow fallback until changed.

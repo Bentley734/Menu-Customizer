@@ -333,7 +333,7 @@ return function(mod,catalog)
    local textX=align==2 and minimum+(maximum-minimum-shown)/2 or align==3 and maximum-shown or minimum
    G.push('all');G.translate(textX,y)
    local result
-   if current.mod.exports.jumpWave.enabled()and n==start.index then result=current.mod.exports.jumpWave.draw(render,Font.width,text,0,0,...)else result=render(text,0,0,...)end
+   if current.mod.exports.jumpWave.enabled()and n==start.index then current.mod.exports.jumpWave.select(start.owner or start.items,start.index,text);result=current.mod.exports.jumpWave.draw(render,Font.width,text,0,0,...)else result=render(text,0,0,...)end
    G.pop()
    if n==start.index then start.selection={x=textX,y=y,width=shown,selector=selector} end
    return result
@@ -839,9 +839,9 @@ return function(mod,catalog)
  local function startMetadata(s)
   if not isStart(s) then return nil end
   local list=s.list
-  if list then return {items=s.items,index=list.index,scroll=list.scroll or 0,rowY=list.y*8,pitch=list.spacing*8,labelX=list.x*8,left=80,width=80} end
+  if list then return {owner=s,items=s.items,index=list.index,scroll=list.scroll or 0,rowY=list.y*8,pitch=list.spacing*8,labelX=list.x*8,left=80,width=80} end
   local count=math.min(s.maxVisible or #s.items,#s.items)
-  return {items=s.items,index=s.index,scroll=s.scroll or 0,rowY=(s.ty+s.th-2-(count-1)*(s.rowStep or 1))*8,
+  return {owner=s,items=s.items,index=s.index,scroll=s.scroll or 0,rowY=(s.ty+s.th-2-(count-1)*(s.rowStep or 1))*8,
    pitch=(s.rowStep or 1)*8,labelX=(s.tx+2)*8,left=s.tx*8,width=s.tw*8}
  end
  function C.draw(game,viewport)
@@ -900,14 +900,14 @@ return function(mod,catalog)
      -- settings page. Defer their selector with the label and reserve 10px.
      local rows=s.view or s.rows;local items={}
      for _,row in ipairs(rows)do items[#items+1]=row end;items[#items+1]={label='BACK'}
-     C.drawingOptions={options=true,cards=true,fullFont=false,items=items,index=s.index,scroll=s.scroll or 0,rowY=8,pitch=32,labelX=16,left=0,width=160}
+     C.drawingOptions={owner=s,options=true,cards=true,fullFont=false,items=items,index=s.index,scroll=s.scroll or 0,rowY=8,pitch=32,labelX=16,left=0,width=160}
     elseif isGen2Options(s) and type(s.visible)=='function' then
      C.prepareOptions(s)
      local rows=s:visible()
-     C.drawingOptions={options=true,fullFont=true,inlineValues=s.sub,nativeValues=false,items=rows,index=s.index,scroll=s.scroll or 0,rowY=16,pitch=s.sub and 32 or 16,labelX=16,left=0,width=160}
+     C.drawingOptions={owner=s,options=true,fullFont=true,inlineValues=s.sub,nativeValues=false,items=rows,index=s.index,scroll=s.scroll or 0,rowY=16,pitch=s.sub and 32 or 16,labelX=16,left=0,width=160}
     elseif s.screenId=='MenuCustomizerOptions' then
      local rows={};for _,row in ipairs(s.rows)do rows[#rows+1]=row end;rows[#rows+1]={label='BACK'}
-     C.drawingOptions={options=true,fullFont=true,inlineValues=s.detail,items=rows,index=s.index,scroll=s.scroll or 0,rowY=24,pitch=s.detail and 32 or 16,labelX=24,left=0,width=160}
+     C.drawingOptions={owner=s,options=true,fullFont=true,inlineValues=s.detail,items=rows,index=s.index,scroll=s.scroll or 0,rowY=24,pitch=s.detail and 32 or 16,labelX=24,left=0,width=160}
     end
     -- Options clears the whole canvas before drawing its frame. Custom frame
     -- corners need transparent pixels outside the paper, unlike opaque screens.
