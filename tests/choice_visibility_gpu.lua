@@ -46,16 +46,25 @@ function love.load()
   for id,e in ipairs(api.borderCatalog.entries)do if e.dsFrame then border=id;break end end
   api.customization.write(game,{menuTheme=2,dialogueTheme=2,optionBorderChoice=border,menuTextColor=0,menuBorder=border})
   local choice=Choice.new(game,function()end);game.stack.states={choice}
-  local target=G.newCanvas(640,576);G.setCanvas(target);G.clear(.2,.2,.2,1);G.scale(4)
-  local c=api.gbMenus;local textDraw,arrowDraw=c.theme.draw,c.arrows.draw
-  local labels,selectors=0,0
-  c.theme.draw=function(text,...)labels=labels+1;assert(text=='YES'or text=='NO');return textDraw(text,...)end
-  c.arrows.draw=function(...)selectors=selectors+1;return arrowDraw(...)end
-  for index=1,2 do choice.index=index;labels,selectors=0,0;choice:draw();assert(labels==4 and selectors==1,'Unexpected text/selector draw count')end
-  c.theme.draw,c.arrows.draw=textDraw,arrowDraw
-
-  G.setCanvas();write(version..'-choice-isolated.png',target:newImageData():encode('png'):getString())
-  write(version..'-result.txt','PASS isolated choice render')
+  local c=api.gbMenus;local native=G.newCanvas(160,144);local target=G.newCanvas(1600,1440)
+  c.dialogueText.beginFrame();c.dialogueRects={}
+  G.setCanvas(native);G.origin();G.clear(.2,.2,.2,1);choice.index=2;choice:draw()
+  local queue=c.dialogueText.queues[native];assert(queue and #queue>=2,'Choice text bypassed final-resolution queue')
+  assert(#c.dialogueRects==1 and c.dialogueRects[1].colors==false,'Missing true-color palette region')
+  G.setCanvas(target);G.origin();G.clear(.2,.2,.2,1)
+  local oldDraw=G.draw;local glyphs=0
+  G.draw=function(img,...)
+   if img.getWidth and img:getWidth()==256 then
+    local x,y=G.transformPoint(0,0);local ex,ey=G.transformPoint(1,1)
+    assert(math.abs((ex-x)-math.floor(ex-x+.5))<.001 and math.abs((ey-y)-math.floor(ey-y+.5))<.001,'Fractional glyph scale')
+    glyphs=glyphs+1
+   end
+   return oldDraw(img,...)
+  end
+  G.setColor(1,1,1,1);G.draw(native,0,0,0,10,10);G.draw=oldDraw
+  assert(glyphs>0,'Queued text did not reach final canvas')
+  G.setCanvas();write(version..'-choice-integer.png',target:newImageData():encode('png'):getString())
+  write(version..'-result.txt','PASS choice true-color region and final-canvas integer glyph scales')
 
  end,debug.traceback)
  if not ok then write(version..'-result.txt','FAIL '..tostring(err))end

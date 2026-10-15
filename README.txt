@@ -1,3 +1,7 @@
+Menu Customizer 3.23.4 - Choice palette protection and integer text
+
+Protect DS YES/NO panels from native palette remapping. Queue Emerald choice labels for final-resolution integer rasterization instead of shrinking them into the game canvas.
+
 Menu Customizer 3.23.3 - Single-pass DS choices
 
 Draw Gen IV YES/NO panels, labels and cursor as one scoped pass, avoiding overlapping native text and selector layers.

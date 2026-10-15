@@ -44,12 +44,20 @@ return function(mod,palette,active)
     local ok,err=pcall(function()
      G.setShader();G.setColor(1,1,1,1)
      current.borders.draw(owner.tx,owner.ty,owner.tw,owner.th,'option')
+     if state.mod.generation==1 then
+      current.dialogueRects=current.dialogueRects or{}
+      current.dialogueRects[#current.dialogueRects+1]={colors=false,x=owner.tx*8,y=owner.ty*8,w=owner.tw*8,h=owner.th*8}
+      require('src.render.PaletteFX').markTrueColor(owner.tx*8,owner.ty*8,owner.tw*8,owner.th*8)
+     end
      G.setColor(0,0,0,1);exports.previewScope=false
      state.palette.withText('menu',function()
       for i,text in ipairs(owner.labels or{'YES','NO'})do
        text=exports.customization.text(Strings(text));local x,y=owner.tx*8+il,(owner.ty+row+(i-1)*2)*8
        if current.theme.enabled()then
-        G.push('all');G.translate(x,y-2);G.scale(.75,.75);current.theme.draw(text,0,0,{colors=current.theme.gbColors()});G.pop()
+        local colors=current.theme.gbColors();local value=text
+        local function render()G.push('all');G.scale(.75,.75);current.theme.draw(value,0,0,{colors=colors});G.pop()end
+        if state.mod.generation==1 and current.dialogueText then current.dialogueText.enqueue(x,y-2,.75,render)
+        else G.push('all');G.translate(x,y-2);render();G.pop()end
        else F.draw(text,x,y)end
       end
      end)

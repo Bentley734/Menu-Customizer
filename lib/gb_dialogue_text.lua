@@ -4,6 +4,13 @@ return function(Font)
  if Font._menuCustomizerDialoguePixels then return Font._menuCustomizerDialoguePixels end
  local G=love.graphics;local M={queues={}};local unpack=unpack or table.unpack
  function M.beginFrame()M.queues={}end
+ function M.enqueue(x,y,nominal,render)
+  local source=G.getCanvas and G.getCanvas()
+  if not source then return render()end
+  local ax,ay=G.transformPoint(x,y);local bx,by=G.transformPoint(x+1,y);local cx,cy=G.transformPoint(x,y+1)
+  local queue=M.queues[source]or{};M.queues[source]=queue
+  queue[#queue+1]={choice=true,x=ax,y=ay,hx=bx-ax,hy=by-ay,vx=cx-ax,vy=cy-ay,nominal=nominal,render=render,color={G.getColor()}}
+ end
  local code=Font.drawCode
  Font.drawCode=function(id,x,y,...)
   local C=Font._menuCustomizerGB
@@ -38,7 +45,7 @@ return function(Font)
       G.origin();G.setShader();G.setColor(unpack(item.color))
       G.translate(math.floor(px*dpi+.5)/dpi,math.floor(py*dpi+.5)/dpi)
       G.scale(unit/(dpi*item.nominal),unit/(dpi*item.nominal))
-      code(item.id,0,0,unpack(item.args,1,item.args.n))
+      if item.render then item.render()else code(item.id,0,0,unpack(item.args,1,item.args.n))end
      end
     end)
     G.pop();replaying=false;C.dialogueScope,C.mod.exports.choiceFontScope=prior,priorChoice
