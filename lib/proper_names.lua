@@ -2,32 +2,34 @@
 return function(mod)
  local M={};local names={};local game
  local function lower(s)return s:lower():gsub('É','é')end
- local function add(s)
+ local function add(s,initialOnly)
   if type(s)~='string'or s==''or s:find('[<>{}\n]')then return end
   local key=lower(s);local word=true
   local display=key:gsub('[%z\1-\127\194-\244][\128-\191]*',function(c)
    if c:match('%w')or c:byte()>=128 then local out=word and(c=='é'and'É'or c:upper())or c;word=false;return out end
    if c~="'"then word=true end;return c
   end)
+  if initialOnly then display=key:gsub('^[%z\1-\127\194-\244][\128-\191]*',function(c)return c=='é'and'É'or c:upper()end)end
   local first=key:sub(1,1);names[first]=names[first]or{};names[first][key]=display
  end
- local function scan(t,seen)
+ local function scan(t,seen,initialOnly)
   if type(t)~='table'or seen[t]then return end;seen[t]=true
   for k,v in pairs(t)do
-   if k=='name'or k=='nickname'or k=='trainerName'or k=='rivalName'or k=='playerName'then add(v)
-   elseif type(v)=='table'then scan(v,seen)end
+   if k=='name'or k=='nickname'or k=='trainerName'or k=='rivalName'or k=='playerName'then add(v,initialOnly)
+   elseif type(v)=='table'then scan(v,seen,initialOnly)end
   end
  end
  -- Named characters whose names also occur in ordinary dialogue, rather than
  -- trainer records (professors, family members, and story NPCs).
- for s in ('Oak|Elm|Birch|Rowan|Juniper|Sycamore|Kukui|Magnolia|Sonia|Bill|Mr. Fuji|Daisy|Giovanni|Brock|Misty|Lt. Surge|Erika|Koga|Sabrina|Blaine|Lorelei|Bruno|Agatha|Lance|Professor Oak|Professor Elm|Professor Birch|Steven|Wallace|Wally|May|Brendan|Norman|Roxanne|Brawly|Wattson|Flannery|Winona|Tate|Liza|Sidney|Phoebe|Glacia|Drake|Archie|Maxie|Aqua|Magma|Kurt|Eusine|Morty|Whitney|Jasmine|Chuck|Pryce|Clair|Falkner|Bugsy|Karen|Will|Janine|Blue|Red|Green|Silver|Gold|Crystal|Ash|Gary|Jessie|James|Mary|Ben|Celio|Celio'):gmatch('[^|]+')do add(s)end
+ for s in ('Oak|Elm|Birch|Rowan|Juniper|Sycamore|Kukui|Magnolia|Sonia|Bill|Mr. Fuji|Daisy|Giovanni|Brock|Misty|Lt. Surge|Erika|Koga|Sabrina|Blaine|Lorelei|Bruno|Agatha|Lance|Professor Oak|Professor Elm|Professor Birch|Steven|Wallace|Wally|May|Brendan|Norman|Roxanne|Brawly|Wattson|Flannery|Winona|Tate|Liza|Sidney|Phoebe|Glacia|Drake|Archie|Maxie|Aqua|Magma|Kurt|Eusine|Morty|Whitney|Jasmine|Chuck|Pryce|Clair|Falkner|Bugsy|Karen|Will|Janine|Blue|Red|Green|Silver|Gold|Crystal|Ash|Gary|Jessie|James|Mary|Ben|Celio|Celio'):gmatch('[^|]+')do add(s,true)end
+ add('Pokemon');add('Pokémon')
  mod.events:on('mods.loaded',function(e)
-  local d=e.data or{};scan(d.pokemon,{});scan(d.trainers,{})
+  local d=e.data or{};scan(d.pokemon,{});scan(d.trainers,{},true)
  end)
- mod.events:on('game.ready',function(e)game=e.game;scan(game and game.save,{})end)
+ mod.events:on('game.ready',function(e)game=e.game;scan(game and game.save,{},true)end)
  function M.restore(text)
   if game and game.save then
-   local s=game.save;add(s.rivalName);add(s.playerName);if s.player then add(s.player.name)end
+   local s=game.save;add(s.rivalName,true);add(s.playerName,true);if s.player then add(s.player.name,true)end
    for _,p in pairs(s.party or{})do if type(p)=='table'then add(p.nickname);add(p.name)end end
   end
   -- Longest match first, with byte boundaries supporting accented names.
