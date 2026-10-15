@@ -646,6 +646,9 @@ return function(mod,catalog)
     end
    end
   end
+  if self.scroll+(self.detail and 4 or 7)<#self.rows+1 then
+   Font.drawCode(require('src.ui.Theme').moreArrow,144,128)
+  end
   if C.legendVisible()then
   C.compactText=true
   Font.draw(self.colorChoice and 'A:SELECT B:BACK' or self.detail and 'A:CHANGE B:BACK' or 'A:OPEN B:BACK',8,128)

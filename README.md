@@ -1,3 +1,7 @@
+Menu Customizer 3.19.5 - More-below arrow
+
+Customization pages show the native down arrow at the bottom right when more entries, including BACK, remain below the visible rows. Hidden at the end of the list. Works on standard and detail pages independently of control-hint visibility.
+
 Menu Customizer 3.19.4 - Seven menu rows
 
 Standard customization pages now show seven rows instead of six. Selection/scrolling use the same seven-row capacity; the final row fits above the optional footer. Detail pages retain their existing capacity.
