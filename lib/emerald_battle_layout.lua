@@ -78,7 +78,7 @@ return function(G,mod)
  local function moves(F,battle,rect,custom,colors,typeName,viewport)
   custom.frames('none',rect,viewport)
   local interior=inner(rect,0,rect.w)
-  local pane={x=interior.x,y=interior.y,w=interior.w*.6,h=interior.h}
+  local pane={x=interior.x,y=interior.y,w=interior.w*.72,h=interior.h}
   local list=custom.setting('move_layout',0)==1
   local columns=list and 1 or 2
   local rowCount=list and 4 or 2
@@ -127,7 +127,7 @@ return function(G,mod)
    local pp=string.format('%2d/%2d',move.pp or 0,maximum)
    local kind=typeName(def.type,battle.data)
    local gap=4*rect.h/48
-   local right={x=interior.x+interior.w*.6+gap,y=interior.y,w=interior.w*.4-gap,h=interior.h}
+   local right={x=interior.x+interior.w*.72+gap,y=interior.y,w=interior.w*.28-gap,h=interior.h}
    local lines={'PP',pp:gsub('%s+',''),'TYPE',kind}
    local widest=0;for _,text in ipairs(lines)do widest=math.max(widest,F.measure(text,{font='narrow'})or 0)end
    local rsx,rsy,rdx,rdy=scale(right,widest+4,64,viewport)

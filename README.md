@@ -1,3 +1,11 @@
+# Menu Customizer 3.28.0 — Final-window integer battle text
+
+Delay native battle command and move text through every intermediate canvas, including canvases larger than the window, and render only at the final screen copy. This prevents a later fractional resize from distorting already-rasterized letters. Final glyph scales are whole, equal pixel multiples and anchors are snapped to the pixel grid.
+
+Give move names 72% of the frame interior for larger fitted text; place PP/type in the remaining rightmost column. Preserve full names, automatic wrapping, Grid/List navigation and dialogue behavior.
+
+New GPU regression replaces the older canvas-final replay checks: it verifies every glyph scale and anchor after deliberately fractional, nonuniform intermediate resizing for grid/list and command/move screens. Navigation checks are retained. Restart after updating.
+
 # Menu Customizer 3.27.3 — Continuous HUD border animation
 
 Restore the tall player HP end-cap stroke and treat its complete tile as part of the customizable status frame. It now shares frame color, shadow, animation and visibility settings, with the same protection from native palette recoloring. Gradients use the same screen coordinates as adjacent frame tiles.

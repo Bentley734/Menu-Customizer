@@ -59,26 +59,35 @@ function love.load()
 
   local B=require('src.battle.BattleState')
   battle.data.moves.tailwhip.name='ANCIENT POWER';battle.data.moves.watergun.name='THUNDER PUNCH'
-  local native=G.newCanvas(160,144)
-  for size=0,2 do for align=1,3 do
-  api.customization.write(game,{battle_font_size=size,battleJustify=align,allFontAlign=align})
-  for _,phase in ipairs({'menu','moveSelect'})do
-   battle.phase=phase
-   G.setCanvas(native);G.origin();G.clear(0,0,0,0)
-   B.drawTextArea(battle)
-   local target=G.newCanvas(1280,832);G.setCanvas(target);G.origin();G.clear(.1,.1,.1,1)
-   G.setColor(1,1,1,1);G.draw(native,100,0,0,6,5)
-   G.setCanvas();local actual=target:newImageData()
-   if size==0 and align==1 then write('red-native-'..phase..'.png',actual:encode('png'):getString())end
-   local expected=G.newCanvas(1280,832);G.setCanvas(expected);G.origin();G.clear(.1,.1,.1,1)
-   if phase=='menu'then api.battleUi.drawBottom(battle,{x=100,y=480,w=960,h=240},{})
-   else api.battleUi.moveScreen.draw(battle,{x=292,y=480,w=768,h=240},{})end
-   G.setCanvas();local reference=expected:newImageData()
-   for y=480,719 do for x=100,1059 do local a,b,c,d=actual:getPixel(x,y);local e,f,g,h=reference:getPixel(x,y);assert(math.abs(a-e)<.01 and math.abs(b-f)<.01 and math.abs(c-g)<.01 and math.abs(d-h)<.01,'Native replay differs from full-resolution panel')end end
+  assert(B.moveGridNavigation({wideLayout=function()return false end}),'Grid navigation remains disabled')
+  local Wide=require('src.battle.WideBattle')
+  for count=1,4 do for index=1,count do for _,key in ipairs({'left','right','up','down'})do
+   local n=Wide.navigate(index,count,{wasPressed=function(_,k)return k==key end});assert(n and n>=1 and n<=count,'Grid direction selected an empty slot')
+  end end end
+  assert(Wide.navigate(1,4,{wasPressed=function(_,k)return k=='right'end})==2,'Right did not reach adjacent move')
+  assert(Wide.navigate(2,4,{wasPressed=function(_,k)return k=='left'end})==1,'Left did not reach adjacent move')
+  api.customization.write(game,{battle_move_layout=1})
+  assert(not B.moveGridNavigation({wideLayout=function()return true end}),'List still uses grid navigation')
+  api.customization.write(game,{battle_move_layout=0})
+  local theme=api.gbMenus.theme;local glyph=theme.glyph;local count=0
+  theme.glyph=function(id,x,y,opts)
+   local ax,ay=G.transformPoint(x,y);local bx,by=G.transformPoint(x+1,y);local cx,cy=G.transformPoint(x,y+1)
+   local sx,sy=math.sqrt((bx-ax)^2+(by-ay)^2),math.sqrt((cx-ax)^2+(cy-ay)^2)
+   assert(math.abs(sx-sy)<.0001 and math.abs(sx-math.floor(sx+.5))<.0001,'Text pixels have fractional or uneven scaling')
+   assert(math.abs(ax-math.floor(ax+.5))<.0001 and math.abs(ay-math.floor(ay+.5))<.0001,'Glyph not pixel aligned')
+   count=count+1;return glyph(id,x,y,opts)
   end
+  for layout=0,1 do for phaseIndex,phase in ipairs({'menu','moveSelect'})do
+   api.customization.write(game,{battle_move_layout=layout});battle.phase=phase
+   battle.data.moves.tailwhip.name='TAIL WHIP';battle.data.moves.watergun.name='WATER GUN'
+   local native=G.newCanvas(160,144);G.setCanvas(native);G.origin();G.clear(0,0,0,0);B.drawTextArea(battle)
+   local intermediate=G.newCanvas(1280,832);G.setCanvas(intermediate);G.origin();G.clear(0,0,0,0);G.setColor(1,1,1,1);G.draw(native,17.3,4.7,0,5.13,4.81)
+   assert(count==0,'Text was rasterized before the final window copy')
+   G.setCanvas();G.origin();G.clear(.1,.1,.1,1);G.draw(intermediate,3.4,2.6,0,.91,.87)
+   assert(count>0,'Final window did not draw battle text');count=0
   end end
   assert(not M.current and not api.previewScope,'surface scope leaked')
-  write(version..'-result.txt','PASS native low-resolution command and wrapped move panels replay at final window resolution\n')
+  write(version..'-result.txt','PASS integer square pixels and aligned glyphs after fractional intermediate canvas resizing, grid/list and command/move panels\n')
  end,debug.traceback)
  if not ok then write(version..'-result.txt','FAIL '..tostring(err))end
  love.event.quit(ok and 0 or 1)

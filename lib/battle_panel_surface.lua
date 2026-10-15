@@ -19,7 +19,7 @@ return function(mod)
    local bx,by=G.transformPoint(x+(r.x+r.w-ox)*sx,y+(r.y+r.h-oy)*sy)
    local rect={x=ax,y=ay,w=bx-ax,h=by-ay}
    local target=G.getCanvas()
-   if target and(target:getWidth()<G.getWidth()or target:getHeight()<G.getHeight())then pending[target]={battle=item.battle,rect=rect}
+   if target then pending[target]={battle=item.battle,rect=rect}
    else
     replay=true;G.push('all');G.origin();G.setShader();G.setScissor()
     local ui=mod.exports.battleUi
