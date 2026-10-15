@@ -2,7 +2,7 @@ return function(mod,active)
  local ok,Title=pcall(require,'src.ui.TitleState');if not ok or Title._customAshArtwork then return end
  Title._customAshArtwork=true;local draw=Title.draw;local ash,ashQuad,ashWidth,ashHeight
  Title.draw=function(self,...)
-  if not(active()and tonumber(mod.options:get('introTrainer'))==1 and self.player)then return draw(self,...)end
+  if not(active()and tonumber(mod.options:get('introTrainer')or mod.save:get('introTrainer'))==1 and self.player)then return draw(self,...)end
   local G=love.graphics;local P=require('src.render.PaletteFX');local imageDraw=G.draw;local redraw=P.markUiSpriteRedraw
   if not ash then
    ash=assert(mod.assets:image('assets/title-ash.png'));ash:setFilter('nearest','nearest')

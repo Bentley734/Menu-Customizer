@@ -45,6 +45,11 @@ end
 assert(rootRows and rootRows[1].label=='TEXT','Native options navigation omitted text settings')
 assert(rootRows[1].children[1].children[1].id=='wide_allFonts')
 for _,row in ipairs(rootRows)do assert(row.id~='wide_allFonts'and row.id~='wide_surface_dialogue')end
+if gen==1 then
+ local trainer
+ local function findTrainer(rows)for _,r in ipairs(rows)do if r.id=='wide_introTrainer'then trainer=r end;if type(r.children)=='table'then findTrainer(r.children)end end end
+ findTrainer(rootRows);assert(trainer and trainer.label=='ASH TITLE ARTWORK','Ash toggle missing from actual native settings')
+end
 local called=0
 local state=M.tag({items={{onSelect=function()called=called+1;assert(M.current=='mart')end}},draw=function()assert(M.current=='mart')end},'mart')
 state.items[1].onSelect();state:draw();assert(called==1)

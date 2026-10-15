@@ -701,7 +701,7 @@ return function(mod,catalog)
  parent[#parent+1]=row('introTextShadowColor','INTRO SHADOW COLOR',shadowNames)
  parent[#parent+1]=row('introTextCase','INTRO TEXT CASE',{[0]='ORIGINAL',[1]='SENTENCE CASE',[2]='LOWERCASE'})
  parent[#parent+1]=row('introLogo','TITLE LOGO',{[0]='VANILLA',[1]='HIGH RESOLUTION'})
- parent[#parent+1]=row('introTrainer','TITLE TRAINER',{[0]='VANILLA',[1]='ASH ARTWORK'})
+ parent[#parent+1]=row('introTrainer','ASH TITLE ARTWORK',{[0]='OFF',[1]='ON'})
  for _,r in ipairs(menuPalette.effects.rows('intro',function(ctx,key,n)C.persist(ctx.game or ctx,key,n);return false end,function(title,rows,ctx)pushPage(ctx.game or ctx,title,rows)end))do parent[#parent+1]=r end
  parent[#parent+1]=row('introTheme','INTRO / START SCREEN FONT',{[1]='NATIVE',[2]='EMERALD'})
  parent[#parent+1]=row('introFontSize','INTRO / START TEXT SIZE',{[0]='NORMAL',[1]='LARGE',[2]='EXTRA LARGE'})

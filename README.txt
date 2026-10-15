@@ -1,3 +1,7 @@
+Menu Customizer 3.6.4 - Title artwork
+
+Find ASH TITLE ARTWORK (OFF/ON) under TEXT > FONT AND LAYOUT. The HD title logo now draws only at final resolution, avoiding stepped edges left by its low-resolution underlay. Native logo mode is preserved.
+
 Menu Customizer 3.6.3 - Compact labels
 
 Removed redundant Background, Border and Text wording inside matching submenus. Color and Shadow entries use their submenu context too. Only displayed labels change; settings and callbacks are preserved.

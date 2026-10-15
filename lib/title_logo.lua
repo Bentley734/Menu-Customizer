@@ -17,12 +17,14 @@ return function(mod,active)
     G.draw=function(image,x,y,...)
      if image~=self.logo then return imageDraw(image,x,y,...)end
      y=y-raised
-     if mod.options:get('introLogo')==0 then return imageDraw(image,x,y,...)end
-     G.push('all');G.setShader();G.setColor(1,1,1,1)
-     imageDraw(logo,16,y,0,scale,scale);G.pop()
-     local P=require('src.render.PaletteFX')
-     if P.markTrueColor then P.markTrueColor(16,y,128,h*scale)end
-     if P.markUiSpriteRedraw then P.markUiSpriteRedraw(logo,nil,16,y,{sx=scale,sy=scale})end
+     if tonumber(mod.options:get('introLogo')or mod.save:get('introLogo'))==0 then return imageDraw(image,x,y,...)end
+     -- Queue the HD image only: the pixel-canvas underlay leaves a stepped
+     -- silhouette visible through its antialiased transparent edge.
+     if replay then replay(logo,nil,16,y,{sx=scale,sy=scale})
+     else
+      G.push('all');G.setShader();G.setColor(1,1,1,1)
+      imageDraw(logo,16,y,0,scale,scale);G.pop()
+     end
     end
     local result={pcall(draw,self,...)};G.draw=imageDraw;P.markUiSpriteRedraw=replay
     if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
