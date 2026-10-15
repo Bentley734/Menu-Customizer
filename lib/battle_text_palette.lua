@@ -152,7 +152,7 @@ return function(mod)
   -- IDs stay flat in storage; navigation groups the same colours by hue.
   function M.groups(kind,defaultLabel)
     local names=kind=='shadow' and M.shadowNames or kind=='background' and M.backgroundNames or kind=='menuBackground' and M.menuBackgroundNames or M.names
-    local families={'SPECIAL','NEUTRALS','REDS','ORANGES','YELLOWS','GREENS','CYANS','BLUES','PURPLES','PINKS','BROWNS','ANIMATED','POKEMON','TRIPPY','POKEMON STILL','POKEMON ANIMATED','RED FIRE','BLACK PSYCHEDELIC','BLACK POKEMON'}
+    local families={'SPECIAL','NEUTRALS','REDS','ORANGES','YELLOWS','GREENS','CYANS','BLUES','PURPLES','PINKS','BROWNS','ANIMATED','DESIGNS'}
     local buckets={};for _,name in ipairs(families)do buckets[name]={label=name,ids={}}end
     local count=#names
     for i=0,count-1 do
@@ -161,7 +161,7 @@ return function(mod)
       else
         c=M.color(kind=='menuBackground' and 'background' or kind,kind=='menuBackground' and i-1 or i)
         label=names[i+1]
-        if c.pokemon then family=M.pokemonBackgrounds.byKey[c.pokemon].blackFamily or M.pokemonBackgrounds.byKey[c.pokemon].fire and 'RED FIRE' or M.pokemonBackgrounds.byKey[c.pokemon].scene and (M.pokemonBackgrounds.byKey[c.pokemon].still and 'POKEMON STILL' or 'POKEMON ANIMATED') or M.pokemonBackgrounds.byKey[c.pokemon].clip and 'ANIMATED' or M.pokemonBackgrounds.byKey[c.pokemon].style>=13 and 'TRIPPY' or 'POKEMON'
+        if c.pokemon or c.animation and (kind=='background'or kind=='menuBackground')then family='DESIGNS'
         elseif c.animation then family='ANIMATED'
         else
           local h,v=hue(c);local lo=math.min(c[1],c[2],c[3]);local sat=v>0 and (v-lo)/v or 0
@@ -211,21 +211,9 @@ return function(mod)
       for _,group in ipairs(groups)do
         local g=group
         rows[#rows+1]={id=row.id..':'..g.label,label=g.label,group=true,
-          value=function()return #g.ids..(g.label=='POKEMON'and' BACKGROUNDS'or' COLORS')end,
+          value=function()return #g.ids..(g.label=='DESIGNS'and' DESIGNS'or' COLORS')end,
           selected=function()for _,id in ipairs(g.ids)do if get()==id then return true end end;return false end,
           activate=function(nextCtx)
-            if g.label=='POKEMON' then
-              local designs,lookup={},{}
-              for _,id in ipairs(g.ids)do
-                local c=M.color(kind=='menuBackground' and 'background' or kind,kind=='menuBackground' and id-1 or id)
-                local e=M.pokemonBackgrounds.byKey[c.pokemon]
-                local label=e.design or ({'STARFALL','DREAM CURRENT','MOON GARDEN'})[e.variant or 0] or 'CLASSIC PAPER'
-                if not lookup[label]then lookup[label]={label=label,choices={}};designs[#designs+1]=lookup[label]end
-                lookup[label].choices[#lookup[label].choices+1]={id=id,label=e.pokemonName or e.name}
-              end
-              local picker=M.designPicker({id=row.id..':pokemon',label='BACKGROUND DESIGN'},designs,get,persist,openPage)
-              return picker.activate(nextCtx or ctx)
-            end
             local shades={}
             for _,id in ipairs(g.ids)do
               local n=id

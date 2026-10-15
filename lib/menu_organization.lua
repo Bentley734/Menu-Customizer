@@ -1,11 +1,19 @@
 -- Existing saved IDs remain stable; navigation follows customization type.
 return function(entries,openPage)
  local order={'TEXT','BORDERS','BACKGROUNDS','TRANSITIONS','SELECTORS','POSITION','TRANSPARENCY'}
- local storage,themes,fonts;local intro={};local surfaces={}
+ local storage,themes,fonts;local surfaces={}
  local pages={};for _,name in ipairs(order)do pages[name]={}end
  local function add(r)
-  if (r.id or ''):find('wide_surface_',1,true)==1 then surfaces[#surfaces+1]=r;return end
-  if (r.id or ''):find('intro',1,true)then intro[#intro+1]=r;return end
+  if r.id=='wide_surface_dialogue'then surfaces[#surfaces+1]=r;return end
+  if r.id=='wide_surface_mart'or r.id=='wide_surface_pc'then
+   local prefix=r.id=='wide_surface_mart'and'POKE MART'or'PC'
+   for _,child in ipairs(r.children)do
+    -- Copy the presentation row; the original callbacks and saved keys survive.
+    local row={};for k,v in pairs(child)do row[k]=v end
+    row.label=prefix..' '..child.label;add(row)
+   end
+   return
+  end
   if r.id=='wide_settingsScope'then storage=r;return end
   if r.id=='wide_themeSets'then themes=r;return end
   if r.id=='wide_allFonts'then fonts=r;return end
@@ -47,7 +55,6 @@ return function(entries,openPage)
  for _,name in ipairs(order)do local children=pages[name]
   out[#out+1]={id='wide_page_'..name,label=name,group=true,children=children,value=function()return #children..' OPTIONS'end,activate=function(ctx)return openPage(name,children,ctx)end}
  end
- if #intro>0 then out[#out+1]={id='wide_introSettings',label='INTRO / START SCREEN',group=true,children=intro,activate=function(ctx)return openPage('INTRO / START SCREEN',intro,ctx)end}end
  if themes then out[#out+1]=themes end
  if storage then out[#out+1]=storage end
  return out

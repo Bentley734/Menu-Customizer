@@ -1,3 +1,7 @@
+Menu Customizer 3.6.1 - Settings navigation
+
+Poke Mart, PC and Intro/Start options now live in the existing customization categories. Decorative backgrounds share one DESIGNS list; animated borders share one ANIMATED BORDERS list. Saved settings and design IDs are unchanged.
+
 Menu Customizer 3.6.0 - Black artwork collection
 
 20 new animated borders and 20 new animated backgrounds: ten psychedelic and ten Pokemon designs in each set. Mostly black with sparse muted accents. Available in BLACK PSYCHEDELIC and BLACK POKEMON groups, including ALL BORDERS and ALL BACKGROUNDS. Saved design IDs are preserved.

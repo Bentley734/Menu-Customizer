@@ -28,7 +28,7 @@ assert(bucket.pcCustom==1 and bucket.pcTheme~=nil and bucket.martBackgroundColor
 find(3,'dialogueJustify').step(game,1)
 assert(bucket.dialogueJustify==2 and bucket.pcTheme~=nil)
 local organized=assert(loadfile(sourceRoot..'/lib/menu_organization.lua'))()(rows,function()end)
-assert(organized[1].id=='wide_surface_mart'and organized[2].id=='wide_surface_pc'and organized[3].id=='wide_surface_dialogue')
+assert(organized[1].id=='wide_surface_dialogue')
 local gen=require('src.core.GameVersion').generation()
 local rootRows
 if gen==3 then
@@ -42,7 +42,7 @@ else
  for _,row in ipairs(root)do if row.id=='wide_menus'then row.activate(game)end end
  rootRows=game.stack:top().rows
 end
-assert(rootRows and rootRows[1].label=='ALL FONTS'and rootRows[2].label=='POKE MART'and rootRows[3].label=='PC MENUS'and rootRows[4].label=='DIALOGUE BOXES','Native options navigation omitted surface pages')
+assert(rootRows and rootRows[1].label=='ALL FONTS'and rootRows[2].label=='DIALOGUE BOXES','Native options navigation omitted surface pages')
 local called=0
 local state=M.tag({items={{onSelect=function()called=called+1;assert(M.current=='mart')end}},draw=function()assert(M.current=='mart')end},'mart')
 state.items[1].onSelect();state:draw();assert(called==1)

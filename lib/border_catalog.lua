@@ -215,9 +215,8 @@ function C.selection(raw,format)
 end
 function C.groups()
  local groups,lookup={},{}
- local families={'VOLT TRAILS','EMBER FLOW','TIDAL WAVES','LEAF DANCE','PSYCHIC EYES','POKEBALL ORBITS'}
  for i,e in ipairs(C.entries)do if not e.hidden then
-  local label=e.blackFamily or e.redFire and 'RED FIRE' or e.redPsy and 'RED PSYCHEDELIC' or e.pokemonMotif and families[(e.pokemonMotif-1)%6+1] or e.animation and 'OTHER ANIMATED DESIGNS' or e.path and e.path:find('pokemon_',1,true) and 'CLASSIC POKEMON FRAMES' or 'GAME BORDERS'
+  local label=e.animation and 'ANIMATED BORDERS' or e.path and e.path:find('pokemon_',1,true) and 'CLASSIC POKEMON FRAMES' or 'GAME BORDERS'
   if not lookup[label]then lookup[label]={label=label,choices={}};groups[#groups+1]=lookup[label]end
   lookup[label].choices[#lookup[label].choices+1]={id=i,label=e.pokemonMotif and e.label or e.pokemonName or e.label}
  end end
