@@ -224,6 +224,7 @@ return function(mod)
     end end
     if mod.exports.battleCommands then for _,row in ipairs(mod.exports.battleCommands.rows(openPage))do out[#out+1]=row end end
     if mod.exports.battlePrompt then for _,row in ipairs(mod.exports.battlePrompt.rows(openPage))do out[#out+1]=row end end
+    if mod.exports.moveLearningProfile and mod.generation==1 then for _,row in ipairs(mod.exports.moveLearningProfile.rows(openPage))do out[#out+1]=row end end
     if mod.exports.moveSelectProfile then for _,row in ipairs(mod.exports.moveSelectProfile.rows(openPage))do out[#out+1]=row end end
     return out
   end

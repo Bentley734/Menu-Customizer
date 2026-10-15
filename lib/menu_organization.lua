@@ -67,7 +67,8 @@ return function(entries,openPage)
   local key=(row.id or ''):gsub('^wide_',''):gsub('^surface_',''):lower();local group
   if key=='textcase'or key:find('^all')or key=='controlslegend'then layout[#layout+1]=row
   else
-   if key:find('moveselect',1,true)then group='MOVE SELECT'
+   if key:find('movelearning',1,true)then group='BATTLE'
+   elseif key:find('moveselect',1,true)then group='MOVE SELECT'
    elseif key:find('mods',1,true)then group='MOD MENUS'
    elseif key:find('loadreport',1,true)then group='LOAD REPORT'
    elseif key:find('intro',1,true)then group='INTRO / TITLE'
@@ -82,6 +83,7 @@ return function(entries,openPage)
    elseif key:find('summary',1,true)then group='POKEMON SUMMARY'
    elseif key:find('pokedex',1,true)then group='POKEDEX'
    elseif key:find('trainer',1,true)then group='TRAINER CARD'
+   elseif key:find('movelearning',1,true)then group='BATTLE'
    elseif key:find('moveselect',1,true)then group='MOVE SELECT'
    elseif key:find('mods',1,true)then group='MOD MENUS'
    elseif key:find('mart',1,true)then group='POKE MART'
@@ -120,6 +122,7 @@ return function(entries,openPage)
   for _,row in ipairs(pages[category])do
    local key=(row.id or ''):lower();local group
    if key:find('positionpreview',1,true)or key:find('backgrounddim',1,true)or key:find('all',1,true)then group='ALL MENUS'
+   elseif key:find('movelearning',1,true)then group='BATTLE'
    elseif key:find('moveselect',1,true)then group='MOVE SELECT'
    elseif key:find('mods',1,true)then group='MOD MENUS'
    elseif key:find('mart',1,true)then group='POKE MART'
@@ -146,18 +149,19 @@ return function(entries,openPage)
  end
  -- Battle settings stay together inside each existing customization category.
  local function battleGroups(rows,category)
-  local rest,battle,moves,prompts,commands={},{},{},{},{}
+  local rest,battle,moves,prompts,commands,learning={},{},{},{},{},{}
   local expanded={}
   for _,row in ipairs(rows)do if row.label=='BATTLE'and row.children then for _,child in ipairs(row.children)do expanded[#expanded+1]=child end else expanded[#expanded+1]=row end end
   for _,row in ipairs(expanded)do
    local key=(row.id or''):lower()
    local isMove=key:find('moveselect',1,true)or row.label=='MOVE SELECT'
-   local dest=key:find('battlecommands',1,true)and commands or key:find('battleprompt',1,true)and prompts or isMove and moves or(key:find('battle',1,true)or key:find('name_',1,true))and battle or rest
+   local dest=key:find('movelearning',1,true)and learning or key:find('battlecommands',1,true)and commands or key:find('battleprompt',1,true)and prompts or isMove and moves or(key:find('battle',1,true)or key:find('name_',1,true))and battle or rest
    if (row.label=='BATTLE'or row.label=='MOVE SELECT')and row.children then for _,child in ipairs(row.children)do dest[#dest+1]=child end else dest[#dest+1]=row end
   end
   local function group(label,children)
    return{id='group_'..category..'_'..label,label=label,children=children,group=true,value=function()return #children..' OPTIONS'end,activate=function(ctx)return openPage(label,children,ctx)end}
   end
+  if #learning>0 then battle[#battle+1]=group('MOVE LEARNING',learning)end
   if #commands>0 then battle[#battle+1]=group('COMMAND OPTIONS',commands)end
   if #prompts>0 then battle[#battle+1]=group('COMMAND PROMPT',prompts)end
   if #moves>0 then battle[#battle+1]=group('MOVE SELECT',moves)end

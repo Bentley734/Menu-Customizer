@@ -43,6 +43,7 @@ return function(mod,palette,active)
     G.push('all')
     local ok,err=pcall(function()
      G.setShader();G.setColor(1,1,1,1)
+     if exports.battleNameSurface then exports.battleNameSurface.occlude(owner.tx*8,owner.ty*8,owner.tw*8,owner.th*8)end
      current.borders.draw(owner.tx,owner.ty,owner.tw,owner.th,'option')
      if state.mod.generation==1 then
       current.dialogueRects=current.dialogueRects or{}

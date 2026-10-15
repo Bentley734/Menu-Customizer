@@ -1,3 +1,11 @@
+# Menu Customizer 3.33.0 — Move-learning customization and choice layering
+
+Keep crisp Gen 1 battle names behind overlapping child windows, including Yes/No prompts and separate late HUD passes. Preserve their integer glyph rendering and faint/switch visibility rules.
+
+Add a Gen 1 MOVE LEARNING profile for learning dialogue, confirmation choices, and the forget-move list. Give it independent font, casing, alignment, text/shadow colors, text effects, border, background, selector, and selector color. Group these controls under Battle → Move Learning in their matching existing customization categories; casing stays in Decapitalization with the other casing controls. Settings inherit the current appearance until customized, and USE CURRENT restores inheritance.
+
+GPU checks cover choice occlusion through intermediate canvases and late HUD draws, child-dialogue tagging, profile isolation/reset, forget-list rendering, and submenu ownership. Existing battle glyph, level-up, and Gen 1–3 startup/profile regressions passed. Restart after updating.
+
 # Menu Customizer 3.32.1 — Sharp level-up dialogue
 
 Keep the battle dialogue renderer active beneath the level-up stat window and draw dialogue at the final window resolution with integer, square pixel scaling. Continue yielding to move-learning and other child dialogue screens.

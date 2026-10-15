@@ -6,6 +6,7 @@ return function(mod)
  {'party','PARTY'},{'bag','BAG'},{'summary','POKEMON SUMMARY'},{'pokedex','POKEDEX'},{'trainerCard','TRAINER CARD'},{'other','OTHER MENUS'},{'loadReport','LOAD REPORT'},{'mods','MOD MENUS'}}
  function M.currentScope()
   local e=mod.exports;local c=e.gbMenus
+  if e.moveLearningProfile and e.moveLearningProfile.active then return'moveLearning'end
   if c and c.introScope then return'intro'end
   if c and c.summaryScope then return'saveSummary'end
   if e.battleNameScope then return'battleName'end
