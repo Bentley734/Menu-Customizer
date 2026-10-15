@@ -83,21 +83,34 @@ return function(mod)
   for _,saved in ipairs(originals)do saved[1][saved[2]]=saved[3]end
   if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
  end
- local modes={'ORIGINAL','SENTENCE CASE','LOWERCASE'}
+ local lowerAccents={['Á']='á',['É']='é',['Í']='í',['Ó']='ó',['Ú']='ú',['Ü']='ü',['Ñ']='ñ'}
+ local upperAccents={};for upper,lower in pairs(lowerAccents)do upperAccents[lower]=upper end
+ local modes={'ORIGINAL','SENTENCE CASE','LOWERCASE','TITLE CASE'}
  function M.text(text)
   if type(text)~='string'then return text end
   local C=mod.exports.gbMenus
   local mode=tonumber(mod.options:get(C and C.introScope and 'introTextCase'or 'textCase'))or 0
   if mode==0 then return text end
   -- Leave encoded control tags untouched; never rewrite game data.
-  local out={};local at=1;local first=true
+  local out={};local at=1;local first=true;local inWord=false
   while at<=#text do
    local a,b=text:find('<[^>]*>',at);local c,d=text:find('{[^}]*}',at)
    if c and(not a or c<a)then a,b=c,d end
    local chunk=text:sub(at,a and a-1 or #text):lower()
+   for upper,lower in pairs(lowerAccents)do chunk=chunk:gsub(upper,lower)end
    if mode==1 then
     if first then chunk=chunk:gsub('(%a)',string.upper,1);if chunk:find('%a')then first=false end end
     chunk=chunk:gsub('([%.%!%?]%s+)(%a)',function(p,c)return p..c:upper()end)
+   end
+   if mode==3 then
+    chunk=chunk:gsub('[%z\1-\127\194-\244][\128-\191]*',function(c)
+     -- UTF-8 bytes stay within the word (e.g. Pokemon's accented e).
+     if c:match('%w')or c:byte()>=128 then
+      local result=not inWord and (upperAccents[c]or c:upper())or c;inWord=true;return result
+     end
+     if c~="'"then inWord=false end
+     return c
+    end)
    end
    out[#out+1]=chunk;if not a then break end;out[#out+1]=text:sub(a,b);at=b+1
   end
@@ -127,7 +140,7 @@ return function(mod)
  end
  function M.rows(openPage)
   local out={{id='wide_textCase',label='TEXT DECAPITALIZATION',value=function()return modes[(tonumber(mod.options:get('textCase'))or 0)+1]end,
-   step=function(ctx,dir)M.write(ctx,{textCase=((tonumber(mod.options:get('textCase'))or 0)+(dir or 1))%3})end}}
+   step=function(ctx,dir)M.write(ctx,{textCase=((tonumber(mod.options:get('textCase'))or 0)+(dir or 1))%#modes})end}}
   local themes={
    {'MIDNIGHT AURORA','NAVY','INFINITE STAR GATES','NAVY','WHITE','CYAN'},
    {'OCEAN GLASS','NAVY','NEON CHRYSALIS','NAVY','WHITE','MINT'},

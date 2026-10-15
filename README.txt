@@ -1,3 +1,7 @@
+Menu Customizer 3.6.5 - Title Case
+
+Adds TITLE CASE after LOWERCASE in decapitalization, Intro text case and ALL FONTS. Capitalizes each word, preserves control tags and apostrophes, and supports common accented Latin letters. Existing mode IDs and settings remain unchanged.
+
 Menu Customizer 3.6.4 - Title artwork
 
 Find ASH TITLE ARTWORK (OFF/ON) under TEXT > FONT AND LAYOUT. The HD title logo now draws only at final resolution, avoiding stepped edges left by its low-resolution underlay. Native logo mode is preserved.

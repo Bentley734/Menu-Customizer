@@ -17,7 +17,7 @@ return function(mod,catalog)
   backgroundDim={0,0,70,10},controlsLegend={2,1,3,1},menuTransition={3,1,#Transitions.names,1},positionPreview={1,0,1,1}}
 
  for _,scope in ipairs({'start','battle','option','save','other','dialogue','pokedex'})do specs[scope..'BorderChoice']={0,0,#catalog.choices,1}end
- specs.introTextColor={0,0,#menuPalette.names-1,1};specs.introTextShadowColor={0,0,#menuPalette.shadowNames-1,1};specs.introTextCase={0,0,2,1};specs.introLogo={1,0,1,1};specs.introTrainer={0,0,1,1}
+ specs.introTextColor={0,0,#menuPalette.names-1,1};specs.introTextShadowColor={0,0,#menuPalette.shadowNames-1,1};specs.introTextCase={0,0,3,1};specs.introLogo={1,0,1,1};specs.introTrainer={0,0,1,1}
  specs.introTheme={2,1,2,1};specs.introFontSize={0,0,2,1}
  specs.allShadowOpacity={100,0,100,5}
  specs.allTextColor={0,0,#menuPalette.names-1,1};specs.allTextShadowColor={0,0,#menuPalette.shadowNames-1,1}
@@ -699,7 +699,7 @@ return function(mod,catalog)
  end
  parent[#parent+1]=row('introTextColor','INTRO TEXT COLOR',selectorNames)
  parent[#parent+1]=row('introTextShadowColor','INTRO SHADOW COLOR',shadowNames)
- parent[#parent+1]=row('introTextCase','INTRO TEXT CASE',{[0]='ORIGINAL',[1]='SENTENCE CASE',[2]='LOWERCASE'})
+ parent[#parent+1]=row('introTextCase','INTRO TEXT CASE',{[0]='ORIGINAL',[1]='SENTENCE CASE',[2]='LOWERCASE',[3]='TITLE CASE'})
  parent[#parent+1]=row('introLogo','TITLE LOGO',{[0]='VANILLA',[1]='HIGH RESOLUTION'})
  parent[#parent+1]=row('introTrainer','ASH TITLE ARTWORK',{[0]='OFF',[1]='ON'})
  for _,r in ipairs(menuPalette.effects.rows('intro',function(ctx,key,n)C.persist(ctx.game or ctx,key,n);return false end,function(title,rows,ctx)pushPage(ctx.game or ctx,title,rows)end))do parent[#parent+1]=r end
