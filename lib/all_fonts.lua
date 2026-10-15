@@ -67,6 +67,7 @@ return function(mod)
   if not out[1]then error(out[2],0)end
   return unpack(out,2)
  end
+ function M.withFrame(group,fn,...)return within(fn,group,nil,...)end
  function M.install()
   local F=require(mod.generation==3 and'src.ui.game3.frlg_font'or'src.render.Font')
   local draw=F.draw
@@ -74,10 +75,10 @@ return function(mod)
    local inputX=x
    local gb=mod.exports.gbMenus
    local ownLayout=gb and (gb.drawingStart or gb.drawingOptions or gb.drawingParty or gb.summaryScope or gb.drawingDex)
-   if frames and not printing and not ownLayout and type(x)=='number'and type(y)=='number'and not tostring(text):match('^[%d%s%p]+$')then
+   if frames and not printing and not ownLayout and type(x)=='number'and type(y)=='number'then
     local box
     for _,r in ipairs(frames)do if x>=r.x and y>=r.y and x<r.x+r.w and y<r.y+r.h and(not box or r.w<box.w)then box=r end end
-    if box and x<=box.x+(scope=='mods'and 32 or 24)then
+    if box and x<=box.x+(scope=='mods'and 32 or 24)and not tostring(text):match('^[%d%s%p]+$')then
      local left,right,ds=8,8,false
      if mod.exports.borders then left,right,ds=mod.exports.borders.insets(nil,box.w,box.h)end
      if ds then x=math.max(x,box.x+left+8)end
@@ -86,6 +87,15 @@ return function(mod)
      if type(opts)=='table'and opts.maxWidth then width=math.min(width,opts.maxWidth)end
      local measure=F.measure or F.width;local ink=measure(text,opts)
      if ink and ink<=width then x=M.align(x,width,ink,scope)end
+    end
+   end
+   if frames and not printing and not ownLayout and mod.exports.borders then
+    for i=#frames,1,-1 do local b=frames[i]
+     if y>=b.y and y<b.y+b.h and x>=b.x and x<b.x+b.w then
+      local il,ir,ds=mod.exports.borders.insets(nil,b.w,b.h)
+      if ds then local ink=(F.measure or F.width)(text,opts)or 0;x=math.max(b.x+il,math.min(x,b.x+b.w-ir-ink))end
+      break
+     end
     end
    end
    if anchors and not printing then anchors[tostring(inputX)..':'..tostring(y)]=x end

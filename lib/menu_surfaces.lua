@@ -34,7 +34,9 @@ return function(mod)
   if mod.generation==3 and mod.exports.selectorPalette then
    G.rectangle=function(...)return mod.exports.selectorPalette.tintFill(rect,...)end
   end
-  local out={pcall(fn,...)}
+  local fonts=mod.exports.allFonts
+  local out
+  if scope=='mods'and fonts and fonts.withFrame then out={pcall(fonts.withFrame,scope,fn,...)}else out={pcall(fn,...)}end
   G.rectangle=rect
   M.current=prior;mod.exports.menuPaperScope=paper;mod.exports.previewScope=preview
   if not out[1]then error(out[2],0)end;return unpack(out,2)

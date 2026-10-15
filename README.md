@@ -1,3 +1,7 @@
+Menu Customizer 3.24.2 - Inner selector and mod value margins
+
+Reserve space inside Gen IV borders for customization-menu selectors. Bound mod-menu values, including numbers, by the frame interior so Tool Music values clear the right side.
+
 Menu Customizer 3.24.1 - Mod Manager selector alignment
 
 Align mod entry labels and move their selector beside the selected label, including center/right justification.

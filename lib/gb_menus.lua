@@ -338,7 +338,7 @@ return function(mod,catalog)
    local left=start.left+insetLeft
    local right=start.left+start.width-insetRight
    local reserve=selector==1 or selector==3 or selector>=5 and selector<=12
-   local minimum=ds and left or math.max(start.labelX,left+(reserve and 10 or selector==4 and 4 or 0))
+   local minimum=ds and(left+(start.options and reserve and 10 or 0))or math.max(start.labelX,left+(reserve and 10 or selector==4 and 4 or 0))
    local maximum=right-(selector==4 and 4 or 0)
    if not start.inlineValues then text=windowText(text,math.max(1,maximum-minimum),n==start.index) end
    local shown=Font.width(text)
@@ -348,7 +348,7 @@ return function(mod,catalog)
    local result
    if current.mod.exports.jumpWave.enabled()and n==start.index then current.mod.exports.jumpWave.select(start.owner or start.items,start.index,text);result=current.mod.exports.jumpWave.draw(render,Font.width,text,0,0,...)else result=render(text,0,0,...)end
    G.pop()
-   if n==start.index then start.selection={x=textX,y=y,width=shown,selector=selector,panelX=ds and start.left+4 or nil} end
+   if n==start.index then start.selection={x=textX,y=y,width=shown,selector=selector,panelX=ds and not start.options and start.left+4 or nil} end
    return result
   end
   Font.draw=function(text,x,y,...)
