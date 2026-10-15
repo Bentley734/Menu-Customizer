@@ -60,9 +60,9 @@ for generation=1,3 do
   check(names[1]=='FIGHT'and names[2]==(generation<3 and 'POKéMON'or'BAG')and names[3]==(generation<3 and 'BAG'or'POKéMON')and names[4]=='RUN','command labels match native generation action order')
  end
 end
--- Large/custom selectors retain their complete 16-pixel footprint.
+-- Custom selectors retain their complete eight-pixel artwork.
 F.drawGlyph=function(id,x,y,opts)
- glyphs[#glyphs+1]={s=id,x=t.x+x*t.sx,y=t.y+y*t.sy,sx=t.sx,sy=t.sy,width=16*t.sx,height=16*t.sy}
+ glyphs[#glyphs+1]={s=id,x=t.x+x*t.sx,y=t.y+y*t.sy,sx=t.sx,sy=t.sy,width=8*t.sx,height=16*t.sy}
 end
 for _,factor in ipairs({1,1.5,2})do
  custom.fontSizing={factor=function()return factor end,unscaled=function(fn)return fn()end}

@@ -11,7 +11,7 @@ return function(G)
   if dx<=0 then dx=1 end;if dy<=0 then dy=1 end
   local normal=math.min(rect.w*dx/math.max(1,width),rect.h*dy/height)
   local p=math.min(normal*factor,rect.w*dx/math.max(1,width),rect.h*dy/(height>18 and 32 or 16))
-  if p>=1 then p=math.floor(p)end
+  p=math.max(1,math.floor(p))
   return p/dx,p/dy,dx,dy
  end
  local function at(rect,sx,sy,dx,dy,x,y,fn)
@@ -22,24 +22,24 @@ return function(G)
  end
  local function label(F,s,rect,sx,sy,dx,dy,font,colors,cursor,centerName)
   local width=F.measure(s,{font=font})or 0
-  local reserve=20*sx
+  local reserve=12*sx
   local x=rect.x+reserve
   if centerName then x=rect.x+reserve+(rect.w-reserve-width*sx)/2 end
   local y=rect.y+(rect.h-16*sy)/2
   at(rect,sx,sy,dx,dy,x,y,function()
    F.draw(s,0,0,{font=font,colors=colors})
-   if cursor then F.drawGlyph(F.CHAR_SELECTOR_ARROW,-18,0,{colors=colors})end
+   if cursor then F.drawGlyph(F.CHAR_SELECTOR_ARROW,-10,0,{colors=colors})end
   end)
  end
  local function commands(F,battle,generation,rect,custom,colors,viewport)
   custom.frames('none',rect,viewport)
   local pane=inner(rect,0,rect.w)
-  local promptWidth=pane.w*.40
+  local promptWidth=pane.w*.36
   local commandWidth=pane.w-promptWidth
   local commands=generation<3 and {'FIGHT','POKéMON','BAG','RUN'}or{'FIGHT','BAG','POKéMON','RUN'}
   local width=0;for _,s in ipairs(commands)do width=math.max(width,F.measure(s,{font='normal'})or 0)end
   local cell={w=commandWidth/2,h=pane.h/2}
-  local sx,sy,dx,dy=scale(cell,width+22,18,viewport)
+  local sx,sy,dx,dy=scale(cell,width+14,18,viewport)
   for i,s in ipairs(commands)do
    local c={x=pane.x+promptWidth+(i-1)%2*cell.w,y=pane.y+math.floor((i-1)/2)*cell.h,w=cell.w,h=cell.h}
    label(F,s,c,sx,sy,dx,dy,'normal',colors,i==(battle.menuIndex or 1))
@@ -48,11 +48,13 @@ return function(G)
   local mon=generation==2 and battle:activeMon('player')or p and p.mon
   local name=p and p.name or mon and(mon.nickname or mon.name)or 'POKéMON'
   local first,last='What will',name..' do?'
-  local left={x=pane.x,y=pane.y,w=promptWidth-4*sx,h=pane.h}
-  local px,py,pdx,pdy=scale(left,math.max(F.measure(first)or 0,F.measure(last)or 0)+8,36,viewport)
+  local promptFont=pane.w<600 and 'narrow'or'normal'
+  if pane.w<600 then first,last=name,'What now?'end
+  local left={x=pane.x,y=pane.y,w=promptWidth,h=pane.h}
+  local px,py,pdx,pdy=scale(left,math.max(F.measure(first,{font=promptFont})or 0,F.measure(last,{font=promptFont})or 0)+8,36,viewport)
   local x=left.x+4*px;local y=left.y+(left.h-32*py)/2
   at(left,px,py,pdx,pdy,x,y,function()
-   F.draw(first,0,0,{colors=colors});F.draw(last,0,16,{colors=colors})
+   F.draw(first,0,0,{font=promptFont,colors=colors});F.draw(last,0,16,{font=promptFont,colors=colors})
   end)
   return true
  end
@@ -67,7 +69,7 @@ return function(G)
    names[i]=def and def.name or '-'
    width=math.max(width,F.measure(names[i],{font='narrow'})or 0)
   end
-  local sx,sy,dx,dy=scale(cell,width+24,18,viewport)
+  local sx,sy,dx,dy=scale(cell,width+14,18,viewport)
   for i,s in ipairs(names)do
    local c={x=pane.x+(i-1)%2*cell.w,y=pane.y+math.floor((i-1)/2)*cell.h,w=cell.w,h=cell.h}
    label(F,s,c,sx,sy,dx,dy,'narrow',colors(),i==(battle.moveIndex or 1)or i==battle.moveSwapIndex,true)

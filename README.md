@@ -1,3 +1,7 @@
+# Menu Customizer 3.3.5 — Small-window battle readability
+
+Names retain readable integer pixels, fit inside the window and reserve clearance above level/status labels. Compact command layouts use the actual eight-pixel selector footprint and a narrow prompt to avoid unnecessary shrinking. Requires KIM1025 1.7.45 for cooperative HUD placement. Validated with 1,440 layout checks and 186,895 real KIM GPU pixel/clearance checks across small, large and high-DPI windows, plus dual-runtime regressions and eleven-game startup.
+
 # Menu Customizer 3.3.4 — Consistent dex number marker
 
 The summary No. marker and special dot now use the selected menu font alongside the Pokédex number. Native-font mode retains its original artwork. Focused LuaJIT/Lua 5.3 tests and Red/Gold combined KIM startup pass.
