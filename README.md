@@ -1,3 +1,7 @@
+Menu Customizer 3.24.1 - Mod Manager selector alignment
+
+Align mod entry labels and move their selector beside the selected label, including center/right justification.
+
 Menu Customizer 3.24.0 - Independent Mod Menus profile
 
 Add a shared, independent Mod Menus profile for the Mods manager and child mod settings menus. Controls live in existing Text/Font and Layout, Decapitalization, Colors, Shadows, Borders, Backgrounds and Selectors pages. Includes text effects and global control/theme integration.

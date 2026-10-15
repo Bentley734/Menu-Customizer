@@ -57,7 +57,7 @@ return function(mod)
  end
  local function enabled()
   local surfaces=mod.exports.menuSurfaces
-  return surfaces and surfaces.enabled()and (mod.options:get('allFontAlign')~=nil or mod.options:get('loadReportJustify')~=nil or mod.exports.borders and select(3,mod.exports.borders.insets()))
+  return surfaces and surfaces.enabled()and (surfaces.current=='mods'or mod.options:get('allFontAlign')~=nil or mod.options:get('loadReportJustify')~=nil or mod.exports.borders and select(3,mod.exports.borders.insets()))
  end
  local frames,scope,printing,anchors,jumpLabel
  local function within(fn,group,initial,...)
@@ -77,7 +77,7 @@ return function(mod)
    if frames and not printing and not ownLayout and type(x)=='number'and type(y)=='number'and not tostring(text):match('^[%d%s%p]+$')then
     local box
     for _,r in ipairs(frames)do if x>=r.x and y>=r.y and x<r.x+r.w and y<r.y+r.h and(not box or r.w<box.w)then box=r end end
-    if box and x<=box.x+24 then
+    if box and x<=box.x+(scope=='mods'and 32 or 24)then
      local left,right,ds=8,8,false
      if mod.exports.borders then left,right,ds=mod.exports.borders.insets(nil,box.w,box.h)end
      if ds then x=math.max(x,box.x+left+8)end
@@ -99,7 +99,7 @@ return function(mod)
   local marker=F[markerKey]
   if marker then F[markerKey]=function(id,x,y,...)
    if anchors and (id==0xED or id==0xEC or mod.generation==3 and id==F.CHAR_SELECTOR_ARROW)then
-    local aligned=anchors[tostring(x+8)..':'..tostring(y)]
+    local aligned=scope=='mods'and x==8 and anchors['32:'..tostring(y)]or anchors[tostring(x+8)..':'..tostring(y)]
     if aligned then x=aligned-8 end
    end
    return marker(id,x,y,...)
