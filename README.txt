@@ -1,3 +1,7 @@
+Menu Customizer 3.23.1 - Gen IV Start arrow offset
+
+Move the Start menu arrow one pixel farther left when using a Gen IV frame.
+
 Menu Customizer 3.23.0 - Colored party balls and readable move details
 
 Color both Gen 1 party rows red/white, with distinct fainted/status indicators and a configurable empty-slot color under Text / Colors. Move details use two lines each for PP and type with larger normal font.

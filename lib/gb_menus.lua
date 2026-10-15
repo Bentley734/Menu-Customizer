@@ -426,7 +426,7 @@ return function(mod,catalog)
    if sel.selector==13 then
     G.setColor(.25,.65,1,current.setting('selectionHighlight')/100);G.rectangle('fill',((start.left or 0)+8-sel.x)*rx,-((current.theme.enabled() and current.theme.gbScale()==1) and 7 or 1),math.max(1,(start.width or 160)-16)*rx,(start.pitch or 16)*ry)
    elseif sel.selector>=5 then C.selectors.draw(sel.selector,iconX,y)
-   elseif sel.selector==3 then code(0xED,iconX,y)
+   elseif sel.selector==3 then code(0xED,iconX-(sel.panelX and not start.options and 1 or 0),y)
    elseif sel.selector==2 then
     G.setColor(1,1,1,1);G.rectangle('fill',x-1,y+7,width+2,3)
     current.palette.effects.paint(current.palette.color('text',current.setting('selectorColor')),'menu',function()G.rectangle('fill',x,y+8,width,1)end)
