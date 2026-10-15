@@ -1,3 +1,7 @@
+Menu Customizer 3.6.3 - Compact labels
+
+Removed redundant Background, Border and Text wording inside matching submenus. Color and Shadow entries use their submenu context too. Only displayed labels change; settings and callbacks are preserved.
+
 Menu Customizer 3.6.2 - Dialogue and font navigation
 
 Dialogue controls now live in the existing Text, Borders and Backgrounds submenus. ALL FONTS is under TEXT > FONT AND LAYOUT. Saved settings are preserved.

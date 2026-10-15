@@ -1,6 +1,15 @@
 -- Existing saved IDs remain stable; navigation follows customization type.
 return function(entries,openPage)
  local order={'TEXT','BORDERS','BACKGROUNDS','TRANSITIONS','SELECTORS','POSITION','TRANSPARENCY'}
+ -- Shorten only presentation copies: callbacks, keys and source rows stay intact.
+ local function compact(row,words)
+  local copy={};for k,v in pairs(row)do copy[k]=v end
+  local label=row.label or ''
+  for _,word in ipairs(words)do label=label:gsub('%f[%a]'..word..'%f[%A]','')end
+  label=label:gsub('%s+',' '):match('^%s*(.-)%s*$')
+  copy.label=label~=''and label or row.label
+  return copy
+ end
  local storage,themes,fonts
  local pages={};for _,name in ipairs(order)do pages[name]={}end
  local function add(r)
@@ -26,6 +35,8 @@ return function(entries,openPage)
   elseif key:find('Opacity',1,true)or key:find(':opacity',1,true)or key:find('_transparency',1,true)or key:find('backgroundDim',1,true)then dest='TRANSPARENCY'
   elseif key:find('Position',1,true)or key:find('Offset',1,true)or key:find('Scale',1,true)or key:find('Width',1,true)or key:find('Height',1,true)or key:find('positionPreview',1,true)or key:find('menu_align',1,true)or key:find('menu_stretch',1,true)then dest='POSITION'
   else dest='TEXT'end
+  if dest=='BACKGROUNDS'then r=compact(r,{'BACKGROUNDS','BACKGROUND'})
+  elseif dest=='BORDERS'then r=compact(r,{'BORDERS','BORDER'})end
   pages[dest][#pages[dest]+1]=r
  end
  for _,r in ipairs(entries)do add(r)end
@@ -38,7 +49,10 @@ return function(entries,openPage)
   elseif key:find('shadow',1,true)then category='SHADOWS'
   elseif key:find('color',1,true)then category='COLORS'
   else category='FONT AND LAYOUT'end
-  local list=textPages[category];list[#list+1]=row
+  local words={'TEXT'}
+  if category=='COLORS'then words={'TEXT','COLOR','COLORS'}
+  elseif category=='SHADOWS'then words={'TEXT','SHADOW','SHADOWS','COLOR','COLORS'}end
+  local list=textPages[category];list[#list+1]=compact(row,words)
  end
  if fonts then table.insert(textPages['FONT AND LAYOUT'],1,fonts)end
  pages.TEXT={}

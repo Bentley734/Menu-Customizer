@@ -50,4 +50,17 @@ for _,kind in ipairs({'background','menuBackground'})do
  for _,r in ipairs(opened)do assert(not r.group);if r.selected()then selectedRow=r end end
  assert(selectedRow);selectedRow.activate({});assert(saved==selected)
 end
+-- Contextual labels omit redundant words without altering raw rows.
+local examples={{id='wide_startMenuBackgroundColor',label='START BACKGROUND'},
+ {id='wide_allBorderChoice',label='ALL BORDERS'},
+ {id='wide_menuTextColor',label='MENU TEXT COLOR'},
+ {id='wide_menuTextShadowColor',label='MENU TEXT SHADOW'},
+ {id='wide_introFontSize',label='INTRO / START TEXT SIZE'}}
+local clean=organize(examples,open);local labels={}
+local function collect(list)for _,r in ipairs(list)do labels[r.id]=r.label;if r.children then collect(r.children)end end end
+collect(clean)
+assert(labels.wide_startMenuBackgroundColor=='START'and labels.wide_allBorderChoice=='ALL')
+assert(labels.wide_menuTextColor=='MENU'and labels.wide_menuTextShadowColor=='MENU')
+assert(labels.wide_introFontSize=='INTRO / START SIZE')
+assert(examples[1].label=='START BACKGROUND','Source labels mutated')
 print('PASS categorized surface/intro settings, consolidated complete design lists and stable selection callbacks')
