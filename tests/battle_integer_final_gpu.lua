@@ -93,6 +93,9 @@ function love.load()
    G.setCanvas();G.origin();G.clear(.1,.1,.1,1);G.draw(intermediate,3.4,2.6,0,.91,.87)
    assert(count>0,'Final window did not draw battle text');count=0
   end end
+  battle.game=game;game.stack.states={battle,{screenId='MoveLearnMenu'}}
+  assert(not api.battleUi.drawBottom(battle,{x=0,y=0,w=800,h=200},{}),'Old level-up dialogue overpainted move-learning screen')
+  game.stack.states={}
   assert(properM,'Title-case Pokemon m was not exercised')
   assert(not M.current and not api.previewScope,'surface scope leaked')
   write(version..'-result.txt','PASS integer square pixels and aligned glyphs after fractional intermediate canvas resizing, grid/list and command/move panels\n')

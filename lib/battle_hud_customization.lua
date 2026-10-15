@@ -16,6 +16,14 @@ return function(mod)
     P.picker(row,kind,function()return value()or 0 end,write,openPage);rows[#rows+1]=row
    end
   end
+  for _,spec in ipairs({{'Outline','HP BAR OUTLINE'},{'Fill','HP BAR FILL'}})do
+   local key='battleBar'..spec[1]..'Color'
+   local function current()return tonumber(mod.options:get(key))or -1 end
+   local function write(ctx,n)C.write(ctx,{[key]=n});return false end
+   local row={id='wide_'..key,label='BATTLE '..spec[2],value=function()return current()<0 and'NATIVE'or P.names[current()+1]end,
+    step=function(ctx,d)return write(ctx,((current()+1+(d or 1))%(#P.names+1))-1)end}
+   P.picker(row,'text',function()return math.max(0,current())end,write,openPage);rows[#rows+1]=row
+  end
   rows[#rows+1]={id='wide_battleHudFrameVisible',label='BATTLE STATUS FRAME',value=function()return mod.options:get('battleHudFrameVisible')==0 and'HIDDEN'or'VISIBLE'end,
    step=function(ctx)C.write(ctx,{battleHudFrameVisible=mod.options:get('battleHudFrameVisible')==0 and 1 or 0});return false end}
   local key='battleEmptySlotColor'
@@ -72,12 +80,12 @@ return function(mod)
     local ok,image=pcall(Assets.image,path);if ok then images[image]=entry and entry.base or p[2]end
    end
   end
-  local function mask(image,quad)
+  local function mask(image,quad,part)
    local byQuad=masks[image];if not byQuad then byQuad={};masks[image]=byQuad end
-   local key=quad or false;if byQuad[key]then return byQuad[key]end
+   local key=part and tostring(quad)..part or quad or false;if byQuad[key]then return byQuad[key]end
    local w,h=image:getDimensions();if quad then local x,y; x,y,w,h=quad:getViewport()end
-   if not shader then shader=G.newShader([[vec4 effect(vec4 c,Image t,vec2 uv,vec2 p){vec4 s=Texel(t,uv);return vec4(1.0,1.0,1.0,s.a*(1.0-min(s.r,min(s.g,s.b))));}]])end
-   local canvas=G.newCanvas(w,h);local old=G.getCanvas();G.push('all');G.setCanvas(canvas);G.origin();G.setScissor();G.clear(0,0,0,0);G.setColor(1,1,1,1);G.setShader(shader);G.setBlendMode('replace','premultiplied')
+   if not shader then shader=G.newShader([[extern float part;vec4 effect(vec4 c,Image t,vec2 uv,vec2 p){vec4 s=Texel(t,uv);float v=min(s.r,min(s.g,s.b));float a=part==1.0?step(v,.2):part==2.0?step(.2,v)*(1.0-step(.9,v)):1.0-v;return vec4(1.0,1.0,1.0,s.a*a);}]])end
+   local canvas=G.newCanvas(w,h);local old=G.getCanvas();G.push('all');G.setCanvas(canvas);G.origin();G.setScissor();G.clear(0,0,0,0);G.setColor(1,1,1,1);shader:send('part',part=='outline'and 1 or part=='fill'and 2 or 0);G.setShader(shader);G.setBlendMode('replace','premultiplied')
    if quad then draw(image,quad,0,0)else draw(image,0,0)end
    G.setCanvas(old);G.pop();canvas:setFilter('nearest','nearest');byQuad[key]=canvas;return canvas
   end
@@ -89,6 +97,20 @@ return function(mod)
     tiles();local base=images[image]
     if base and quad then
      local x,y=quad:getViewport();local width=image:getWidth();local code=base+y/8*(width/8)+x/8
+     if code>=0x63 and code<=0x6C then
+      local outline,fill=tonumber(mod.options:get('battleBarOutlineColor')),tonumber(mod.options:get('battleBarFillColor'))
+      if outline and outline>=0 or fill and fill>=0 then
+       draw(image,...)
+       local P=mod.exports.selectorPalette;local paintArgs={unpack(args)};table.remove(paintArgs,1)
+       for _,spec in ipairs({{'outline',outline},{'fill',fill}})do if spec[2]and spec[2]>=0 then
+        local ink=mask(image,quad,spec[1]);G.push('all');G.setShader();G.setBlendMode('alpha','alphamultiply')
+        P.effects.paint(P.color('text',spec[2]),'battle',function()draw(ink,unpack(paintArgs))end);G.pop()
+       end end
+       local ui=mod.exports.battleUi;if ui and ui.protect then ui.protect(paintArgs[1],paintArgs[2],8,8)end
+       if not mod.exports.battleHudCapture then require('src.render.PaletteFX').markTrueColor(paintArgs[1],paintArgs[2],8,8)end
+       return
+      end
+     end
      if code==0x6D then gaugeCap=true end
      if code==0x6E then chosen='Level'
      elseif code==0x71 then chosen='HP'
@@ -114,7 +136,8 @@ return function(mod)
     -- First three columns close the gauge; the tall stroke starts at column 3.
     local x,y=args[1]or 0,args[2]or 0;local sx,sy=args[4]or 1,args[5]or args[4]or 1
     local ax,ay=G.transformPoint(x,y);local bx,by=G.transformPoint(x+3*sx,y+8*sy)
-    G.setScissor(math.min(ax,bx),math.min(ay,by),math.abs(bx-ax),math.abs(by-ay));G.setShader();G.setColor(0,0,0,1);draw(ink,unpack(args))
+    G.setScissor(math.min(ax,bx),math.min(ay,by),math.abs(bx-ax),math.abs(by-ay));G.setShader();local outline=tonumber(mod.options:get('battleBarOutlineColor'))
+    if outline and outline>=0 then P.effects.paint(P.color('text',outline),'battle',function()draw(ink,unpack(args))end)else G.setColor(0,0,0,1);draw(ink,unpack(args))end
    end
    role=oldRole;G.pop();if not ok then error(err,0)end
    local ui=mod.exports.battleUi

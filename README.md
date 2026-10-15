@@ -1,3 +1,11 @@
+# Menu Customizer 3.30.0 — HP gauge colors and move-learning dialogue
+
+Add BATTLE HP BAR OUTLINE and BATTLE HP BAR FILL color controls with native defaults and the existing color/animation picker. Gauge outlines and fill pixels are masked separately; native HP thresholds remain the default. The small gauge cap follows the outline override when selected and otherwise stays black.
+
+Yield the custom battle bottom panel when a child screen is on top, preventing the previous grew-to-level message from painting over MoveLearnMenu and its learning dialogue. Deferred command panels also respect child screen ownership.
+
+GPU validation covers independent outline/fill colors, existing cap/frame palette protection and child move-learning screen ownership, plus final-window integer text checks. Restart after updating.
+
 # Menu Customizer 3.29.3 — Fainting names and black gauge cap
 
 Tie deferred HUD names to their owning battler and HUD visibility. Suppress names after fainting, field clearing, hidden HUD transitions or switching battlers, including names retained in intermediate canvases. Keep the player HP gauge small end-cap black while the adjacent tall frame stroke continues using the chosen frame animation.

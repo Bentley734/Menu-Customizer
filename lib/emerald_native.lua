@@ -239,6 +239,8 @@ return WideBattle
     return F,C
   end
   function M.bottom(battle,generation,rect,custom,viewport)
+    local stack=battle.game and battle.game.stack
+    if stack and stack.top and stack:top()and stack:top()~=battle then return false end
     if battle.safari or battle.contest then return false end
     local ready=M.ready()
     local theme=bundledTheme()

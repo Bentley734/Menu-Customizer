@@ -89,6 +89,11 @@ function love.load()
   require('src.render.HudTiles').tile(0x6D,48,32);require('src.render.HudTiles').tile(0x73,48,40);api.battleHudScope=nil;G.setCanvas()
   local joined=src:newImageData();local r,g,b=joined:getPixel(51,39);local rr,gg,bb=joined:getPixel(51,40)
   assert(math.abs(r-rr)<.04 and math.abs(g-gg)<.04 and math.abs(b-bb)<.04,'Animated gradient jumps at the restored frame joint')
+  api.customization.write(game,{battleBarOutlineColor=4,battleBarFillColor=3})
+  local bar=G.newCanvas(8,8);G.setCanvas(bar);G.origin();G.clear(0,0,0,0);api.battleHudScope=true;require('src.render.HudTiles').tile(0x6B,0,0);api.battleHudScope=nil;G.setCanvas()
+  local pixels=bar:newImageData();local red,green=0,0
+  for y=0,7 do for x=0,7 do local r,g,b,a=pixels:getPixel(x,y);if a>.1 and r>.4 and g<.2 then red=red+1 elseif a>.1 and g>.2 and r<.2 then green=green+1 end end end
+  assert(red>0 and green>0,'Independent HP outline/fill colors missing')
   assert(not M.current and not api.previewScope,'surface scope leaked')
   write(version..'-result.txt','PASS grouped position/transparency menus and both party ball rows after native palette compositing\n')
  end,debug.traceback)
