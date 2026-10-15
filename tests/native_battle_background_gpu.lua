@@ -68,10 +68,11 @@ function love.load()
     sgbBattlePals=function()local pals={};for i=0,3 do pals[i]={{1,1,1},{.8,.6,.2},{.4,.2,.1},{0,0,0}}end;return pals end,
     activeBgp=function()return nil end,drawZonePass=B.drawZonePass}
    B.drawClassic(battle)
-   G.setCanvas();local pixels=native:newImageData();local r,g,b=pixels:getPixel(0,0);assert(r<.01 and g<.01 and b<.01,'Native battle white paper erased custom background')
+   G.setCanvas();local pixels=native:newImageData();local r,g,b,a=pixels:getPixel(0,0);assert(a<.01,'Logical battle canvas retained opaque field paper')
    local white=0;for y=80,87 do for x=104,151 do local r,g,b=pixels:getPixel(x,y);if r>.9 and g>.9 and b>.9 then white=white+1 end end end
    assert(white>40,'HP glyphs disappeared against battlefield background')
-   local target=G.newCanvas(960,864);G.setCanvas(target);G.origin();G.clear(0,0,0,1);G.setColor(1,1,1,1);G.draw(native,0,0,0,6,6);G.setCanvas()
+   local target=G.newCanvas(1280,864);G.setCanvas(target);G.origin();G.clear(1,1,1,1);G.setColor(1,1,1,1);G.draw(native,160,0,0,6,6);G.setCanvas()
+   local final=target:newImageData();for _,x in ipairs({0,159,1120,1279})do local r,g,b,a=final:getPixel(x,400);assert(a>.99 and r<.01 and g<.01 and b<.01,'Battlefield did not fill window margin')end
    write(version..'-native-battle-'..tostring(colored)..'.png',target:newImageData():encode('png'):getString())
   end
   write(version..'-result.txt','PASS native flat/zone battle backgrounds and complete white HP text without KIM')

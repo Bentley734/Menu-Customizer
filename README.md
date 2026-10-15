@@ -1,3 +1,9 @@
+# Menu Customizer 3.33.2 — Full-window battle backgrounds
+
+Paint native Gen 1 battle backgrounds across the full destination window, including letterbox margins. Keep the logical battle canvas transparent behind actors and HUD elements, and propagate backdrop ownership through intermediate canvases. Patterns and animations share one continuous destination backdrop. Sprite, HUD, dialogue geometry and integer text scaling remain unchanged.
+
+GPU checks verify full-width coverage over white-cleared margins, native flat/palette battle paths, HP text, move-learning layering, and final-window integer text rendering. Restart after updating.
+
 # Menu Customizer 3.33.1 — Native battle backgrounds and HP visibility
 
 Apply Gen 1 battlefield backgrounds without requiring KIM1025. Paint scenery beneath the native sprite/HUD layers, replace the native white scratch-layer paper with transparency, preserve palette-zone recoloring, and protect the finished custom field from the frame palette pass. Keep native shake-edge paper from erasing the custom scenery.

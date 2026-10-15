@@ -22,6 +22,17 @@ return function(mod)
  end
  function M.install()
   if mod.generation==1 then
+   local G=love.graphics;local layers=setmetatable({},{__mode='k'});local replay=false
+   local draw,clear=G.draw,G.clear
+   G.clear=function(...)local source=G.getCanvas();if source then layers[source]=nil end;return clear(...)end
+   G.draw=function(source,...)
+    if layers[source]and not replay then
+     local target=G.getCanvas();local w,h
+     if target then w,h=target:getDimensions();layers[target]=true else w,h=G.getDimensions()end
+     replay=true;G.push('all');G.origin();G.setScissor();M.draw(0,0,w,h);G.pop();replay=false
+    end
+    return draw(source,...)
+   end
    local B=require('src.battle.BattleState');local classic=B.drawClassic
    local zone=B.drawZonePass
    B.drawZonePass=function(self,...)
@@ -36,7 +47,18 @@ return function(mod)
     if self.blankForAskName or M.choice()==0 then return classic(self,...)end
     -- Paint scenery on the destination, keeping the native HUD scratch layer
     -- transparent instead of erasing the scenery with its white paper.
-    if not M.draw(0,0,160,144)then return classic(self,...)end
+    local G=love.graphics;local source=G.getCanvas()
+    if not source then
+     G.push('all');G.origin();G.setScissor();local w,h=G.getDimensions();local painted=M.draw(0,0,w,h);G.pop()
+     if not painted then return classic(self,...)end
+    else
+     local surfaces=mod.exports.menuSurfaces
+     if not surfaces.enabled()then return classic(self,...)end
+     -- Leave scenery transparent in the logical game canvas. Its final copy
+     -- paints one full destination backdrop, including the letterbox margins.
+     G.push('all');G.setShader();G.setBlendMode('replace','premultiplied');G.setColor(0,0,0,0);G.rectangle('fill',0,0,160,144);G.pop()
+     layers[source]=true
+    end
     local G=love.graphics;local rectangle=G.rectangle;local replaced=false
     G.rectangle=function(mode,x,y,w,h,...)
      local r,g,b,a=G.getColor()
