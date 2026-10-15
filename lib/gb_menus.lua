@@ -264,6 +264,14 @@ return function(mod,catalog)
     if not result[1]then error(result[2],0)end
     return unpack(result,2)
    end
+   if current and current.drawingDex then
+    local il,ir,ds=current.borders.insets('pokedex',160,72)
+    if ds then
+     local width=Font.width(text)
+     if y>=88 and x<=18 then x=current.mod.exports.allFonts.align(il,160-il-ir,width,'pokedex')
+     else x=math.max(il,math.min(x,160-ir-width))end
+    end
+   end
    if current and current.drawingParty and text=='' and x==24 and y%16==0 then
     -- Transferred mons can carry an empty nickname. Resolve the displayed
     -- row name without editing the party record or its persisted nickname.
@@ -931,6 +939,7 @@ return function(mod,catalog)
     C.drawingCheats=C.drawingList and (id:find('GameShark',1,true)==1 or id:find('Codebreaker',1,true)==1 or s.title=='CODEBREAKER')
     C.drawingSave=s.screenId=='Gen2SaveMenu' or (C.mod.generation==1 and groupOf(s)=='save');C.saveHours=nil
     C.drawingTrainerCard=s.screenId=='Gen2TrainerCard';C.cardHours=nil
+    C.drawingDex=s.screenId=='DexEntryMenu'
     C.drawingParty=mod.generation==1 and s.screenId=='PartyMenu' and (s.game or game) or nil
     local savedTX,savedTW=s.tx,s.tw
     if isStart(s)and s.tw then
@@ -1013,7 +1022,7 @@ return function(mod,catalog)
    end
   end)
   C.resizeX=nil;C.resizeY=nil;C.drawingTrainerCard=nil;C.cardHours=nil;C.drawingList=nil;C.drawingSave=nil;C.saveHours=nil;C.drawScope=false;C.paperGroup=nil;C.drawingStart=nil;C.drawingOptions=nil;C.drawingOpaque=nil;G.rectangle,G.clear=rect,clear
-  C.drawingCheats=nil;C.compactText=nil;C.drawingParty=nil
+  C.drawingCheats=nil;C.compactText=nil;C.drawingParty=nil;C.drawingDex=nil
   G.pop()
   if not ok then error(err,0) end
   local b=C.bounds
@@ -1077,7 +1086,7 @@ return function(mod,catalog)
  mod.events:on('game.ready',function(event)attach(event.game)end)
  mod.exports.borders=Borders;mod.exports.borderCatalog=catalog;mod.exports.gbMenus=C;
  assert(load(assert(mod:read('lib/preview_windows.lua'))))()(mod,menuPalette,function()return C.live()end)
- assert(load(assert(mod:read('lib/gb_pokedex_text.lua'))))()(Font,function()return Font._menuCustomizerGB end)
+ assert(load(assert(mod:read('lib/gb_pokedex_text.lua'))))()(Font,function()return Font._menuCustomizerGB end,mod)
  -- The boot menu has no overworld, so it cannot use the HUD menu mirror.
  local Menu=require('src.ui.Menu')
  if not Menu._menuCustomizerTitle then

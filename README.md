@@ -1,3 +1,7 @@
+Menu Customizer 3.22.7 - Visible choices and DS Pokedex text
+
+Restore visible YES/NO labels after frame sizing. Pokedex descriptions paginate within native DS side margins through the existing KIM presentation; entry text uses the matching interior.
+
 Menu Customizer 3.22.6 - Gen IV battle text margins
 
 Battle command, move and dialogue layouts account for asymmetric DS frame sides. PP/type details use a consistent narrow font to fit the right panel.
