@@ -1,3 +1,7 @@
+Menu Customizer 3.23.2 - Gen IV Start arrow right offset
+
+Move the Start menu arrow one pixel right from its v3.23.0 position for Gen IV frames.
+
 Menu Customizer 3.23.1 - Gen IV Start arrow offset
 
 Move the Start menu arrow one pixel farther left when using a Gen IV frame.
