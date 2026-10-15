@@ -607,7 +607,7 @@ return function(mod,catalog)
    else row.step(self.game,input:wasPressed('left') and -1 or 1) end
   end
   self.scroll=math.max(0,math.min(self.scroll,self.index-1))
-  if self.index>self.scroll+(self.detail and 4 or 6) then self.scroll=self.index-(self.detail and 4 or 6) end
+  if self.index>self.scroll+(self.detail and 4 or 7) then self.scroll=self.index-(self.detail and 4 or 7) end
  end
  function Page:draw()
   return mod.exports.customization.withRows(self.rows[self.index],self.rows,self.drawPreview,self)
@@ -615,7 +615,7 @@ return function(mod,catalog)
  function Page:drawPreview()
   Font.drawBox(0,0,20,18)
   G.setColor(0,0,0,1);C.compactText=true;Font.draw(self.title,8,10);C.compactText=nil
-  for slot=1,(self.detail and 4 or 6) do
+  for slot=1,(self.detail and 4 or 7) do
    local i=self.scroll+slot;local row=self.rows[i]
    if i<=#self.rows+1 then
     local y=24+(slot-1)*(self.detail and 32 or 16)

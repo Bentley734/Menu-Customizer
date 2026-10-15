@@ -1,3 +1,7 @@
+Menu Customizer 3.19.4 - Seven menu rows
+
+Standard customization pages now show seven rows instead of six. Selection/scrolling use the same seven-row capacity; the final row fits above the optional footer. Detail pages retain their existing capacity.
+
 Menu Customizer 3.19.3 - Respect hidden control hints
 
 Built-in A:OPEN, A:CHANGE and A:SELECT / B:BACK footers now share the Control Hints visibility rule with the outer legend: Hidden removes them, Auto hides them after inactivity, Always retains them.
