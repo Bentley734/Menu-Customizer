@@ -73,7 +73,7 @@ return function(mod)
   F.draw=function(text,x,y,opts,...)
    local inputX=x
    local gb=mod.exports.gbMenus
-   local ownLayout=gb and (gb.drawingStart or gb.drawingOptions or gb.drawingParty)
+   local ownLayout=gb and (gb.drawingStart or gb.drawingOptions or gb.drawingParty or gb.summaryScope)
    if frames and not printing and not ownLayout and type(x)=='number'and type(y)=='number'and not tostring(text):match('^[%d%s%p]+$')then
     local box
     for _,r in ipairs(frames)do if x>=r.x and y>=r.y and x<r.x+r.w and y<r.y+r.h and(not box or r.w<box.w)then box=r end end

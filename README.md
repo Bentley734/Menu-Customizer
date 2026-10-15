@@ -1,3 +1,7 @@
+Menu Customizer 3.22.5 - DS Continue summary and choice boxes
+
+Continue summary uses wider DS-safe label/value columns. YES/NO windows grow to fit the native Gen IV sides, with cursors on the left panel.
+
 Menu Customizer 3.22.4 - DS Start menu selector panel
 
 Move Gen IV menu icon selectors onto the left panel. Return reserved icon space to labels and size Start frames to their longest label so normal entries fit without scrolling.

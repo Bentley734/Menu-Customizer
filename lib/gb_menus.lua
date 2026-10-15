@@ -795,10 +795,32 @@ return function(mod,catalog)
     local c=Font._menuCustomizerGB;if not(c and c.live())then return draw(self,...)end
     local scope,paper,title,summary,rx,ry=c.drawScope,c.paperGroup,c.drawingTitle,c.summaryScope,c.resizeX,c.resizeY
     c.drawScope=true;c.paperGroup='save';c.drawingTitle=true;c.summaryScope=true;c.resizeX=1;c.resizeY=1
+    local printer,box=Font.draw,Font.drawBox
+    local il,ir,ds=c.borders.insets('save',160,80)
+    local rows={}
+    if ds then
+     Font.drawBox=function(tx,ty,tw,th,...)return box(0,ty,20,th,...)end
+     Font.draw=function(text,x,y,...)
+      rows[y]=rows[y]or{};rows[y][x==40 and 'label'or'value']=tostring(text):match('^%s*(.-)%s*$')
+     end
+    end
     local result={pcall(draw,self,...)}
+    Font.draw,Font.drawBox=printer,box
+    if result[1]and ds then
+     local ok,err=pcall(function()
+      local valueWidth=0
+      for _,row in pairs(rows)do valueWidth=math.max(valueWidth,Font.width(row.value or''))end
+      local right=160-ir;local labelWidth=right-il-valueWidth-6
+      for y,row in pairs(rows)do
+       local text=row.label or'';local x=mod.exports.allFonts.align(il,labelWidth,Font.width(text),'saveSummary')
+       printer(text,x,y);text=row.value or'';printer(text,right-Font.width(text),y)
+      end
+     end)
+     if not ok then result={false,err}end
+    end
     c.drawScope,c.paperGroup,c.drawingTitle,c.summaryScope,c.resizeX,c.resizeY=scope,paper,title,summary,rx,ry
     if not result[1]then error(result[2],0)end
-    require('src.render.PaletteFX').markTrueColor(32,56,128,80)
+    require('src.render.PaletteFX').markTrueColor(ds and 0 or 32,56,ds and 160 or 128,80)
     return (unpack or table.unpack)(result,2)
    end
   end
