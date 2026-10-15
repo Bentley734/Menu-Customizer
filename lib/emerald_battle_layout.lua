@@ -33,7 +33,7 @@ return function(G)
   local pane=inner(rect,0,rect.w)
   local promptWidth=pane.w*.40
   local commandWidth=pane.w-promptWidth
-  local commands={'FIGHT','BAG','POKéMON','RUN'}
+  local commands=generation<3 and {'FIGHT','POKéMON','BAG','RUN'}or{'FIGHT','BAG','POKéMON','RUN'}
   local width=0;for _,s in ipairs(commands)do width=math.max(width,F.measure(s,{font='normal'})or 0)end
   local cell={w=commandWidth/2,h=pane.h/2}
   local sx,sy,dx,dy=scale(cell,width+8,18*(custom.fontSizing and custom.fontSizing.factor()or 1),viewport)

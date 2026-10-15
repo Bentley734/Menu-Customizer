@@ -292,7 +292,7 @@ return WideBattle
           F.draw(name..' do?',9,137,{colors=M.presentationColors(),maxWidth=104})
         end
         local left=legacyFrames and 0 or 120
-        local labels={'FIGHT','BAG','POKéMON','RUN'}
+        local labels=generation<3 and {'FIGHT','POKéMON','BAG','RUN'}or{'FIGHT','BAG','POKéMON','RUN'}
         for i,s in ipairs(labels)do
           F.draw(s,left+8+56*((i-1)%2),121+16*math.floor((i-1)/2),{colors=ready and M.colors() or C.textboxColors()})
         end

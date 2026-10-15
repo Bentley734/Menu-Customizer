@@ -1,3 +1,9 @@
+# Menu Customizer 3.3.2 — Battle command and stat corrections
+
+BAG and POKéMON now follow the native command actions in Gen 1/2; Gen 3 retains its own action order. Level-up stat text uses the same GB dialogue scale, with room for labels and values. The Gen 1 HUD yields while the native stat window is open so KIM cannot draw it over the numbers. Battle styling, font-size settings and native stat-window confirmation remain intact.
+
+Validated with LuaJIT/Lua 5.3 regression tests, all eleven games loading alongside KIM1025 1.7.44, and native LOVE GPU stat rendering in Red, Gold, FireRed, Ruby and Emerald at all font sizes. No live playthrough was performed. Restart after installing. Johnto and other mods are unchanged.
+
 # Menu Customizer 3.3.1 — Level-up stat panels
 
 Level-up stat windows now inherit battle UI border style, background, text/shadow colors, text effects, opacity and font choices across all eleven games. Panels expand and fit their rows at larger battle font sizes. Gen 3 retains its increase and total pages and the native confirmation callback. Rare Candy stat windows use the same styling. No extra settings are needed.

@@ -7,13 +7,16 @@ return function(mod,ui,font,panel,compose,enabled)
   local sw,sh=mod.generation==3 and 240 or 160,mod.generation==3 and 160 or 144
   return font.scope(function()
    local F=font.selected;local factor=ui.fontSizing.factor()
+   -- GB dialogue fits the 240-pixel battle face into a 160-pixel surface.
+   -- Apply the same ratio here instead of enlarging the native 8-pixel face.
+   local textScale=mod.generation<3 and 2/3 or 1
    local labelWidth,valueWidth=0,0
    for _,row in ipairs(rows)do labelWidth=math.max(labelWidth,F.measure(row[1]));valueWidth=math.max(valueWidth,F.measure(row[2]))end
-   local pad=12
-   local w=math.min(sw,math.max(rect.w,labelWidth+valueWidth+8+pad*2))
-   local h=math.min(sh,math.max(rect.h,#rows*16*factor+pad*2))
+   local pad=8
+   local w=math.min(sw,math.max(rect.w,(labelWidth+valueWidth)*textScale+8+pad*2))
+   local h=math.min(sh,math.max(rect.h,#rows*16*factor*textScale+pad*2))
    local x=math.max(0,math.min(sw-w,rect.x+rect.w-w));local y=math.max(0,math.min(sh-h,rect.y))
-   local fit=math.min(1,(w-pad*2)/math.max(1,labelWidth+valueWidth+8),(h-pad*2)/(#rows*16*factor))
+   local fit=math.min(textScale,(w-pad*2)/math.max(1,labelWidth+valueWidth+8),(h-pad*2)/(#rows*16*factor))
    local out={compose(function()
     if ui.setting('style',1)==1 then
      local borders=mod.exports.borders;local prior=borders.nativeDialogue;borders.nativeDialogue=true
@@ -44,6 +47,17 @@ return function(mod,ui,font,panel,compose,enabled)
  if mod.generation<3 then
   local F=require('src.render.Font');local Chrome=mod.generation==2 and require('src.ui.gen2.Chrome')
   local target=mod.generation==1 and require('src.battle.BattleState').StatBox or require('src.ui.gen2.BattleState')
+  if mod.generation==1 then
+   -- KIM redraws the HUD after native child windows. Suppress that HUD while
+   -- a stat window is on top, including KIM's separate HUD capture pass.
+   local Battle=require('src.battle.BattleState')
+   install(Battle,'drawHUDs',function(original,battle,...)
+    local stack=battle.game and battle.game.stack
+    local top=stack and stack:top()
+    if enabled()and top and getmetatable(top)==target then return end
+    return original(battle,...)
+   end)
+  end
   install(target,mod.generation==1 and'draw'or'drawStatsBox',function(original,...)
    if not enabled()then return original(...)end
    local rows,pending,rect={},nil,nil

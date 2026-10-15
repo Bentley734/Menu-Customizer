@@ -49,6 +49,17 @@ end
 battle.data.moves.scratch.type='FIGHTING'
 glyphs={};check(api.draw(battle,{x=136,y=496,w=774,h=232},{}),'FIGHTING move panel draws')
 check(glyphs[#glyphs].s=='FIGHTING','complete FIGHTING type string rendered')
+-- The labels must follow native GB actions at every cursor position.
+local layout=assert(loadfile('lib/emerald_battle_layout.lua'))()(G)
+for generation=1,3 do
+ for index=1,4 do
+  glyphs={}
+  local b={menuIndex=index,player={name='RED'},activeMon=function()return{name='RED'}end}
+  layout.commands(F,b,generation,{x=0,y=0,w=960,h=192},custom,{}, {})
+  local names={};for _,g in ipairs(glyphs)do if type(g.s)=='string'then names[#names+1]=g.s end end
+  check(names[1]=='FIGHT'and names[2]==(generation<3 and 'POKéMON'or'BAG')and names[3]==(generation<3 and 'BAG'or'POKéMON')and names[4]=='RUN','command labels match native generation action order')
+ end
+end
 F.draw=function()error('Emerald font failure')end
 check(not pcall(api.draw,battle,{x=0,y=0,w=774,h=232},{}),'Emerald font errors propagate')
 check(depth==0,'font error restores all pane transforms')
