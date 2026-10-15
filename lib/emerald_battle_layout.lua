@@ -42,28 +42,36 @@ return function(G,mod)
   end)
  end
  local function commands(F,battle,generation,rect,custom,colors,viewport)
-  custom.frames('none',rect,viewport)
-  local pane=inner(rect,0,rect.w)
-  local promptWidth=pane.w*.32
-  local commandWidth=pane.w-promptWidth
+  local original=inner(rect,0,rect.w)
   local commands=generation<3 and {'FIGHT','POKéMON','BAG','RUN'}or{'FIGHT','BAG','POKéMON','RUN'}
   local commandFont='normal'
-  local width=0;for _,s in ipairs(commands)do width=math.max(width,F.measure(s,{font=commandFont})or 0)end
-  local cell={w=commandWidth/2,h=pane.h/2}
-  local priorFactor=factor;factor=math.max(1,factor)
-  local sx,sy,dx,dy=scale(cell,width+14,16,viewport);factor=priorFactor
-  for i,s in ipairs(commands)do
-   local c={x=pane.x+promptWidth+(i-1)%2*cell.w,y=pane.y+math.floor((i-1)/2)*cell.h,w=cell.w,h=cell.h}
-   label(F,s,c,sx,sy,dx,dy,commandFont,colors,i==(battle.menuIndex or 1))
-  end
+  local width=0;for _,text in ipairs(commands)do width=math.max(width,F.measure(text,{font=commandFont})or 0)end
   local p=battle.player
   local mon=generation==2 and battle:activeMon('player')or p and p.mon
   local name=p and p.name or mon and(mon.nickname or mon.name)or 'POKéMON'
   local first,last='What will',name..' do?'
   local promptFont='normal'
-  local left={x=pane.x,y=pane.y,w=promptWidth,h=pane.h}
+  local promptInk=math.max(F.measure(first,{font=promptFont})or 0,F.measure(last,{font=promptFont})or 0)
   local priorFactor=factor;factor=math.max(1,factor)
-  local px,py,pdx,pdy=scale(left,math.max(F.measure(first,{font=promptFont})or 0,F.measure(last,{font=promptFont})or 0)+8,34,viewport);factor=priorFactor
+  local sx,sy,dx,dy=scale({w=original.w*.68/2,h=original.h/2},width+14,16,viewport)
+  local px,py,pdx,pdy=scale({w=original.w*.32,h=original.h},promptInk+8,34,viewport);factor=priorFactor
+  sx,sy,px,py=sx*2,sy*2,px*2,py*2
+  local promptWidth=(promptInk+8)*px
+  local cell={w=(width+14)*sx,h=18*sy}
+  local requiredH=math.max(cell.h*2,34*py)
+  local edge=8*rect.h/48
+  local frameW=promptWidth+cell.w*2+edge*2
+  local frameH=requiredH+edge*2
+  local screenW=G.getWidth()
+  rect={x=math.max(0,math.min(rect.x+(rect.w-frameW)/2,screenW-frameW)),y=math.max(0,rect.y+rect.h-frameH),w=frameW,h=frameH}
+  custom.frames('none',rect,viewport)
+  local pane={x=rect.x+edge,y=rect.y+edge,w=frameW-edge*2,h=requiredH}
+  cell.h=pane.h/2
+  for i,s in ipairs(commands)do
+   local c={x=pane.x+promptWidth+(i-1)%2*cell.w,y=pane.y+math.floor((i-1)/2)*cell.h,w=cell.w,h=cell.h}
+   label(F,s,c,sx,sy,dx,dy,commandFont,colors,i==(battle.menuIndex or 1))
+  end
+  local left={x=pane.x,y=pane.y,w=promptWidth,h=pane.h}
   local x=left.x+4*px;local y=left.y+(left.h-32*py)/2
   at(left,px,py,pdx,pdy,x,y,function()
    local fonts=mod and mod.exports.allFonts

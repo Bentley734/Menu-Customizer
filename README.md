@@ -1,3 +1,7 @@
+# Menu Customizer 3.29.1 — Double-size command text
+
+Double the fitted integer pixel scales of all four battle commands and both prompt lines. Expand the command frame upward and outward to reserve the required width and height rather than clipping or shrinking the text. Move selection, HUD text and dialogue are unchanged. GPU final-window glyph scaling and alignment checks passed. Restart after updating.
+
 # Menu Customizer 3.29.0 — Full-resolution battle names
 
 Render native Gen 1 enemy and player HUD names at the actual window destination using the regular Emerald face. Names no longer lose glyph rows inside the low-resolution battle canvas. Fit a larger name within the HUD name region using integer square pixels and snapped anchors. Retain name colors, shadows, casing and KIM1025 name-presenter delegation.
