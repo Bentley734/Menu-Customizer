@@ -1,3 +1,7 @@
+Menu Customizer 3.19.3 - Respect hidden control hints
+
+Built-in A:OPEN, A:CHANGE and A:SELECT / B:BACK footers now share the Control Hints visibility rule with the outer legend: Hidden removes them, Auto hides them after inactivity, Always retains them.
+
 Menu Customizer 3.19.2 - Decapitalization submenu
 
 TEXT > DECAPITALIZATION now contains ALL DECAPITALIZATION and every per-menu case chooser. Removes the duplicate TEXT CASE chooser from ALL FONTS. Existing saved case settings and global application behavior are preserved.

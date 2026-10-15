@@ -646,9 +646,15 @@ return function(mod,catalog)
     end
    end
   end
+  if C.legendVisible()then
   C.compactText=true
   Font.draw(self.colorChoice and 'A:SELECT B:BACK' or self.detail and 'A:CHANGE B:BACK' or 'A:OPEN B:BACK',8,128)
   C.compactText=nil
+  end
+ end
+ function C.legendVisible(now)
+  local mode=C.setting('controlsLegend');now=now or love.timer.getTime()
+  return mode==1 or mode==2 and now-(C.lastInput or now)<2
  end
  local function row(key,label,choices)
   local spec=specs[key]
@@ -974,7 +980,7 @@ return function(mod,catalog)
    if preview then G.setColor(.35,.85,1,.85);G.rectangle('line',preview.x,preview.y,preview.w,preview.h) end
   end
   local hints=C.setting('controlsLegend')
-  if hints==1 or hints==2 and now-(C.lastInput or now)<2 then
+  if C.legendVisible(now)then
    G.setBlendMode('alpha');G.setColor(0,0,0,.8)
    local hintScale=math.max(1,math.floor(math.min(viewport.width/160,viewport.height/144)))
    local bottom=viewport.height-10*hintScale
