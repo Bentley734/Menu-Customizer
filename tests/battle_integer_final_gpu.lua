@@ -70,6 +70,11 @@ function love.load()
   assert(not B.moveGridNavigation({wideLayout=function()return true end}),'List still uses grid navigation')
   api.customization.write(game,{battle_move_layout=0})
   api.customization.write(game,{textCase=3,battleTextCase=3})
+  local frames=api.battleUi.frames
+  api.battleUi.frames=function(mode,rect,viewport)
+   if battle.phase=='menu'then assert(rect.w<900 and rect.h<300,'Command frame was enlarged')end
+   return frames(mode,rect,viewport)
+  end
   local theme=api.gbMenus.theme;local glyph=theme.glyph;local count=0;local properM=false
   theme.glyph=function(id,x,y,opts)
    if battle.phase=='menu'and id==225 then assert(opts.font=='normal','Command m still uses the malformed narrow atlas');properM=true end

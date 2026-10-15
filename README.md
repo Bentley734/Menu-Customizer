@@ -1,3 +1,9 @@
+# Menu Customizer 3.29.2 — Original command frame and fitted spacing
+
+Restore the command panel original bounds. Allocate separate prompt and command regions inside the actual border insets, reserve selector width, and choose the largest whole-pixel text scale that fits each region. The full What Will / [name] Do? prompt stays within its own area without touching the border or commands.
+
+Verified rendered title-case labels and prompt, unchanged frame bounds, integer square glyphs and aligned anchors after fractional canvas resizing. Restart after updating.
+
 # Menu Customizer 3.29.1 — Double-size command text
 
 Double the fitted integer pixel scales of all four battle commands and both prompt lines. Expand the command frame upward and outward to reserve the required width and height rather than clipping or shrinking the text. Move selection, HUD text and dialogue are unchanged. GPU final-window glyph scaling and alignment checks passed. Restart after updating.

@@ -42,7 +42,8 @@ return function(G,mod)
   end)
  end
  local function commands(F,battle,generation,rect,custom,colors,viewport)
-  local original=inner(rect,0,rect.w)
+  custom.frames('none',rect,viewport)
+  local pane=inner(rect,0,rect.w)
   local commands=generation<3 and {'FIGHT','POKéMON','BAG','RUN'}or{'FIGHT','BAG','POKéMON','RUN'}
   local commandFont='normal'
   local width=0;for _,text in ipairs(commands)do width=math.max(width,F.measure(text,{font=commandFont})or 0)end
@@ -52,31 +53,24 @@ return function(G,mod)
   local first,last='What will',name..' do?'
   local promptFont='normal'
   local promptInk=math.max(F.measure(first,{font=promptFont})or 0,F.measure(last,{font=promptFont})or 0)
-  local priorFactor=factor;factor=math.max(1,factor)
-  local sx,sy,dx,dy=scale({w=original.w*.68/2,h=original.h/2},width+14,16,viewport)
-  local px,py,pdx,pdy=scale({w=original.w*.32,h=original.h},promptInk+8,34,viewport);factor=priorFactor
-  sx,sy,px,py=sx*2,sy*2,px*2,py*2
-  local promptWidth=(promptInk+8)*px
-  local cell={w=(width+14)*sx,h=18*sy}
-  local requiredH=math.max(cell.h*2,34*py)
-  local edge=8*rect.h/48
-  local frameW=promptWidth+cell.w*2+edge*2
-  local frameH=requiredH+edge*2
-  local screenW=G.getWidth()
-  rect={x=math.max(0,math.min(rect.x+(rect.w-frameW)/2,screenW-frameW)),y=math.max(0,rect.y+rect.h-frameH),w=frameW,h=frameH}
-  custom.frames('none',rect,viewport)
-  local pane={x=rect.x+edge,y=rect.y+edge,w=frameW-edge*2,h=requiredH}
-  cell.h=pane.h/2
+  -- Allocate by measured text, including the complete selector reservation.
+  local promptWidth=pane.w*.34
+  local cell={w=(pane.w-promptWidth)/2,h=pane.h/2}
+  local dx,dy=tonumber(viewport and viewport.dpiX)or 1,tonumber(viewport and viewport.dpiY)or 1
+  local commandPixels=math.max(1,math.floor(math.min(cell.w*dx/(width+12),cell.h*dy/16)))
+  local promptPixels=math.max(1,math.floor(math.min(promptWidth*dx/(promptInk+4),pane.h*dy/32)))
+  local sx,sy=commandPixels/dx,commandPixels/dy
+  local px,py,pdx,pdy=promptPixels/dx,promptPixels/dy,dx,dy
   for i,s in ipairs(commands)do
    local c={x=pane.x+promptWidth+(i-1)%2*cell.w,y=pane.y+math.floor((i-1)/2)*cell.h,w=cell.w,h=cell.h}
    label(F,s,c,sx,sy,dx,dy,commandFont,colors,i==(battle.menuIndex or 1))
   end
   local left={x=pane.x,y=pane.y,w=promptWidth,h=pane.h}
-  local x=left.x+4*px;local y=left.y+(left.h-32*py)/2
+  local x=left.x;local y=left.y+(left.h-32*py)/2
   at(left,px,py,pdx,pdy,x,y,function()
    local fonts=mod and mod.exports.allFonts
    local function prompt(text,y)
-    local tx=fonts and fonts.align(0,left.w/px-8,F.measure(text,{font=promptFont})or 0,'battle')or 0
+    local tx=fonts and fonts.align(0,left.w/px,F.measure(text,{font=promptFont})or 0,'battle')or 0
     F.draw(text,tx,y,{font=promptFont,colors=colors})
    end
    prompt(first,0);prompt(last,16)
