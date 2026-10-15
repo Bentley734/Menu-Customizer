@@ -47,7 +47,13 @@ function love.load()
   api.customization.write(game,{menuTheme=2,dialogueTheme=2,optionBorderChoice=border,menuTextColor=0,menuBorder=border})
   local choice=Choice.new(game,function()end);game.stack.states={choice}
   local target=G.newCanvas(640,576);G.setCanvas(target);G.clear(.2,.2,.2,1);G.scale(4)
-  choice:draw();G.setColor(0,0,0,1);F.draw('YES NO',20,20)
+  local c=api.gbMenus;local textDraw,arrowDraw=c.theme.draw,c.arrows.draw
+  local labels,selectors=0,0
+  c.theme.draw=function(text,...)labels=labels+1;assert(text=='YES'or text=='NO');return textDraw(text,...)end
+  c.arrows.draw=function(...)selectors=selectors+1;return arrowDraw(...)end
+  for index=1,2 do choice.index=index;labels,selectors=0,0;choice:draw();assert(labels==4 and selectors==1,'Unexpected text/selector draw count')end
+  c.theme.draw,c.arrows.draw=textDraw,arrowDraw
+
   G.setCanvas();write(version..'-choice-isolated.png',target:newImageData():encode('png'):getString())
   write(version..'-result.txt','PASS isolated choice render')
 

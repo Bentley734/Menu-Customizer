@@ -1,3 +1,7 @@
+Menu Customizer 3.23.3 - Single-pass DS choices
+
+Draw Gen IV YES/NO panels, labels and cursor as one scoped pass, avoiding overlapping native text and selector layers.
+
 Menu Customizer 3.23.2 - Gen IV Start arrow right offset
 
 Move the Start menu arrow one pixel right from its v3.23.0 position for Gen IV frames.
