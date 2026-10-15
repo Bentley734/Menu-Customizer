@@ -1,3 +1,7 @@
+Menu Customizer 3.18.1 - Restore copyright credits
+
+Restore full version-specific copyright/date prefixes on customized Gen 1 intro credits and the title Game Freak line. Adds a pixel copyright glyph to the Emerald renderer with color/shadow support. Complete credits use the small Emerald face to fit without clipping. Native rendering and supplied custom credit strings remain intact.
+
 Menu Customizer 3.18.0 - Colorized intro Pokemon
 
 Adds TEXT > FONT AND LAYOUT > INTRO / TITLE > INTRO BATTLE SPRITES: NATIVE or COLORIZED. Gengar uses purple and Nidorino lavender, retaining black outlines and native animation. Recolored frames are cached and reused by sprite replay, custom backgrounds, bar modes and ultrawide presentation. Native remains the default.

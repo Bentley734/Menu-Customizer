@@ -2,6 +2,7 @@
 return function(mod,enabled)
  local G=love.graphics
  local charmap=assert(load(assert(mod:read('assets/emerald/charmap.lua'))))()
+ charmap['©']=512
  local function glyphId(c)return charmap[c] or charmap['?'] end
  local M={enabled=enabled};local faces={}
  local function face(small,battle,narrow)
@@ -18,11 +19,12 @@ return function(mod,enabled)
     if width<=0 or width>16 then width=16 end
     f.quads[id]=G.newQuad(id%16*16,math.floor(id/16)*16,width,16,256,512)
    end
+   f.widths[512]=10
    faces[name]=f
   end
   return faces[name]
  end
- local supported={}
+ local supported={['©']=true}
  for n=32,126 do supported[string.char(n)]=true end
  local function chars(text)return tostring(text):gmatch('[%z\1-\127\194-\244][\128-\191]*')end
  for c in chars('éÉàèùâêîôûäëïöüçÀÈÙÂÊÎÔÛÄËÏÖÜÇ♀♂¥')do supported[c]=true end
@@ -44,7 +46,17 @@ return function(mod,enabled)
   if id==0xEF and arrows and arrows.draw(x,y,16,opts) then return true end
   -- Space is advance-only, even if the imported atlas's reserved cell has ink.
   if id==0 then if opts and opts.colors and opts.colors._effects then opts.colors._effects.ink(opts.colors,true)end;return true end
-  local f=face(opts and opts.small,opts and opts.battle or mod.exports and mod.exports.battleFontScope,opts and opts.font=="narrow");local q=f.quads[id];if not q then return false end
+  local f=face(opts and opts.small,opts and opts.battle or mod.exports and mod.exports.battleFontScope,opts and opts.font=="narrow");local q=f.quads[id]
+  if id==512 then
+   local rows={'001111100','010000010','100111001','101000001','101000001','101000001','100111001','010000010','001111100'}
+   local colors=opts and opts.colors or{fg={.38,.38,.38,1},shadow={.84,.84,.8,1}}
+   local function ink(dx,dy)for py,row in ipairs(rows)do for px=1,#row do if row:sub(px,px)=='1'then G.rectangle('fill',x+px-1+dx,y+py+2+dy,1,1)end end end end
+   G.push('all');G.setShader()
+   if colors._effects then colors._effects.glyph(colors,x,y,ink,{width=10,top=3,height=9})
+   else G.setColor(unpack(colors.shadow or{0,0,0,0}));ink(-1,1);G.setColor(unpack(colors.fg));ink(0,0)end
+   G.pop();return true
+  end
+  if not q then return false end
   local colors=opts and opts.colors or {fg={.38,.38,.38,1},shadow={.84,.84,.8,1}}
   G.push('all');G.setShader()
   if colors._effects then colors._effects.glyph(colors,x,y,function(dx,dy)G.draw(f.fg,q,x+dx,y+dy)end,{width=f.widths[id]or 6,top=opts and opts.small and 3 or 2,height=opts and opts.small and 9 or 11})

@@ -28,12 +28,24 @@ return function(mod,Font,active)
      local G=love.graphics;G.setColor(0,0,0,1)
      local function caption(text,row)
       local old=C.introCenter;C.introCenter=true
-      Font.draw(text,math.max(4,math.floor((160-Font.width(text))/2)),row)
+      if text:find('©',1,true)then
+       local opts={small=true,colors=C.theme.gbColors()}
+       local measured=C.theme.measure(text,opts)
+       local scale=math.min(C.setting('introFontSize')+1,math.max(1,math.floor(152/math.max(1,measured))))
+       local width=measured*scale
+       G.push('all');G.translate(math.floor((160-width)/2),row-6);G.scale(scale,scale)
+       C.theme.draw(text,0,0,opts);G.pop()
+      else Font.draw(text,math.max(4,math.floor((160-Font.width(text))/2)),row)end
       C.introCenter=old
      end
      if path=='src.ui.IntroMovie'then
-      caption('Nintendo',56);caption('Creatures inc.',72);caption('GAME FREAK inc.',88)
-     else caption(self.title and self.title.copyrightText or 'GAME FREAK inc.',y or 136)end
+      if self.studio and(self.studio.card or self.studio.credit)then return original(self,y,...)end
+      local prefix=self.yellowCopy and '©1995-1999 'or "©'95.'96.'98 "
+      caption(prefix..'Nintendo',56);caption(prefix..'Creatures inc.',72);caption(prefix..'GAME FREAK inc.',88)
+     else
+      local fallback=path=='src.ui.TitleState'and(self.yellow and '©1995-1999 GAME FREAK inc.'or "©'95.'96.'98 GAME FREAK inc.")or'GAME FREAK inc.'
+      caption(self.title and self.title.copyrightText or fallback,y or 136)
+     end
      G.setColor(1,1,1,1)
     end
    end
