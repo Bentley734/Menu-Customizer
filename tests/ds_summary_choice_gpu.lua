@@ -46,7 +46,7 @@ function love.load()
   for id,e in ipairs(api.borderCatalog.entries)do if e.dsFrame then border=id;break end end
   local summary={game=game,save={},title={},titleUiBox={4,7,19,16},draw=function()
    F.drawBox(4,7,16,10)
-   for i,row in ipairs({{'PLAYER','ASH'},{'BADGES',' 0'},{'POKÈDEX','  0'},{'TIME','  4:07'}})do local y=56+i*16;F.draw(row[1],40,y);F.draw(row[2],i==1 and 96 or i==4 and 104 or 136,y)end
+   for i,row in ipairs({{'PLAYER','ASH'},{'BADGES',' 0'},{'POK√©DEX','  0'},{'TIME','  4:07'}})do local y=56+i*16;F.draw(row[1],40,y);F.draw(row[2],i==1 and 96 or i==4 and 104 or 136,y)end
   end}
   local Choice=require('src.ui.ChoiceBox');local choice=Choice.new(game,function()end)
   local target=G.newCanvas(960,576);local printer=F.draw;local draws=0

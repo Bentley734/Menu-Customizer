@@ -1,3 +1,7 @@
+Menu Customizer 3.22.6 - Gen IV battle text margins
+
+Battle command, move and dialogue layouts account for asymmetric DS frame sides. PP/type details use a consistent narrow font to fit the right panel.
+
 Menu Customizer 3.22.5 - DS Continue summary and choice boxes
 
 Continue summary uses wider DS-safe label/value columns. YES/NO windows grow to fit the native Gen IV sides, with cursors on the left panel.

@@ -3,7 +3,14 @@ return function(G,mod)
  local M={}
  local function inner(rect,x,w)
   local edge=8*rect.h/48
-  return {x=rect.x+x+edge,y=rect.y+edge,w=math.max(1,w-2*edge),h=math.max(1,rect.h-2*edge)}
+  local left,right=edge,edge
+  local borders=mod and mod.exports.borders
+  if borders and mod.exports.battleUi and mod.exports.battleUi.setting('style',1)==3 then
+   local il,ir,ds=borders.insets('battle',w/(rect.h/48),48)
+   -- DS battle panels are drawn with square-pixel sides at height/48 scale.
+   if ds then left,right=il*rect.h/48,ir*rect.h/48 end
+  end
+  return {x=rect.x+x+left,y=rect.y+edge,w=math.max(1,w-left-right),h=math.max(1,rect.h-2*edge)}
  end
  local factor=1
  local function scale(rect,width,height,viewport)
@@ -89,7 +96,7 @@ return function(G,mod)
    local pp=string.format('%2d/%2d',move.pp or 0,maximum)
    local kind=typeName(def.type,battle.data)
    local right=inner(rect,rect.w*2/3,rect.w/3)
-   local typeW=(F.measure('TYPE/',{font='narrow'})or 0)+(F.measure(kind)or 0)
+   local typeW=(F.measure('TYPE/',{font='narrow'})or 0)+(F.measure(kind,{font='narrow'})or 0)
    local ppW=(F.measure('PP',{font='narrow'})or 0)+8+(F.measure(pp)or 0)
    local rsx,rsy,rdx,rdy=scale(right,math.max(typeW,ppW)+8,36,viewport)
    for row=0,1 do
@@ -101,7 +108,7 @@ return function(G,mod)
      local prefix=row==0 and 'PP' or 'TYPE/'
      local c=row==0 and colors(move.pp or 0,maximum)or colors()
      F.draw(prefix,0,0,{font='narrow',colors=c})
-     F.draw(row==0 and pp or kind,(F.measure(prefix,{font='narrow'})or 0)+(row==0 and 8 or 0),0,{colors=c})
+     F.draw(row==0 and pp or kind,(F.measure(prefix,{font='narrow'})or 0)+(row==0 and 8 or 0),0,{font='narrow',colors=c})
     end)
    end
   end
