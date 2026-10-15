@@ -72,7 +72,9 @@ return function(mod)
   local F=require(mod.generation==3 and'src.ui.game3.frlg_font'or'src.render.Font')
   local draw=F.draw
   F.draw=function(text,x,y,opts,...)
-   if frames and not printing and type(x)=='number'and type(y)=='number'and not tostring(text):match('^[%d%s%p]+$')then
+   local gb=mod.exports.gbMenus
+   local ownLayout=gb and (gb.drawingStart or gb.drawingOptions)
+   if frames and not printing and not ownLayout and type(x)=='number'and type(y)=='number'and not tostring(text):match('^[%d%s%p]+$')then
     local box
     for _,r in ipairs(frames)do if x>=r.x and y>=r.y and x<r.x+r.w and y<r.y+r.h and(not box or r.w<box.w)then box=r end end
     if box and x<=box.x+24 then

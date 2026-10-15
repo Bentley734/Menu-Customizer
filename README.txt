@@ -1,3 +1,7 @@
+Menu Customizer 3.12.1 - Start selector visibility
+
+Fix global font alignment shifting start labels before selector placement. Start/options retain their own layout. Dots and underlines now render animated selector colors through the color shader instead of using its black base color. Verified all 14 selector choices in native and Emerald fonts for Gen 1 and Gen 2, including centered global alignment.
+
 Menu Customizer 3.12.0 - Independent animation speeds and display fixes
 
 Backgrounds and Borders each have ANIMATION SPEEDS; TEXT has ANIMATED COLOR SPEEDS. Every animated design has its own saved rate (0% pauses, up to 400%). Old shared rates remain a fallback until customized; the shared speed row is removed. Sentence case capitalizes standalone I and contractions. Game Freak color/shadow controls target the actual Gen 1 splash emblem and wordmark, including a supplied studio logo, while copyright credits use normal intro settings. Start selectors use row geometry rather than capitalized label matching, including native start menus without a stamped screen ID.

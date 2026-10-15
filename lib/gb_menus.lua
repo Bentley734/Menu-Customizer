@@ -392,10 +392,14 @@ return function(mod,catalog)
     G.setColor(.25,.65,1,current.setting('selectionHighlight')/100);G.rectangle('fill',((start.left or 0)+8-sel.x)*rx,-((current.theme.enabled() and current.theme.gbScale()==1) and 7 or 1),math.max(1,(start.width or 160)-16)*rx,(start.pitch or 16)*ry)
    elseif sel.selector>=5 then C.selectors.draw(sel.selector,x-10,y)
    elseif sel.selector==3 then code(0xED,x-10,y)
-   elseif sel.selector==2 then G.setColor(unpack(current.palette.effects.resolve(current.palette.color('text',current.setting('selectorColor')),'menu')));G.rectangle('fill',x,y+8,width,1)
+   elseif sel.selector==2 then
+    G.setColor(1,1,1,1);G.rectangle('fill',x-1,y+7,width+2,3)
+    current.palette.effects.paint(current.palette.color('text',current.setting('selectorColor')),'menu',function()G.rectangle('fill',x,y+8,width,1)end)
    elseif sel.selector==4 then
-    G.setColor(unpack(current.palette.effects.resolve(current.palette.color('text',current.setting('selectorColor')),'menu')))
-    G.rectangle('fill',x-4,y+3,2,2);G.rectangle('fill',x+width+2,y+3,2,2)
+    G.setColor(1,1,1,1);G.rectangle('fill',x-5,y+2,4,4);G.rectangle('fill',x+width+1,y+2,4,4)
+    current.palette.effects.paint(current.palette.color('text',current.setting('selectorColor')),'menu',function()
+     G.rectangle('fill',x-4,y+3,2,2);G.rectangle('fill',x+width+2,y+3,2,2)
+    end)
    else
     local pixels={'..1111..','.122221.','12222221','11144111','13344331','13333331','.133331.','..1111..'}
     local colors={{0,0,0,1},{.85,.12,.12,1},{1,1,1,1},{.5,.5,.5,1}}
@@ -856,6 +860,7 @@ return function(mod,catalog)
      b.w,b.h=right-b.x,bottom-b.y
     end
    end
+   if C.selectorScope then return rect(kind,x,y,w,h,...)end
    if C.drawScope then return menuPalette.tintFill(rect,kind,x,y,w,h,...)end
    return rect(kind,x,y,w,h,...)
   end
@@ -929,7 +934,12 @@ return function(mod,catalog)
     end
     local drawn,e=pcall(draw,s)
     G.pop();s.anchor=anchor;s.showDescription=description
-    if drawn and C.drawSelector then C.drawSelector(C.drawingStart or C.drawingOptions) end
+    if drawn and C.drawSelector then
+     C.selectorScope=true
+     local selected,e=pcall(C.drawSelector,C.drawingStart or C.drawingOptions)
+     C.selectorScope=nil
+     if not selected then error(e,0)end
+    end
     if not drawn then error(e,0) end
    end
   end)
