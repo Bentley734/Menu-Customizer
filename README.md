@@ -1,3 +1,11 @@
+# Menu Customizer 3.33.1 — Native battle backgrounds and HP visibility
+
+Apply Gen 1 battlefield backgrounds without requiring KIM1025. Paint scenery beneath the native sprite/HUD layers, replace the native white scratch-layer paper with transparency, preserve palette-zone recoloring, and protect the finished custom field from the frame palette pass. Keep native shake-edge paper from erasing the custom scenery.
+
+This also restores visibility of white HP labels and numbers, which blended into the unwanted white field when KIM was disabled. Keep HP foreground/shadow preferences and bar styling intact. Expose the battlefield picker for native Gen 1 battles as well.
+
+Native flat/zone background and white-HP GPU checks, existing HUD color/gauge/party and name/choice regressions, and Gen 1–3 startup checks passed. Restart after updating.
+
 # Menu Customizer 3.33.0 — Move-learning customization and choice layering
 
 Keep crisp Gen 1 battle names behind overlapping child windows, including Yes/No prompts and separate late HUD passes. Preserve their integer glyph rendering and faint/switch visibility rules.

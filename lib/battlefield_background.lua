@@ -14,7 +14,6 @@ return function(mod)
  end
  function M.rows(openPage)
   if mod.generation==2 then return{}end
-  if mod.generation==1 then local ok,kim=pcall(mod.find,'kim1025');if not ok or not kim then return{}end end
   local P=mod.exports.selectorPalette
   local function write(ctx,n)mod.exports.customization.write(ctx,{battlefieldBackgroundColor=n});return false end
   local row={id='wide_battlefieldBackgroundColor',label='BATTLEFIELD BACKGROUND',value=function()return M.choice()==0 and'NATIVE'or P.backgroundNames[M.choice()]end,
@@ -22,6 +21,39 @@ return function(mod)
   P.picker(row,'menuBackground',M.choice,write,openPage,'NATIVE');return{row}
  end
  function M.install()
+  if mod.generation==1 then
+   local B=require('src.battle.BattleState');local classic=B.drawClassic
+   local zone=B.drawZonePass
+   B.drawZonePass=function(self,...)
+    if not self._menuCustomizerNativeField then return zone(self,...)end
+    -- Shaking zone passes normally fill their exposed edges with white paper.
+    local G=love.graphics;local rectangle=G.rectangle
+    G.rectangle=function(mode,...)if mode~='fill'then return rectangle(mode,...)end end
+    local out={pcall(zone,self,...)};G.rectangle=rectangle
+    if not out[1]then error(out[2],0)end;return(unpack or table.unpack)(out,2)
+   end
+   B.drawClassic=function(self,...)
+    if self.blankForAskName or M.choice()==0 then return classic(self,...)end
+    -- Paint scenery on the destination, keeping the native HUD scratch layer
+    -- transparent instead of erasing the scenery with its white paper.
+    if not M.draw(0,0,160,144)then return classic(self,...)end
+    local G=love.graphics;local rectangle=G.rectangle;local replaced=false
+    G.rectangle=function(mode,x,y,w,h,...)
+     local r,g,b,a=G.getColor()
+     if not replaced and mode=='fill'and x==0 and y==0 and w==160 and h==144 and r==1 and g==1 and b==1 and a==1 then
+      replaced=true
+      if G.getCanvas()==self.bgCanvas then G.clear(0,0,0,0)end
+      return
+     end
+     return rectangle(mode,x,y,w,h,...)
+    end
+    local prior=self._menuCustomizerNativeField;self._menuCustomizerNativeField=true
+    local out={pcall(classic,self,...)};self._menuCustomizerNativeField=prior;G.rectangle=rectangle
+    require('src.render.PaletteFX').markTrueColor(0,0,160,144)
+    if not out[1]then error(out[2],0)end;return(unpack or table.unpack)(out,2)
+   end
+   return
+  end
   if mod.generation~=3 then return end
   local Bg=require('src.core.game3.battle.bg');local draw=Bg.draw
   Bg.draw=function(...)
