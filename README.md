@@ -1,3 +1,9 @@
+# Menu Customizer 3.27.3 — Continuous HUD border animation
+
+Restore the tall player HP end-cap stroke and treat its complete tile as part of the customizable status frame. It now shares frame color, shadow, animation and visibility settings, with the same protection from native palette recoloring. Gradients use the same screen coordinates as adjacent frame tiles.
+
+GPU validation verifies restored stroke color, palette preservation and gradient continuity across the cap/side joint. Restart after updating.
+
 # Menu Customizer 3.27.2 — Larger battle commands
 
 Enlarge the four battle command labels and the full two-line prompt by using the available panel space. Retain whole-pixel scaling, full labels and selector clearance. Move selection and dialogue are unchanged. Rendered native replay comparisons passed across all battle text sizes and justifications. Restart after updating.

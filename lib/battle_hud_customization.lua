@@ -63,7 +63,7 @@ return function(mod)
    local result={pcall(original,text,x,y,...)};role=prior
    if not result[1]then error(result[2],0)end;return unpack(result,2)
   end
-  local draw=G.draw;local Assets=require('src.render.Assets');local images={};local caps=setmetatable({},{__mode='k'});local loaded=false
+  local draw=G.draw;local Assets=require('src.render.Assets');local images={};local loaded=false
   local function tiles()
    if loaded then return end;loaded=true
    local data=require('src.core.Data');local pages=data.font and data.font.pages or{}
@@ -89,15 +89,9 @@ return function(mod)
     tiles();local base=images[image]
     if base and quad then
      local x,y=quad:getViewport();local width=image:getWidth();local code=base+y/8*(width/8)+x/8
-     if code==0x6D then
-      -- The player HP cap also contains an unrelated tall black stroke.
-      -- Keep its three-pixel gauge cap; the customized frame owns the side.
-      if not caps[quad]then local qx,qy,_,qh=quad:getViewport();caps[quad]=G.newQuad(qx,qy,3,qh,image:getDimensions())end
-      args[1]=caps[quad];return draw(image,unpack(args))
-     end
      if code==0x6E then chosen='Level'
      elseif code==0x71 then chosen='HP'
-     elseif code==0x73 or code==0x74 or code==0x76 or code==0x77 or code==0x78 or code==0x6F then chosen='Frame'end
+     elseif code==0x6D or code==0x73 or code==0x74 or code==0x76 or code==0x77 or code==0x78 or code==0x6F then chosen='Frame'end
     end
    end
    if not chosen then return draw(image,...)end

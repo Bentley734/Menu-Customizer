@@ -63,7 +63,7 @@ function love.load()
   api.customization.write(game,{battleHudFrameColor=4})
   api.battleHudScope=true;require('src.render.HudTiles').tile(0x76,32,32);require('src.render.HudTiles').tile(0x6D,48,32);require('src.render.HudTiles').tile(0x73,64,32);api.battleHudScope=nil
   G.setCanvas();local before=src:newImageData()
-  for y=32,39 do for x=51,55 do local _,_,_,a=before:getPixel(x,y);assert(a==0,'Black HP-cap stroke was not removed')end end
+  local r,g,b,a=before:getPixel(51,32);assert(a>.9 and r>.4 and g<.2,'Restored HP-cap stroke did not use frame color')
   local _,_,_,cap=before:getPixel(48,35);assert(cap>.9,'Functional HP gauge cap was removed')
   local _,_,_,side=before:getPixel(67,32);assert(side>.9,'Customizable HUD side was not restored')
   local target=G.newCanvas(160,144);G.setCanvas(target);G.origin();G.clear(1,1,1,1)
@@ -76,11 +76,19 @@ function love.load()
    local r,g,b=pixels:getPixel(x+3,y+6);assert(r>.9 and g>.9 and b>.9,'Party ball white lost during palette compositing')
   end
   local red=0
-  for y=32,39 do for x=32,39 do local r,g,b,a=before:getPixel(x,y)
+  for y=32,39 do for x=32,71 do local r,g,b,a=before:getPixel(x,y)
    if a>.1 then local rr,gg,bb=pixels:getPixel(x,y);assert(math.abs(r-rr)<.01 and math.abs(g-gg)<.01 and math.abs(b-bb)<.01,'Status frame recolored');if r>.4 and g<.2 then red=red+1 end end
   end end
   assert(red>0,'Status frame test did not draw colored frame ink')
   write(version..'-party-balls-final.png',pixels:encode('png'):getString())
+  local gradient
+  for i=0,#api.selectorPalette.names-1 do if api.selectorPalette.color('text',i).animation=='GRADIENT'then gradient=i;break end end
+  assert(gradient,'No animated frame gradient found')
+  api.customization.write(game,{battleHudFrameColor=gradient})
+  G.setCanvas(src);G.origin();G.clear(0,0,0,0);api.battleHudScope=true
+  require('src.render.HudTiles').tile(0x6D,48,32);require('src.render.HudTiles').tile(0x73,48,40);api.battleHudScope=nil;G.setCanvas()
+  local joined=src:newImageData();local r,g,b=joined:getPixel(51,39);local rr,gg,bb=joined:getPixel(51,40)
+  assert(math.abs(r-rr)<.04 and math.abs(g-gg)<.04 and math.abs(b-bb)<.04,'Animated gradient jumps at the restored frame joint')
   assert(not M.current and not api.previewScope,'surface scope leaked')
   write(version..'-result.txt','PASS grouped position/transparency menus and both party ball rows after native palette compositing\n')
  end,debug.traceback)
