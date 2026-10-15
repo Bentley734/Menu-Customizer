@@ -1,3 +1,7 @@
+Menu Customizer 3.8.0 - World void backgrounds
+
+BACKGROUND settings now include INDOOR VOID and OUTDOOR VOID. Choose any static or animated background independently; NATIVE restores the recomp fill, including its existing trees/water/black choices. Defaults remain NATIVE. Backgrounds paint only outside map bodies and connected neighbors. ALL BACKGROUNDS also updates enabled void backgrounds without enabling native ones. Gen 1/2 ground renderers and the Gen 3 native field renderer are supported.
+
 Menu Customizer 3.7.0 - Matching black psychedelic backgrounds
 
 Adds 20 animated black backgrounds: two variations for each existing black psychedelic border family. Thin muted violet patterns on near-black fields. Find their BLACK-prefixed names in the consolidated DESIGNS list, including ALL BACKGROUNDS. All existing saved design IDs remain unchanged.
