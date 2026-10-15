@@ -1,3 +1,7 @@
+Menu Customizer 3.17.1 - Intro sprite floor
+
+EDGE and HIDDEN intro bar modes move both Pokemon down together until Gengar rests on the lower bar or bottom of the native scene. Original mode is unchanged. Draw offsets also apply to sprite replay and restore animation coordinates after drawing, including errors.
+
 Menu Customizer 3.17.0 - Title Options and intro bar modes
 
 Title-screen Options now uses the same customized options renderer before a world is loaded. Adds TEXT > FONT AND LAYOUT > INTRO / TITLE > INTRO BATTLE BARS: ORIGINAL, EDGE (8-pixel outer bars), or HIDDEN. Expanded sprite replay clipping reveals the full Gengar/Nidorino artwork in EDGE/HIDDEN modes. Original bar mode remains the default; custom-background fades retain their timing.

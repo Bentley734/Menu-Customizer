@@ -76,6 +76,20 @@ return function(mod,palette,active)
   local ok,Class=pcall(require,path)
   if ok and type(Class.draw)=='function'and not Class._customBootPaper then
    Class._customBootPaper=true;local draw=Class.draw
+   if path=='src.ui.IntroMovie'and Class.drawFight then
+    local fight=Class.drawFight
+    Class.drawFight=function(self,...)
+     local mode=tonumber(mod.options:get('introBattleBars'))or 0
+     local image=self.gengarFrames and self.gengarFrames[self.gengarPose]
+     if not active()or mode==0 or not image then return fight(self,...)end
+     local gengarY,nidoY=self.gengarY,self.nidoY
+     local floor=mode==1 and 136 or 144
+     local offset=math.max(0,floor-(gengarY+image:getHeight()))
+     self.gengarY,self.nidoY=gengarY+offset,nidoY+offset
+     local result={pcall(fight,self,...)};self.gengarY,self.nidoY=gengarY,nidoY
+     if not result[1]then error(result[2],0)end;return(unpack or table.unpack)(result,2)
+    end
+   end
    if path=='src.ui.IntroMovie'and Class.replayObjLayer then
     local replay=Class.replayObjLayer
     Class.replayObjLayer=function(self,...)
