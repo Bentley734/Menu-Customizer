@@ -107,7 +107,7 @@ return function(entries,openPage)
  for _,name in ipairs(order)do local children=pages[name]
   out[#out+1]={id='wide_page_'..name,label=name,group=true,children=children,value=function()return #children..' OPTIONS'end,activate=function(ctx)return openPage(name,children,ctx)end}
  end
- if themes then out[#out+1]=themes end
+ if themes then table.insert(out,1,themes)end
  if storage then out[#out+1]=storage end
  return out
 end

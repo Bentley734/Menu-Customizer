@@ -1,3 +1,7 @@
+Menu Customizer 3.19.6 - Themes first
+
+Themes is now the first entry in the main customization menu.
+
 Menu Customizer 3.19.5 - More-below arrow
 
 Customization pages show the native down arrow at the bottom right when more entries, including BACK, remain below the visible rows. Hidden at the end of the list. Works on standard and detail pages independently of control-hint visibility.
