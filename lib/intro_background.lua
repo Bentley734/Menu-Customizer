@@ -24,10 +24,14 @@ return function(mod,palette,active)
   if color then extendedPaper(color,G.rectangle,'fill',x,y,w,h)
   else G.setColor(1,1,1,1);G.rectangle('fill',x,y,w,h)end
   if bars then
-   finalBars={color=bars,width=ctx.ww,height=ctx.wh,top=ctx.oy+32*sy,bottom=ctx.oy+112*sy}
-   G.setShader();G.setColor((unpack or table.unpack)(bars))
-   G.rectangle('fill',x,y,w,math.max(0,32-y))
-   G.rectangle('fill',x,112,w,math.max(0,y+h-112))
+   -- Intro actors belong to the UI canvas. World zoom and UI scaling can
+   -- differ, so the cinematic band must follow the same UI transform.
+   local uy=frameRects and frameRects.Uy or sy
+   local uoy=frameRects and frameRects.uoy or ctx.oy
+   finalBars={color=bars,width=ctx.ww,height=ctx.wh,top=uoy+32*uy,bottom=uoy+112*uy}
+   G.origin();G.setShader();G.setColor((unpack or table.unpack)(bars))
+   G.rectangle('fill',0,0,ctx.ww,math.max(0,finalBars.top))
+   G.rectangle('fill',0,finalBars.bottom,ctx.ww,math.max(0,ctx.wh-finalBars.bottom))
   end
   G.pop()
   if portrait then

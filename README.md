@@ -1,3 +1,7 @@
+Menu Customizer 3.13.1 - Intro cinematic alignment
+
+Align Gengar/Nidorino cinematic bars with the UI sprite canvas rather than the independently zoomed world. This prevents the bottom bar from rising over the actors when world and UI scales differ. Preserves the original 32..112 scene band and intro timing.
+
 Menu Customizer 3.13.0 - Falling star customization
 
 TEXT > COLORS > GAME FREAK FALLING STARS controls the splash stars independently from the emblem and wordmark. Supports the full static and animated color catalog; global colors and themes include it. Falling waves keep moving past the old cap and bottom bar until they leave the screen or the intro advances. Other intro timing and the shooting star remain unchanged.
