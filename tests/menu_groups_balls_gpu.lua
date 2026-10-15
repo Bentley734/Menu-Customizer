@@ -61,9 +61,11 @@ function love.load()
   local party={{hp=20},nil,nil,nil,nil,nil}
   B.drawBallRow({},party,64,16,-8);B.drawBallRow({},party,88,80,8)
   api.customization.write(game,{battleHudFrameColor=4})
-  api.battleHudScope=true;require('src.render.HudTiles').tile(0x76,32,32);require('src.render.HudTiles').tile(0x73,48,32);api.battleHudScope=nil
+  api.battleHudScope=true;require('src.render.HudTiles').tile(0x76,32,32);require('src.render.HudTiles').tile(0x6D,48,32);require('src.render.HudTiles').tile(0x73,64,32);api.battleHudScope=nil
   G.setCanvas();local before=src:newImageData()
-  for y=32,39 do for x=48,55 do local _,_,_,a=before:getPixel(x,y);assert(a==0,'Upper HUD extension was not removed')end end
+  for y=32,39 do for x=51,55 do local _,_,_,a=before:getPixel(x,y);assert(a==0,'Black HP-cap stroke was not removed')end end
+  local _,_,_,cap=before:getPixel(48,35);assert(cap>.9,'Functional HP gauge cap was removed')
+  local _,_,_,side=before:getPixel(67,32);assert(side>.9,'Customizable HUD side was not restored')
   local target=G.newCanvas(160,144);G.setCanvas(target);G.origin();G.clear(1,1,1,1)
   local pals={};for i=0,3 do pals[i]={{1,1,1},{.8,.6,.2},{.4,.2,.1},{0,0,0}}end
   local owner={sgbBattlePals=function()return pals end,activeBgp=function()return nil end}

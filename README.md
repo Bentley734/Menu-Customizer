@@ -1,3 +1,9 @@
+# Menu Customizer 3.27.1 — Correct HP-cap cleanup
+
+Restore the customizable vertical status-border tile removed in 3.26.1. Remove the separate tall black stroke embedded in the native player HP gauge end-cap instead, retaining the three-pixel functional gauge cap. This stroke comes from the native battle_hud_1 tile, not 1025Dex.
+
+GPU regression verifies the restored colored side, retained gauge cap, removed black stroke and unchanged party-indicator colors after native palette compositing. Restart after updating.
+
 # Menu Customizer 3.27.0 — Move layout and navigation
 
 Fix Left/Right navigation in the customized Gen 1/2 move grid by matching the native navigation mode to the displayed layout. Add BATTLE MOVE LAYOUT (GRID / LIST) under Menus → Text → Font and Layout → Battle. Grid is the default and supports all four directions. List displays four vertical entries with Up/Down navigation. Native confirmation, cancellation and move swapping are retained.
