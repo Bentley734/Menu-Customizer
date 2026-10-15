@@ -70,7 +70,12 @@ return function(mod,enabled)
  function M.draw(text,x,y,opts)
   local effects=opts and opts.colors and opts.colors._effects
   if effects and not drawing then
-   drawing=true;local result={pcall(effects.sequence,opts.colors._kind or 'battle',M.draw,text,x,y,opts)};drawing=false
+   drawing=true
+   local kind=opts.colors._kind or 'battle'
+   local function print(t,px,py,o)
+    return effects.drawStardew(kind,M.draw,function(c)return M.measure(c,o)or 0 end,t,px,py,o)
+   end
+   local result={pcall(effects.sequence,kind,print,text,x,y,opts)};drawing=false
    if not result[1]then error(result[2],0)end;return unpack(result,2)
   end
   local ids=glyphs(text);if not ids then return nil end

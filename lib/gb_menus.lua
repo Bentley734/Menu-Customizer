@@ -236,6 +236,12 @@ return function(mod,catalog)
   end
 
   local function label(text,x,y,render,...)
+   local nativeRender=render
+   render=function(t,px,py,...)
+    local c=Font._menuCustomizerGB;local e=c and c.mod.exports or mod.exports
+    local kind=e.battleNameScope and'name'or e.battleFontScope and'battle'or'menu'
+    return(c and c.palette or menuPalette).effects.drawStardew(kind,nativeRender,Font.width,t,px,py,...)
+   end
    local current=Font._menuCustomizerGB
    local scope=current and current.mod and current.mod.exports or mod.exports
    if current and scope.battleHudScope then
@@ -527,7 +533,9 @@ return function(mod,catalog)
    if enabled and type(args[2])=='string'then args[2]=current.mod.exports.customization.text(args[2])end
    local result={pcall(TextBox._menuCustomizerDialogueNew,unpack(args,1,args.n))}
    if current then current.dialogueScope=old end
-   if not result[1]then error(result[2],0)end;return unpack(result,2)
+   if not result[1]then error(result[2],0)end
+   if type(result[2])=='table'and type(args[2])=='string'and args[2]:lower():find('saved%s+the%s+game')then result[2]._menuCustomizerSavedGame=true end
+   return unpack(result,2)
   end
  end
  if not TextBox._menuCustomizerDialogueDraw then

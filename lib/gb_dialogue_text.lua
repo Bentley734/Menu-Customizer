@@ -9,7 +9,7 @@ return function(Font)
   if not source then return render()end
   local ax,ay=G.transformPoint(x,y);local bx,by=G.transformPoint(x+1,y);local cx,cy=G.transformPoint(x,y+1)
   local queue=M.queues[source]or{};M.queues[source]=queue
-  queue[#queue+1]={owner=Font._menuCustomizerGB.dialogueOwner,page=Font._menuCustomizerGB.dialogueOwner and Font._menuCustomizerGB.dialogueOwner.pageIndex,waveOpacity=Font._menuCustomizerGB.mod.exports.jumpWave.opacity,learning=Font._menuCustomizerGB.mod.exports.moveLearningProfile and Font._menuCustomizerGB.mod.exports.moveLearningProfile.active,choice=true,x=ax,y=ay,hx=bx-ax,hy=by-ay,vx=cx-ax,vy=cy-ay,nominal=nominal,render=render,color={G.getColor()}}
+  queue[#queue+1]={motionApplied=Font._menuCustomizerGB.mod.exports.jumpWave.active,owner=Font._menuCustomizerGB.dialogueOwner,page=Font._menuCustomizerGB.dialogueOwner and Font._menuCustomizerGB.dialogueOwner.pageIndex,waveOpacity=Font._menuCustomizerGB.mod.exports.jumpWave.opacity,learning=Font._menuCustomizerGB.mod.exports.moveLearningProfile and Font._menuCustomizerGB.mod.exports.moveLearningProfile.active,choice=true,x=ax,y=ay,hx=bx-ax,hy=by-ay,vx=cx-ax,vy=cy-ay,nominal=nominal,render=render,color={G.getColor()}}
  end
  local code=Font.drawCode
  Font.drawCode=function(id,x,y,...)
@@ -21,7 +21,7 @@ return function(Font)
   local rx,ry=choice and C.drawScope and (C.resizeX or 1)or 1,choice and C.drawScope and (C.resizeY or 1)or 1
   local nominal=C.theme.enabled()and C.theme.gbAdvance(id)and C.theme.gbScale()or 1
   local queue=M.queues[source]or {};M.queues[source]=queue
-  queue[#queue+1]={owner=Font._menuCustomizerGB.dialogueOwner,page=Font._menuCustomizerGB.dialogueOwner and Font._menuCustomizerGB.dialogueOwner.pageIndex,waveOpacity=Font._menuCustomizerGB.mod.exports.jumpWave.opacity,learning=C.mod.exports.moveLearningProfile and C.mod.exports.moveLearningProfile.active,choice=choice,id=id,x=ax,y=ay,hx=(bx-ax)/rx,hy=(by-ay)/rx,vx=(cx-ax)/ry,vy=(cy-ay)/ry,nominal=nominal,
+  queue[#queue+1]={motionApplied=Font._menuCustomizerGB.mod.exports.jumpWave.active,owner=Font._menuCustomizerGB.dialogueOwner,page=Font._menuCustomizerGB.dialogueOwner and Font._menuCustomizerGB.dialogueOwner.pageIndex,waveOpacity=Font._menuCustomizerGB.mod.exports.jumpWave.opacity,learning=C.mod.exports.moveLearningProfile and C.mod.exports.moveLearningProfile.active,choice=choice,id=id,x=ax,y=ay,hx=(bx-ax)/rx,hy=(by-ay)/rx,vx=(cx-ax)/ry,vy=(cy-ay)/ry,nominal=nominal,
    color={G.getColor()},args={n=select('#',...),...}}
  end
  local draw=G.draw;local replaying=false
@@ -33,13 +33,14 @@ return function(Font)
    local x,y,rotation,sx,sy,ox,oy=...
    if final and type(x)=='number'and (rotation or 0)==0 then
     sx=sx or 1;sy=sy or sx;local dpi=target and target:getDPIScale()or G.getDPIScale()
-    local C=Font._menuCustomizerGB;local prior,priorChoice=C.dialogueScope,C.mod.exports.choiceFontScope;replaying=true
+    local C=Font._menuCustomizerGB;local prior,priorChoice=C.dialogueScope,C.mod.exports.choiceFontScope;local priorOwner=C.dialogueOwner;replaying=true
     local profile=C.mod.exports.moveLearningProfile;local priorLearning=profile and profile.active
     if profile and queue[1]and queue[1].learning then profile.active=true end
     G.push('all');G.setBlendMode('alpha','alphamultiply')
     local ok,err=pcall(C.palette.withText,'menu',function()
      local letters={};local space=Font.encode(' ')[1]
      for _,item in ipairs(queue)do
+      C.dialogueOwner=item.owner
       C.dialogueScope=not item.choice;C.mod.exports.choiceFontScope=item.choice
       local px,py=x+(item.x-(ox or 0))*sx,y+(item.y-(oy or 0))*sy
       local hx=math.sqrt((item.hx*sx)^2+(item.hy*sy)^2)
@@ -51,11 +52,11 @@ return function(Font)
       local function ink()if item.render then item.render()else code(item.id,0,0,unpack(item.args,1,item.args.n))end end
       local key=tostring(item.owner or source)..':'..tostring(item.page or 0)..':'..tostring(item.choice)
       letters[key]=(letters[key]or 0)+(item.id==space and 0 or 1)
-      local function motion()return C.palette.effects.replayMotion('menu',key,math.max(1,letters[key]),ink)end
+      local function motion()if item.motionApplied then return ink()end;return C.palette.effects.replayMotion('menu',key,math.max(1,letters[key]),ink)end
       if item.waveOpacity then C.mod.exports.jumpWave.withOpacity(item.waveOpacity,motion)else motion()end
      end
     end)
-    G.pop();replaying=false;C.dialogueScope,C.mod.exports.choiceFontScope=prior,priorChoice
+    G.pop();replaying=false;C.dialogueScope,C.mod.exports.choiceFontScope=prior,priorChoice;C.dialogueOwner=priorOwner
     if profile then profile.active=priorLearning end
     if not ok then error(err,0)end
    end

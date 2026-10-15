@@ -1,3 +1,11 @@
+# Menu Customizer 3.35.2 — Stardew text rendering and saved-game message
+
+Apply Stardew at the complete-string rendering boundary for imported and native text, rather than relying solely on glyph-effect sequence state. Retain per-character spacing, independent speed/height/count, selector combination, and baseline restoration.
+
+Add independent SAVED GAME MESSAGE text controls for the player-name “saved the game” notification. Preserve that message identity through deferred dialogue rendering so its Stardew toggle, jumps, speed and height do not affect other save prompts or ordinary dialogue.
+
+Tests skipped at the user’s explicit request. Release assets verified after publication. Restart after updating.
+
 # Menu Customizer 3.35.1 — Stardew speed and height
 
 Add independent STARDEW SPEED (25–300%, 25% steps) and STARDEW HEIGHT (1–12 logical pixels) to Selectors and all Stardew text-effect controls, including All Fonts propagation. Defaults retain the 450ms cycle and 5px amplitude. Keep original Jump Wave speed independent. All paths, including native HP/level strings and deferred/imported glyphs, use the selected speed/height and return to baseline after the requested jump count.
