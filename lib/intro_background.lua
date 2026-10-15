@@ -1,6 +1,6 @@
 -- Replace white boot-screen paper while preserving native state/input flow.
 return function(mod,palette,active)
- local G=love.graphics;local keyShader;local starShader;local pending=false;local pendingBars;local finalBars;local frameRects;local wideArea={0,0,160,144}
+ local G=love.graphics;local keyShader;local starShader;local pending=false;local pendingBars;local finalBars;local frameRects;local pendingFight;local wideArea={0,0,160,144}
  local function backgroundColor()
   local n=tonumber(mod.options:get('introBackgroundColor')or mod.save:get('introBackgroundColor'))or 0
   return n>0 and palette.color('background',n-1)or nil
@@ -11,7 +11,7 @@ return function(mod,palette,active)
   if not result[1]then error(result[2],0)end;return (unpack or table.unpack)(result,2)
  end
  mod.hooks:wrap('render.letterbox',function(next,ctx)
-  local result=next(ctx);local boot,bars=pending,pendingBars;pending=false;pendingBars=nil
+  local result=next(ctx);local boot,bars,fighters=pending,pendingBars,pendingFight;pending=false;pendingBars=nil;pendingFight=nil
   local portrait=mod.exports.titleScrollPortrait;mod.exports.titleScrollPortrait=nil
   if not(boot and active())then return result end
   local sx=ctx.scale/(ctx.dpiX or 1);local sy=ctx.scale/(ctx.dpiY or 1)
@@ -36,6 +36,19 @@ return function(mod,palette,active)
    end
   end
   G.pop()
+  if fighters then
+   local R=frameRects;local ux,uy=R and R.Ux or sx,R and R.Uy or sy
+   local ox,oy=R and R.uox or ctx.ox,R and R.uoy or ctx.oy
+   local factor=fighters.factor;local floor=fighters.floor
+   G.push('all');G.origin();G.setShader();G.setBlendMode('alpha','alphamultiply')
+   local top=fighters.mode==0 and 32 or fighters.mode==1 and 8 or 0
+   G.setScissor(0,math.max(0,oy+top*uy),ctx.ww,math.max(0,(floor-top)*uy))
+   for _,actor in ipairs(fighters)do
+    G.setColor((unpack or table.unpack)(actor.color))
+    G.draw(actor.image,ox+(80+(actor.x-80)*factor)*ux,oy+(floor+(actor.y-floor)*factor)*uy,0,ux*factor,uy*factor)
+   end
+   G.pop()
+  end
   if portrait then
    local R=frameRects
    local ux,uy=R and R.Ux or sx,R and R.Uy or sy
@@ -81,12 +94,23 @@ return function(mod,palette,active)
     Class.drawFight=function(self,...)
      local mode=tonumber(mod.options:get('introBattleBars'))or 0
      local image=self.gengarFrames and self.gengarFrames[self.gengarPose]
-     if not active()or mode==0 or not image then return fight(self,...)end
+     if not active()or not image then return fight(self,...)end
+     local width,height=160,90;if G.getDimensions then width,height=G.getDimensions()end
+     local factor=math.min(1.6,math.max(1,math.sqrt((width/math.max(1,height))/(16/9))))
+     if mode==0 and factor<=1 then return fight(self,...)end
      local gengarY,nidoY=self.gengarY,self.nidoY
-     local floor=mode==1 and 136 or 144
+     local floor=mode==0 and 112 or mode==1 and 136 or 144
      local offset=math.max(0,floor-(gengarY+image:getHeight()))
      self.gengarY,self.nidoY=gengarY+offset,nidoY+offset
+     local printer,replay=G.draw,self.replayObjLayer
+     if factor>1 then
+      local queue={factor=factor,floor=floor,mode=mode};pendingFight=queue
+      G.draw=function(actor,x,y,...)queue[#queue+1]={image=actor,x=x,y=y,color={G.getColor()}}end
+      self.replayObjLayer=function()end
+     end
      local result={pcall(fight,self,...)};self.gengarY,self.nidoY=gengarY,nidoY
+     G.draw=printer;self.replayObjLayer=replay
+     if not result[1]then pendingFight=nil end
      if not result[1]then error(result[2],0)end;return(unpack or table.unpack)(result,2)
     end
    end

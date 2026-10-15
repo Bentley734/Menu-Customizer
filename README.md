@@ -1,3 +1,7 @@
+Menu Customizer 3.17.2 - Ultrawide intro actors
+
+Scale intro Pokemon proportionally with window aspect above 16:9, capped at 160%. Render actors in the full-window pass to avoid narrow-canvas cropping, preserving their common bottom anchor and selected cinematic bar mode. Standard/narrow windows retain existing scale.
+
 Menu Customizer 3.17.1 - Intro sprite floor
 
 EDGE and HIDDEN intro bar modes move both Pokemon down together until Gengar rests on the lower bar or bottom of the native scene. Original mode is unchanged. Draw offsets also apply to sprite replay and restore animation coordinates after drawing, including errors.
