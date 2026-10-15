@@ -482,6 +482,15 @@ return function(mod,catalog)
  end
  C.dialogueText=assert(load(assert(mod:read('lib/gb_dialogue_text.lua'))))()(Font)
  local TextBox=require('src.render.TextBox')
+ if not TextBox._menuCustomizerDialogueNames then
+  TextBox._menuCustomizerDialogueNames=true;local substitute=TextBox.substitute
+  TextBox.substitute=function(game,text,...)
+   local expanded=substitute(game,text,...);local C=Font._menuCustomizerGB
+   if C and C.live()and C.dialogueScope then return C.mod.exports.customization.text(expanded,game)end
+   return expanded
+  end
+ end
+
  if not TextBox._menuCustomizerPaginateInset then
   local paginate=TextBox.paginate
   TextBox.paginate=function(text,cols,...)

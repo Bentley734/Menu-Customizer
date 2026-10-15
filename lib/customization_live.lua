@@ -89,9 +89,10 @@ return function(mod)
  local upperAccents={};for upper,lower in pairs(lowerAccents)do upperAccents[lower]=upper end
  local properNames=assert(load(assert(mod:read('lib/proper_names.lua'))))()(mod)
  local modes={'ORIGINAL','SENTENCE CASE','LOWERCASE','TITLE CASE'}
- function M.text(text)
+ function M.text(text,game)
   if mod.exports.jumpWave and mod.exports.jumpWave.active then return text end
   if type(text)~='string'then return text end
+  if game then properNames.observe(game.save)end
   local C=mod.exports.gbMenus
   local mode=mod.exports.textScopes and mod.exports.textScopes.mode()or tonumber(mod.options:get(C and C.introScope and 'introTextCase'or 'textCase'))or 0
   if mode==0 then return text end

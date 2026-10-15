@@ -1,3 +1,7 @@
+Menu Customizer 3.23.9 - Dialogue names after token expansion
+
+Apply selected dialogue casing after PLAYER/RIVAL tokens expand, using names from that dialogue game save. Sentence and Title Case normalize player/rival names; vanilla remains unchanged.
+
 Menu Customizer 3.23.8 - Standalone Pokedex formatting
 
 Without KIM1025, wrap descriptions to the actual font width and frame interior with small insets and three rows per page. Show Height in feet/inches and Weight in pounds, replacing metric/abbreviated labels. KIM presentation remains cooperative.

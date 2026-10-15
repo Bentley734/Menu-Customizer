@@ -33,6 +33,7 @@ return function(mod)
   remember(save.playerName);remember(save.rivalName)
   if save.player then remember(save.player.name);remember(save.player.rival)end
  end
+ M.observe=observe
  mod.hooks:wrap('screen.render_visible',function(next,state,...)
   if state then observe(state.save);observe(state.game and state.game.save)end
   return next(state,...)
