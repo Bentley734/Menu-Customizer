@@ -535,8 +535,8 @@ return function(mod,catalog)
   TextBox.draw=function(self,...)
    local current=Font._menuCustomizerGB
    local enabled=current and current.live()
-   local priorDialogue=current and current.dialogueScope
-   if enabled then current.dialogueScope=true end
+   local priorDialogue=current and current.dialogueScope;local priorOwner=current and current.dialogueOwner
+   if enabled then current.dialogueScope=true;current.dialogueOwner=self end
    local oldX,oldY1,oldY2=self.textX,self.line1Y,self.line2Y
    local glyph=Font.drawCode
    if enabled then
@@ -567,7 +567,7 @@ return function(mod,catalog)
     if enabled then return current.palette.withText('menu',draw)end;return draw()
    end)
    Font.drawCode=glyph;self.textX,self.line1Y,self.line2Y=oldX,oldY1,oldY2
-   if enabled then current.dialogueScope=priorDialogue end
+   if enabled then current.dialogueScope=priorDialogue;current.dialogueOwner=priorOwner end
    if not ok then error(result,0) end
    return result
   end

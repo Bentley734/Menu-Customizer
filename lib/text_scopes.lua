@@ -11,6 +11,7 @@ return function(mod)
   if c and c.summaryScope then return'saveSummary'end
   if e.battleNameScope then return'battleName'end
   if e.battleFontScope then return'battle'end
+  if e.choiceFontScope then return'option'end
   if e.dialogueFontScope or c and c.dialogueScope then return'dialogue'end
   if e.menuSurfaces and e.menuSurfaces.current then return e.menuSurfaces.current end
   if M.current then return M.current end
@@ -33,6 +34,12 @@ return function(mod)
   for _,s in ipairs(M.scopes)do local scope,label=s[1],s[2];local key=scope..'TextCase'
    rows[#rows+1]={id='wide_'..key,label=label,value=function()return names[M.mode(scope)+1]end,
     step=function(ctx,d)C.write(ctx,{[key]=(M.mode(scope)+(d or 1))%4});return false end}
+  end
+  local existing={menu=true,intro=true,battle=true,battleName=true,mods=true}
+  for _,spec in ipairs(M.scopes)do
+   if not existing[spec[1]]then
+   for _,row in ipairs(P.effects.stardewRows(spec[1],spec[2],function(ctx,key,n)C.write(ctx,{[key]=n});return false end))do rows[#rows+1]=row end
+   end
   end
   local function current()return tonumber(mod.options:get('gameFreakTextColor'))or tonumber(mod.options:get('introTextColor'))or 0 end
   local function write(ctx,n)C.write(ctx,{gameFreakTextColor=n});return false end

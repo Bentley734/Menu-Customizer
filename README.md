@@ -1,3 +1,11 @@
+# Menu Customizer 3.35.0 — Stardew jump counts and text customization
+
+Stardew now stays visible and returns to its original baseline after a configurable 1–20 jumps (default 3). Remove the previous notification-style fade/downward exit. Add STARDEW JUMPS beside the selector toggle; changing selection restarts the animation and companion cursor artwork remains independent.
+
+Add STARDEW and STARDEW JUMPS to existing text-effect controls, with independent controls for the other customizable text scopes, including dialogue, Start/options/save summary, party/bag/summary/Pokedex/player card, PC/shop/mod/load-report text, battle names, command options/prompt, move selection and move learning. All Fonts can set the effect/count across these scopes. Text animation starts with its visible content, settles after the requested cycles, ignores spaces for phase, and keeps whole-pixel offsets. Preserve scope and page identity for deferred dialogue glyphs, and support native HP/level strings alongside imported font glyphs.
+
+GPU checks cover requested jump counts, visible baseline restoration, scope isolation, All Fonts propagation, alternating glyphs across spaces, native HP numbers, selector compatibility, save/HP palettes, move-learning layering and integer battle text. Gen 1–3 startup/profile checks passed. Restart after updating.
+
 # Menu Customizer 3.34.2 — Discoverable Stardew selector
 
 Add STARDEW to the Start Selector and Arrow Selector style choices as well as the independent STARDEW toggle under Menus → Selectors. Selecting the style enables its animation directly; keeping another marker selected and turning the toggle on combines the two. Extend independent battle/move/mod selector pickers to include the new style, without changing saved IDs for existing markers.

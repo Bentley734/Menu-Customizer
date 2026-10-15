@@ -68,7 +68,18 @@ return function(mod)
    if mod.exports.battleHudScope and not mod.exports.battleNameScope then
     if y==8 or y==64 then role='Level'elseif y==80 then role='HP'end
    end
-   local result={pcall(original,text,x,y,...)};role=prior
+   local function print(...)
+    local effects=mod.exports.selectorPalette.effects
+    if role=='HP'or role=='Level'then
+     local function width(c)
+      local old=mod.exports.battleFontScope;mod.exports.battleFontScope=false
+      local w=F.width(c);mod.exports.battleFontScope=old;return w
+     end
+     return effects.drawStardew('battle',original,width,text,x,y,...)
+    end
+    return original(text,x,y,...)
+   end
+   local result={pcall(print,...)};role=prior
    if not result[1]then error(result[2],0)end;return unpack(result,2)
   end
   local draw=G.draw;local Assets=require('src.render.Assets');local images={};local loaded=false

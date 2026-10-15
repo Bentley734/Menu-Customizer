@@ -63,12 +63,12 @@ function love.load()
   assert(width==32 and #marks==5,'UTF-8 split or spaces changed advance')
   assert(marks[1][3]==15 and marks[3][3]==25 and marks[5][3]==15,'Letters do not alternate in opposite directions')
   assert(marks[2][2]==18 and marks[2][3]==20 and marks[4][2]==30,'Spaces moved or consumed bounce phase')
-  assert(math.abs(marks[1][4]-.375)<.001,'300ms entrance alpha is wrong')
-  local a,y=J.timeline(.3);assert(a==1 and y==0)
-  a,y=J.timeline(3.79);assert(a==1 and y==0)
-  a,y=J.timeline(4.05);assert(math.abs(a-.5)<.001 and y==10)
-  a,y=J.timeline(4.3);assert(a==0 and y==20)
-  now=5;marks={};J.draw(printer,function()return 8 end,'A',0,0);assert(marks[1][4]==0,'One-shot restarted itself')
+  assert(marks[1][4]==1,'Stardew text should remain fully visible')
+  api.customization.write(game,{stardewJumps=1})
+  assert(J.bounce(.45,1,J.jumps(),100)==0 and J.bounce(5,1,J.jumps(),100)==0,'One jump did not settle')
+  api.customization.write(game,{stardewJumps=4})
+  assert(J.bounce(.5625,1,J.jumps(),100)==5 and J.bounce(1.8,1,J.jumps(),100)==0,'Jump count ignored')
+  now=5;marks={};J.draw(printer,function()return 8 end,'A',0,0);assert(marks[1][4]==1 and marks[1][3]==0,'Text did not return to its original visible location')
   now=6;J.select(owner,2,'B');assert(J.started==6,'New selection did not restart')
   local color=G.setColor;local ok=pcall(J.draw,function()error('test')end,function()return 8 end,'A',0,0);assert(not ok and G.setColor==color and not J.active,'Wave error leaked graphics state')
   local selectors;for _,page in ipairs(api.gbMenus.rows)do if page.label=='SELECTORS'then selectors=page.children end end
@@ -79,6 +79,39 @@ function love.load()
   assert(found and not J.alternating(),'Stardew toggle missing or cannot disable');assert(api.gbMenus.mod.options:get('arrowSelector')==2,'Stardew changed companion marker')
   api.customization.write(game,{arrowSelector=14});assert(J.alternating()and J.enabled(),'Standalone Stardew style does not enable animation')
   api.customization.write(game,{arrowSelector=2})
+  local E=api.selectorPalette.effects;local scope=api.textScopes
+  api.customization.write(game,{menu_fx_stardew=1,menu_fx_stardew_jumps=2,party_fx_stardew=0})
+  scope.with('party',function()assert(E.stardewGet('menu','stardew',0)==0,'Party inherited menu Stardew')end)
+  local colors={_kind='menu',fg={1,1,1,1},shadow={0,0,0,0}}
+  local observed={}
+  local function effectsDraw()
+   E.sequence('menu',function()
+    E.glyph(colors,0,0,function()local _,y=G.transformPoint(0,0);observed[#observed+1]=y end)
+    E.ink(colors,true)
+    E.glyph(colors,10,0,function()local _,y=G.transformPoint(0,0);observed[#observed+1]=y end)
+   end,'Test',0,0)
+  end
+  now=10;effectsDraw();observed={};now=10.1125;effectsDraw()
+  assert(observed[1]==-5 and observed[2]==5,'Text-effect glyphs did not alternate across a space')
+  for i=2,10 do now=10+i*.1;effectsDraw()end
+  observed={};now=11.1;effectsDraw();assert(observed[1]==0 and observed[2]==0,'Text effect did not settle at baseline')
+  local global=api.allFonts.values('menu_fx_stardew_jumps',7)
+  assert(global.party_fx_stardew_jumps==7 and global.battleCommands_fx_stardew_jumps==7,'All Fonts Stardew did not reach individual scopes')
+  local textRows=scope.rows(function()end);local party=false
+  for _,row in ipairs(textRows)do if row.id=='fx_party_fx_stardew'then party=true end end
+  assert(party,'Party text Stardew option missing')
+  api.customization.write(game,{battle_fx_stardew=1,battle_fx_stardew_jumps=2,battleHudHPColor=6,battleHudHPShadowColor=0})
+  local hpCanvas=G.newCanvas(160,144);G.setCanvas(hpCanvas);G.origin();G.clear(0,0,0,1)
+  local F=require('src.render.Font');api.battleHudScope=true;api.battleFontScope=true
+  now=20;F.draw('20',104,80)
+  local hudDraw=G.draw;local positions={}
+  G.draw=function(image,quad,x,y,...)
+   if image.typeOf and image:typeOf('Image')and type(x)=='number'then local _,py=G.transformPoint(x,y);positions[#positions+1]=py end
+   return hudDraw(image,quad,x,y,...)
+  end
+  now=20.1125;F.draw('20',104,80);G.draw=hudDraw
+  api.battleHudScope=nil;api.battleFontScope=nil;G.setCanvas()
+  assert(positions[1]==75 and positions[2]==85,'Native HP digits bypass Stardew text customization')
   love.timer.getTime=timer
   local B=require('src.battle.BattleState');local pixels=love.image.newImageData(8,8);pixels:mapPixel(function()return 1,0,0,1 end);local image=G.newImage(pixels)
   local fake={data={},showPlayerBack=true,playerBackPic=image,picImage=function()return image end,picOffset=function()return 0 end,bottomUIVisible=function()return true end}
@@ -90,7 +123,7 @@ function love.load()
   G.draw=draw;G.setCanvas();G.setScissor()
   assert(#records==2 and records[2][1]==records[1][1]and records[2][2]==records[1][2]+2,'Trainer back did not move down exactly 2px only for Gen4 frame')
   assert(records[1][3]==96 and records[2][3]==98,'Trainer feet remain clipped above visible border')
-  write(version..'-result.txt','PASS Stardew alternating UTF-8/space bounce, one-shot fade/exit, marker combination and scoped 2px Gen4 trainer placement\n')
+  write(version..'-result.txt','PASS Stardew alternating UTF-8/space bounce, configured jump count and baseline restoration, marker combination and scoped 2px Gen4 trainer placement\n')
  end,debug.traceback)
  if not ok then write(version..'-result.txt','FAIL '..tostring(err))end
  love.event.quit(ok and 0 or 1)

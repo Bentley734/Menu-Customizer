@@ -17,12 +17,13 @@ return function(mod)
  end
  function M.alternating()return mod.options:get('stardewEnabled')==1 or mod.options:get('arrowSelector')==14 or mod.options:get('startSelector')==14 end
  function M.enabled()return M.alternating()or M.classicEnabled()end
- function M.timeline(time)
-  if time<.3 then return math.max(0,time/.3),0 end
-  if time<3.8 then return 1,0 end
-  local t=math.max(0,math.min(1,(time-3.8)/.5));local ease=t*t*(3-2*t)
-  return 1-ease,math.floor(20*ease+.5)
+ function M.jumps()return math.max(1,math.min(20,tonumber(mod.options:get('stardewJumps'))or 3))end
+ function M.bounce(time,index,count,speed)
+  local period=.45/math.max(.01,(speed or 100)/100)
+  if time>=period*(count or M.jumps())then return 0 end
+  return math.floor(math.sin(time*2*math.pi/period+(index-1)*math.pi)*5+.5)
  end
+ function M.timeline()return 1,0 end
  function M.withOpacity(alpha,fn,...)
   local G=love.graphics;local set=G.setColor;local prior=M.opacity;M.opacity=alpha
   G.push('all')
@@ -39,14 +40,27 @@ return function(mod)
    step=function(ctx)mod.exports.customization.write(ctx,{jumpWaveEnabled=M.classicEnabled()and 0 or 1});return false end},
    {id='wide_stardewSelector',label='STARDEW',value=function()return M.alternating()and'ON'or'OFF'end,
    step=function(ctx)mod.exports.customization.write(ctx,{stardewEnabled=M.alternating()and 0 or 1});return false end},
+   {id='wide_stardewSelectorJumps',label='STARDEW JUMPS',value=function()return tostring(M.jumps())end,
+   step=function(ctx,d)mod.exports.customization.write(ctx,{stardewJumps=1+(M.jumps()-1+(d or 1))%20});return false end},
    {id='wide_jumpWaveSelectorSpeed',label='JUMP WAVE SPEED',value=function()return tostring(mod.options:get('jumpWaveSpeed')or 100)..'%'end,
    step=function(ctx,d)local n=tonumber(mod.options:get('jumpWaveSpeed'))or 100;n=25+(n-25+(d or 1)*25)%300;mod.exports.customization.write(ctx,{jumpWaveSpeed=n});return false end}}
  end
  function M.offset(index,count,time)
   local speed=tonumber(mod.options:get('jumpWaveSpeed'))or 100
-  if M.alternating()then return math.floor(math.sin(time*speed/100*2*math.pi/.45+(index-1)*math.pi)*5+.5)end
+  if M.alternating()then return M.bounce(time,index,M.jumps(),speed)end
   local phase=(time*speed/100/.22)%(count+3);if math.floor(phase)+1~=index then return 0 end
   return math.floor(math.sin((phase%1)*math.pi)*3+.5)
+ end
+ function M.drawProfile(printer,measure,text,x,y,time,count,...)
+  if type(text)~='string'or text:find('[<>{}]')then return printer(text,x,y,...)end
+  local active=M.active;M.active=true;local pen,ordinal=0,0;local args={...}
+  local out={pcall(function()
+   for c in text:gmatch('[%z\1-\127\194-\244][\128-\191]*')do
+    local offset=0;if not c:match('^%s$')then ordinal=ordinal+1;offset=M.bounce(time,ordinal,count,100)end
+    printer(c,x+pen,y-offset,(unpack or table.unpack)(args));pen=pen+measure(c)
+   end
+  end)}
+  M.active=active;if not out[1]then error(out[2],0)end;return pen
  end
  function M.draw(printer,measure,text,x,y,...)
   if type(text)~='string'or text:find('[<>{}]')then return printer(text,x,y,...)end

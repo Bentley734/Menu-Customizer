@@ -13,8 +13,28 @@ return function(mod,palette)
   local k=(prefixes[kind] or prefixes.battle)..key
   return tonumber(mod.options:get(k) or mod.save:get(k)) or default or 0
  end
+ function M.stardewScope(kind)
+  if kind=='name'then return'battle_name'end
+  if kind=='menu'and mod.exports.textScopes then return mod.exports.textScopes.currentScope()end
+  return kind
+ end
+ function M.stardewGet(kind,suffix,default)
+  local scope=M.stardewScope(kind)
+  return tonumber(mod.options:get(scope..'_fx_'..suffix))or tonumber(mod.save:get(scope..'_fx_'..suffix))or default
+ end
+ function M.stardewRows(scope,label,persist)
+  local rows={}
+  for _,spec in ipairs({{'stardew','STARDEW',0,0,1},{'stardew_jumps','STARDEW JUMPS',3,1,20}})do
+   local key=scope..'_fx_'..spec[1]
+   local function value()return tonumber(mod.options:get(key))or spec[3]end
+   rows[#rows+1]={id='fx_'..key,label=label..' '..spec[2],value=function()return spec[1]=='stardew'and(value()==1 and'ON'or'OFF')or tostring(value())end,
+    step=function(ctx,d)return persist(ctx,key,spec[4]+(value()-spec[4]+(d or 1))%(spec[5]-spec[4]+1))end}
+  end
+  return rows
+ end
  function M.specs(kind)
   local p=prefixes[kind];local s={}
+  s[p..'stardew']={0,0,1,1};s[p..'stardew_jumps']={3,1,20,1}
   s[p..'preset']={0,0,#presets,1}
   s[p..'alternate']={0,0,2,1};s[p..'count']={2,2,5,1};s[p..'speed']={100,25,200,25}
   s[p..'highlight']={0,0,1,1};s[p..'highlight_color']={6,0,#palette.names-1,1}
@@ -40,6 +60,8 @@ return function(mod,palette)
    if colorKind then palette.picker(entry,colorKind,function()return M.get(kind,key,default or spec[1])end,function(ctx,n)return persist(ctx,k,n)end,openPage)end
    rows[#rows+1]=entry
   end
+  row('stardew','STARDEW',{'OFF','ON'})
+  row('stardew_jumps','STARDEW JUMPS')
   row('preset','COLOR PRESET',presetNames)
   local parent=rows
   if kind=='menu'then rows={}end
@@ -62,11 +84,42 @@ return function(mod,palette)
   for _,entry in ipairs(rows)do entry.label=prefix..entry.label end
   return rows
  end
+ local clocks={};local clockCount=0
+ function M.elapsed(kind,text,x,y)
+  local key=M.stardewScope(kind)..':'..tostring(text)..':'..tostring(x)..':'..tostring(y)
+  local now=love.timer.getTime();local state=clocks[key]
+  if not state or now-state.last>.25 then
+   if clockCount>2048 then clocks={};clockCount=0 end
+   state={started=now};clocks[key]=state;clockCount=clockCount+1
+  end
+  state.last=now;return now-state.started
+ end
+ function M.drawStardew(kind,printer,measure,text,x,y,...)
+  local wave=mod.exports.jumpWave
+  if not wave or wave.active or M.stardewGet(kind,'stardew',0)~=1 then return printer(text,x,y,...)end
+  return wave.drawProfile(printer,measure,text,x,y,M.elapsed(kind,text,x,y),M.stardewGet(kind,'stardew_jumps',3),...)
+ end
  local sequences={}
  function M.sequence(kind,fn,...)
   local old=sequences[kind];sequences[kind]={letter=0,word=0,space=true}
+  if M.stardewGet(kind,'stardew',0)==1 then
+   local text,x,y=...;local key=M.stardewScope(kind)..':'..tostring(text)..':'..tostring(x)..':'..tostring(y)
+   local now=love.timer.getTime();local state=clocks[key]
+   if not state or now-state.last>.25 then
+    if clockCount>2048 then clocks={};clockCount=0 end
+    state={started=now};clocks[key]=state;clockCount=clockCount+1
+   end
+   state.last=now;sequences[kind].started=state.started
+  end
   local result={pcall(fn,...)};sequences[kind]=old
   if not result[1]then error(result[2],0)end;return unpack(result,2)
+ end
+ function M.replayMotion(kind,key,letter,fn)
+  if M.stardewGet(kind,'stardew',0)~=1 then return fn()end
+  local old=sequences[kind]
+  sequences[kind]={letter=letter-1,word=0,space=true,started=love.timer.getTime()-M.elapsed(kind,key,0,0)}
+  local out={pcall(fn)};sequences[kind]=old
+  if not out[1]then error(out[2],0)end;return unpack(out,2)
  end
  function M.ink(colors,space)
   local kind=colors._kind or 'battle';local s=sequences[kind]
@@ -154,7 +207,14 @@ return function(mod,palette)
    if not c then return c end;local out={};for k,v in pairs(c)do out[k]=v end
    out[4]=(c[4]or 1)*(1-math.max(0,math.min(100,M.get(kind,key..'_transparency')))/100);return out
   end
+  local wave=mod.exports.jumpWave;local seq=sequences[kind]
+  local offset=0
+  if wave and not wave.active and seq and seq.started and M.stardewGet(kind,'stardew',0)==1 then
+   offset=wave.bounce(love.timer.getTime()-seq.started,seq.letter,M.stardewGet(kind,'stardew_jumps',3),100)
+  end
   return M.aspect(x,y,function()
+   love.graphics.push('all');love.graphics.translate(0,-offset)
+   local result={pcall(function()
    local function layer(c,dx,dy)
     if c and colors._opacity then
      local faded={};for key,value in pairs(c)do faded[key]=value end
@@ -177,6 +237,8 @@ return function(mod,palette)
     for dy=-1,1 do for dx=-1,1 do if dx~=0 or dy~=0 then layer(c,dx,dy)end end end
    end
    return layer(fg,0,0)
+   end)}
+   love.graphics.pop();if not result[1]then error(result[2],0)end;return unpack(result,2)
   end)
  end
  return M
