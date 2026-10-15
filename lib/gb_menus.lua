@@ -249,6 +249,10 @@ return function(mod,catalog)
      if result[2]~=nil then return result[2]end
      scope.battleNameScope=true
     end
+    if scope.battleNameScope and scope.battleNameSurface and current.theme.enabled()then
+     local width=scope.battleNameSurface.capture(text,x,y)
+     if width~=nil then scope.battleFontScope,scope.battleFontScale,scope.battleNameScope=prior,scale,nameScope;return width end
+    end
     if not scope.battleNameScope and (tostring(text):match('^[%d%s/]+$') or tostring(text):match('^HP') or (y==8 or y==64) or tostring(text):find('<LV>',1,true))then
      scope.battleFontScope=false
     elseif scope.battleHudCapture and (y==0 or y==56) then

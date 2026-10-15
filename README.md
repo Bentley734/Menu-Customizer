@@ -1,3 +1,9 @@
+# Menu Customizer 3.29.0 — Full-resolution battle names
+
+Render native Gen 1 enemy and player HUD names at the actual window destination using the regular Emerald face. Names no longer lose glyph rows inside the low-resolution battle canvas. Fit a larger name within the HUD name region using integer square pixels and snapped anchors. Retain name colors, shadows, casing and KIM1025 name-presenter delegation.
+
+GPU regression verifies both names use the regular face, never rasterize into intermediate canvases, and retain integer square glyph scaling after fractional intermediate resizing. Existing battle-panel and navigation checks are included. Restart after updating.
+
 # Menu Customizer 3.28.1 — Correct command glyphs
 
 Use the regular Emerald face for battle commands and prompts instead of the narrow face, whose lowercase m has a malformed middle stroke in its source atlas. Give command cells a larger share of the panel while retaining whole-pixel fitting and the full prompt.
