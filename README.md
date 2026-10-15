@@ -1,3 +1,9 @@
+# Menu Customizer 3.25.1 — Grouped layout controls and party ball colors
+
+Position and Transparency now group their settings into submenus by the affected menu, with shared controls under ALL MENUS. Existing option keys and values are preserved.
+
+Protect both player and enemy party indicators from the native battle palette pass so red-and-white Poké Balls and custom empty-slot colors remain intact. GPU regression covers both rows after actual native palette compositing and reproduces the old color failure with protection disabled. Gen 1–3 startup with KIM1025 also passed. Restart after installing.
+
 # Menu Customizer 3.25.0 — Player Card customization
 
 Add a dedicated PLAYER CARD submenu with independent font, frame, background, text color, shadow and alignment settings for Gen 1/2. Its initial style inherits the menu style; choosing a card setting enables its custom profile. Global controls still include the card. Gen 1 gym leader and badge artwork preserves enclosed white highlights against custom backgrounds, while exterior paper stays transparent.

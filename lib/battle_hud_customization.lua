@@ -48,6 +48,8 @@ return function(mod)
      elseif mon.status then colors[3]={1,.8,.1,1}end
      for py,line in ipairs(ball)do for px=1,8 do local col=colors[tonumber(line:sub(px,px))];if col then G.setColor(col);G.rectangle('fill',bx+px-1,y+py-1,1,1)end end end
     end
+    local ui=mod.exports.battleUi
+    if ui and ui.protect then ui.protect(bx,y,8,8)end
     if not mod.exports.battleHudCapture then require('src.render.PaletteFX').markTrueColor(bx,y,8,8)end
    end
    G.pop()

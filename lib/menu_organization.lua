@@ -81,6 +81,12 @@ return function(entries,openPage)
    elseif key:find('summary',1,true)then group='POKEMON SUMMARY'
    elseif key:find('pokedex',1,true)then group='POKEDEX'
    elseif key:find('trainer',1,true)then group='TRAINER CARD'
+   elseif key:find('mods',1,true)then group='MOD MENUS'
+   elseif key:find('mart',1,true)then group='POKE MART'
+   elseif key:find('pc',1,true)then group='PC'
+   elseif key:find('trainer',1,true)then group='PLAYER CARD'
+   elseif key:find('loadreport',1,true)then group='LOAD REPORT'
+   elseif key:find('battle_name',1,true)then group='BATTLE NAMES'
    elseif key:find('start',1,true)then group='START MENU'
    elseif key:find('option',1,true)then group='OPTIONS'
    elseif key:find('menu',1,true)then group='MENUS'
@@ -104,6 +110,36 @@ return function(entries,openPage)
  -- Global controls belong at the top of their matching page.
  for _,name in ipairs({'BORDERS','BACKGROUNDS'})do
   for i,row in ipairs(pages[name])do if (row.id or ''):find('wide_all',1,true)==1 then table.remove(pages[name],i);table.insert(pages[name],1,row);break end end
+ end
+ -- Position and opacity use the same menu ownership as the layout pages.
+ for _,category in ipairs({'POSITION','TRANSPARENCY'})do
+  local buckets={};local names={'ALL MENUS','MENUS','START MENU','OPTIONS','SAVE SUMMARY','BATTLE','BATTLE NAMES','DIALOGUE','INTRO / TITLE','POKE MART','PC','PLAYER CARD','LOAD REPORT','MOD MENUS','OTHER MENUS'}
+  for _,name in ipairs(names)do buckets[name]={}end
+  for _,row in ipairs(pages[category])do
+   local key=(row.id or ''):lower();local group
+   if key:find('positionpreview',1,true)or key:find('backgrounddim',1,true)or key:find('all',1,true)then group='ALL MENUS'
+   elseif key:find('mods',1,true)then group='MOD MENUS'
+   elseif key:find('mart',1,true)then group='POKE MART'
+   elseif key:find('pc',1,true)then group='PC'
+   elseif key:find('trainer',1,true)then group='PLAYER CARD'
+   elseif key:find('loadreport',1,true)then group='LOAD REPORT'
+   elseif key:find('battle_name',1,true)then group='BATTLE NAMES'
+   elseif key:find('start',1,true)then group='START MENU'
+   elseif key:find('option',1,true)then group='OPTIONS'
+   elseif key:find('save',1,true)then group='SAVE SUMMARY'
+   elseif key:find('battle',1,true)then group='BATTLE'
+   elseif key:find('dialogue',1,true)then group='DIALOGUE'
+   elseif key:find('intro',1,true)then group='INTRO / TITLE'
+   elseif key:find('other',1,true)then group='OTHER MENUS'
+   elseif key:find('menu',1,true)then group='MENUS'
+   else group='ALL MENUS'end
+   buckets[group][#buckets[group]+1]=row
+  end
+  pages[category]={}
+  for _,name in ipairs(names)do local children=buckets[name]
+   if #children>0 then pages[category][#pages[category]+1]={id='wide_'..category..'_'..name,label=name,group=true,children=children,
+    value=function()return #children..' OPTIONS'end,activate=function(ctx)return openPage(name,children,ctx)end}end
+  end
  end
  local out={}
  for _,name in ipairs(order)do local children=pages[name]
