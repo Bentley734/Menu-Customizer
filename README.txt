@@ -1,3 +1,7 @@
+Menu Customizer 3.13.4 - Continue menu justification
+
+Keep the title menu justification while the Continue save summary is open. The retained title menu no longer loses alignment just because the summary becomes the top screen. Verified identical underlying-menu pixels before, during and after Continue for left, center and right justification in native and Emerald styles.
+
 Menu Customizer 3.13.3 - Fade intro into selected background
 
 The Gengar/Nidorino intro fades its foreground and cinematic bars into the selected intro background, including animated designs. The post-fade hold stays on that background without a white flash. Native background keeps the original white fade. Fade timing, title transition and intro state are preserved.

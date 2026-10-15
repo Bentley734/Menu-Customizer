@@ -95,7 +95,8 @@ return function(mod)
     local owner=select(1,...)
     if mod.generation<3 and type(owner)=='table'and owner.game and owner.game.stack and owner.game.stack.top then
      local top=owner.game.stack:top()
-     if top and top~=owner then return original(...)end
+     local retainedTitle=owner.titleUiBox and owner.items and top and top.titleUiBox and top.save and top.title
+     if top and top~=owner and not retainedTitle then return original(...)end
     end
     local initial=seed and seed(...)
     return within(original,group,initial,...)
