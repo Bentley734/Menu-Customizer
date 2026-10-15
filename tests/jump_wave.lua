@@ -8,3 +8,10 @@ assert(table.concat(text)=='Continue'and width==64 and y[1]==17 and y[2]==20)
 assert(not J.active);assert(not pcall(J.draw,function()error('test')end,function()return 8 end,'A',0,0));assert(not J.active)
 love.timer.getTime=clock
 print('PASS sequential single-letter hops, spacing, sentence case and error restoration')
+
+api.customization.write(game,{jumpWaveEnabled=1,arrowSelector=2,jumpWaveSpeed=200})
+assert(J.enabled()and J.offset(1,4,.055)==3)
+assert(api.arrowSelectors==nil or api.arrowSelectors.id()==1,'Jump Wave replaced selected marker')
+api.customization.write(game,{jumpWaveEnabled=0});assert(not J.enabled())
+api.customization.write(game,{jumpWaveSpeed=50});assert(J.offset(1,4,.22)==3)
+print('PASS independent toggle, combined marker and 50%/200% wave speeds')

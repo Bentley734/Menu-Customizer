@@ -1,7 +1,18 @@
 return function(mod)
  local M={}
+ function M.enabled()
+  local n=mod.options:get('jumpWaveEnabled');if n~=nil then return n==1 end
+  return mod.options:get('startSelector')==14 or mod.options:get('arrowSelector')==14
+ end
+ function M.rows()
+  return{{id='wide_jumpWaveSelector',label='JUMP WAVE',value=function()return M.enabled()and'ON'or'OFF'end,
+   step=function(ctx)mod.exports.customization.write(ctx,{jumpWaveEnabled=M.enabled()and 0 or 1});return false end},
+   {id='wide_jumpWaveSelectorSpeed',label='JUMP WAVE SPEED',value=function()return tostring(mod.options:get('jumpWaveSpeed')or 100)..'%'end,
+   step=function(ctx,d)local n=tonumber(mod.options:get('jumpWaveSpeed'))or 100;n=25+(n-25+(d or 1)*25)%300;mod.exports.customization.write(ctx,{jumpWaveSpeed=n});return false end}}
+ end
  function M.offset(index,count,time)
-  local phase=(time/.22)%(count+3);if math.floor(phase)+1~=index then return 0 end
+  local speed=tonumber(mod.options:get('jumpWaveSpeed'))or 100
+  local phase=(time*speed/100/.22)%(count+3);if math.floor(phase)+1~=index then return 0 end
   return math.floor(math.sin((phase%1)*math.pi)*3+.5)
  end
  function M.draw(printer,measure,text,x,y,...)

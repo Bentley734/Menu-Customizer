@@ -87,7 +87,7 @@ return function(mod)
    end
    if anchors and not printing then anchors[tostring(inputX)..':'..tostring(y)]=x end
    local old=printing;printing=true;local args={...};local out
-   if not ownLayout and jumpLabel==text and tonumber(mod.options:get('arrowSelector'))==14 and mod.exports.jumpWave then
+   if not ownLayout and jumpLabel==text and mod.exports.jumpWave and mod.exports.jumpWave.enabled() then
     out={pcall(mod.exports.jumpWave.draw,draw,F.measure or F.width,text,x,y,opts,unpack(args))}
    else out={pcall(draw,text,x,y,opts,unpack(args))}end;printing=old
    if not out[1]then error(out[2],0)end;return unpack(out,2)

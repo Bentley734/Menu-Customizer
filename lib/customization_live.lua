@@ -219,6 +219,7 @@ return function(mod)
   local choices={};for _,t in ipairs(themes)do local theme=t
    choices[#choices+1]={id='theme_'..theme[1],label=theme[1],preview=function()return values(theme)end,value=function()return 'APPLY'end,activate=function(ctx)M.write(ctx,values(theme))end}
   end
+  if mod.exports.jumpWave then for _,row in ipairs(mod.exports.jumpWave.rows())do out[#out+1]=row end end
   if mod.exports.allFonts then out[#out+1]=mod.exports.allFonts.row(openPage)end
   out[#out+1]={id='wide_themeSets',label='THEMES',group=true,activate=function(ctx)return openPage('THEMES',choices,ctx)end}
   if mod.exports.textScopes then for _,row in ipairs(mod.exports.textScopes.rows(openPage))do out[#out+1]=row end end

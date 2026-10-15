@@ -1,3 +1,7 @@
+Menu Customizer 3.21.1 - Secondary Jump Wave and speed
+
+SELECTORS now has independent JUMP WAVE on/off and JUMP WAVE SPEED (25-300%). Wave motion combines with other selector markers. Prior wave-only selections continue as wave enabled with an arrow fallback until changed.
+
 Menu Customizer 3.21.0 - Jump Wave selector
 
 Adds JUMP WAVE to Start and menu arrow selector styles. The selected label hops one letter at a time, pauses briefly, then repeats. Preserves label spacing, justification, case and font colors. Covers GB Start/options/customizer and generic menu labels, including the title menu.

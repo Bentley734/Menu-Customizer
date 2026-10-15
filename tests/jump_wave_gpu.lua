@@ -57,7 +57,7 @@ function love.load()
   local target=G.newCanvas(160,144);local clock=love.timer.getTime;local tick=.11;love.timer.getTime=function()return tick end
   for _,mode in ipairs({1,2})do
    for align=1,3 do
-    api.customization.write(game,{arrowSelector=14,menuTheme=mode,introTheme=mode,allFontAlign=align,menuJustify=align,introFontSize=0})
+    api.customization.write(game,{jumpWaveEnabled=1,jumpWaveSpeed=150,arrowSelector=2,menuTheme=mode,introTheme=mode,allFontAlign=align,menuJustify=align,introFontSize=0})
     local function frame(top)
      game.stack.states={menu};if top then game.stack.states[2]=top end
      G.setCanvas(target);G.origin();G.clear(0,0,0,0);menu:draw();G.setCanvas()
