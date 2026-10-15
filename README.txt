@@ -1,3 +1,7 @@
+Menu Customizer 3.22.3 - Gen IV frame text margins
+
+Account for wide asymmetric DS borders in menu alignment and selector spacing. Title menu boxes grow to retain the chosen font size. Start/customizer labels and option values respect the wider interior.
+
 Menu Customizer 3.22.2 - Matching party labels and HP placement
 
 Party level and HP labels use the same font renderer and styling as names. Keep HP counts beside the bar, independent of global text justification. Native label spacing avoids bar/level overlap.

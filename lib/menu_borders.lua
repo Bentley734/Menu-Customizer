@@ -13,6 +13,11 @@ return function(mod,setting,catalog,active)
   local n=setting(scope..'BorderChoice')or 0
   return n>0 and n or setting('menuBorder')
  end
+ function M.insets(scope,w,h)
+  local e=catalog.entries[selection(scope)]
+  if e and e.dsFrame then local scale=math.min(1,(w or 160)/48,(h or 144)/24);return 16*scale+2,24*scale+2,true end
+  return 8,8,false
+ end
  function M.atlas(selection)
   local entry=catalog.entries[selection]
   if not entry or not entry.path then return nil end

@@ -305,7 +305,7 @@ return function(mod,catalog)
      if x==88 or start.nativeValues and x==128 then
       local width=Font.width(text)
       local baseline=y
-      G.push('all');G.translate(152-width,baseline)
+      G.push('all');G.translate(160-select(2,current.borders.insets(nil,160,144))-width,baseline)
       local result=render(text,0,0,...);G.pop();return result
      end
     end
@@ -314,7 +314,8 @@ return function(mod,catalog)
     local row=(y-start.rowY-8)/start.pitch+1+start.scroll
     if row==math.floor(row) and start.items[row] then
      local width=Font.width(text)
-     local textX=start.left+8+math.max(0,(start.width-16-width)/2)
+     local il,ir=current.borders.insets(nil,start.width,144)
+     local textX=start.left+il+math.max(0,(start.width-il-ir-width)/2)
      G.push('all');G.translate(textX,y)
      local result=render(text,0,0,...);G.pop();return result
     end
@@ -325,8 +326,9 @@ return function(mod,catalog)
    if n~=math.floor(n) or not entry then return render(text,x,y,...) end
    local selector=start.options and current.arrows.id() or current.setting('startSelector')
    if not start.options and current.mod.options:get('startSelector')==14 then selector=3 end
-   local left=start.left+8
-   local right=start.left+start.width-8
+   local insetLeft,insetRight=current.borders.insets(nil,start.width,144)
+   local left=start.left+insetLeft
+   local right=start.left+start.width-insetRight
    local reserve=selector==1 or selector==3 or selector>=5 and selector<=12
    local minimum=math.max(start.labelX,left+(reserve and 10 or selector==4 and 4 or 0))
    local maximum=right-(selector==4 and 4 or 0)
@@ -1068,6 +1070,12 @@ return function(mod,catalog)
     c.introMenuScale=scale;c.introFitScale=scale
     self.tx=0;self.ty=0;self.tw=math.min(20,math.max(tw,width));self.th=math.min(18,math.max(th,height))
     self.rowStep=pitch;self.itemY=first;self.maxVisible=visible
+   end
+   local il,ir,ds=c.borders.insets(nil,self.tw*8,self.th*8)
+   if ds then
+    local widest=0;for _,item in ipairs(self.items)do widest=math.max(widest,Font.width(item.label))end
+    self.tw=math.min(20,math.max(self.tw,math.ceil((widest+il+ir+12)/8)))
+    if self.tx+self.tw>20 then self.tx=math.max(0,20-self.tw)end
    end
    local result={pcall(draw,self,...)}
    if c.mod.generation==1 then require('src.render.PaletteFX').markTrueColor(self.tx*8,self.ty*8,self.tw*8,self.th*8)end

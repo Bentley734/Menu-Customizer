@@ -57,7 +57,7 @@ return function(mod)
  end
  local function enabled()
   local surfaces=mod.exports.menuSurfaces
-  return surfaces and surfaces.enabled()and (mod.options:get('allFontAlign')~=nil or mod.options:get('loadReportJustify')~=nil)
+  return surfaces and surfaces.enabled()and (mod.options:get('allFontAlign')~=nil or mod.options:get('loadReportJustify')~=nil or mod.exports.borders and select(3,mod.exports.borders.insets()))
  end
  local frames,scope,printing,anchors,jumpLabel
  local function within(fn,group,initial,...)
@@ -78,7 +78,10 @@ return function(mod)
     local box
     for _,r in ipairs(frames)do if x>=r.x and y>=r.y and x<r.x+r.w and y<r.y+r.h and(not box or r.w<box.w)then box=r end end
     if box and x<=box.x+24 then
-     local width=box.x+box.w-8-x
+     local left,right,ds=8,8,false
+     if mod.exports.borders then left,right,ds=mod.exports.borders.insets(nil,box.w,box.h)end
+     if ds then x=math.max(x,box.x+left+8)end
+     local width=box.x+box.w-right-x
      if scope=='option'then width=math.min(width,120-x)end
      if type(opts)=='table'and opts.maxWidth then width=math.min(width,opts.maxWidth)end
      local measure=F.measure or F.width;local ink=measure(text,opts)
