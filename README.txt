@@ -1,3 +1,7 @@
+Menu Customizer 3.23.6 - YES/NO selector inside left margin
+
+Shift YES/NO text right and position its selector on the left, inside the Gen IV frame interior.
+
 Menu Customizer 3.23.5 - YES/NO selector after text
 
 Move the Gen IV YES/NO selector to the right of the selected label, reserving space inside the frame.

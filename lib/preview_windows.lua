@@ -52,7 +52,7 @@ return function(mod,palette,active)
      G.setColor(0,0,0,1);exports.previewScope=false
      state.palette.withText('menu',function()
       for i,text in ipairs(owner.labels or{'YES','NO'})do
-       text=exports.customization.text(Strings(text));local x,y=owner.tx*8+il,(owner.ty+row+(i-1)*2)*8
+       text=exports.customization.text(Strings(text));local x,y=owner.tx*8+il+12,(owner.ty+row+(i-1)*2)*8
        if current.theme.enabled()then
         local colors=current.theme.gbColors();local value=text
         local function render()G.push('all');G.scale(.75,.75);current.theme.draw(value,0,0,{colors=colors});G.pop()end
@@ -61,9 +61,7 @@ return function(mod,palette,active)
        else F.draw(text,x,y)end
       end
      end)
-     local selected=exports.customization.text(Strings((owner.labels or{'YES','NO'})[owner.index or 1]))
-     local width=current.theme.enabled()and current.theme.measure(selected)*.75 or F.width(selected)
-     current.arrows.draw(owner.tx*8+il+width+2,(owner.ty+row+((owner.index or 1)-1)*2)*8,8)
+     current.arrows.draw(owner.tx*8+il+2,(owner.ty+row+((owner.index or 1)-1)*2)*8,8)
     end)
     G.pop();if not ok then error(err,0)end
    end)}
