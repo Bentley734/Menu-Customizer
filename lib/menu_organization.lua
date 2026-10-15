@@ -32,6 +32,7 @@ return function(entries,openPage)
   local key=r.id or '';local dest
   if key:find('menuTransition',1,true)then r.label='MISC TRANSITIONS'end
   if key:find('Selector',1,true)or key:find('selectorColor',1,true)or key:find('selectionHighlight',1,true)then dest='SELECTORS'
+  elseif key:find('battleHudFrame',1,true)then dest='BORDERS'
   elseif key:find('Border',1,true)or key:find(':style',1,true)then dest='BORDERS'
   elseif key:find('Background',1,true)or key:find('background_color',1,true)then dest='BACKGROUNDS'
   elseif key:find('scene_',1,true)or key:find('Transition',1,true)then dest='TRANSITIONS'

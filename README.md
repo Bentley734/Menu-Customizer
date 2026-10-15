@@ -1,3 +1,7 @@
+Menu Customizer 3.15.0 - Battle status customization
+
+Adds Gen 1 battle level/status and HP label/number colors and shadows under TEXT, plus partial status-frame color, shadow and visibility under BORDERS. Includes static and animated palettes, global font colors/shadows, and theme presets. Works inside the native HUD draw and KIM capture without changing geometry or HP fill colors. Unset controls retain native rendering. Other generations retain their status renderers.
+
 Menu Customizer 3.14.0 - Game version gradients
 
 Adds seven matching animated gradient sets: RED VERSION, BLUE VERSION, GREEN VERSION, YELLOW VERSION, GOLD VERSION, SILVER VERSION and CRYSTAL VERSION. Each is available for text/shadows, backgrounds and animated borders, including global pickers and per-design animation speeds. New choices are appended so existing saved selections keep their designs.
