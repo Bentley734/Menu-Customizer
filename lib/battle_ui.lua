@@ -232,6 +232,7 @@ return function(mod)
     if mod.exports.battlePrompt then for _,row in ipairs(mod.exports.battlePrompt.rows(openPage))do out[#out+1]=row end end
     if mod.exports.moveLearningProfile and mod.generation==1 then for _,row in ipairs(mod.exports.moveLearningProfile.rows(openPage))do out[#out+1]=row end end
     if mod.exports.moveSelectProfile then for _,row in ipairs(mod.exports.moveSelectProfile.rows(openPage))do out[#out+1]=row end end
+    if mod.exports.emeraldBattleTheme then for _,row in ipairs(mod.exports.emeraldBattleTheme.rows(openPage))do out[#out+1]=row end end
     return out
   end
   marker=function(nextFn,game,out) return nextFn(game,out) end
@@ -348,11 +349,15 @@ return function(mod)
           if name=='drawDoublesBox' then x,y=args[2],args[3] end
           local art=emeraldArt()
           local img=art and (name=='drawEnemyBox' and art.enemy or art.player)
-          if img and name~='drawDoublesBox' and name~='drawSafariBox' then
+          local customEmerald=setting('style',1)==3 and require('src.core.GameVersion').get()=='emerald'
+          if not customEmerald and img and name~='drawDoublesBox' and name~='drawSafariBox' then
             local color={G.getColor()}
             G.setColor(1,1,1,1); G.draw(img,x,y)
             G.setColor(unpack(color))
-          else panel(x,y,128,name=='drawEnemyBox' and 32 or name=='drawDoublesBox' and 32 or 40,false) end
+          else
+            local width=customEmerald and(name=='drawPlayerBox'and 112 or name=='drawDoublesBox'and math.min(112,240-x)or 128)or 128
+            panel(x,y,width,name=='drawEnemyBox'and 32 or name=='drawDoublesBox'and(customEmerald and 24 or 32)or 40,false)
+          end
           if name=='drawSafariBox' then return true end
         end
         end)
@@ -871,6 +876,7 @@ return function(mod)
   api.drawGen3Panels=mod.exports.drawGen3Panels
   api.palette=textPalette
   api.healthboxLayers=healthboxLayers
+  if mod.generation==3 then assert(load(assert(mod:read('lib/emerald_battle_theme.lua'))))()(mod,api,enabled)end
   api.backgroundColor=function()return setting('background_color',0)~=0 and textPalette.background() or nil end
   api.fillBackground=fillBackground
   nativeEmerald.textPalette=textPalette

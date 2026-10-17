@@ -172,6 +172,33 @@ return function(entries,openPage)
  for _,category in ipairs(textOrder)do
   for _,page in ipairs(pages.TEXT)do if page.label==category and category~='DECAPITALIZATION'then page.children=battleGroups(page.children,category);local children,title=page.children,page.label;page.activate=function(ctx)return openPage(title,children,ctx)end;page.value=function()return #children..' OPTIONS'end end end
  end
+ local function stardewGroups(rows)
+  local effect,rest={},{}
+  for _,row in ipairs(rows)do
+   if type(row.children)=='table'then stardewGroups(row.children)end
+   if not row.children and (row.id or ''):lower():find('stardew',1,true)then effect[#effect+1]=row
+   else rest[#rest+1]=row end
+  end
+  if #effect>0 then
+   local groups,keys={},{}
+   for _,row in ipairs(effect)do
+    local key=(row.id or ''):lower():match('^(.-)stardew')or'stardew'
+    if not groups[key]then groups[key]={};keys[#keys+1]=key end
+    groups[key][#groups[key]+1]=row
+   end
+   local function page(label,children,id)
+    return{id=id,label=label,group=true,children=children,value=function()return 'OPEN'end,activate=function(ctx)return openPage(label,children,ctx)end}
+   end
+   local children=effect
+   if #keys>1 then children={};for _,key in ipairs(keys)do
+    local list=groups[key];local label=(list[1].label or ''):match('^(.-)%s*STARDEW')or key
+    children[#children+1]=page(label~=''and label or'MENUS',list,'stardew_'..key)
+   end end
+   rest[#rest+1]=page('STARDEW',children,'stardew_'..(effect[1].id or 'options'))
+  end
+  for i=#rows,1,-1 do rows[i]=nil end;for i,row in ipairs(rest)do rows[i]=row end
+ end
+ for _,rows in pairs(pages)do stardewGroups(rows)end
  local out={}
  for _,name in ipairs(order)do local children=pages[name]
   out[#out+1]={id='wide_page_'..name,label=name,group=true,children=children,value=function()return #children..' OPTIONS'end,activate=function(ctx)return openPage(name,children,ctx)end}

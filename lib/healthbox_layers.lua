@@ -5,6 +5,7 @@ return function(G,mod,faded)
  return function(font,chrome,draw,...)
   local args={...};local saved={};local pass='background';local ink=0
   local rectangle,image=G.rectangle,G.draw
+  local custom=mod.generation==3 and require('src.core.GameVersion').get()=='emerald' and mod.exports.battleUi.setting('style',1)==3
   local prior=mod.exports.healthboxBackground
   local function wrap(target,key,foreground)
    if type(target[key])~='function' then return end
@@ -21,6 +22,12 @@ return function(G,mod,faded)
   local text,glyph=font.draw,font.drawGlyph
   local hpMaximum=false
   font.draw=function(value,x,y,opts,...)
+   if custom then
+    local copy={};for k,v in pairs(opts or{})do copy[k]=v end
+    if tonumber(mod.options:get('menuTheme'))==2 and tostring(copy.font):match('^native_')then copy.font='narrow' end
+    if not(copy.colors and copy.colors._effects)then copy.colors=mod.exports.battleUi.palette.colors('battle')end
+    opts=copy
+   end
    if opts and opts.small then
     local hpCurrent=type(value)=='string' and value:match('^%s*%d+/$')
     if hpCurrent or hpMaximum then y=y-1 end
@@ -40,9 +47,9 @@ return function(G,mod,faded)
   for _,key in ipairs({'drawHpBar','drawRsStatusIcon','drawPartyBall'})do wrap(chrome,key,true)end
   -- EXP tiles include an opaque pale track below the HP numbers. Fade the
   -- entire strip with the panel so its empty portion cannot leave a white line.
-  wrap(chrome,'drawExpBar',false)
+  wrap(chrome,'drawExpBar',custom)
   for _,key in ipairs({'drawPlayerBox','drawEnemyBox','drawDoublesBox','drawSafariBox'})do wrap(chrome,key,false)end
-  G.rectangle=function(...)if pass=='background' or ink>0 then return rectangle(...)end end
+  G.rectangle=function(...)if pass=='background' and not custom or ink>0 then return rectangle(...)end end
   G.draw=function(...)if pass=='background' or ink>0 then return image(...)end end
   local result={pcall(function()
    mod.exports.healthboxBackground=true
