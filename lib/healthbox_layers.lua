@@ -6,11 +6,15 @@ return function(G,mod,faded)
   local args={...};local saved={};local pass='background';local ink=0
   local rectangle,image=G.rectangle,G.draw
   local custom=mod.generation==3 and require('src.core.GameVersion').get()=='emerald' and mod.exports.battleUi.setting('style',1)==3
+  local titleY
   local prior=mod.exports.healthboxBackground
   local function wrap(target,key,foreground)
    if type(target[key])~='function' then return end
    local original=target[key];saved[#saved+1]={target,key,original}
    target[key]=function(...)
+    if custom and(key=='drawPlayerBox'or key=='drawEnemyBox'or key=='drawDoublesBox')then
+     local a={...};titleY=(key=='drawDoublesBox'and a[3]or a[2])+3
+    end
     if foreground and pass=='background' then return end
     if not foreground and pass=='foreground' then return end
     ink=ink+1;local result={pcall(original,...)};ink=ink-1
@@ -22,6 +26,7 @@ return function(G,mod,faded)
   local text,glyph=font.draw,font.drawGlyph
   local hpMaximum=false
   font.draw=function(value,x,y,opts,...)
+   if custom and y==titleY then y=y-2 end
    if custom then
     local copy={};for k,v in pairs(opts or{})do copy[k]=v end
     if tonumber(mod.options:get('menuTheme'))==2 and tostring(copy.font):match('^native_')then copy.font='narrow' end
@@ -37,6 +42,7 @@ return function(G,mod,faded)
   end
   font.drawGlyph=function(id,x,y,opts,...)
    if custom and id==font.CHAR_LV_2 then return font.draw('Lv',x,y,opts,...)end
+   if custom and y==titleY then y=y-2 end
    if id==0x105 and opts and opts.small then
     y=y-1
     x=x-font.measure(' ',opts)

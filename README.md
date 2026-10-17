@@ -1,3 +1,9 @@
+# Menu Customizer 3.35.12 — Emerald healthbox title spacing
+
+Move the Pokemon name, gender symbol and Lv/level number upward two logical pixels in Emerald's MENU BORDER healthboxes. HP labels, gauges, values and EXP strips retain their current positions. Preserve integer text scaling and box dimensions.
+
+Verified command/move rendering with both font choices and the thick border on official runtime v0.3.89. Restart after updating.
+
 # Menu Customizer 3.35.11 — Emerald healthbox spacing
 
 Align the HP label with its gauge. Move HP values upward two logical pixels and place a slimmer EXP strip one pixel lower, leaving visible space between the numbers and EXP bar without changing healthbox dimensions. Keep integer text scaling, the selected theme and transparent panel gaps.
