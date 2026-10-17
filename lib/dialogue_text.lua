@@ -76,16 +76,21 @@ return function(mod,Message,Font,active)
    -- Reserve two lines even during typing, keeping page changes stationary.
    local baseY=top*8+math.floor((height*8-(pitch+11*f))/2)-2*f
    local limit=opts and opts.limitChars;local count,lastX,lastY=0,baseX,baseY
-   local row=0
-   for line in (page..'\n'):gmatch('(.-)\n')do
+   local lines={};for line in (page..'\n'):gmatch('(.-)\n')do lines[#lines+1]=line end
+   for row,line in ipairs(lines)do
+    if limit and count>=limit then break end
     local w=Font.measure(line);local slack=math.max(0,inner-w)
     local dx=alignment==2 and math.floor(slack/2)or alignment==3 and slack or 0
     local copy={};for k,v in pairs(opts or {})do copy[k]=v end
     copy.maxWidth=inner;copy._fixedSize=true;copy.limitChars=limit and math.max(0,limit-count)or nil
-    local n,ex,ey=draw(line,baseX+dx,baseY+row*pitch,copy,...)
-    count=count+(n or 0);lastX,lastY=ex or baseX+dx,ey or baseY+row*pitch
+    local _,ex,ey=draw(line,baseX+dx,baseY+(row-1)*pitch,copy,...)
+    -- Native draw returns a glyph count, but Emerald draw returns pixels.
+    -- Reveal accounting must use text tokens, including the line separator.
+    local chars=Font.countChars(line)
+    count=count+math.min(chars,copy.limitChars or chars)
+    lastX,lastY=ex or baseX+dx,ey or baseY+(row-1)*pitch
     if limit and count>=limit then break end
-    row=row+1
+    if row<#lines then count=count+1 end
    end
    return count,lastX,lastY
   end
