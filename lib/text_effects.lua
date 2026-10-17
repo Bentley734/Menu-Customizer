@@ -160,6 +160,9 @@ return function(mod,palette)
  end
  function M.paint(c,kind,fn,...)
   local G=love.graphics;local color=M.resolve(c,kind)
+  local _,x,y,w,h=...
+  local background=c and(c.animation=='POKEMON'or c._speedGroup=='background')
+  local area=M.paperArea or(background and type(x)=='number'and type(y)=='number'and type(w)=='number'and type(h)=='number'and{x,y,w,h}or nil)
   G.push('all');G.setColor(unpack(color))
   if color.animation=='POKEMON' and G.newShader then
    if not M.pokemonShader then M.pokemonShader=G.newShader(palette.pokemonBackgrounds.glsl..[[
@@ -169,7 +172,6 @@ return function(mod,palette)
    local ax,ay=G.transformPoint(0,0);local bx,by=G.transformPoint(1,1)
    local target=G.getCanvas();local dpi=target and target:getDPIScale() or G.getDPIScale()
    M.pokemonShader:send('pokeOrigin',{ax*dpi,ay*dpi});M.pokemonShader:send('pokeScale',{math.max(.0001,(bx-ax)*dpi),math.max(.0001,(by-ay)*dpi)})
-   local mode,x,y,w,h=...;local area=M.paperArea or (type(x)=='number'and type(h)=='number'and {x,y,w,h}or nil)
    palette.pokemonBackgrounds.send(M.pokemonShader,color.pokemon,color.phase,nil,area);G.setShader(M.pokemonShader)
   elseif color.animation=='GRADIENT' and G.newShader then
    if not shader then shader=G.newShader(palette.gradients.glsl..[[extern float phase;extern bool darkInk;extern vec2 gradientOrigin;extern vec2 gradientScale;
@@ -179,10 +181,11 @@ return function(mod,palette)
      vec4 s=Texel(tex,uv);if(darkInk)s=vec4(1.0,1.0,1.0,s.a*(1.0-min(s.r,min(s.g,s.b))));return vec4(rgb,c.a)*s;
     }]])end
    local origin,scale={0,0},{1,1}
-   if M.paperArea then
-    local ax,ay=G.transformPoint(0,0);local bx,by=G.transformPoint(1,1)
+   if area then
+    local cx,cy=area[1]+area[3]/2,area[2]+area[4]/2
+    local ax,ay=G.transformPoint(cx,cy);local zx,zy=G.transformPoint(0,0);local bx,by=G.transformPoint(1,1)
     local target=G.getCanvas();local dpi=target and target:getDPIScale()or G.getDPIScale()
-    origin={ax*dpi,ay*dpi};scale={math.max(.0001,(bx-ax)*dpi),math.max(.0001,(by-ay)*dpi)}
+    origin={ax*dpi,ay*dpi};scale={math.max(.0001,(bx-zx)*dpi),math.max(.0001,(by-zy)*dpi)}
    end
    shader:send('gradientOrigin',origin);shader:send('gradientScale',scale)
    palette.gradients.send(shader,color.gradient);shader:send('phase',color.phase);shader:send('darkInk',M.darkInk or false);G.setShader(shader)

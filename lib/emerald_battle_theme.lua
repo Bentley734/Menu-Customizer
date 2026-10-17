@@ -51,9 +51,9 @@ return function(mod,ui,enabled)
   local theme=F._menuCustomizerEmerald
   if tonumber(mod.options:get('menuTheme'))==2 and theme then
    local prior=mod.exports.battleFontScope;mod.exports.battleFontScope=false
-   local ok,err=pcall(theme.draw,'HP',x,y-4,options);mod.exports.battleFontScope=prior
+   local ok,err=pcall(theme.draw,'HP',x,y-5,options);mod.exports.battleFontScope=prior
    if not ok then G.pop();error(err,0)end
-  else F.draw('HP',x,y-4,options)end
+  else F.draw('HP',x,y-5,options)end
   local extent=math.max(8,math.min(48,232-x-16))
   paint('battleBarOutlineColor',{0,0,0,1},x+16,y,extent,6)
   G.setColor(.15,.15,.15,1);G.rectangle('fill',x+17,y+1,extent-2,4)

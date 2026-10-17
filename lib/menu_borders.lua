@@ -107,7 +107,7 @@ return function(mod,setting,catalog,active)
     vec2 coord=(cell*10.0+vec2(1.5)+clamp(floor(localPixel),vec2(0.0),vec2(7.0)))/30.0;
     vec4 ink=Texel(tex,coord);
     if(usePaper){vec4 paper=Texel(paperTexture,coord);
-     if(paper.a>0.0 && !((rainbow || borderEffect>0) && (cell.x!=1.0 || cell.y!=1.0))){vec3 rgb=pokeStyle>0?pokemonPaper(p):paperGradient?paperGradientColor(paperPhase+pixel.x/320.0+pixel.y/640.0):paperColor.rgb;
+     if(paper.a>0.0 && !((rainbow || borderEffect>0) && (cell.x!=1.0 || cell.y!=1.0))){vec3 rgb=pokeStyle>0?pokemonPaper(p):paperGradient?paperGradientColor(paperPhase+(p.x-extent.x*.5)/320.0+(p.y-extent.y*.5)/640.0):paperColor.rgb;
       return vec4(rgb,paper.a*paperColor.a*color.a);}}
     vec3 path=borderPath(p,extent);float depth=path.y;
     float along=path.x*path.z;
@@ -343,6 +343,16 @@ return function(mod,setting,catalog,active)
   end)
   G.pop();if not ok then error(err,0)end
   return true
+ end
+ -- Every tile/mesh pass shares the full owning panel's background anchor.
+ local drawPixels=M.drawPixels
+ M.drawPixels=function(x,y,w,h,background,scope)
+  local effects=palette.effects;local prior=effects.paperArea
+  effects.paperArea={x,y,w,h}
+  local result={pcall(drawPixels,x,y,w,h,background,scope)}
+  effects.paperArea=prior
+  if not result[1]then error(result[2],0)end
+  return (unpack or table.unpack)(result,2)
  end
  -- Battle panels share the dialogue's 48px reference height. Render in
  -- screen space so command-width and move-canvas transforms cannot distort

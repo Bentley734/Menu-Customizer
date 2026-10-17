@@ -229,7 +229,7 @@ return function(mod)
    if(pokeStyle>=151){vec2 size=max(pokeArea.zw,vec2(1.0));return forestArtwork((p-pokeArea.xy-size*.5)/min(size.x,size.y)*2.0,pokePhase*.5,pokeStyle-151);}
    if(pokeStyle>=81){vec2 size=max(pokeArea.zw,vec2(1.0));vec2 q=(p-pokeArea.xy-size*.5)/min(size.x,size.y)*2.0;return blackArtwork(q,pokePhase*.5,pokeStyle-81);}
    if(pokeStyle>=71){
-    vec2 size=max(pokeArea.zw,vec2(1.0));vec2 q=(p-pokeArea.xy)/min(size.x,size.y);
+    vec2 size=max(pokeArea.zw,vec2(1.0));vec2 q=(p-pokeArea.xy-size*.5)/min(size.x,size.y);
     float t=pokePhase*.65,k=float(pokeStyle-71);
     float rise=q.y*8.0+t;
     float curl=sin(q.x*9.0+sin(rise*1.7)*1.3)+.5*sin(q.x*21.0-rise*2.1);
@@ -239,7 +239,7 @@ return function(mod)
     if(pokeStyle==74)flame=exp(-abs(sin(q.x*15.0+sin(rise)*2.0))*5.0)*(.6+.4*sin(rise*3.0));
     if(pokeStyle==75)flame=.5+.5*sin(curl*3.0+sin(q.y*17.0+t*3.0)*2.0);
     if(pokeStyle==76)flame=exp(-abs(sin(q.x*11.0+q.y*5.0+sin(q.y*9.0+t)*2.0))*4.0);
-    if(pokeStyle==77)flame=.5+.5*sin(abs(q.x-size.x/min(size.x,size.y)*.5)*17.0+curl+rise*2.0);
+    if(pokeStyle==77)flame=.5+.5*sin(abs(q.x)*17.0+curl+rise*2.0);
     if(pokeStyle==78)flame=.5+.5*sin(q.y*8.0+sin(q.x*6.0+t)*3.0+sin(q.x*16.0-t));
     vec2 z=(p-pokeArea.xy-size*.5)/min(size.x,size.y);float rad=length(z),angle=atan(z.y,z.x);
     if(pokeStyle==79)flame=.5+.5*cos(rad*25.0+curl*1.5-t*2.0);
@@ -284,7 +284,7 @@ return function(mod)
     float edge=exp(-abs(wave)*5.0);float field=.5+.5*sin(wave*2.0+t+r*2.0);
     vec3 rgb=mix(pokeBaseA,pokeBaseB,field);
     rgb=mix(rgb,pokeAccent,edge*.8);
-    float weave=.94+.06*cos(floor(p.x)*2.1)*cos(floor(p.y)*2.1);
+    float weave=.94+.06*cos(floor(p.x-pokeArea.x-pokeArea.z*.5)*2.1)*cos(floor(p.y-pokeArea.y-pokeArea.w*.5)*2.1);
     return rgb*weave;
    }
    if(pokeStyle>=28)return pokemonScene(p);
@@ -294,12 +294,12 @@ return function(mod)
     uv=(uv-.5)*size/(pokeSpriteSize*cover)+.5;
     return Texel(pokeStamp,pokeSpriteRect.xy+clamp(uv,0.0,1.0)*pokeSpriteRect.zw).rgb;
    }
-   p=floor(p)+vec2(.5);float t=pokePhase;
+   p=floor(p-pokeArea.xy-pokeArea.zw*.5)+vec2(.5);float t=pokePhase;
    float flow=.5+.5*sin(p.x*.027+p.y*.021+t*.16);
    vec3 rgb=mix(pokeBaseA,pokeBaseB,flow);
    // Abstract paper uses the same clock and pixel grid, without Pokemon stamps.
    if(pokeStyle>=13){
-    vec2 z=(p-vec2(120.0,64.0))*.035;float r=length(z);float a=atan(z.y,z.x);float v=0.0;
+    vec2 z=p*.035;float r=length(z);float a=atan(z.y,z.x);float v=0.0;
     if(pokeStyle==13){v=.5+.5*sin(r*7.0-a*3.0-t*.65);}
     else if(pokeStyle==14){v=.5+.5*sin(z.x*2.0+sin(z.y*2.3+t*.35)*2.5+t*.25);}
     else if(pokeStyle==15){v=.5+.5*cos(cos(a*8.0+t*.2)*r*3.0-t*.5);}

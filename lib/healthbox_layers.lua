@@ -35,7 +35,7 @@ return function(G,mod,faded)
    end
    if opts and opts.small then
     local hpCurrent=type(value)=='string' and value:match('^%s*%d+/$')
-    if hpCurrent or hpMaximum then y=y-(custom and 3 or 1)end
+    if hpCurrent or hpMaximum then y=y-1 end
     hpMaximum=hpCurrent and true or false
    end
    return text(value,x,y,opts,...)
