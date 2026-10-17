@@ -51,9 +51,9 @@ return function(mod,ui,enabled)
   local theme=F._menuCustomizerEmerald
   if tonumber(mod.options:get('menuTheme'))==2 and theme then
    local prior=mod.exports.battleFontScope;mod.exports.battleFontScope=false
-   local ok,err=pcall(theme.draw,'HP',x,y-3,options);mod.exports.battleFontScope=prior
+   local ok,err=pcall(theme.draw,'HP',x,y-4,options);mod.exports.battleFontScope=prior
    if not ok then G.pop();error(err,0)end
-  else F.draw('HP',x,y-3,options)end
+  else F.draw('HP',x,y-4,options)end
   local extent=math.max(8,math.min(48,232-x-16))
   paint('battleBarOutlineColor',{0,0,0,1},x+16,y,extent,6)
   G.setColor(.15,.15,.15,1);G.rectangle('fill',x+17,y+1,extent-2,4)
@@ -76,10 +76,10 @@ return function(mod,ui,enabled)
  C.drawExpBar=function(x,y,ratio,...)
   if not active()then return xp(x,y,ratio,...)end
   G.push('all');G.setShader()
-  paint('battleExpOutlineColor',{0,0,0,1},x,y-1,64,4)
-  G.setColor(.15,.15,.15,1);G.rectangle('fill',x+1,y,62,2)
+  paint('battleExpOutlineColor',{0,0,0,1},x,y,64,3)
+  G.setColor(.15,.15,.15,1);G.rectangle('fill',x+1,y+1,62,1)
   local width=math.max(0,math.min(62,math.floor((tonumber(ratio)or 0)*62+.5)))
-  if width>0 then paint('battleExpFillColor',{.2,.55,1,1},x+1,y,width,2)end
+  if width>0 then paint('battleExpFillColor',{.2,.55,1,1},x+1,y+1,width,1)end
   G.pop()
  end
 end
