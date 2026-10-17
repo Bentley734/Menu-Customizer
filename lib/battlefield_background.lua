@@ -97,7 +97,9 @@ return function(mod)
    -- Calling its provider here paints window artwork into the 240px UI
    -- canvas and bypasses its native/HD-sprite terrain handoff.
    if M.scenery() then return draw(...) end
-   if not hd and M.draw(0,0,240,112)then return end
+   local ui=mod.exports.battleUi
+   local height=require('src.core.GameVersion').get()=='emerald'and ui and ui.setting('style',1)==3 and 160 or 112
+   if not hd and M.draw(0,0,240,height)then return end
    return draw(...)
   end
  end

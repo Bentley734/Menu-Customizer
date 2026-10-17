@@ -22,6 +22,26 @@ return function(mod,ui,enabled)
   end
   return rows
  end
+ -- Native terrain sheets bake opaque menu paper into their bottom rows.
+ -- Replace only that paper with continuous terrain wallpaper; panel corners
+ -- and gaps can then remain transparent instead of exposing a black sheet.
+ local terrain=C.drawTerrain;local strips=setmetatable({},{__mode='k'})
+ if terrain then C.drawTerrain=function(key,...)
+  local result=terrain(key,...)
+  if not(active()and result)then return result end
+  local entry=C.terrain(key or 'building')or C.terrain('building')or C.terrain('grass')
+  local image=entry and entry.bgImage
+  if image then
+   local quad=strips[image]
+   if not quad then quad=G.newQuad(0,96,240,16,image:getDimensions());strips[image]=quad end
+   G.push('all');G.setColor(1,1,1,1)
+   local x,y=G.transformPoint(0,112);local right,bottom=G.transformPoint(240,160)
+   G.intersectScissor(x,y,right-x,bottom-y)
+   for row=112,159,16 do G.draw(image,quad,0,row)end
+   G.pop()
+  end
+  return result
+ end end
  local hp=C.drawHpBar
  C.drawHpBar=function(x,y,value,maximum,status,...)
   if not active()then return hp(x,y,value,maximum,status,...)end

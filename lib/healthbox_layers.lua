@@ -36,11 +36,19 @@ return function(G,mod,faded)
    return text(value,x,y,opts,...)
   end
   font.drawGlyph=function(id,x,y,opts,...)
+   if custom and id==font.CHAR_LV_2 then return font.draw('Lv',x,y,opts,...)end
    if id==0x105 and opts and opts.small then
     y=y-1
     x=x-font.measure(' ',opts)
    end
    return glyph(id,x,y,opts,...)
+  end
+  if custom and font.advance and font.CHAR_LV_2 then
+   local advance=font.advance;saved[#saved+1]={font,'advance',advance}
+   font.advance=function(id,opts,...)
+    if id==font.CHAR_LV_2 then return font.measure('Lv',opts)end
+    return advance(id,opts,...)
+   end
   end
   local summary=chrome._menuCustomizerSummary
   if summary then wrap(summary,'drawStatusIcon',true)end
