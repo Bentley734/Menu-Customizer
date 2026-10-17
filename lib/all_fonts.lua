@@ -42,6 +42,9 @@ return function(mod)
    rows[#rows+1]=row
   end
   add('allFontTheme','FONT STYLE',{'NATIVE','EMERALD'},2,1)
+  if mod.exports.frlgTextSize and mod.exports.frlgTextSize.active()then
+   add('frlgTextSize','FR/LG TEXT SIZE',{'NORMAL','SMALL'},1,1)
+  end
   add('allTextColor','FONT COLOR',P.names,0,0,'text')
   add('allTextShadowColor','SHADOW COLOR',P.shadowNames,0,0,'shadow')
   add('allShadowOpacity','SHADOW OPACITY',nil,100)

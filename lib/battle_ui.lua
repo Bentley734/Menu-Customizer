@@ -180,9 +180,15 @@ return function(mod)
     out[#out+1] = {id=ID..':style',label='BATTLE UI',
       value=function() return ({'VANILLA','EMERALD','MENU BORDER'})[setting('style',1)] end,
       step=function(ctx,dir) return persist(ctx,'style',(setting('style',1)-1+(dir and dir<0 and -1 or 1))%3+1) end}
+    if mod.exports.frlgTextSize and mod.exports.frlgTextSize.active()then
+      out[#out+1]={id=ID..':font_size',label='FR/LG TEXT SIZE',
+        value=function()return ({'NORMAL','SMALL'})[mod.exports.frlgTextSize.choice()]end,
+        step=function(ctx)mod.exports.customization.write(ctx,{frlgTextSize=3-mod.exports.frlgTextSize.choice()});return false end}
+    else
     out[#out+1]={id=ID..':font_size',label='BATTLE FONT SIZE',
       value=function()return ({'NORMAL','LARGE (150%)','EXTRA LARGE (200%)'})[setting('font_size',0)+1]end,
       step=function(ctx,dir)return persist(ctx,'font_size',(setting('font_size',0)+(dir and dir<0 and -1 or 1))%3)end}
+    end
     if mod.generation<3 then out[#out+1]={id=ID..':move_layout',label='BATTLE MOVE LAYOUT',
       value=function()return setting('move_layout',0)==1 and'LIST'or'GRID'end,
       step=function(ctx)return persist(ctx,'move_layout',1-setting('move_layout',0))end}end

@@ -9,6 +9,7 @@ return function(mod,Message,Font,active)
  end
  function M.beginFrame()M.queues={}end
  local function factor()
+  if mod.exports.frlgTextSize and mod.exports.frlgTextSize.active()then return 1 end
   local n=tonumber(mod.options:get('battle_font_size')or mod.save:get('battle_font_size'))or 0
   return ({1,1.5,2})[math.max(0,math.min(2,math.floor(n)))+1]
  end

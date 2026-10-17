@@ -93,6 +93,10 @@ return function(mod)
   Bg.draw=function(...)
    local ok,kim=pcall(mod.find,'kim1025')
    local hd=ok and kim and kim.options and kim.options:get('hdBattleBackgrounds')~=false and kim.exports and kim.exports.frlgHdBackgrounds
+   -- HD Dynamic Battlefields owns FR/LG's terrain and final-frame pass.
+   -- Calling its provider here paints window artwork into the 240px UI
+   -- canvas and bypasses its native/HD-sprite terrain handoff.
+   if M.scenery() then return draw(...) end
    if not hd and M.draw(0,0,240,112)then return end
    return draw(...)
   end

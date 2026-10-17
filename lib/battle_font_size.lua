@@ -3,6 +3,7 @@ return function(mod,enabled)
  local G=love.graphics;local M={depth=0,scopeDepth=0}
  local unpack=unpack or table.unpack
  function M.factor()
+  if mod.exports.frlgTextSize and mod.exports.frlgTextSize.active()then return 1 end
   -- Native HUD tiles have fixed anchors; menu text size must not move them.
   if mod.exports.battleHudScope then return 1 end
   if not enabled()or not(M.scopeDepth>0 or mod.exports.battleFontScope or mod.exports.dialogueFontScope)then return 1 end
