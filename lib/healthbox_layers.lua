@@ -24,7 +24,7 @@ return function(G,mod,faded)
   end
   wrap(font,'draw',true);wrap(font,'drawGlyph',true)
   local text,glyph=font.draw,font.drawGlyph
-  local hpMaximum=false
+  local hpMaximum=false;local hpRightX
   font.draw=function(value,x,y,opts,...)
    if custom and y==titleY then y=y-2 end
    if custom then
@@ -36,6 +36,10 @@ return function(G,mod,faded)
    if opts and opts.small then
     local hpCurrent=type(value)=='string' and value:match('^%s*%d+/$')
     if hpCurrent or hpMaximum then y=y-1 end
+    if custom and hpMaximum and hpRightX then
+     value=tostring(value):gsub('^%s+','');x=hpRightX
+    end
+    hpRightX=custom and hpCurrent and(x+font.measure(value,opts))or nil
     hpMaximum=hpCurrent and true or false
    end
    return text(value,x,y,opts,...)

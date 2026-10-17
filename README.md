@@ -1,3 +1,7 @@
+## v3.35.15 - Emerald HP spacing
+
+HP labels sit closer to their bars, EXP bars move down one game pixel, and HP values use compact slash spacing.
+
 ## v3.35.14 — Performance Mode
 
 PERFORMANCE MODE is available directly in Menu Customizer settings: ON by default on Android, OFF on PC. Panels render their animated backgrounds/borders at game resolution in this mode, reducing shader work when enlarged. Font color effects also skip invisible pixels. OFF keeps full-resolution eye candy. See [release notes](docs/PERFORMANCE-MODE-3.35.14.md).
