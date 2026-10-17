@@ -17,7 +17,14 @@ return function(mod,Font)
    local ax,ay=G.transformPoint(x,y)
    local bx,by=G.transformPoint(x+1,y)
    local cx,cy=G.transformPoint(x,y+1)
-   queue[#queue+1]={draw=printer,text=text,x=x,y=y,opts=copy(opts),
+   local placement=mod.exports.menuTextPlacement
+   local row
+   if placement then
+    local rx,ry=G.transformPoint(placement.x,placement.y)
+    local center=G.transformPoint(placement.center or placement.x,placement.y)
+    row={x=rx,y=ry,center=center,width=placement.width,align=placement.align,dx=x-placement.x,dy=y-placement.y}
+   end
+   queue[#queue+1]={draw=printer,text=text,x=x,y=y,opts=copy(opts),row=row,
     anchor={ax,ay},horizontal={bx-ax,by-ay},vertical={cx-ax,cy-ay},
     clip={G.getScissor()},color={G.getColor()}}
   end
@@ -53,6 +60,14 @@ return function(mod,Font)
     local unit=math.max(1,math.floor(math.min(scaleX,scaleY)+.00001))
     local px=math.floor((x+ax*sx)*dpi+.5)/dpi
     local py=math.floor((y+ay*sy)*dpi+.5)/dpi
+    if item.row then
+     local row=item.row;local start=(x+row.x*sx)*dpi
+     local slack=row.width*(scaleX-unit)
+     if row.align==2 then start=(x+row.center*sx)*dpi-row.width*unit/2
+     elseif row.align==3 then start=start+slack end
+     px=math.floor(start+row.dx*unit+.5)/dpi
+     py=math.floor((y+row.y*sy)*dpi+row.dy*unit+.5)/dpi
+    end
     G.origin();G.setShader();G.setScissor();G.setColor(unpack(item.color))
     if item.clip[1]then
      local l=math.floor((x+item.clip[1]*sx)*dpi)/dpi

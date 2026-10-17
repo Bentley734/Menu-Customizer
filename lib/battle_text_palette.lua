@@ -372,6 +372,17 @@ return function(mod)
   end
   -- Native face fallback, including scripts not covered by the Latin atlas.
   -- Use the engine printer for each glyph so encoding/advance stay native.
+  local function plainUtf8(text)
+    if type(text)~='string'then return false end
+    local at=1
+    for c in text:gmatch('[%z\1-\127\194-\244][\128-\191]*')do
+      if text:sub(at,at+#c-1)~=c then return false end
+      local a,b=c:byte(1,2);local size=a<128 and 1 or a<224 and 2 or a<240 and 3 or 4
+      if #c~=size or a==224 and b<160 or a==237 and b>=160 or a==240 and b<144 or a==244 and b>=144 then return false end
+      at=at+#c
+    end
+    return at==#text+1
+  end
   function M.nativeText(draw,measure,text,x,y,opts)
     local colors=opts and opts.colors
     if not colors or not colors._effects then return M.effects.aspect(x,y,draw,text,x,y,opts)end
@@ -383,7 +394,7 @@ return function(mod)
         return draw(t,px+dx,py+dy,copy)
       end,{width=measure and measure(t,opts)or 8,top=opts and opts.small and 3 or 2,height=opts and opts.small and 9 or 11})
     end
-    if type(text)~='string' or not measure or text:find('[<>]') or text:find('[\128-\191\245-\255]') then return one(text,x,y)end
+    if not plainUtf8(text) or not measure or text:find('[<>]') then return one(text,x,y)end
     return M.withText(colors._kind or 'battle',function()
       local px,py=x,y;local count=0
       for c in text:gmatch('[%z\1-\127\194-\244][\128-\191]*')do

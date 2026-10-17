@@ -686,14 +686,14 @@ return function(mod)
       local width = FrlgFont.measure(tostring(text or ''))
       local remaining = math.max(0, labelWidth-width)
       if alignment == 2 then
-        -- Include the cursor column in the visual centre of the window.
-        return labelX + math.floor(remaining/2) - Window.CURSOR_WIDTH/2, width
+        return tpl.left*8+math.floor((tpl.w*8-width)/2),width
       elseif alignment == 3 then
         return labelX + remaining, width
       end
       return labelX, width
     end
     local originalPrint = Window.printPx
+    local outerPlacement=mod.exports.menuTextPlacement
     local originalCursor = Window.cursorPx
     Window.cursorPx = function(x, y, opts)
       local selectedY = topY + (Start.cursor - scroll - 1) * pitch
@@ -727,10 +727,13 @@ return function(mod)
           love.graphics.rectangle('fill',tpl.left*8,y,tpl.w*8,pitch);love.graphics.pop()
         end
         local result
+        local priorPlacement=mod.exports.menuTextPlacement
+        mod.exports.menuTextPlacement={x=x,y=y,width=width,align=alignment,center=tpl.left*8+tpl.w*4}
         local wave=mod.exports.jumpWave
         if selected and wave.enabled()then
           wave.select(Start,Start.cursor,text);result=wave.draw(originalPrint,FrlgFont.measure,text,x,y,opts)
         else result=originalPrint(text,x,y,opts)end
+        mod.exports.menuTextPlacement=priorPlacement
         if selected and selector>=5 and selector<=12 then
           Selectors.draw(selector,x-10,y+3)
         end
@@ -751,6 +754,7 @@ return function(mod)
       return originalPrint(text, x, y, opts)
     end
     local ok, result = pcall(nativeStartDraw, ...)
+    mod.exports.menuTextPlacement=outerPlacement
     Window.printPx = originalPrint
     Window.cursorPx = originalCursor
     if not ok then error(result, 0) end
