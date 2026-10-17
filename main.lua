@@ -1,4 +1,9 @@
 return function(mod)
+  mod.exports.performanceMode=function()
+    local value=tonumber(mod.options:get('performanceMode'))
+    if value~=nil then return value==1 end
+    return love.system and love.system.getOS()=='Android'
+  end
   local frlgTextSize=assert(load(assert(mod:read('lib/frlg_text_size.lua'))))()(mod)
   assert(load(assert(mod:read('lib/settings_profiles.lua')),'@menu-customizer/settings_profiles.lua'))()(mod)
   assert(load(assert(mod:read('lib/customization_live.lua'))))()(mod)

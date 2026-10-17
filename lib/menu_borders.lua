@@ -349,7 +349,32 @@ return function(mod,setting,catalog,active)
  M.drawPixels=function(x,y,w,h,background,scope)
   local effects=palette.effects;local prior=effects.paperArea
   effects.paperArea={x,y,w,h}
-  local result={pcall(drawPixels,x,y,w,h,background,scope)}
+  local result
+  -- Mobile GPUs should shade game pixels, not every enlarged display pixel.
+  -- One reusable target is sufficient: composite each panel before the next.
+  if mod.exports.performanceMode and mod.exports.performanceMode() and G.newCanvas and w>0 and h>0 then
+   local cw,ch=math.ceil(w),math.ceil(h)
+   M.mobilePanels=M.mobilePanels or {};local key=cw..':'..ch
+   local canvas=M.mobilePanels[key]
+   if not canvas then
+    -- Bound memory while reusing the usual dialogue/menu/healthbox sizes.
+    if #M.mobilePanels>=16 then
+     local oldest=table.remove(M.mobilePanels,1);M.mobilePanels[oldest]:release();M.mobilePanels[oldest]=nil
+    end
+    canvas=G.newCanvas(cw,ch,{dpiscale=1});canvas:setFilter('nearest','nearest')
+    M.mobilePanels[key]=canvas;M.mobilePanels[#M.mobilePanels+1]=key
+   end
+   G.push('all')
+   result={pcall(function()
+    G.setCanvas(canvas);G.origin();G.setScissor();G.setStencilTest();G.setShader();G.clear(0,0,0,0)
+    G.setBlendMode('alpha');G.translate(-x,-y)
+    return drawPixels(x,y,w,h,background,scope)
+   end)}
+   G.pop()
+   if result[1]and result[2]then
+    G.push('all');G.setShader();G.setColor(1,1,1,1);G.setBlendMode('alpha','premultiplied');G.draw(canvas,x,y);G.pop()
+   end
+  else result={pcall(drawPixels,x,y,w,h,background,scope)}end
   effects.paperArea=prior
   if not result[1]then error(result[2],0)end
   return (unpack or table.unpack)(result,2)

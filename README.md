@@ -1,3 +1,7 @@
+## v3.35.14 — Performance Mode
+
+PERFORMANCE MODE is available directly in Menu Customizer settings: ON by default on Android, OFF on PC. Panels render their animated backgrounds/borders at game resolution in this mode, reducing shader work when enlarged. Font color effects also skip invisible pixels. OFF keeps full-resolution eye candy. See [release notes](docs/PERFORMANCE-MODE-3.35.14.md).
+
 # Menu Customizer 3.35.13 — Per-box background centres
 
 Anchor animated backgrounds to the centre of each owning box/menu instead of screen coordinates or a fixed reference point. Whole-panel, tiled, thin and Gen4-style frame renderers share one complete panel area, so background pieces remain continuous. Gradient, abstract, fire, forest, black and Pokemon-pattern backgrounds follow their owner when it moves or changes size. Preserve animation speed/settings; foreground text gradients keep their existing coordinate behavior.

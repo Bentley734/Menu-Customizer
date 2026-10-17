@@ -8,7 +8,9 @@ return function(mod)
  end
  function M.rows(openPage)
   local P=mod.exports.selectorPalette;local catalog=mod.exports.borderCatalog or assert(load(assert(mod:read('lib/border_catalog.lua'))))()
-  local result={};local specs={{'background','BACKGROUNDS',P.backgroundNames,'background'},{'text','ANIMATED TEXT COLORS',P.names,'text'},{'border','BORDERS'}}
+  local result={{id='wide_performanceMode',label='PERFORMANCE MODE',
+   value=function()return mod.exports.performanceMode()and'ON'or'OFF'end,
+   step=function(ctx)mod.exports.customization.write(ctx,{performanceMode=mod.exports.performanceMode()and 0 or 1});return false end}};local specs={{'background','BACKGROUNDS',P.backgroundNames,'background'},{'text','ANIMATED TEXT COLORS',P.names,'text'},{'border','BORDERS'}}
   for _,spec in ipairs(specs)do
    local group,title=spec[1],spec[2];local rows={};local seen={}
    local function add(id,label)

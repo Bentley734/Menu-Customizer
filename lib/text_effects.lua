@@ -167,7 +167,7 @@ return function(mod,palette)
   if color.animation=='POKEMON' and G.newShader then
    if not M.pokemonShader then M.pokemonShader=G.newShader(palette.pokemonBackgrounds.glsl..[[
     extern vec2 pokeOrigin;extern vec2 pokeScale;
-    vec4 effect(vec4 c,Image tex,vec2 uv,vec2 pixel){return vec4(pokemonPaper((pixel-pokeOrigin)/pokeScale),c.a)*Texel(tex,uv);}
+    vec4 effect(vec4 c,Image tex,vec2 uv,vec2 pixel){vec4 s=Texel(tex,uv);if(s.a*c.a<=0.0)return vec4(0.0);return vec4(pokemonPaper((pixel-pokeOrigin)/pokeScale),c.a)*s;}
    ]])end
    local ax,ay=G.transformPoint(0,0);local bx,by=G.transformPoint(1,1)
    local target=G.getCanvas();local dpi=target and target:getDPIScale() or G.getDPIScale()
@@ -176,9 +176,10 @@ return function(mod,palette)
   elseif color.animation=='GRADIENT' and G.newShader then
    if not shader then shader=G.newShader(palette.gradients.glsl..[[extern float phase;extern bool darkInk;extern vec2 gradientOrigin;extern vec2 gradientScale;
     vec4 effect(vec4 c,Image tex,vec2 uv,vec2 pixel){
+     vec4 s=Texel(tex,uv);if(darkInk)s=vec4(1.0,1.0,1.0,s.a*(1.0-min(s.r,min(s.g,s.b))));if(s.a*c.a<=0.0)return vec4(0.0);
      vec2 logical=(pixel-gradientOrigin)/gradientScale;float h=fract(phase+logical.x/320.0+logical.y/640.0);
      vec3 rgb=gradientColor(h);
-     vec4 s=Texel(tex,uv);if(darkInk)s=vec4(1.0,1.0,1.0,s.a*(1.0-min(s.r,min(s.g,s.b))));return vec4(rgb,c.a)*s;
+     return vec4(rgb,c.a)*s;
     }]])end
    local origin,scale={0,0},{1,1}
    if area then
