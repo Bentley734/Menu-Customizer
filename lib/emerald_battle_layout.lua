@@ -46,19 +46,19 @@ return function(G,mod)
   local y=rect.y+(rect.h-16*(breaks+1)*sy)/2
   at(rect,sx,sy,dx,dy,x,y,function()
    waveDraw(F,s,0,0,{font=font,colors=colors},owner,index,cursor)
-   if cursor then F.drawGlyph(F.CHAR_SELECTOR_ARROW,-11,0,{colors=colors})end
+   if cursor then F.drawGlyph(F.CHAR_SELECTOR_ARROW,-12,0,{colors=colors})end
   end)
  end
  local function commands(F,battle,generation,rect,custom,colors,viewport)
   custom.frames('none',rect,viewport)
   local pane=inner(rect,0,rect.w)
-  local commands=generation<3 and {'FIGHT','POKéMON','BAG','RUN'}or{'FIGHT','BAG','POKéMON','RUN'}
+  local commands=generation<3 and {'FIGHT','POKÃ©MON','BAG','RUN'}or{'FIGHT','BAG','POKÃ©MON','RUN'}
   local commandOptions=mod.exports.battleCommands
   local commandFont=commandOptions and commandOptions.get('Font',1)==2 and'narrow'or'normal'
   local width=0;for _,text in ipairs(commands)do width=math.max(width,F.measure(text,{font=commandFont})or 0)end
   local p=battle.player
   local mon=generation==2 and battle:activeMon('player')or p and p.mon
-  local name=p and p.name or mon and(mon.nickname or mon.name)or 'POKéMON'
+  local name=p and p.name or mon and(mon.nickname or mon.name)or 'POKÃ©MON'
   local first,last='What will',name..' do?'
   local prompt=mod.exports.battlePrompt
   local promptFont=prompt and prompt.get('Font',1)==2 and'narrow'or'normal'
@@ -94,7 +94,7 @@ return function(G,mod)
      local selectorColors={};for k,v in pairs(inkColors)do selectorColors[k]=v end
      local color=commandOptions and commandOptions.get('SelectorColor',-1)or -1
      if color>=0 then selectorColors.fg=mod.exports.selectorPalette.color('text',color)end
-     F.drawGlyph(F.CHAR_SELECTOR_ARROW,-11,0,{colors=selectorColors,_selectorStyle=commandOptions and commandOptions.get('Selector',mod.options:get('arrowSelector')or 1)})
+     F.drawGlyph(F.CHAR_SELECTOR_ARROW,-10,0,{colors=selectorColors,_selectorStyle=commandOptions and commandOptions.get('Selector',mod.options:get('arrowSelector')or 1)})
     end
    end)
   end
@@ -163,7 +163,7 @@ return function(G,mod)
     local y=c.y+(c.h-10*sy)/2-3*sy
     at(c,sx,sy,dx,dy,x,y,function()
      waveDraw(F,s,0,0,{font='narrow',colors=colors()},battle,'move:'..i,i==(battle.moveIndex or 1))
-     if i==(battle.moveIndex or 1)or i==battle.moveSwapIndex then F.drawGlyph(F.CHAR_SELECTOR_ARROW,-11,0,{colors=colors()})end
+     if i==(battle.moveIndex or 1)or i==battle.moveSwapIndex then F.drawGlyph(F.CHAR_SELECTOR_ARROW,-12,0,{colors=colors()})end
     end)
    else label(F,s,c,sx,sy,dx,dy,'narrow',colors(),i==(battle.moveIndex or 1)or i==battle.moveSwapIndex,true,battle,'move:'..i)end
   end

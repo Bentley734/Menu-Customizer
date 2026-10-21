@@ -1,3 +1,9 @@
+## v3.35.17 - More move selector spacing
+
+Add another game pixel between the move selector and move name, preserving move name positions, panels and font scale. Applies to grid and list layouts.
+
+Validation: native position comparison, Emerald pane bounds and LuaJIT parsing.
+
 ## v3.35.16 - Move selector spacing
 
 Add one pixel of separation between move selectors and move names in grid and list layouts. Move names, panels and font sizes retain their positions.
