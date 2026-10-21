@@ -32,6 +32,13 @@ return function(mod)
  end
  function M.rows(openPage)
   local C=mod.exports.customization;local P=mod.exports.selectorPalette;local names={'ORIGINAL','SENTENCE CASE','LOWERCASE','TITLE CASE'};local rows={}
+  local sections={};for _,s in ipairs(M.scopes)do sections[#sections+1]=s end
+  for _,s in ipairs({{'battleCommands','COMMAND OPTIONS'},{'battlePrompt','COMMAND PROMPT'},{'moveSelect','MOVE SELECT'},{'moveLearning','MOVE LEARNING'}})do sections[#sections+1]=s end
+  for _,s in ipairs(sections)do local scope,label=s[1],s[2];local key=scope..'SectionFontSize'
+   rows[#rows+1]={id='wide_'..key,label=label..' FONT SIZE',
+    value=function()return ({'SMALL','MEDIUM','LARGE'})[mod.exports.sectionFontSize.choice(scope)]end,
+    step=function(ctx,d)local n=mod.exports.sectionFontSize.choice(scope);C.write(ctx,{[key]=math.max(1,math.min(3,n+(d or 1)))});return false end}
+  end
   for _,s in ipairs(M.scopes)do local scope,label=s[1],s[2];local key=scope..'TextCase'
    rows[#rows+1]={id='wide_'..key,label=label,value=function()return names[M.mode(scope)+1]end,
     step=function(ctx,d)C.write(ctx,{[key]=(M.mode(scope)+(d or 1))%4});return false end}

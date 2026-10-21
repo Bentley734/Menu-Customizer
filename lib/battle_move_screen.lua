@@ -63,7 +63,7 @@ return function(mod)
     if #label<=limit then return {label} end
     local cut
     for i=2,math.min(limit,#label-1) do if label:sub(i,i)==' ' then cut=i end end
-    cut=cut or limit+1
+    if not cut then return {label} end
     local first=label:sub(1,cut-1)
     local second=label:sub(cut):gsub('^%s+','')
     return {first,second}

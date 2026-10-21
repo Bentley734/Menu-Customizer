@@ -34,3 +34,8 @@ local first=draw(1,-4);assert(first[1][1]==baseline-3,'Mart uses its independent
 mod.exports.menuSurfaces.current='pc'
 first=draw(1,-4);assert(first[1][1]==baseline+4,'other menus retain their own gap')
 print('PASS Poke Mart spacing is isolated from other menus')
+
+mod.exports.startSelectorScope=true
+local hidden=pcall(function()style=1;gap=0;assert(not A.draw(50,20,8,{}))end);assert(hidden)
+rects={};assert(A.draw(50,20,8,{_battleCommand=true}));assert(#rects>0,'command cursor survives start-scope suppression')
+print('PASS explicit command cursor draws original pixels independently of font glyph availability')

@@ -78,6 +78,7 @@ return WideBattle
     end
     M.font,M.chrome,M.profile=font,chrome,profile
     if mod.exports.battleFontSizing then mod.exports.battleFontSizing.decorate(font,'draw','measure','drawGlyph',false)end
+    if mod.exports.sectionFontSize then mod.exports.sectionFontSize.decorate(font,false)end
     local nativeGlyph=font.drawGlyph
     font.drawGlyph=function(id,x,y,opts)
       local arrows=mod.exports and mod.exports.arrowSelectors
@@ -87,7 +88,7 @@ return WideBattle
     M.overrides=overrides
     overrides['src.ui.game3.battle_chrome']=chrome
     overrides['src.core.game3.dataset']={cache=function()return dataset end,mountExtractRoots=function()end}
-    overrides['src.core.game3.battle.state']={displayName=function(b)return b.name or 'POKéMON'end}
+    overrides['src.core.game3.battle.state']={displayName=function(b)return b.name or 'POKÃ©MON'end}
     overrides['src.core.game3.battle.anim']={displayExpRatio=function(_,b)return b.expRatio or 0 end}
     overrides['src.core.game3.pokemon']={gender=function()end}
     overrides['src.core.game3.rom_text']={has=function()return false end}
@@ -165,7 +166,7 @@ return WideBattle
   function M.decode(line)
     if type(line)=='string'then return line end
     local F=require('src.render.Font')
-    local signature=tostring(F.revision)..':'..table.concat(F.encode("Aa'?!é♂♀"),',')
+    local signature=tostring(F.revision)..':'..table.concat(F.encode("Aa'?!Ã©â™‚â™€"),',')
     if not gbMap or signature~=gbSignature then
       gbMap={};gbSignature=signature
       local missing=F.encode('?')[1];local space=F.encode(' ')[1]
@@ -173,10 +174,10 @@ return WideBattle
         local s=string.char(n);local ids=F.encode(s)
         if #ids==1 and ((ids[1]~=missing and ids[1]~=space)or s=='?'or s==' ')then gbMap[ids[1]]=s end
       end
-      for _,s in ipairs({"'d","'l","'m","'r","'s","'t","'v",'é','É','♀','♂'})do
+      for _,s in ipairs({"'d","'l","'m","'r","'s","'t","'v",'Ã©','Ã‰','â™€','â™‚'})do
         local ids=F.encode(s);if #ids==1 and ids[1]~=missing and ids[1]~=space then gbMap[ids[1]]=s end
       end
-      gbMap[0xE1]='POKé';gbMap[0xE2]='MON';gbMap[0x7F]=' '
+      gbMap[0xE1]='POKÃ©';gbMap[0xE2]='MON';gbMap[0x7F]=' '
     end
     local out={};for _,c in ipairs(line or {})do out[#out+1]=gbMap[c]or '?'end
     return table.concat(out)
@@ -298,13 +299,13 @@ return WideBattle
       if menu then
         local p=battle.player
         local mon=generation==2 and battle:activeMon('player') or p and p.mon
-        local name=p and p.name or mon and (mon.nickname or mon.name) or 'POKéMON'
+        local name=p and p.name or mon and (mon.nickname or mon.name) or 'POKÃ©MON'
         if not legacyFrames then
           F.draw('What will',9,121,{colors=M.presentationColors()})
           F.draw(name..' do?',9,137,{colors=M.presentationColors(),maxWidth=104})
         end
         local left=legacyFrames and 0 or 120
-        local labels=generation<3 and {'FIGHT','POKéMON','BAG','RUN'}or{'FIGHT','BAG','POKéMON','RUN'}
+        local labels=generation<3 and {'FIGHT','POKÃ©MON','BAG','RUN'}or{'FIGHT','BAG','POKÃ©MON','RUN'}
         for i,s in ipairs(labels)do
           F.draw(s,left+8+56*((i-1)%2),121+16*math.floor((i-1)/2),{colors=ready and M.colors() or C.textboxColors()})
         end
@@ -332,7 +333,7 @@ return WideBattle
     local mon={hp=hp,maxHp=source.maxHp or source.stats and source.stats.hp or 1,
       level=generation==2 and side=='player' and (battle.shownLevel or source.level)or source.level,
       gender=source.gender,status=status}
-    local b={mon=mon,name=state.name or source.nickname or source.name or 'POKéMON',
+    local b={mon=mon,name=state.name or source.nickname or source.name or 'POKÃ©MON',
       side=side,isPlayer=side=='player',expRatio=generation==2 and side=='player' and (battle.shownExp or 0)/64 or 0}
     if side=='enemy'then
       b.caught=generation==2 and battle.caughtMark or battle.caughtMarkerVisible and battle:caughtMarkerVisible()

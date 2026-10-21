@@ -43,7 +43,7 @@ return function(mod,enabled)
  end
  function M.decorate(font,drawKey,measureKey,glyphKey,isGB)
   if not font or not font[drawKey]then return end
-  local tag='_menuCustomizerBattleSize_'..drawKey
+  local tag=(M.tagPrefix or'_menuCustomizerBattleSize_')..drawKey
   if font[tag]then font[tag].api=M;return end
   local state={api=M};font[tag]=state
   local draw,measure,glyph=font[drawKey],font[measureKey],font[glyphKey]

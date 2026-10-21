@@ -283,17 +283,17 @@ return function(mod)
     end
     mod.exports.drawGen3Panels=drawGen3Panels
     local Ui=require('src.core.game3.battle.ui')
-    local drawing,command=nil,nil
+    local drawing,command,commandFrame=nil,nil,nil
     local nativeUi=Ui.draw
     Ui.draw=function(...)
-      local priorDrawing,priorCommand=drawing,command
-      drawing,command=true,nil
+      local priorDrawing,priorCommand,priorFrame=drawing,command,commandFrame
+      drawing,command,commandFrame=true,nil,false
       local result
       if enabled() and setting('style',1)==2 and nativeEmerald.ready() then
         result={pcall(nativeEmerald.scope,nativeUi,...)}
       elseif enabled() then result={pcall(textPalette.scope,nativeUi,...)}
       else result={pcall(nativeUi,...)} end
-      drawing,command=priorDrawing,priorCommand
+      drawing,command,commandFrame=priorDrawing,priorCommand,priorFrame
       if not result[1] then error(result[2],0) end
       return unpack(result,2)
     end
@@ -312,7 +312,15 @@ return function(mod)
     for _,spec in ipairs({{'src.ui.game3.window','cursorPx'},{'src.ui.game3.rs.menu_cursor','draw'}}) do
       local target=require(spec[1]);local native=target[spec[2]]
       target[spec[2]]=function(x,y,...)
-        if enabled() and command and x>=120 and y>=112 then return textPlaced(native,120,120,240,x>=184 and 1 or 0,2,x-1,y,...) end
+        if enabled() and commandFrame and x>=120 and y>=112 then
+          local opts={_battleCommand=true,_selectorStyle=mod.exports.battleCommands.get('Selector',mod.options:get('arrowSelector')or 1)}
+          local args={...}
+          local function marker(px,py)
+            if mod.exports.arrowSelectors.draw(px,py,16,opts)then return end
+            return native(px,py,unpack(args))
+          end
+          return textPlaced(marker,120,120,240,x>=184 and 1 or 0,2,x-1,y)
+        end
         return native(x,y,...)
       end
     end
@@ -324,7 +332,7 @@ return function(mod)
         local args = {...}
         if name=='drawMenuFrames' then return end
         if name=='drawPanel' and args[1]=='menu' then
-          if drawing then command=0 end
+          if drawing then command=0;commandFrame=true end
           return drawGen3Panels('menu')
         end
         if setting('style',1)==1 then
@@ -923,6 +931,7 @@ return function(mod)
   sizing.decorate(require('src.render.Font'),'draw','width','drawCode',true)
   if mod.generation==3 then sizing.decorate(require('src.ui.game3.frlg_font'),'draw','measure','drawGlyph',false)end
   sizing.decorate(battleFont.selected,'draw','measure','drawGlyph',false)
+  if mod.exports.sectionFontSize then mod.exports.sectionFontSize.decorate(battleFont.selected,false)end
   local gb=require('src.render.Font')._menuCustomizerGB
   if gb and gb.mod==mod then sizing.decorate(gb.theme,'draw','measure','glyph',false)end
   assert(load(assert(mod:read('lib/level_up_panels.lua')),'@menu-customizer/level_up_panels.lua'))()(mod,api,battleFont,panel,compose,enabled)

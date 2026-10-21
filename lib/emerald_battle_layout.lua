@@ -52,13 +52,13 @@ return function(G,mod)
  local function commands(F,battle,generation,rect,custom,colors,viewport)
   custom.frames('none',rect,viewport)
   local pane=inner(rect,0,rect.w)
-  local commands=generation<3 and {'FIGHT','POKÃ©MON','BAG','RUN'}or{'FIGHT','BAG','POKÃ©MON','RUN'}
+  local commands=generation<3 and {'FIGHT','POKÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©MON','BAG','RUN'}or{'FIGHT','BAG','POKÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©MON','RUN'}
   local commandOptions=mod.exports.battleCommands
   local commandFont=commandOptions and commandOptions.get('Font',1)==2 and'narrow'or'normal'
   local width=0;for _,text in ipairs(commands)do width=math.max(width,F.measure(text,{font=commandFont})or 0)end
   local p=battle.player
   local mon=generation==2 and battle:activeMon('player')or p and p.mon
-  local name=p and p.name or mon and(mon.nickname or mon.name)or 'POKÃ©MON'
+  local name=p and p.name or mon and(mon.nickname or mon.name)or 'POKÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©MON'
   local first,last='What will',name..' do?'
   local prompt=mod.exports.battlePrompt
   local promptFont=prompt and prompt.get('Font',1)==2 and'narrow'or'normal'
@@ -89,12 +89,15 @@ return function(G,mod)
    local y=c.y+(c.h-12*sy)/2-2*sy
    local inkColors=commandOptions and commandOptions.colors(colors)or colors
    at(c,sx,sy,dx,dy,x,y,function()
-    waveDraw(F,s,0,0,{font=commandFont,colors=inkColors},battle,'command:'..i,i==(battle.menuIndex or 1))
+    local function drawCommand()return waveDraw(F,s,0,0,{font=commandFont,colors=inkColors,maxWidth=math.max(1,(c.x+c.w-x)/sx),_sectionMaxHeight=cell.h/sy},battle,'command:'..i,i==(battle.menuIndex or 1))end
+    if mod.exports.sectionFontSize then mod.exports.sectionFontSize.with('battleCommands',drawCommand)else drawCommand()end
     if i==(battle.menuIndex or 1)then
      local selectorColors={};for k,v in pairs(inkColors)do selectorColors[k]=v end
      local color=commandOptions and commandOptions.get('SelectorColor',-1)or -1
      if color>=0 then selectorColors.fg=mod.exports.selectorPalette.color('text',color)end
-     F.drawGlyph(F.CHAR_SELECTOR_ARROW,-10,0,{colors=selectorColors,_selectorStyle=commandOptions and commandOptions.get('Selector',mod.options:get('arrowSelector')or 1)})
+     local opts={colors=selectorColors,_battleCommand=true,_selectorStyle=commandOptions and commandOptions.get('Selector',mod.options:get('arrowSelector')or 1)}
+     local arrows=mod.exports.arrowSelectors
+     if not(arrows and arrows.draw(-10,0,16,opts))then F.drawGlyph(F.CHAR_SELECTOR_ARROW,-10,0,opts)end
     end
    end)
   end
@@ -107,7 +110,8 @@ return function(G,mod)
     local align=prompt and prompt.get('Justify',2)or 2
     local gap=math.max(0,left.w/px-ink)
     local tx=align==2 and gap/2 or align==3 and gap or 0
-    F.draw(text,math.floor(tx+.5),(i-1)*11,{font=promptFont,colors=prompt and prompt.colors(colors)or colors})
+    local function drawPrompt()return F.draw(text,math.floor(tx+.5),(i-1)*11,{font=promptFont,colors=prompt and prompt.colors(colors)or colors,maxWidth=math.max(1,left.w/px-tx),_sectionMaxHeight=11})end
+    if mod.exports.sectionFontSize then mod.exports.sectionFontSize.with('battlePrompt',drawPrompt)else drawPrompt()end
    end
   end)
   return true
@@ -132,10 +136,7 @@ return function(G,mod)
     local n=math.max(measure(a),measure(b))
     if not score or n<score then best={a,b};score=n end
    end
-   if not best then
-    local chars={};for c in s:gmatch('[%z\1-\127\194-\244][\128-\191]*')do chars[#chars+1]=c end
-    local half=math.ceil(#chars/2);best={table.concat(chars,'',1,half),table.concat(chars,'',half+1)}
-   end
+   if not best then return s,1 end
    return best[1]..'\n'..best[2],2
   end
   local width=0

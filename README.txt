@@ -1,3 +1,11 @@
+## v3.35.21 - Section text sizes and battle selector fixes
+
+Add Small, Medium and Large font size controls to the existing Text > Font and Layout section submenus. Medium preserves every section's current sizing and saved typography. Scaling uses whole framebuffer pixels and fits constrained battle cells; native healthbox gauges retain their geometry. Small cannot shrink below one physical pixel.
+
+Remove redundant ancestor submenu prefixes from option titles. Keep single-word move names, including SMOKESCREEN, intact; wrap only at word boundaries. Render command selectors directly from pixel artwork rather than depending on an imported font glyph, and preserve the command pass after labels are drawn.
+
+Validation: 23 size scopes at four scales, integer scaling/default/anchor/scope checks, intact move-name regression, selector and options navigation checks, all-source LuaJIT compilation, Emerald native battle fixtures including Performance Mode, and Crystal native Loader/Sandbox rendering. No physical Retroid Pocket Classic or Android GPU verification; device confirmation of the selector fix remains necessary.
+
 ## v3.35.20 - Selector spacing controls
 
 Add Start Selector Gap, Other Selector Gap, and independent Poke Mart Selector Gap under Selectors. Each ranges from -4 PX to 4 PX in one-pixel increments, defaults to 0, and preserves existing text positions. Positive gaps move leading icons away, underlines downward, and paired dots outward. Marker-free effects retain their behavior.

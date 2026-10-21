@@ -62,13 +62,14 @@ return function(entries,openPage)
   local list=textPages[category];list[#list+1]=compact(row,words)
  end
  -- Keep global controls here; menu-specific controls get one focused page.
- local layout,menus,menuOrder={},{},{'MENUS','START MENU','OPTIONS','DIALOGUE','INTRO / TITLE','SAVE SUMMARY','POKE MART','PC','BATTLE','MOVE SELECT','BATTLE NAMES','PARTY','BAG','POKEMON SUMMARY','POKEDEX','TRAINER CARD','OTHER MENUS','LOAD REPORT','MOD MENUS'}
+ local layout,menus,menuOrder={},{},{'MENUS','START MENU','OPTIONS','DIALOGUE','INTRO / TITLE','SAVE SUMMARY','SAVED GAME MESSAGE','POKE MART','PC','BATTLE','MOVE SELECT','BATTLE NAMES','PARTY','BAG','POKEMON SUMMARY','POKEDEX','TRAINER CARD','OTHER MENUS','LOAD REPORT','MOD MENUS'}
  for _,name in ipairs(menuOrder)do menus[name]={}end
  for _,row in ipairs(textPages['FONT AND LAYOUT'])do
   local key=(row.id or ''):gsub('^wide_',''):gsub('^surface_',''):lower();local group
   if key=='textcase'or key:find('^all')or key=='controlslegend'then layout[#layout+1]=row
   else
-   if key:find('movelearning',1,true)then group='BATTLE'
+   if key:find('savedgame',1,true)then group='SAVED GAME MESSAGE'
+   elseif key:find('movelearning',1,true)then group='BATTLE'
    elseif key:find('moveselect',1,true)then group='MOVE SELECT'
    elseif key:find('mods',1,true)then group='MOD MENUS'
    elseif key:find('loadreport',1,true)then group='LOAD REPORT'
@@ -202,20 +203,38 @@ return function(entries,openPage)
  for _,rows in pairs(pages)do stardewGroups(rows)end
  -- Keep titles concise inside their owning submenu. Saved IDs and callbacks
  -- stay unchanged; only the presentation copies are shortened.
- local function concise(rows,inBattle)
+ local function concise(rows,parents)
   for i,row in ipairs(rows)do
-   local battle=inBattle or row.label=='BATTLE'
-   if type(row.children)=='table'then concise(row.children,battle)
+   local prefixes={};for _,v in ipairs(parents or{})do prefixes[#prefixes+1]=v end
+   local title=row.label or''
+   if type(row.children)=='table'then
+    prefixes[#prefixes+1]=title
+    local aliases={MENUS='MENU',SELECTORS='SELECTOR',BORDERS='BORDER',BACKGROUNDS='BACKGROUND',['START MENU']='START',['INTRO / TITLE']='INTRO',['FONT AND LAYOUT']='TEXT'}
+    if aliases[title]then prefixes[#prefixes+1]=aliases[title]end
+    concise(row.children,prefixes)
    else
     local copy={};for k,v in pairs(row)do copy[k]=v end
-    local text=row.label or''
+    local text=title
+    -- Multiple owners may prefix one label (e.g. BATTLE COMMAND OPTIONS).
+    local changed=true
+    while changed do
+     changed=false
+     for _,prefix in ipairs(prefixes)do
+      if text:sub(1,#prefix+1)==prefix..' 'then text=text:sub(#prefix+2);changed=true end
+     end
+    end
+    for _,prefix in ipairs(prefixes)do
+     if text==prefix then
+      local key=(row.id or''):lower()
+      if key:find('color',1,true)then text=key:find('shadow',1,true)and'SHADOW COLOR'or'COLOR'end
+     end
+    end
     text=text:gsub('TRANSPARENCY','OPACITY'):gsub('HORIZONTAL','HORIZ.'):gsub('VERTICAL','VERT.')
-    if battle then text=text:gsub('^BATTLE ','')end
-    copy.label=text;rows[i]=copy
+    copy.label=text~=''and text or title;rows[i]=copy
    end
   end
  end
- for _,rows in pairs(pages)do concise(rows,false)end
+ for name,rows in pairs(pages)do concise(rows,{name})end
  local out={}
  for _,name in ipairs(order)do local children=pages[name]
   out[#out+1]={id='wide_page_'..name,label=name,group=true,children=children,value=function()return #children..' OPTIONS'end,activate=function(ctx)return openPage(name,children,ctx)end}

@@ -42,6 +42,12 @@ return function(G,mod,faded)
     hpRightX=custom and hpCurrent and(x+font.measure(value,opts))or nil
     hpMaximum=hpCurrent and true or false
    end
+   local size=mod.exports.sectionFontSize
+   if size and tostring(value):find('%a')and value~='Lv'and value~='HP'and value~='HP:'then
+    local copy={};for k,v in pairs(opts or{})do copy[k]=v end
+    copy.maxWidth=math.min(copy.maxWidth or math.huge,80);copy._sectionMaxHeight=16
+    return size.with('battleName',text,value,x,y,copy,...)
+   end
    return text(value,x,y,opts,...)
   end
   font.drawGlyph=function(id,x,y,opts,...)
@@ -69,12 +75,14 @@ return function(G,mod,faded)
   for _,key in ipairs({'drawPlayerBox','drawEnemyBox','drawDoublesBox','drawSafariBox'})do wrap(chrome,key,false)end
   G.rectangle=function(...)if pass=='background' and not custom or ink>0 then return rectangle(...)end end
   G.draw=function(...)if pass=='background' or ink>0 then return image(...)end end
+  local sizeScope=mod.exports.sectionHealthbox;mod.exports.sectionHealthbox=true
   local result={pcall(function()
    mod.exports.healthboxBackground=true
    faded(draw,unpack(args))
    mod.exports.healthboxBackground=prior
    pass='foreground';return draw(unpack(args))
   end)}
+  mod.exports.sectionHealthbox=sizeScope
   G.rectangle,G.draw=rectangle,image;mod.exports.healthboxBackground=prior
   for i=#saved,1,-1 do local s=saved[i];s[1][s[2]]=s[3]end
   if not result[1]then error(result[2],0)end
