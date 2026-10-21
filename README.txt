@@ -1,3 +1,9 @@
+## v3.35.16 - Move selector spacing
+
+Add one pixel of separation between move selectors and move names in grid and list layouts. Move names, panels and font sizes retain their positions.
+
+Validation: native selector position comparison, Emerald pane checks, and fitted grid/list containment checks.
+
 # Menu Customizer 3.35.4 - Scenery-only provider compatibility
 
 Accept the optional HD Dynamic Battlefields scenery provider underneath existing battle rendering. Backgrounds and mounds do not change fonts, panels, selectors, HP displays, sprite placement or battle UI settings. Preserve the current background picker and fall back when the provider is unavailable, disabled or fails.

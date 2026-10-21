@@ -186,7 +186,7 @@ return function(mod)
           label(C.WIN.MOVE_NAME_1+i-1,def and def.name or '-')
           if i==battle.moveIndex or i==battle.moveSwapIndex then
             local _,y=C.textOrigin(C.WIN.MOVE_NAME_1+i-1)
-            at(0,function()F.drawGlyph(F.CHAR_SELECTOR_ARROW,7+72*((i-1)%2),y,{colors=colors})end)
+            at(0,function()F.drawGlyph(F.CHAR_SELECTOR_ARROW,6+72*((i-1)%2),y,{colors=colors})end)
           end
         end
         local mv=moves[battle.moveIndex or 1];local def=mv and battle.data.moves[mv.id]
@@ -273,8 +273,8 @@ return function(mod)
           text(lines[1],x,y,available,size)
           text(lines[2],x,y+lineStep,available,size)
         end
-        if battle.moveIndex==i then cursor(0xED,x-1-(8*large*size+1)*p.textSx/p.sx,y,size) end
-        if battle.moveSwapIndex==i and battle.moveIndex~=i then cursor(0xEC,x-1-(8*large*size+1)*p.textSx/p.sx,y,size) end
+        if battle.moveIndex==i then cursor(0xED,x-2-(8*large*size+1)*p.textSx/p.sx,y,size) end
+        if battle.moveSwapIndex==i and battle.moveIndex~=i then cursor(0xEC,x-2-(8*large*size+1)*p.textSx/p.sx,y,size) end
       end
       local selected=moves[battle.moveIndex or 1]
       local def=selected and battle.data.moves[selected.id]

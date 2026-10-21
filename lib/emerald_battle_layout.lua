@@ -46,7 +46,7 @@ return function(G,mod)
   local y=rect.y+(rect.h-16*(breaks+1)*sy)/2
   at(rect,sx,sy,dx,dy,x,y,function()
    waveDraw(F,s,0,0,{font=font,colors=colors},owner,index,cursor)
-   if cursor then F.drawGlyph(F.CHAR_SELECTOR_ARROW,-10,0,{colors=colors})end
+   if cursor then F.drawGlyph(F.CHAR_SELECTOR_ARROW,-11,0,{colors=colors})end
   end)
  end
  local function commands(F,battle,generation,rect,custom,colors,viewport)
@@ -94,7 +94,7 @@ return function(G,mod)
      local selectorColors={};for k,v in pairs(inkColors)do selectorColors[k]=v end
      local color=commandOptions and commandOptions.get('SelectorColor',-1)or -1
      if color>=0 then selectorColors.fg=mod.exports.selectorPalette.color('text',color)end
-     F.drawGlyph(F.CHAR_SELECTOR_ARROW,-10,0,{colors=selectorColors,_selectorStyle=commandOptions and commandOptions.get('Selector',mod.options:get('arrowSelector')or 1)})
+     F.drawGlyph(F.CHAR_SELECTOR_ARROW,-11,0,{colors=selectorColors,_selectorStyle=commandOptions and commandOptions.get('Selector',mod.options:get('arrowSelector')or 1)})
     end
    end)
   end
@@ -163,7 +163,7 @@ return function(G,mod)
     local y=c.y+(c.h-10*sy)/2-3*sy
     at(c,sx,sy,dx,dy,x,y,function()
      waveDraw(F,s,0,0,{font='narrow',colors=colors()},battle,'move:'..i,i==(battle.moveIndex or 1))
-     if i==(battle.moveIndex or 1)or i==battle.moveSwapIndex then F.drawGlyph(F.CHAR_SELECTOR_ARROW,-10,0,{colors=colors()})end
+     if i==(battle.moveIndex or 1)or i==battle.moveSwapIndex then F.drawGlyph(F.CHAR_SELECTOR_ARROW,-11,0,{colors=colors()})end
     end)
    else label(F,s,c,sx,sy,dx,dy,'narrow',colors(),i==(battle.moveIndex or 1)or i==battle.moveSwapIndex,true,battle,'move:'..i)end
   end

@@ -1,3 +1,9 @@
+## v3.35.16 - Move selector spacing
+
+Add one pixel of separation between move selectors and move names in grid and list layouts. Move names, panels and font sizes retain their positions.
+
+Validation: native selector position comparison, Emerald pane checks, and fitted grid/list containment checks.
+
 ## v3.35.15 - Emerald HP spacing
 
 HP labels sit closer to their bars, EXP bars move down one game pixel, and HP values use compact slash spacing.
