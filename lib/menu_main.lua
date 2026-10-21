@@ -84,6 +84,7 @@ return function(mod)
   end
   for _,key in ipairs({'building_in','building_out','battle_in','battle_out'})do extra['scene_'..key]={1,1,#SceneEffects.names,1}end
   for k,v in pairs(menuPalette.effects.specs('menu'))do extra[k]=v end
+  extra.martSelectorSpacing={0,-4,4,1};extra.startSelectorSpacing={0,-4,4,1};extra.arrowSelectorSpacing={0,-4,4,1}
   extra.choiceSelector={14,1,14,1};extra.choiceSelectorColor={0,0,#menuPalette.names-1,1}
   mod.exports.visualDefaults={};for key,spec in pairs(extra)do mod.exports.visualDefaults[key]=spec[1]end
   for key in pairs(extra) do keys[#keys+1]=key end
@@ -315,6 +316,10 @@ return function(mod)
       step=function(ctx,dir)persist('menuTextShadowColor',menuPalette.step('shadow',setting('menuTextShadowColor'),dir),ctx);return false end}
     entries[#entries+1] = row('startSelector', 'START SELECTOR', selectorChoices)
     entries[#entries+1] = row('arrowSelector','ARROW SELECTOR',ArrowSelectors.names)
+    for _,spec in ipairs({{'startSelectorSpacing','START SELECTOR GAP'},{'arrowSelectorSpacing','OTHER SELECTOR GAP'},{'martSelectorSpacing','POKE MART SELECTOR GAP'}})do
+      local key,title=spec[1],spec[2]
+      entries[#entries+1]={id='wide_'..key,label=title,value=function()return tostring(setting(key))..' PX'end,step=function(ctx,d)persist(key,math.max(-4,math.min(4,setting(key)+(d<0 and -1 or 1))),ctx);return false end}
+    end
     local choiceNames={};for i,n in ipairs(ArrowSelectors.names)do choiceNames[i]=n end;choiceNames[14]='TEXT COLOR'
     local choiceStyle=row('choiceSelector','CHOICE SELECTOR STYLE',choiceNames)
     local choiceColor={id='wide_choiceSelectorColor',label='SELECTED CHOICE COLOR',value=function()return menuPalette.names[setting('choiceSelectorColor')+1]end,
@@ -584,7 +589,7 @@ return function(mod)
     FrlgFont.draw=function(text,x,y,opts)
       text=LevelText.normalize(text)
       local theme=FrlgFont._menuCustomizerEmerald
-      if text=='▶' and mod.exports.arrowSelectors.draw(x,y,16,opts) then return 1,x+8,y end
+      if text=='Ã¢â€“Â¶' and mod.exports.arrowSelectors.draw(x,y,16,opts) then return 1,x+8,y end
       if theme.menuOptions then opts=theme.menuOptions(opts)end
       if theme.enabled() and not nativeFace(opts)then local width,endX,endY=theme.draw(text,x,y,opts);if width~=nil then return width,endX or x+width,endY or y end end
       if theme.palette then return theme.palette.nativeText(draw,measure,text,x,y,opts)end
@@ -702,7 +707,7 @@ return function(mod)
           local entry = Start.ENTRIES[Start.cursor]
           if entry then
             local textX = labelPosition(entry.label)
-            drawBallCursor(textX - #ballPixels[1] - 1, y)
+            drawBallCursor(textX - #ballPixels[1] - 1-setting('startSelectorSpacing'), y)
           end
         end
         return
@@ -735,17 +740,17 @@ return function(mod)
         else result=originalPrint(text,x,y,opts)end
         mod.exports.menuTextPlacement=priorPlacement
         if selected and selector>=5 and selector<=12 then
-          Selectors.draw(selector,x-10,y+3)
+          Selectors.draw(selector,x-10-setting('startSelectorSpacing'),y+3)
         end
         if selected and (selector == 2 or selector == 4) then
           local color = menuPalette.effects.resolve(menuPalette.color('text',setting('selectorColor')),'menu')
           local r, g, b, a = love.graphics.getColor()
           love.graphics.setColor(color[1], color[2], color[3], color[4] or 1)
           if selector == 2 then
-            love.graphics.rectangle('fill', x, y + 13, width, 1)
+            love.graphics.rectangle('fill', x, y + 13+setting('startSelectorSpacing'), width, 1)
           else
-            love.graphics.rectangle('fill', x - 4, y + 7, 2, 2)
-            love.graphics.rectangle('fill', x + width + 2, y + 7, 2, 2)
+            love.graphics.rectangle('fill', x - 4-setting('startSelectorSpacing'), y + 7, 2, 2)
+            love.graphics.rectangle('fill', x + width + 2+setting('startSelectorSpacing'), y + 7, 2, 2)
           end
           love.graphics.setColor(r, g, b, a)
         end

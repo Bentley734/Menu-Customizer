@@ -1,3 +1,9 @@
+## v3.35.20 - Selector spacing controls
+
+Add Start Selector Gap, Other Selector Gap, and independent Poke Mart Selector Gap under Selectors. Each ranges from -4 PX to 4 PX in one-pixel increments, defaults to 0, and preserves existing text positions. Positive gaps move leading icons away, underlines downward, and paired dots outward. Marker-free effects retain their behavior.
+
+Validation: all selector styles across all nine values, independent Mart scope, options/grouping regressions, and LuaJIT parsing.
+
 ## v3.35.19 - Options column spacing
 
 Right-align custom option values inside their frame instead of using a fixed column. Shorten transparency labels to opacity and remove repeated Battle prefixes inside battle submenus. Preserve settings, callbacks and font sizes.

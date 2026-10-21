@@ -21,6 +21,10 @@ return function(mod,icons,setting,active)
    end
    return true
   end
+  local surface=mod.exports.menuSurfaces
+  local spacingKey=surface and surface.current=='mart'and'martSelectorSpacing'or startArrow and'startSelectorSpacing'or'arrowSelectorSpacing'
+  local spacing=math.max(-4,math.min(4,math.floor(tonumber(setting(spacingKey))or 0)))
+  if id~=2 and id~=4 then x=x-spacing elseif id==2 then y=y+spacing end
   -- One source pixel stays one logical pixel: never discard rows or columns.
   G.push('all');G.setShader();G.translate(x,y+((height or 8)>8 and 4 or 0))
   if id==3 then
@@ -45,7 +49,7 @@ return function(mod,icons,setting,active)
    local inset=opts and opts._selectorInset or 0;local width=opts and opts._selectorWidth or 8
    local function marker()
     if id==2 then G.rectangle('fill',inset,width>8 and 9 or 7,width,1)
-    elseif opts and opts._selectorWidth then G.rectangle('fill',inset-4,3,2,2);G.rectangle('fill',inset+width+2,3,2,2)
+    elseif opts and opts._selectorWidth then G.rectangle('fill',inset-4-spacing,3,2,2);G.rectangle('fill',inset+width+2+spacing,3,2,2)
     else G.rectangle('fill',3,3,2,2)end
    end
    if palette then palette.paint(c,marker)else G.setColor(unpack(c));marker()end

@@ -13,7 +13,7 @@ return function(mod,catalog)
  C.palette=menuPalette
  local Transitions=assert(load(assert(mod:read('lib/menu_transitions.lua'))))()
  mod.exports.menuBackground=function()if C.drawScope or C.dialogueScope then return menuPalette.menuBackground(C.paperGroup)end end
- local specs={selectionHighlight={25,0,100,5},menuTextColor={0,0,#menuPalette.names-1,1},menuTextShadowColor={0,0,#menuPalette.shadowNames-1,1},menuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},startMenuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1},menuBorder={1,1,#catalog.choices,1},startJustify={1,1,3,1},startSelector={3,1,#C.selectors.names,1},arrowSelector={1,1,14,1},selectorColor={0,0,#menuPalette.names-1,1},dialogueJustify={1,1,3,1},hideStartMods={0,0,1,1},
+ local specs={martSelectorSpacing={0,-4,4,1},startSelectorSpacing={0,-4,4,1},arrowSelectorSpacing={0,-4,4,1},selectionHighlight={25,0,100,5},menuTextColor={0,0,#menuPalette.names-1,1},menuTextShadowColor={0,0,#menuPalette.shadowNames-1,1},menuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},startMenuBackgroundColor={0,0,#menuPalette.menuBackgroundNames-1,1},dialogueBorder={0,0,1,1},menuTheme={2,1,2,1},menuBorder={1,1,#catalog.choices,1},startJustify={1,1,3,1},startSelector={3,1,#C.selectors.names,1},arrowSelector={1,1,14,1},selectorColor={0,0,#menuPalette.names-1,1},dialogueJustify={1,1,3,1},hideStartMods={0,0,1,1},
   backgroundDim={0,0,70,10},controlsLegend={2,1,3,1},menuTransition={3,1,#Transitions.names,1},positionPreview={1,0,1,1}}
 
  for _,scope in ipairs({'start','battle','option','save','other','dialogue','pokedex'})do specs[scope..'BorderChoice']={0,0,#catalog.choices,1}end
@@ -423,6 +423,10 @@ return function(mod,catalog)
    local rx,ry=current.resizeX or 1,current.resizeY or 1
    G.translate(x,y);G.scale(1/rx,1/ry);width=width*rx;x,y=0,0
    local iconX=sel.panelX and (sel.panelX-sel.x)*rx or x-10
+   local surface=current.mod.exports.menuSurfaces
+   local spacing=current.setting(surface and surface.current=='mart'and'martSelectorSpacing'or start.options and'arrowSelectorSpacing'or'startSelectorSpacing')or 0
+   iconX=iconX-spacing
+   if sel.selector==2 then y=y+spacing end
    local platform=love.system and love.system.getOS and love.system.getOS()
    if start.options then
     -- Retain the original 8x8 marker and horizontal gap; move it up only.
@@ -455,9 +459,9 @@ return function(mod,catalog)
     G.setColor(1,1,1,1);G.rectangle('fill',x-1,y+7,width+2,3)
     current.palette.effects.paint(current.palette.color('text',current.setting('selectorColor')),'menu',function()G.rectangle('fill',x,y+8,width,1)end)
    elseif sel.selector==4 then
-    G.setColor(1,1,1,1);G.rectangle('fill',x-5,y+2,4,4);G.rectangle('fill',x+width+1,y+2,4,4)
+    G.setColor(1,1,1,1);G.rectangle('fill',x-5-spacing,y+2,4,4);G.rectangle('fill',x+width+1+spacing,y+2,4,4)
     current.palette.effects.paint(current.palette.color('text',current.setting('selectorColor')),'menu',function()
-     G.rectangle('fill',x-4,y+3,2,2);G.rectangle('fill',x+width+2,y+3,2,2)
+     G.rectangle('fill',x-4-spacing,y+3,2,2);G.rectangle('fill',x+width+2+spacing,y+3,2,2)
     end)
    else
     local pixels={'..1111..','.122221.','12222221','11144111','13344331','13333331','.133331.','..1111..'}
@@ -725,6 +729,7 @@ return function(mod,catalog)
   local spec=specs[key]
   local entry={id='wide_'..key,label=label,preview=function()return mod.exports.customization.values(key,C.setting(key))end,value=function()
    local n=C.setting(key)
+   if key:find('SelectorSpacing',1,true)then return tostring(n)..' PX'end
    return choices and choices[n] or tostring(n)..((key:find('Opacity') or key:find('Scale') or key:find('Width') or key:find('Height') or key=='backgroundDim' or key=='selectionHighlight') and '%' or '')
   end,step=function(game,dir)
    local n=C.setting(key)+dir*spec[4]
@@ -770,6 +775,9 @@ return function(mod,catalog)
  parent[#parent+1]=row('startSelector','START SELECTOR',C.selectors.names)
  parent[#parent+1]=toggle('hideStartMods','HIDE START MODS')
  parent[#parent+1]=row('arrowSelector','ARROW SELECTOR',C.arrows.names)
+ parent[#parent+1]=row('startSelectorSpacing','START SELECTOR GAP')
+ parent[#parent+1]=row('arrowSelectorSpacing','OTHER SELECTOR GAP')
+ parent[#parent+1]=row('martSelectorSpacing','POKE MART SELECTOR GAP')
  parent[#parent+1]=row('selectionHighlight','HIGHLIGHT INTENSITY')
  parent[#parent+1]=row('menuTheme','MENU FONT',{'NATIVE','EMERALD'})
 
