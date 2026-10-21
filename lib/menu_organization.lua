@@ -200,6 +200,22 @@ return function(entries,openPage)
   for i=#rows,1,-1 do rows[i]=nil end;for i,row in ipairs(rest)do rows[i]=row end
  end
  for _,rows in pairs(pages)do stardewGroups(rows)end
+ -- Keep titles concise inside their owning submenu. Saved IDs and callbacks
+ -- stay unchanged; only the presentation copies are shortened.
+ local function concise(rows,inBattle)
+  for i,row in ipairs(rows)do
+   local battle=inBattle or row.label=='BATTLE'
+   if type(row.children)=='table'then concise(row.children,battle)
+   else
+    local copy={};for k,v in pairs(row)do copy[k]=v end
+    local text=row.label or''
+    text=text:gsub('TRANSPARENCY','OPACITY'):gsub('HORIZONTAL','HORIZ.'):gsub('VERTICAL','VERT.')
+    if battle then text=text:gsub('^BATTLE ','')end
+    copy.label=text;rows[i]=copy
+   end
+  end
+ end
+ for _,rows in pairs(pages)do concise(rows,false)end
  local out={}
  for _,name in ipairs(order)do local children=pages[name]
   out[#out+1]={id='wide_page_'..name,label=name,group=true,children=children,value=function()return #children..' OPTIONS'end,activate=function(ctx)return openPage(name,children,ctx)end}

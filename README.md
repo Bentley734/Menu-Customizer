@@ -1,3 +1,9 @@
+## v3.35.19 - Options column spacing
+
+Right-align custom option values inside their frame instead of using a fixed column. Shorten transparency labels to opacity and remove repeated Battle prefixes inside battle submenus. Preserve settings, callbacks and font sizes.
+
+Validation: FR/LG and Emerald column spacing, submenu callback/source preservation, Stardew grouping and LuaJIT parsing.
+
 ## v3.35.17 - More move selector spacing
 
 Add another game pixel between the move selector and move name, preserving move name positions, panels and font scale. Applies to grid and list layouts.
