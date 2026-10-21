@@ -88,7 +88,7 @@ return WideBattle
     M.overrides=overrides
     overrides['src.ui.game3.battle_chrome']=chrome
     overrides['src.core.game3.dataset']={cache=function()return dataset end,mountExtractRoots=function()end}
-    overrides['src.core.game3.battle.state']={displayName=function(b)return b.name or 'POKÃ©MON'end}
+    overrides['src.core.game3.battle.state']={displayName=function(b)return b.name or 'POKéMON'end}
     overrides['src.core.game3.battle.anim']={displayExpRatio=function(_,b)return b.expRatio or 0 end}
     overrides['src.core.game3.pokemon']={gender=function()end}
     overrides['src.core.game3.rom_text']={has=function()return false end}
@@ -299,13 +299,13 @@ return WideBattle
       if menu then
         local p=battle.player
         local mon=generation==2 and battle:activeMon('player') or p and p.mon
-        local name=p and p.name or mon and (mon.nickname or mon.name) or 'POKÃ©MON'
+        local name=p and p.name or mon and (mon.nickname or mon.name) or 'POKéMON'
         if not legacyFrames then
           F.draw('What will',9,121,{colors=M.presentationColors()})
           F.draw(name..' do?',9,137,{colors=M.presentationColors(),maxWidth=104})
         end
         local left=legacyFrames and 0 or 120
-        local labels=generation<3 and {'FIGHT','POKÃ©MON','BAG','RUN'}or{'FIGHT','BAG','POKÃ©MON','RUN'}
+        local labels=generation<3 and {'FIGHT','POKéMON','BAG','RUN'}or{'FIGHT','BAG','POKéMON','RUN'}
         for i,s in ipairs(labels)do
           F.draw(s,left+8+56*((i-1)%2),121+16*math.floor((i-1)/2),{colors=ready and M.colors() or C.textboxColors()})
         end
@@ -333,7 +333,7 @@ return WideBattle
     local mon={hp=hp,maxHp=source.maxHp or source.stats and source.stats.hp or 1,
       level=generation==2 and side=='player' and (battle.shownLevel or source.level)or source.level,
       gender=source.gender,status=status}
-    local b={mon=mon,name=state.name or source.nickname or source.name or 'POKÃ©MON',
+    local b={mon=mon,name=state.name or source.nickname or source.name or 'POKéMON',
       side=side,isPlayer=side=='player',expRatio=generation==2 and side=='player' and (battle.shownExp or 0)/64 or 0}
     if side=='enemy'then
       b.caught=generation==2 and battle.caughtMark or battle.caughtMarkerVisible and battle:caughtMarkerVisible()

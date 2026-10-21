@@ -487,6 +487,7 @@ return function(mod)
     local method = mod.generation==2 and 'drawBottom' or 'drawTextArea'
     local draw = B[method]
     local mode, battle, wide, offset = nil,nil,false,0
+    local selectorInk=false
     local nativeBox=mod.generation==2 and require('src.ui.gen2.Chrome').box or Font.drawBox
     gbFrame=nativeBox
     local nativeText,nativeCode=Font.draw,Font.drawCode
@@ -715,7 +716,12 @@ return function(mod)
       if mode=='text' and moves() and ((x==32 and y==96) or (x==80 and y==96))
         and (c==Font.BORDER.h or c==Font.BORDER.br) then return end
       local args={...}
-      return moveText(function(px,py) return code(c,px,py,unpack(args)) end,x,y)
+      local previous=selectorInk
+      if mode=='text'and commandMenu()and(c==0xED or c==0xEC)then selectorInk=true end
+      local result={pcall(moveText,function(px,py)return code(c,px,py,unpack(args))end,x,y)}
+      selectorInk=previous
+      if not result[1]then error(result[2],0)end
+      return unpack(result,2)
     end
     local function run(self,...)
       local args={...}
@@ -742,7 +748,7 @@ return function(mod)
         for _,rect in ipairs(queue) do protect(unpack(rect)) end
         G.draw,G.print,G.printf=originalDraw,print,printf
         -- Text is drawn once at full opacity, without opaque paper rectangles.
-        G.rectangle=function() end
+        G.rectangle=function(...)if selectorInk then return rectangle(...)end end
         mode='text'; draw(self,unpack(args))
       end)
       restore()

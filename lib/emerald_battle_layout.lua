@@ -52,13 +52,13 @@ return function(G,mod)
  local function commands(F,battle,generation,rect,custom,colors,viewport)
   custom.frames('none',rect,viewport)
   local pane=inner(rect,0,rect.w)
-  local commands=generation<3 and {'FIGHT','POKÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©MON','BAG','RUN'}or{'FIGHT','BAG','POKÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©MON','RUN'}
+  local commands=generation<3 and {'FIGHT','POKéMON','BAG','RUN'}or{'FIGHT','BAG','POKéMON','RUN'}
   local commandOptions=mod.exports.battleCommands
   local commandFont=commandOptions and commandOptions.get('Font',1)==2 and'narrow'or'normal'
   local width=0;for _,text in ipairs(commands)do width=math.max(width,F.measure(text,{font=commandFont})or 0)end
   local p=battle.player
   local mon=generation==2 and battle:activeMon('player')or p and p.mon
-  local name=p and p.name or mon and(mon.nickname or mon.name)or 'POKÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©MON'
+  local name=p and p.name or mon and(mon.nickname or mon.name)or 'POKéMON'
   local first,last='What will',name..' do?'
   local prompt=mod.exports.battlePrompt
   local promptFont=prompt and prompt.get('Font',1)==2 and'narrow'or'normal'

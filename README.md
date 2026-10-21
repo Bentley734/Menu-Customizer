@@ -1,3 +1,11 @@
+## v3.35.22 - Gen 1 native command selector
+
+Fix the missing selector on the Gen 1 native-font battle command menu. The foreground text pass suppressed every rectangle to remove opaque text paper; pixel selectors use rectangles too, so their drawing was discarded. Permit selector rectangles only while rendering the command cursor, restoring the guard even after errors. Keep text paper suppressed and preserve selector spacing/settings.
+
+Also repair the encoded Pokemon command caption in the Emerald-font path.
+
+Validation: reproduced the original failure with zero painted selector rectangles, then verified Arrow and Pokeball at all four command positions with native and Emerald fonts on runtime 0.3.95. Reviewed final-window captures and passed existing font-size, selector-spacing, option-column and grouping checks plus LuaJIT compilation. Physical Retroid/Android GPU confirmation remains outstanding.
+
 ## v3.35.21 - Section text sizes and battle selector fixes
 
 Add Small, Medium and Large font size controls to the existing Text > Font and Layout section submenus. Medium preserves every section's current sizing and saved typography. Scaling uses whole framebuffer pixels and fits constrained battle cells; native healthbox gauges retain their geometry. Small cannot shrink below one physical pixel.
