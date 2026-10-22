@@ -92,17 +92,9 @@ return function(mod,ui,font,panel,compose,enabled)
  if mod.generation<3 then
   local F=require('src.render.Font');local Chrome=mod.generation==2 and require('src.ui.gen2.Chrome')
   local target=mod.generation==1 and require('src.battle.BattleState').StatBox or require('src.ui.gen2.BattleState')
-  if mod.generation==1 then
-   -- KIM redraws the HUD after native child windows. Suppress that HUD while
-   -- a stat window is on top, including KIM's separate HUD capture pass.
-   local Battle=require('src.battle.BattleState')
-   install(Battle,'drawHUDs',function(original,battle,...)
-    local stack=battle.game and battle.game.stack
-    local top=stack and stack:top()
-    if enabled()and top and getmetatable(top)==target then return end
-    return original(battle,...)
-   end)
-  end
+  -- Keep the underlying battle HUD, including staged renderers' capture pass.
+  -- The deferred stats panel draws after that finished scene in render.hud;
+  -- normal layering keeps it above the HUD without hiding either battler's UI.
   install(target,mod.generation==1 and'draw'or'drawStatsBox',function(original,...)
    if not enabled()then return original(...)end
    local rows,pending,rect={},nil,nil

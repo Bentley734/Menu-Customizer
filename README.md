@@ -1,3 +1,21 @@
+## v3.35.23 - Keep battle UI behind level-up stats
+
+Keep the Gen 1 battle HUD visible while the level-up stats box is open. The
+stats panel already draws after the completed battle, so it can cover the HUD
+naturally without hiding both Pokemon's status UI. Native stats, input, and
+fainting behavior are retained.
+
+When using HD Dynamic Battlefields, update it to **0.3.0-beta.7** too. That
+companion fix keeps the active scenery and mounds behind this transparent
+stats overlay. Both updates are needed to fix the white-screen regression.
+
+Validation: reproduced the cleared scene, then checked the full G1R 0.3.95
+rendering pipeline in Red, Blue, and Yellow with native and Emerald font settings.
+Seven GPU cases passed, including a 480x360 window, scenery/HUD retention, native
+faint visibility, stats dismissal, and real Bag/Party transitions. Layering tests
+pass on Lua 5.3 and LuaJIT. These are constructed native fixtures, not a complete
+gameplay playthrough.
+
 ## v3.35.22 - Gen 1 native command selector
 
 Fix the missing selector on the Gen 1 native-font battle command menu. The foreground text pass suppressed every rectangle to remove opaque text paper; pixel selectors use rectangles too, so their drawing was discarded. Permit selector rectangles only while rendering the command cursor, restoring the guard even after errors. Keep text paper suppressed and preserve selector spacing/settings.
