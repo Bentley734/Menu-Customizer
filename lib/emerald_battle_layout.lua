@@ -21,9 +21,11 @@ return function(G,mod)
   p=math.max(1,math.floor(p))
   return p/dx,p/dy,dx,dy
  end
- local function at(rect,sx,sy,dx,dy,x,y,fn)
+ local function at(rect,sx,sy,dx,dy,x,y,fn,leftInk)
   G.push('all');G.origin();G.setShader()
-  G.setScissor(rect.x,rect.y,rect.w,rect.h)
+  local left=rect.x
+  if leftInk then left=math.min(left,math.floor(x*dx+.5)/dx)-leftInk end
+  G.setScissor(left,rect.y,rect.x+rect.w-left,rect.h)
   G.translate(math.floor(x*dx+.5)/dx,math.floor(y*dy+.5)/dy);G.scale(sx,sy)
   local ok,err=pcall(fn);G.pop();if not ok then error(err,0)end
  end
@@ -104,6 +106,10 @@ return function(G,mod)
   local left={x=pane.x,y=pane.y,w=promptWidth,h=pane.h}
   local blockHeight=#promptLines*11*py
   local x=left.x;local y=left.y+(left.h-blockHeight)/2-2*py
+  -- Keep the first glyph's left shadow inside the paint bounds without
+  -- shifting the prompt or changing its measured line widths.
+  local section=mod.exports.sectionFontSize
+  local shadowScale=section and section.choice and section.choice('battlePrompt')==3 and 2 or 1
   at(left,px,py,pdx,pdy,x,y,function()
    for i,text in ipairs(promptLines)do
     local ink=F.measure(text,{font=promptFont})or 0
@@ -113,7 +119,7 @@ return function(G,mod)
     local function drawPrompt()return F.draw(text,math.floor(tx+.5),(i-1)*11,{font=promptFont,colors=prompt and prompt.colors(colors)or colors,maxWidth=math.max(1,left.w/px-tx),_sectionMaxHeight=11})end
     if mod.exports.sectionFontSize then mod.exports.sectionFontSize.with('battlePrompt',drawPrompt)else drawPrompt()end
    end
-  end)
+  end,px*shadowScale)
   return true
  end
  local function moves(F,battle,rect,custom,colors,typeName,viewport)

@@ -18,12 +18,17 @@ return function(mod)
   if item.side=='enemy'and(owner.showEnemyTrainer or owner.enemySendingOut or owner.enemyHudPending)then return false end
   return true
  end
- local function render(item,clip)
-  if not visible(item)then return end
+ local function pixelSize(item)
   local e=mod.exports;local theme=e.gbMenus.theme;local r=item.rect
   local dpi=G.getDPIScale and G.getDPIScale()or 1
   local width=theme.measure(item.text,{battle=true,font='normal'})or 1
   local unit=math.max(1,math.floor(math.min(r.w*dpi/math.max(1,width),r.h*dpi/16)))
+  return dpi,unit
+ end
+ local function render(item,clip)
+  if not visible(item)then return end
+  local e=mod.exports;local theme=e.gbMenus.theme;local r=item.rect
+  local dpi,unit=pixelSize(item)
   local priorName,priorBattle,aspect=e.battleNameScope,e.battleFontScope,e.fontAspect
   e.battleNameScope,e.battleFontScope,e.fontAspect=true,true,nil
   G.push('all');G.origin();G.setShader();G.setScissor();if clip then G.setScissor(clip.x,clip.y,clip.w,clip.h)end;G.setBlendMode('alpha','alphamultiply')
@@ -64,7 +69,13 @@ return function(mod)
     local nextItem={text=item.text,owner=item.owner,side=item.side,mon=item.mon,rect={x=ax,y=ay,w=bx-ax,h=by-ay}}
     if target then queues[target]=queues[target]or{};queues[target][key]=nextItem
     else
-     local clips={nextItem.rect}
+     -- The shadow/outline extends one font pixel left of the glyph anchor.
+     -- Expand its ink bounds before subtracting child windows, so those
+     -- windows still occlude the entire shadow as well as the foreground.
+     local dpi,unit=pixelSize(nextItem)
+     local painted=nextItem.rect
+     local left=math.min(painted.x,math.floor(painted.x*dpi+.5)/dpi-unit/dpi)
+     local clips={{x=left,y=painted.y,w=painted.x+painted.w-left,h=painted.h}}
      for _,c in ipairs(screenCovers)do local nextClips={}
       for _,p in ipairs(clips)do
        local l,t=math.max(p.x,c.x),math.max(p.y,c.y);local rr,bb=math.min(p.x+p.w,c.x+c.w),math.min(p.y+p.h,c.y+c.h)

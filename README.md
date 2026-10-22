@@ -1,3 +1,15 @@
+## v3.35.24 - Complete battle text shadows
+
+Fix the clipped left shadow on Pokemon names and the first letter of each
+battle command prompt line. Reserve paint space for the shadow without moving
+the text, changing its font size, or resizing any panels. HUD names still stay
+behind overlapping child windows, including the added shadow pixels.
+
+Built from the latest GitHub release, v3.35.23 (`b56f11b`). Focused regressions
+cover fractional anchors, DPI, font sizes, alignment, and popup occlusion on
+Lua 5.3 and LuaJIT. Native GPU checks compare the affected labels against an
+unclipped reference through the full G1R 0.3.95 rendering pipeline.
+
 ## v3.35.23 - Keep battle UI behind level-up stats
 
 Keep the Gen 1 battle HUD visible while the level-up stats box is open. The
