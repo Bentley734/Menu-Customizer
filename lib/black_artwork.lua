@@ -16,16 +16,16 @@ M.glsl=[[
  vec3 blackArtwork(vec2 p,float t,int kind){
   vec2 z=p;float r=max(length(z),.001),a=atan(z.y,z.x);float v=0.0;
   if(kind==50){
-   // Dark falling ribbons, downward-moving glints, and a quiet plunge pool.
+   // Unbounded horizontal lanes retain their density on ultrawide displays.
    float lane=floor(z.x*19.0),seed=fract(sin(lane*127.1)*43758.5453);
    float bend=.09*sin(z.y*3.0+t*.35)+.035*sin(z.y*9.0-t*.7);
    float ribbon=pow(max(0.0,cos((z.x+bend)*59.69)),16.0);
    float fall=.35+.65*pow(max(0.0,sin(z.y*18.0-t*(3.0+seed)+seed*19.0)),5.0);
-   float curtain=(1.0-smoothstep(.68,.94,abs(z.x)))*(1.0-smoothstep(.52,.78,z.y));
+   float curtain=(1.0-smoothstep(.52,.78,z.y));
    float water=ribbon*fall*curtain;
    float spray=pow(max(0.0,sin(z.x*51.0+sin(t*2.0))*sin(z.y*37.0-t*4.0)),12.0);
-   spray*=exp(-abs(z.y-.64)*17.0)*(1.0-smoothstep(.6,.95,abs(z.x)));
-   vec2 pool=vec2(z.x,(z.y-.76)*5.0);
+   spray*=exp(-abs(z.y-.64)*17.0);
+   vec2 pool=vec2(mod(z.x+.45,.9)-.45,(z.y-.76)*5.0);
    float ripple=pow(max(0.0,cos(length(pool)*29.0-t*2.3)),16.0)*exp(-length(pool)*3.0)*smoothstep(.55,.7,z.y);
    return vec3(.003,.004,.006)+vec3(.10,.14,.18)*water+vec3(.12,.16,.19)*spray+vec3(.025,.04,.05)*ripple;
   }

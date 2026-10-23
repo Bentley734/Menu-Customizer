@@ -136,7 +136,8 @@ return function(mod,catalog)
   local saveAt
   for i=first,#states do if groupOf(states[i])=='save' then saveAt=i;group='save' end end
   if saveAt then base=math.max(base,saveAt) end
-  return {first=first,base=base,group=group,world=world,states=states,top=top}
+  return {first=first,base=base,group=group,world=world,states=states,top=top,
+   motionOwner=saveAt and states[saveAt]or top}
  end
 
  -- The shared border helper draws GB total bounds; the shader is suspended
@@ -1073,7 +1074,10 @@ return function(mod,catalog)
   local x,y,bw,bh,scale=C.layout(group,b,viewport)
   C.layouts[group]={x=x,y=y,w=bw,h=bh}
   local now=love.timer.getTime();local style=C.setting('menuTransition');local st=motion[group]
-  if not st or st.top~=ctx.top then st={born=now,top=ctx.top};motion[group]=st end
+  -- SAVE keeps one transition while its text/Yes-No children are replaced.
+  -- Restarting the fade for each child made the whole panel flash away.
+  local owner=ctx.motionOwner or ctx.top
+  if not st or st.top~=owner then st={born=now,top=owner};motion[group]=st end
   local alpha=style==1 and 1 or math.min(1,(now-st.born)/.15)
   local opacity=C.setting((group=='save' and 'other' or group)..'Opacity')/100
   if style==3 then y=y+(C.setting(group..'Position')>=6 and 1 or -1)*12*(1-alpha) end

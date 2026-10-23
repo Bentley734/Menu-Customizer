@@ -219,7 +219,8 @@ return function(mod,setting,catalog,active)
       rgb+=vec3(.18,.22,.25)*pow(v,8.0);
      }
     }
-    if(borderEffect>=104)rgb=forestArtwork(vec2(mod(along-phase*16.0,48.0)/24.0-1.0,(depth-4.0)/4.0),phase*6.0,borderEffect-104);
+    if(borderEffect>=114)rgb=matrixRain(p,phase*12.5,borderEffect-114);
+    else if(borderEffect>=104)rgb=forestArtwork(vec2(mod(along-phase*16.0,48.0)/24.0-1.0,(depth-4.0)/4.0),phase*6.0,borderEffect-104);
     else if(borderEffect>=54)rgb=blackArtwork(vec2(mod(along-phase*24.0,48.0)/24.0-1.0,(depth-4.0)/4.0),phase*6.0,borderEffect-54);
     return vec4(rgb*color.rgb,ink.a*color.a);
    }]])end
@@ -237,7 +238,7 @@ return function(mod,setting,catalog,active)
   for i,label in ipairs({'paperStopA','paperStopB','paperStopC','paperStopD'})do panelShader:send(label,paperStops and paperStops.stops[i] or {0,0,0})end
   panelShader:send('pokemonMotif',atlas.pokemonMotif or 0)
   panelShader:send('rainbow',atlas.animation=='gradient')
-  panelShader:send('borderEffect',({balls=1,lightning=2,water=3,ghost=4,stars=5,vines=6,acid=7,plasma=8,kaleido=9,molten=10,circuit=11,tunnel=12,checker=13,braid=14,pokemon=15,psy0=16,psy1=17,psy2=18,psy3=19,psy4=20,psy5=21,psy6=22,psy7=23})[atlas.animation] or (atlas.animation and atlas.animation:match('^redpsy(%d+)$')and 24+tonumber(atlas.animation:match('^redpsy(%d+)$'))) or (atlas.animation and atlas.animation:match('^redfire(%d+)$')and 44+tonumber(atlas.animation:match('^redfire(%d+)$'))) or (atlas.animation and atlas.animation:match('^black(%d+)$')and 54+tonumber(atlas.animation:match('^black(%d+)$'))) or (atlas.animation and atlas.animation:match('^forest(%d+)$')and 104+tonumber(atlas.animation:match('^forest(%d+)$'))) or 0)
+  panelShader:send('borderEffect',({balls=1,lightning=2,water=3,ghost=4,stars=5,vines=6,acid=7,plasma=8,kaleido=9,molten=10,circuit=11,tunnel=12,checker=13,braid=14,pokemon=15,psy0=16,psy1=17,psy2=18,psy3=19,psy4=20,psy5=21,psy6=22,psy7=23})[atlas.animation] or (atlas.animation and atlas.animation:match('^redpsy(%d+)$')and 24+tonumber(atlas.animation:match('^redpsy(%d+)$'))) or (atlas.animation and atlas.animation:match('^redfire(%d+)$')and 44+tonumber(atlas.animation:match('^redfire(%d+)$'))) or (atlas.animation and atlas.animation:match('^black(%d+)$')and 54+tonumber(atlas.animation:match('^black(%d+)$'))) or (atlas.animation and atlas.animation:match('^forest(%d+)$')and 104+tonumber(atlas.animation:match('^forest(%d+)$'))) or (atlas.animation and atlas.animation:match('^matrix(%d+)$')and 114+tonumber(atlas.animation:match('^matrix(%d+)$'))) or 0)
   local phase=0
   if atlas.animation then phase=(love.timer and love.timer.getTime and love.timer.getTime() or 0)*.08*(mod.exports.animationSpeeds and mod.exports.animationSpeeds.get('border',atlas.selection,palette.effects.get('menu','speed',100))or palette.effects.get('menu','speed',100))/100 end
   panelShader:send('phase',phase)

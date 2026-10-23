@@ -18,8 +18,8 @@ return function(entries,openPage)
   if r.id=='wide_animationSpeeds_text'then textSpeeds=r;return end
   if r.id=='wide_animationSpeeds_background'then pages.BACKGROUNDS[#pages.BACKGROUNDS+1]=r;return end
   if r.id=='wide_animationSpeeds_border'then pages.BORDERS[#pages.BORDERS+1]=r;return end
-  if r.id=='wide_surface_mods'or r.id=='wide_surface_mart'or r.id=='wide_surface_pc'or r.id=='wide_surface_dialogue'or r.id=='wide_surface_loadReport'then
-   local prefix=r.id=='wide_surface_mods'and'MOD MENUS'or r.id=='wide_surface_loadReport'and'LOAD REPORT'or r.id=='wide_surface_mart'and'POKE MART'or r.id=='wide_surface_pc'and'PC'or'DIALOGUE'
+  if r.id=='wide_surface_bag'or r.id=='wide_surface_party'or r.id=='wide_surface_mods'or r.id=='wide_surface_mart'or r.id=='wide_surface_pc'or r.id=='wide_surface_dialogue'or r.id=='wide_surface_loadReport'then
+   local prefix=r.id=='wide_surface_bag'and'BAG'or r.id=='wide_surface_party'and'PARTY'or r.id=='wide_surface_mods'and'MOD MENUS'or r.id=='wide_surface_loadReport'and'LOAD REPORT'or r.id=='wide_surface_mart'and'POKE MART'or r.id=='wide_surface_pc'and'PC'or'DIALOGUE'
    for _,child in ipairs(r.children)do
     -- Copy the presentation row; the original callbacks and saved keys survive.
     local row={};for k,v in pairs(child)do row[k]=v end

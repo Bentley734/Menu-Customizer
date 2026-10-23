@@ -8,7 +8,7 @@ return function(mod)
   local gap=math.max(0,width-ink)
   return math.floor(x+(n==2 and gap/2 or n==3 and gap or 0)+.5)
  end
- local prefixes={'menu_fx_','intro_fx_','battle_fx_','battle_name_fx_','mart_fx_','pc_fx_','mods_fx_'}
+ local prefixes={'menu_fx_','intro_fx_','battle_fx_','battle_name_fx_','mart_fx_','pc_fx_','bag_fx_','party_fx_','mods_fx_'}
  function M.values(key,n)
   local values=C.globalValues(key,n)or{[key]=n}
   if key=='allTextColor'then
@@ -164,7 +164,7 @@ return function(mod)
     return dialogue(...)
    end end
    for _,pair in ipairs({{'src.ui.game3.pc_menu','pc'},{'src.ui.game3.item_pc_menu','pc'},{'src.ui.game3.shop_menu','mart'},
-    {'src.ui.game3.option_menu','option'},{'src.ui.game3.rse.option_menu','option'},{'src.ui.game3.bag_menu','menu'}})do
+    {'src.ui.game3.option_menu','option'},{'src.ui.game3.rse.option_menu','option'},{'src.ui.game3.bag_menu','bag'},{'src.ui.game3.party_menu','party'}})do
     local ok,target=pcall(require,pair[1]);if ok then hook(target,'draw',pair[2])end
    end
   end

@@ -176,12 +176,18 @@ return function(mod)
  M.blackEntries={}
  for i,name in ipairs(black.names)do M.blackEntries[i]={key='black_art_'..i,name=name,style=80+i,blackFamily=(i<=10 or i>20)and 'BLACK PSYCHEDELIC' or 'BLACK POKEMON',a='010101',b='010101',ink='302038'}end
  M.extraEntries={{key='black_waterfall',name='BLACK WATERFALL',style=131,blackFamily='DESIGNS',a='010102',b='010102',ink='19242E'}}
+ local matrix=assert(load(assert(mod:read('lib/matrix_rain.lua'))))()
+ M.matrixEntries={}
+ for i,name in ipairs(matrix.names)do M.matrixEntries[i]={key='matrix_'..(i-1),name=name,style=200+i,blackFamily='MATRIX RAIN',a='010204',b='010204',ink='40FF90'}end
+ -- Retain legacy IDs, but retire static Pokemon artwork from every picker.
+ for _,e in ipairs(M.entries)do if e.still then e.hidden=true;e.retired=true;e.removedAnimation=true end end
  M.byKey={}
  for _,e in ipairs(M.entries)do e.baseA=rgb(e.a);e.baseB=rgb(e.b);e.accent=rgb(e.ink);M.byKey[e.key]=e
   if e.variant and not e.pokemonName then e.pokemonName=e.pokemon:upper() end
  end
  for _,e in ipairs(M.blackEntries)do e.baseA=rgb(e.a);e.baseB=rgb(e.b);e.accent=rgb(e.ink);M.byKey[e.key]=e end
  for _,e in ipairs(M.forestEntries)do e.baseA=rgb(e.a);e.baseB=rgb(e.b);e.accent=rgb(e.ink);M.byKey[e.key]=e end
+ for _,e in ipairs(M.matrixEntries)do e.baseA=rgb(e.a);e.baseB=rgb(e.b);e.accent=rgb(e.ink);M.byKey[e.key]=e end
  for _,e in ipairs(M.extraEntries)do e.baseA=rgb(e.a);e.baseB=rgb(e.b);e.accent=rgb(e.ink);M.byKey[e.key]=e end
  local sheets,images
  local function sprite(key)
@@ -226,6 +232,7 @@ return function(mod)
   float paperHash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
   float paperDot(vec2 p,vec2 c,float r){return 1.0-step(r,length(p-c));}
   vec3 pokemonPaper(vec2 p){
+   if(pokeStyle>=201){return matrixRain(p-pokeArea.xy,pokePhase,pokeStyle-201);}
    if(pokeStyle>=151){vec2 size=max(pokeArea.zw,vec2(1.0));return forestArtwork((p-pokeArea.xy-size*.5)/min(size.x,size.y)*2.0,pokePhase*.5,pokeStyle-151);}
    if(pokeStyle>=81){vec2 size=max(pokeArea.zw,vec2(1.0));vec2 q=(p-pokeArea.xy-size*.5)/min(size.x,size.y)*2.0;return blackArtwork(q,pokePhase*.5,pokeStyle-81);}
    if(pokeStyle>=71){
@@ -383,7 +390,7 @@ return function(mod)
   }
  ]]
  local sceneShader=assert(load(assert(mod:read('lib/pokemon_scenes.lua'))))()
- M.glsl=forest.glsl..black.glsl..M.glsl
+ M.glsl=matrix.glsl..forest.glsl..black.glsl..M.glsl
  M.glsl=M.glsl:gsub('  float paperDot',function()return sceneShader..'\n  float paperDot'end,1)
  return M
 end

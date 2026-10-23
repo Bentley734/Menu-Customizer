@@ -16,7 +16,7 @@ return function(E)
  function M.beginFrame(top)
   M.frame=M.frame+1
   local id=top and top.id
-  if id~=M.topId then M.topId=id;M.lastInput=now() end
+  if id~=M.topId then M.topId=id;M.topEpoch=(M.topEpoch or 0)+1;M.lastInput=now() end
   M.active=top~=nil and not E.Battle.isActive() and
    (E.Stack.has('start') or id=='option' or id=='save' or id=='bag'
     or id=='party' or id=='summary' or id=='pokedex' or id=='trainer_card'
@@ -30,8 +30,10 @@ return function(E)
  function M.motion(group,x,y,mode)
   local time=now();local style=setting('menuTransition')
   local state=M.states[group]
-  if not state or state.frame<M.frame-1 then
-   state={x=x,y=y,born=time,at=time};M.states[group]=state
+  if not state or state.epoch~=M.topEpoch then
+   -- A missed presentation frame is not a newly opened menu. In particular,
+   -- saving must not restart its fade after an interrupted native frame.
+   state={x=x,y=y,born=time,at=time,epoch=M.topEpoch};M.states[group]=state
    if style==3 then state.y=y+((mode==6 or mode==7 or mode==10) and 12 or -12) end
   end
   local dt=math.max(0,math.min(.1,time-state.at));state.at=time;state.frame=M.frame

@@ -104,6 +104,7 @@ return function(mod)
   for _,e in ipairs(M.pokemonBackgrounds.forestEntries or{})do M.backgroundNames[#M.backgroundNames+1]=e.name;backgrounds[#backgrounds+1]=M.pokemonBackgrounds.color(e.key)end
   for _,e in ipairs(M.pokemonBackgrounds.extraEntries or{})do M.backgroundNames[#M.backgroundNames+1]=e.name;backgrounds[#backgrounds+1]=M.pokemonBackgrounds.color(e.key)end
   for _,e in ipairs(M.gradients.versionEntries or{})do animated(e.name,e.key)end
+  for _,e in ipairs(M.pokemonBackgrounds.matrixEntries)do M.backgroundNames[#M.backgroundNames+1]=e.name;backgrounds[#backgrounds+1]=M.pokemonBackgrounds.color(e.key)end
   -- Background and text rates must not share a palette table by reference.
   for _,pair in ipairs({{backgrounds,'background'},{foreground,'text'},{shadows,'text'}})do
    for i,c in ipairs(pair[1])do if c.animation then
@@ -112,7 +113,30 @@ return function(mod)
    end end
   end
   local lists={text=foreground,shadow=shadows,background=backgrounds}
-  function M.color(kind,n)local l=lists[kind] or foreground;return l[math.max(0,math.min(#l-1,math.floor(n or 0)))+1]end
+  -- Numeric storage remains stable. Duplicate swatches alias a retained color.
+  local canonical={}
+  for kind,list in pairs(lists)do
+    local ids,kept={},{};canonical[kind]=ids
+    for i,c in ipairs(list)do
+      local alias=i-1
+      if not c.animation then
+        for _,j in ipairs(kept)do local d=list[j]
+          local delta=(c[1]-d[1])^2+(c[2]-d[2])^2+(c[3]-d[3])^2
+          if math.abs((c[4]or 1)-(d[4]or 1))<.01 and delta<.0256 then alias=j-1;break end
+        end
+        if alias==i-1 then kept[#kept+1]=i end
+      end
+      ids[i-1]=alias
+    end
+  end
+  for kind,names in pairs({text=M.names,shadow=M.shadowNames,background=M.backgroundNames})do
+    for i=1,#names do names[i]=names[canonical[kind][i-1]+1]end
+  end
+  function M.canonical(kind,n)
+    if kind=='menuBackground'then return n==0 and 0 or M.canonical('background',n-1)+1 end
+    return canonical[kind or 'text'][n]or n
+  end
+  function M.color(kind,n)local l=lists[kind]or foreground;n=math.max(0,math.min(#l-1,math.floor(n or 0)));return l[M.canonical(kind or 'text',n)+1]end
   local function hue(c)
     local hi,lo=math.max(c[1],c[2],c[3]),math.min(c[1],c[2],c[3]);local d=hi-lo
     if d<.025 then return -1,hi end
@@ -121,7 +145,7 @@ return function(mod)
   end
   local orders={}
   for kind,list in pairs(lists)do
-    local ids={};for i=1,#list do ids[i]=i-1 end
+    local ids={};for i,c in ipairs(list)do if canonical[kind][i-1]==i-1 and not(c.pokemon and M.pokemonBackgrounds.byKey[c.pokemon].hidden)then ids[#ids+1]=i-1 end end
     table.sort(ids,function(a,b)
       local x,y=list[a+1],list[b+1]
       if x.animation or y.animation then if not x.animation then return true elseif not y.animation then return false else return a<b end end
@@ -131,6 +155,7 @@ return function(mod)
     end);orders[kind]=ids
   end
   function M.step(kind,n,dir)
+    n=M.canonical(kind,n)
     if kind=='menuBackground' then if n==0 then return dir<0 and orders.background[#orders.background]+1 or orders.background[1]+1 end
       local ids={0};for _,id in ipairs(orders.background)do ids[#ids+1]=id+1 end
       for i,id in ipairs(ids)do if id==n then return ids[(i-1+(dir<0 and -1 or 1))%#ids+1]end end;return 0
@@ -155,14 +180,14 @@ return function(mod)
       if start>0 then n=start end
     end
     n=math.max(0,math.min(#backgrounds,math.floor(n)))
-    return n>0 and backgrounds[n] or nil
+    return n>0 and M.color('background',n-1)or nil
   end
   M.menuBackgroundNames={'DEFAULT'}
   for _,name in ipairs(M.backgroundNames)do M.menuBackgroundNames[#M.menuBackgroundNames+1]=name end
   -- IDs stay flat in storage; navigation groups the same colours by hue.
   function M.groups(kind,defaultLabel)
     local names=kind=='shadow' and M.shadowNames or kind=='background' and M.backgroundNames or kind=='menuBackground' and M.menuBackgroundNames or M.names
-    local families={'SPECIAL','NEUTRALS','REDS','ORANGES','YELLOWS','GREENS','CYANS','BLUES','PURPLES','PINKS','BROWNS','ANIMATED','GRADIENTS','VERSION GRADIENTS','POKEMON','PSYCHEDELIC','RED PSYCHEDELIC','FIRE','BLACK PSYCHEDELIC','BLACK POKEMON','FOREST / GRASS','DESIGNS'}
+    local families={'SPECIAL','NEUTRALS','REDS','ORANGES','YELLOWS','GREENS','CYANS','BLUES','PURPLES','PINKS','BROWNS','ANIMATED','GRADIENTS','VERSION GRADIENTS','POKEMON','PSYCHEDELIC','RED PSYCHEDELIC','FIRE','BLACK PSYCHEDELIC','BLACK POKEMON','FOREST / GRASS','DESIGNS','MATRIX RAIN'}
     local buckets={};for _,name in ipairs(families)do buckets[name]={label=name,ids={}}end
     local count=#names
     for i=0,count-1 do
@@ -191,7 +216,7 @@ return function(mod)
           else family='PINKS'end
         end
       end
-      if not(c and c.pokemon and M.pokemonBackgrounds.byKey[c.pokemon].hidden)then local ids=buckets[family].ids;ids[#ids+1]=i end
+      if M.canonical(kind,i)==i and not(c and c.pokemon and M.pokemonBackgrounds.byKey[c.pokemon].hidden)then local ids=buckets[family].ids;ids[#ids+1]=i end
     end
     local result={}
     for _,family in ipairs(families)do
@@ -223,6 +248,8 @@ return function(mod)
   end
   M.designPicker=assert(load(assert(mod:read('lib/design_picker.lua'))))()
   function M.picker(row,kind,get,persist,openPage,defaultLabel)
+    local saved=get;get=function()return M.canonical(kind,tonumber(saved())or 0)end
+    row.step=function(ctx,dir)return persist(ctx,M.step(kind,get(),dir or 1))end
     if not openPage then return row end
     row.customization=mod.exports.customization
     row.group=true
@@ -266,7 +293,7 @@ return function(mod)
   end
   function M.background()
     local n=tonumber(mod.options:get('battle_background_color') or mod.save:get('battle_background_color')) or 0
-    local color=backgrounds[math.max(0,math.min(#backgrounds-1,math.floor(n)))+1]
+    local color=M.color('background',n)
     if color.animation then return {color[1],color[2],color[3],color[4],animation=color.animation,gradient=color.gradient,pokemon=color.pokemon,_kind='battle',_speedGroup='background',_speedId=color._speedId}end
     return color
   end
@@ -283,7 +310,7 @@ return function(mod)
     local sh=tonumber(mod.options:get(shadowKey) or mod.save:get(shadowKey)) or 0
     if mod.exports.gameFreakLogoScope then sh=tonumber(mod.options:get('gameFreakTextShadowColor'))or sh end
     sh=math.max(0,math.min(#shadows-1,math.floor(sh)))
-    return {fg=foreground[n+1],shadow=shadows[sh+1],bg={0,0,0,0},_kind=kind or 'battle',_effects=M.effects}
+    return {fg=M.color('text',n),shadow=M.color('shadow',sh),bg={0,0,0,0},_kind=kind or 'battle',_effects=M.effects}
   end
   function M.clean(text)
     if type(text)~='string' then return text end

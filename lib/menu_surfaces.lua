@@ -30,14 +30,31 @@ return function(mod)
   local prior,paper,preview=M.current,mod.exports.menuPaperScope,mod.exports.previewScope
   M.current=scope;mod.exports.menuPaperScope='other'
   if mod.generation==3 then mod.exports.previewScope=true end
-  local G=love.graphics;local rect=G.rectangle
+  local G=love.graphics;local rect,drawImage=G.rectangle,G.draw
   if mod.generation==3 and mod.exports.selectorPalette then
    G.rectangle=function(...)return mod.exports.selectorPalette.tintFill(rect,...)end
+   if (scope=='bag'or scope=='party')and M.custom(scope)then
+    -- Native Bag/Party chrome is an image rather than a white rectangle.
+    -- Replace only its full-screen paper; item and Pokemon art stays native.
+    G.draw=function(image,x,y,...)
+     if type(x)=='number'and x==0 and (y==0 or y==1)and image.getDimensions then
+      local w,h=image:getDimensions()
+      if w==240 and h==160 then
+       local P=mod.exports.selectorPalette;local bg=P.menuBackground()
+       if not bg then drawImage(image,x,y,...)end
+       G.push('all');G.setColor(1,1,1,1)
+       if not(mod.exports.borders and mod.exports.borders.drawPixels(0,0,240,160,bg or{0,0,0,0},'other'))and bg then P.paint(bg,rect,'fill',0,0,240,160)end
+       G.pop();return
+      end
+     end
+     return drawImage(image,x,y,...)
+    end
+   end
   end
   local fonts=mod.exports.allFonts
   local out
   if (scope=='mods'or scope=='trainerCard')and fonts and fonts.withFrame then out={pcall(fonts.withFrame,scope,fn,...)}else out={pcall(fn,...)}end
-  G.rectangle=rect
+  G.rectangle=rect;G.draw=drawImage
   M.current=prior;mod.exports.menuPaperScope=paper;mod.exports.previewScope=preview
   if not out[1]then error(out[2],0)end;return unpack(out,2)
  end
@@ -71,9 +88,9 @@ return function(mod)
   local palette=assert(mod.exports.selectorPalette)
   local catalog=mod.exports.borderCatalog or assert(load(assert(mod:read('lib/border_catalog.lua'))))()
   local result={}
-  local scopes={'mart','pc','dialogue','mods'};if mod.generation<3 then scopes[#scopes+1]='loadReport';scopes[#scopes+1]='trainerCard'end
+  local scopes={'mart','pc','bag','party','dialogue','mods'};if mod.generation<3 then scopes[#scopes+1]='loadReport';scopes[#scopes+1]='trainerCard'end
   for _,scope in ipairs(scopes)do
-   local label=scope=='trainerCard'and'PLAYER CARD'or scope=='mods'and'MOD MENUS'or scope=='mart'and'POKE MART'or scope=='pc'and'PC MENUS'or scope=='loadReport'and'LOAD REPORT'or'DIALOGUE BOXES'
+   local label=scope=='bag'and'BAG'or scope=='party'and'PARTY'or scope=='trainerCard'and'PLAYER CARD'or scope=='mods'and'MOD MENUS'or scope=='mart'and'POKE MART'or scope=='pc'and'PC MENUS'or scope=='loadReport'and'LOAD REPORT'or'DIALOGUE BOXES'
    local rows={}
    local function write(ctx,key,n)
     local values={[key]=n,borderCatalogFormat=2}
@@ -96,10 +113,10 @@ return function(mod)
     end
     rows[#rows+1]=row
    end
-   if scope=='mods'then
+   if scope=='mods'or scope=='bag'or scope=='party'then
     add('Selector','SELECTOR',1,1,#mod.exports.arrowSelectors.names,mod.exports.arrowSelectors.names or mod.exports.gbMenus and mod.exports.gbMenus.selectors.names)
     add('SelectorColor','SELECTOR COLOR',0,0,#palette.names-1,palette.names,'text','selectorColor')
-    for _,effect in ipairs(palette.effects.rows('mods',function(ctx,key,n)write(ctx,key,n);return false end,openPage))do rows[#rows+1]=effect end
+    for _,effect in ipairs(palette.effects.rows(scope,function(ctx,key,n)write(ctx,key,n);return false end,openPage))do rows[#rows+1]=effect end
    end
    if scope=='loadReport'then add('Enabled','SHOW LOAD REPORT',1,0,1,{'DISABLED','ENABLED'})end
    if scope~='dialogue'then add('Custom','STYLE',0,0,1,{'USE MENU','CUSTOM'})end
@@ -121,6 +138,27 @@ return function(mod)
  end
  function M.install()
   if mod.generation==3 then
+   local function partyPaper(path)
+    local chrome=require(path);local draw=chrome.drawBg
+    if draw and not chrome._menuCustomizerSurfaceBg then
+     chrome._menuCustomizerSurfaceBg=draw
+     chrome.drawBg=function(...)
+      local api=Runtime._menuCustomizerSurfaces
+      if api.enabled()and api.current=='party'and api.custom('party')then
+       local P=api.mod.exports.selectorPalette;local G=love.graphics
+       local bg=P.menuBackground()
+       if not bg then draw(...)end
+       G.push('all');G.setColor(1,1,1,1)
+       if not api.mod.exports.borders.drawPixels(0,0,240,160,bg or{0,0,0,0},'other')and bg then P.paint(bg,G.rectangle,'fill',0,0,240,160)end
+       G.pop();return
+      end
+      return draw(...)
+     end
+    end
+   end
+   partyPaper('src.ui.game3.party_chrome')
+   local currentVersion=require('src.core.GameVersion').get()
+   if currentVersion=='ruby'or currentVersion=='sapphire'then partyPaper('src.ui.game3.rs.party_chrome')end
    local manager=require('src.ui.game3.mod_manager');if manager.draw then manager.draw=callback('mods',manager.draw)end
    local ShopChrome=require('src.ui.game3.shop_chrome')
    if not ShopChrome._menuCustomizerSurfaceBg then
@@ -166,10 +204,11 @@ return function(mod)
      end
     end
    end
-   for _,pair in ipairs({{'src.ui.game3.shop_menu','mart'},{'src.ui.game3.pc_menu','pc'},{'src.ui.game3.item_pc','pc'},
+   for _,pair in ipairs({{'src.ui.game3.party_menu','party'},{'src.ui.game3.shop_menu','mart'},{'src.ui.game3.pc_menu','pc'},{'src.ui.game3.item_pc','pc'},
     {'src.ui.game3.hall_of_fame_pc','pc'},{'src.ui.game3.box_storage_ui','pc'},
     {'src.ui.game3.storage_choose_box','pc'},{'src.ui.game3.rse.mailbox','pc'}})do
-    local ui=require(pair[1]);local draw=ui.draw
+    -- Auxiliary PC pages were introduced after the minimum engine version.
+    local ok,ui=pcall(require,pair[1]);local draw=ok and ui.draw
     if draw and not ui._menuCustomizerSurfaceDraw then ui._menuCustomizerSurfaceDraw=draw;ui.draw=callback(pair[2],draw)end
    end
    local Bag=require('src.ui.game3.bag_menu')
@@ -177,9 +216,20 @@ return function(mod)
     local draw=Bag.draw;Bag._menuCustomizerSurfaceDraw=draw
     Bag.draw=function(...)
      local api=Runtime._menuCustomizerSurfaces
-     local scope=Bag._location=='shop'and'mart'or Bag._location=='itempc'and'pc'
+     local scope=Bag._location=='shop'and'mart'or Bag._location=='itempc'and'pc'or'bag'
      if scope then return api.with(scope,draw,...)end
      return draw(...)
+    end
+   end
+   -- Hoenn skins can be drawn directly by the engine, bypassing Bag.draw.
+   local version=require('src.core.GameVersion').get()
+   if version=='ruby'or version=='sapphire'or version=='emerald'then
+    local skin=require(version=='emerald'and'src.ui.game3.rse.bag_menu'or'src.ui.game3.rs.bag_menu')
+    if skin.draw and not skin._menuCustomizerSurfaceDraw then
+     local draw=skin.draw;skin._menuCustomizerSurfaceDraw=draw
+     skin.draw=function(...)local api=Runtime._menuCustomizerSurfaces
+      return api.with(Bag._location=='shop'and'mart'or Bag._location=='itempc'and'pc'or'bag',draw,...)
+     end
     end
    end
   else
@@ -196,6 +246,8 @@ return function(mod)
     end
    end
    for _,path in ipairs({'src.ui.Menu','src.ui.ListMenu','src.ui.ChoiceBox','src.ui.QuantityBox','src.render.TextBox','src.ui.BoxMenu'})do constructor(path)end
+   constructor(mod.generation==1 and'src.ui.BagMenu'or'src.ui.gen2.PackMenu','bag')
+   constructor(mod.generation==1 and'src.ui.PartyMenu'or'src.ui.gen2.PartyMenu','party')
    constructor('src.ui.QuarantineReport','loadReport')
    constructor('src.mods.ManagerState','mods')
    constructor(mod.generation==1 and'src.ui.TrainerCard'or'src.ui.gen2.TrainerCard','trainerCard')
@@ -203,10 +255,10 @@ return function(mod)
    if not Screens._menuCustomizerMods then
     Screens._menuCustomizerMods=true
     Screens.push=function(game,id,...)
-     local scope=M.current;local inst=push(game,id,...)
+     local scope=({BagMenu='bag',Gen2PackMenu='bag',PartyMenu='party',Gen2PartyMenu='party'})[id]or M.current;local inst=push(game,id,...)
      -- Some screen factories do not return the pushed state.
      inst=inst or(game.stack and game.stack:top())
-     if scope=='mods'and type(inst)=='table'then M.tag(inst,'mods')end
+     if scope and type(inst)=='table'then M.tag(inst,scope)end
      return inst
     end
    end

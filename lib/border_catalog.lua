@@ -219,6 +219,7 @@ end
 -- Original Gen IV graphics; append only to preserve saved IDs.
 for i=0,19 do C.entries[#C.entries+1]={label='PLATINUM FRAME '..(i+1),path=string.format('assets/borders/platinum_message_box_%02d.png',i),generation=4,dsFrame=true}end
 for _,name in ipairs({'field','system'})do C.entries[#C.entries+1]={label='PLATINUM '..name:upper(),path='assets/borders/platinum_standard_'..name..'.png',generation=4}end
+for i,name in ipairs({'MATRIX GREEN','MATRIX CYAN','MATRIX VIOLET','MATRIX SPECTRUM','MATRIX AMBER'})do C.entries[#C.entries+1]={label=name,path='assets/borders/pokemon_gradient.png',animation='matrix'..(i-1)}end
 C.choices={}
 for i,entry in ipairs(C.entries) do C.choices[i]=entry.label end
 function C.selection(raw,format)
@@ -230,7 +231,8 @@ function C.groups()
  local groups,lookup={},{}
  for i,e in ipairs(C.entries)do if not e.hidden then
   local a=e.animation;local label
-  if e.thin~=nil then label='THIN ANIMATED'
+  if a and a:match('^matrix')then label='MATRIX RAIN'
+  elseif e.thin~=nil then label='THIN ANIMATED'
   elseif not a then
    if e.generation then label='GEN '..e.generation
    elseif not e.path then label='DEFAULT'

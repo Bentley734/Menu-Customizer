@@ -19,26 +19,26 @@ return function(mod)
  function M.globalValues(key,n)
   local v={[key]=n}
   if key=='allBorderChoice'or key=='allBackgroundColor'or key=='allTextColor'or key=='allTextShadowColor'or key=='allShadowOpacity'or key=='allFontTheme'or key=='allFontAlign'then
-   for _,scope in ipairs({'mart','pc','loadReport','mods','trainerCard'})do surface(v,scope)end
+   for _,scope in ipairs({'mart','pc','bag','party','loadReport','mods','trainerCard'})do surface(v,scope)end
   else return nil end
   if key=='allFontTheme'then
-   for _,k in ipairs({'menuTheme','dialogueTheme','introTheme','saveSummaryTheme','martTheme','pcTheme','loadReportTheme','modsTheme','trainerCardTheme'})do v[k]=n end
+   for _,k in ipairs({'menuTheme','dialogueTheme','introTheme','saveSummaryTheme','martTheme','pcTheme','bagTheme','partyTheme','loadReportTheme','modsTheme','trainerCardTheme'})do v[k]=n end
   elseif key=='allFontAlign'then
-   for _,scope in ipairs({'start','dialogue','menu','mart','pc','battle','intro','save','option','other','pokedex','loadReport','mods','trainerCard'})do v[scope..'Justify']=n end
+   for _,scope in ipairs({'start','dialogue','menu','mart','pc','bag','party','battle','intro','save','option','other','pokedex','loadReport','mods','trainerCard'})do v[scope..'Justify']=n end
   elseif key=='allBorderChoice'then
    v.menuBorder=n;v.dialogueBorder=1;v.battle_style=3;v.borderCatalogFormat=2
-   for _,scope in ipairs({'start','battle','option','save','other','dialogue','pokedex','mart','pc','loadReport','mods','trainerCard'})do v[scope..'BorderChoice']=n end
+   for _,scope in ipairs({'start','battle','option','save','other','dialogue','pokedex','mart','pc','bag','party','loadReport','mods','trainerCard'})do v[scope..'BorderChoice']=n end
   elseif key=='allBackgroundColor'then
-   for _,k in ipairs({'menuBackgroundColor','startMenuBackgroundColor','dialogueBackgroundColor','saveSummaryBackgroundColor','introBackgroundColor','martBackgroundColor','pcBackgroundColor','loadReportBackgroundColor','modsBackgroundColor','trainerCardBackgroundColor'})do v[k]=n end
+   for _,k in ipairs({'menuBackgroundColor','startMenuBackgroundColor','dialogueBackgroundColor','saveSummaryBackgroundColor','introBackgroundColor','martBackgroundColor','pcBackgroundColor','bagBackgroundColor','partyBackgroundColor','loadReportBackgroundColor','modsBackgroundColor','trainerCardBackgroundColor'})do v[k]=n end
    v.battle_background_color=math.max(0,n-1)
    -- Keep native void fill opt-in; global changes include enabled voids.
    for _,k in ipairs({'indoorVoidBackgroundColor','outdoorVoidBackgroundColor','battlefieldBackgroundColor'})do if (tonumber(mod.options:get(k))or 0)>0 then v[k]=n end end
   elseif key=='allTextColor'or key=='allTextShadowColor'then
-   local keys=key=='allTextColor'and{'menuTextColor','dialogueTextColor','introTextColor','gameFreakTextColor','gameFreakStarsColor','battleHudLevelColor','battleHudHPColor','selectorColor','choiceSelectorColor','battle_text_color','battle_name_color','martTextColor','pcTextColor','loadReportTextColor','modsTextColor','trainerCardTextColor'}
-    or{'menuTextShadowColor','dialogueTextShadowColor','introTextShadowColor','gameFreakTextShadowColor','battleHudLevelShadowColor','battleHudHPShadowColor','battle_shadow_color','battle_name_shadow_color','martTextShadowColor','pcTextShadowColor','loadReportTextShadowColor','modsTextShadowColor','trainerCardTextShadowColor'}
+   local keys=key=='allTextColor'and{'menuTextColor','dialogueTextColor','introTextColor','gameFreakTextColor','gameFreakStarsColor','battleHudLevelColor','battleHudHPColor','selectorColor','choiceSelectorColor','battle_text_color','battle_name_color','martTextColor','pcTextColor','bagTextColor','partyTextColor','loadReportTextColor','modsTextColor','trainerCardTextColor'}
+    or{'menuTextShadowColor','dialogueTextShadowColor','introTextShadowColor','gameFreakTextShadowColor','battleHudLevelShadowColor','battleHudHPShadowColor','battle_shadow_color','battle_name_shadow_color','martTextShadowColor','pcTextShadowColor','bagTextShadowColor','partyTextShadowColor','loadReportTextShadowColor','modsTextShadowColor','trainerCardTextShadowColor'}
    for _,k in ipairs(keys)do v[k]=n end
   else
-   for _,prefix in ipairs({'menu_fx_','intro_fx_','battle_fx_','battle_name_fx_','mart_fx_','pc_fx_'})do v[prefix..'shadow_transparency']=100-n end
+   for _,prefix in ipairs({'menu_fx_','intro_fx_','battle_fx_','battle_name_fx_','mart_fx_','pc_fx_','bag_fx_','party_fx_'})do v[prefix..'shadow_transparency']=100-n end
   end
   return v
  end
@@ -149,60 +149,7 @@ return function(mod)
  function M.rows(openPage)
   local out={{id='wide_textCase',label='ALL DECAPITALIZATION',value=function()return modes[(tonumber(mod.options:get('textCase'))or 0)+1]end,
    step=function(ctx,dir)local n=((tonumber(mod.options:get('textCase'))or 0)+(dir or 1))%#modes;M.write(ctx,mod.exports.textScopes and mod.exports.textScopes.values(n)or{textCase=n})end}}
-  local themes={
-   {'MIDNIGHT AURORA','NAVY','INFINITE STAR GATES','NAVY','WHITE','CYAN'},
-   {'OCEAN GLASS','NAVY','NEON CHRYSALIS','NAVY','WHITE','MINT'},
-   {'LAVENDER DUSK','PLUM','AMETHYST PRISM','PLUM','WHITE','LIGHT BLUE'},
-   {'FOREST CALM','PALE GREEN','FOREST GREEN','PALE GREEN','FOREST','RED'},
-   {'WARM PAPER','CREAM','GOLD RIBBON','CREAM','CHARCOAL','RED'},
-   {'SILVER NOIR','CHARCOAL','SILVER','CHARCOAL','WHITE','CYAN'},
-   {'ROSE QUARTZ','CREAM','PASTEL STRIPE','CREAM','PURPLE','RED'},
-   {'AMBER LOUNGE','CHARCOAL','BLACK & GOLD','CHARCOAL','CREAM','YELLOW'},
-   {'DARK MODE - OBSIDIAN','MIDNIGHT DRIFT','OBSIDIAN CURRENT','MIDNIGHT DRIFT','WHITE','CYAN'},
-   {'DARK MODE - ABYSS','ABYSSAL DRIFT','ABYSSAL CURRENT','ABYSSAL DRIFT','WHITE','MINT'},
-   {'DARK MODE - VIOLET','VIOLET DRIFT','VIOLET CURRENT','VIOLET DRIFT','WHITE','LIGHT BLUE'},
-   {'GLACIER','PALE BLUE','ICE BLUE','PALE BLUE','NAVY','BLUE'},
-   {'SCARLET LOUNGE','CHARCOAL','SCARLET HEAT HAZE','CHARCOAL','CREAM','RED'},
-   {'MEW NEBULA','MEW NEBULA','MEW STAR ORBIT','MEW NEBULA','WHITE','LIGHT BLUE'}}
-  M.themes=themes
-  local function locate(names,name,zero)for i,n in ipairs(names)do if n==name then return i-(zero and 1 or 0)end end;return zero and 0 or 1 end
-  local function values(t)
-   local P=mod.exports.selectorPalette;local B=mod.exports.borderCatalog
-   local bg=locate(P.menuBackgroundNames,t[2],true);local color=locate(P.names,t[5],true)
-   local border=locate(B.choices,t[3],false)
-   local v={menuTheme=2,dialogueTheme=2,menuBorder=border,borderCatalogFormat=2,menuBackgroundColor=bg,startMenuBackgroundColor=bg,dialogueBackgroundColor=bg,
-    menuTextColor=color,dialogueTextColor=color,menuTextShadowColor=1,dialogueTextShadowColor=1,selectorColor=color,arrowSelector=2,startSelector=1,selectionHighlight=30,
-    battle_style=3,battle_opacity=100,battle_font_size=0,battle_text_color=color,battle_name_color=color,battle_background_color=locate(P.backgroundNames,t[4],true),battle_shadow_color=1,battle_name_shadow_color=1,dialogueBorder=1,startJustify=1,dialogueJustify=1,menuTransition=3,backgroundDim=20,opacityFormat=2}
-   for _,s in ipairs({'start','option','other','save','battle','dialogue','pokedex'})do v[s..'BorderChoice']=border end
-   for _,s in ipairs({'start','option','other'})do v[s..'Opacity']=100 end
-   for _,prefix in ipairs({'menu_fx_','battle_fx_','battle_name_fx_'})do
-    v[prefix..'preset']=0;v[prefix..'alternate']=0;v[prefix..'highlight']=0;v[prefix..'outline']=0;v[prefix..'shadow_transparency']=35
-   end
-   local defaults=mod.exports.visualDefaults or {};for key,n in pairs(defaults)do if v[key]==nil then v[key]=n end end
-   local accent=locate(P.names,t[6],true)
-   v.choiceSelector=14;v.choiceSelectorColor=accent;v.selectorColor=accent;v.arrowSelector=12;v.startSelector=4
-   v.introTheme=2;v.introTextColor=color;v.gameFreakTextColor=color;v.gameFreakStarsColor=color;v.battleHudLevelColor=color;v.battleHudHPColor=color;v.battleHudFrameColor=color;v.battleHudLevelShadowColor=1;v.battleHudHPShadowColor=1;v.battleHudFrameShadowColor=1;v.introTextShadowColor=1;v.introTextCase=1;v.introBackgroundColor=bg;v.introFontSize=0
-   v.saveSummaryTheme=2;v.saveSummaryBackgroundColor=bg;v.textCase=1;
-   if mod.exports.textScopes then for key,n in pairs(mod.exports.textScopes.values(1))do v[key]=n end end
-   v.menuTransition=2;v.backgroundDim=20
-   for _,scope in ipairs({'start','option','save','other','battle','dialogue'})do
-    v[scope..'Position']=1;v[scope..'Scale']=100;v[scope..'Width']=100;v[scope..'Height']=100;v[scope..'OffsetX']=0;v[scope..'OffsetY']=0
-   end
-   for _,prefix in ipairs({'menu','intro','battle','name'})do
-    for key,spec in pairs(P.effects.specs(prefix))do v[key]=spec[1]end
-   end
-   -- Every theme covers both custom and previously inherited new surfaces.
-   for _,scope in ipairs({'mart','pc','loadReport','mods','trainerCard'})do
-    v[scope..'Custom']=1;v[scope..'Theme']=2;v[scope..'BorderChoice']=border
-    v[scope..'BackgroundColor']=bg;v[scope..'TextColor']=color;v[scope..'TextShadowColor']=1
-    for key in pairs(P.effects.specs('menu'))do v[scope..key:sub(5)]=v[key]end
-   end
-   v.allFontTheme=2;v.allFontAlign=1
-   for _,scope in ipairs({'menu','mart','pc','battle','intro','save','option','other','pokedex','loadReport','mods','trainerCard'})do v[scope..'Justify']=1 end
-   v.allBorderChoice=border;v.allBackgroundColor=bg;v.allTextColor=color;v.allTextShadowColor=1;v.allShadowOpacity=65
-   for _,prefix in ipairs({'menu_fx_','intro_fx_','battle_fx_','battle_name_fx_','mart_fx_','pc_fx_'})do v[prefix..'shadow_transparency']=35 end
-   return v
-  end
+  M.themes={} -- Presets retired; individual customizations remain available.
   if mod.generation==3 then
    local P,B=mod.exports.selectorPalette,mod.exports.borderCatalog
    for _,spec in ipairs({{'allBorderChoice','ALL BORDERS',1,B.choices,1},{'allBackgroundColor','ALL BACKGROUNDS',0,P.menuBackgroundNames,0,'menuBackground'},
@@ -220,12 +167,8 @@ return function(mod)
     out[#out+1]=row
    end
   end
-  local choices={};for _,t in ipairs(themes)do local theme=t
-   choices[#choices+1]={id='theme_'..theme[1],label=theme[1],preview=function()return values(theme)end,value=function()return 'APPLY'end,activate=function(ctx)M.write(ctx,values(theme))end}
-  end
   if mod.exports.jumpWave then for _,row in ipairs(mod.exports.jumpWave.rows())do out[#out+1]=row end end
   if mod.exports.allFonts then out[#out+1]=mod.exports.allFonts.row(openPage)end
-  out[#out+1]={id='wide_themeSets',label='THEMES',group=true,activate=function(ctx)return openPage('THEMES',choices,ctx)end}
   if mod.exports.textScopes then for _,row in ipairs(mod.exports.textScopes.rows(openPage))do out[#out+1]=row end end
   if mod.exports.battleHudCustomization then for _,row in ipairs(mod.exports.battleHudCustomization.rows(openPage))do out[#out+1]=row end end
   if mod.exports.animationSpeeds then for _,row in ipairs(mod.exports.animationSpeeds.rows(openPage))do out[#out+1]=row end end

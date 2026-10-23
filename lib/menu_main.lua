@@ -853,6 +853,12 @@ return function(mod)
     love.graphics.setCanvas(canvas)
     love.graphics.origin()
     love.graphics.setShader()
+    -- The native UI pass may leave a screen-space clip or stencil active.
+    -- Offscreen replay always starts with its own complete graphics state.
+    love.graphics.setScissor()
+    if love.graphics.setStencilTest then love.graphics.setStencilTest()end
+    love.graphics.setBlendMode('alpha','alphamultiply')
+    love.graphics.setColor(1,1,1,1)
     love.graphics.clear(0, 0, 0, 0)
     -- Keep the input legend, omitting its blue background and the full-screen
     -- black backdrop. Both are solid fills; the glyphs draw afterward.
@@ -887,7 +893,9 @@ return function(mod)
       textCanvas:setFilter('nearest','nearest')
     end
     love.graphics.push('all');love.graphics.setCanvas(textCanvas);love.graphics.origin()
-    love.graphics.setShader();love.graphics.setScissor();love.graphics.clear(0,0,0,0)
+    love.graphics.setShader();love.graphics.setScissor()
+    if love.graphics.setStencilTest then love.graphics.setStencilTest()end
+    love.graphics.clear(0,0,0,0)
     love.graphics.setBlendMode('alpha','premultiplied');love.graphics.setColor(1,1,1,1)
     love.graphics.draw(canvas,x,y,0,pxScale,sy)
     love.graphics.setBlendMode('alpha','alphamultiply')
@@ -898,6 +906,8 @@ return function(mod)
     love.graphics.origin()
     love.graphics.setBlendMode('alpha', 'premultiplied')
     love.graphics.setShader()
+    love.graphics.setScissor()
+    if love.graphics.setStencilTest then love.graphics.setStencilTest()end
     -- Premultiplied canvas RGB must fall with alpha. Lowering only alpha
     -- leaves full-strength pale menu pixels that wash out the field below.
     local alpha = (opacityChoices[setting(opacity)] or 100)/100*transitionAlpha

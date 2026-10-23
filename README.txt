@@ -1,3 +1,27 @@
+## v3.35.25 - Matrix rain and menu cleanup
+
+- Add Matrix rain as both a border and a background: Green, Cyan, Violet,
+  Spectrum and Amber, with animated color gradients and existing speed controls.
+- Remake Black Waterfall with continuous falling lanes, spray and repeating
+  pools across the full display, including 32:9 ultrawide screens.
+- Remove preset themes and static Pokemon backgrounds from the pickers.
+  Consolidate similar static colors. Saved numeric IDs remain stable and
+  retired colors/backgrounds resolve to retained choices.
+- Add independent Bag and Party font, background, border, text/shadow,
+  selector and text-effect controls, including the native Hoenn screen paths.
+  Global controls include these screens; USE MENU STYLE restores inheritance.
+- Fix SAVE fade restarts when GB/GBC dialog children change, preserve GBA
+  transitions across missed presentation frames, and isolate offscreen replay
+  from inherited clipping, color, blend and stencil state.
+
+Built from GitHub v3.35.24. Validation: all eleven games pass Loader/settings
+and native Bag/Party GPU fixtures on engine 0.3.95. Desktop and GLES shaders,
+five Matrix variants with independent border motion and speed controls,
+32:9 waterfall coverage/motion, and 12 stable SAVE replay frames pass. The
+SAVE rendering regression fails on v3.35.24 and passes with this update.
+Validation uses native constructed fixtures, not a full gameplay playthrough
+or a physical Android device. No custom launcher is required.
+
 ## v3.35.24 - Complete battle text shadows
 
 Fix the clipped left shadow on Pokemon names and the first letter of each
